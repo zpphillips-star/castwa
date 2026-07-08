@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0c1a2e;
+  --foreground: #e2f0ff;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+@layer components {
+  .card {
+    @apply bg-water-900/50 border border-water-700/30 rounded-xl backdrop-blur-sm;
+  }
+  
+  .btn-primary {
+    @apply bg-water-600 hover:bg-water-500 text-white font-semibold px-6 py-3 rounded-lg transition-colors;
+  }
+  
+  .btn-secondary {
+    @apply bg-water-900 hover:bg-water-800 text-water-200 border border-water-600/50 font-medium px-4 py-2 rounded-lg transition-colors;
+  }
+  
+  .regulation-allowed {
+    @apply bg-forest-900/40 border-l-4 border-forest-500 text-forest-100;
+  }
+  
+  .regulation-prohibited {
+    @apply bg-red-950/40 border-l-4 border-red-500 text-red-100;
+  }
+  
+  .regulation-warning {
+    @apply bg-yellow-950/40 border-l-4 border-yellow-500 text-yellow-100;
+  }
+}
+
+/* Leaflet map styles */
+.leaflet-container {
+  background: #0c2a3e !important;
+}
+
+.leaflet-tile-pane {
+  filter: hue-rotate(200deg) saturate(0.7) brightness(0.7);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0c1a2e;
+}
+::-webkit-scrollbar-thumb {
+  background: #0369a1;
+  border-radius: 3px;
+}
