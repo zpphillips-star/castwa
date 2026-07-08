@@ -47,6 +47,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   Search
                 </Link>
                 <Link
+                  href="/waters"
+                  className="px-3 py-2 rounded-lg text-sm font-medium text-water-200 hover:text-white hover:bg-water-800/50 transition-colors"
+                >
+                  Waters
+                </Link>
+                <Link
                   href="/map"
                   className="px-3 py-2 rounded-lg text-sm font-medium text-water-200 hover:text-white hover:bg-water-800/50 transition-colors"
                 >
@@ -76,14 +82,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <nav className="fixed bottom-0 left-0 right-0 z-[1001] flex h-14 items-center justify-around border-t border-water-700/30 bg-water-950/90 backdrop-blur-md md:hidden">
           <Link
             href="/"
-            className="flex flex-col items-center gap-0.5 px-6 py-2 text-water-300 hover:text-white transition-colors"
+            className="flex flex-col items-center gap-0.5 px-4 py-2 text-water-300 hover:text-white transition-colors"
           >
             <span className="text-xl">🔍</span>
             <span className="text-xs font-medium">Search</span>
           </Link>
           <Link
+            href="/waters"
+            className="flex flex-col items-center gap-0.5 px-4 py-2 text-water-300 hover:text-white transition-colors"
+          >
+            <span className="text-xl">💧</span>
+            <span className="text-xs font-medium">Waters</span>
+          </Link>
+          <Link
             href="/map"
-            className="flex flex-col items-center gap-0.5 px-6 py-2 text-water-300 hover:text-white transition-colors"
+            className="flex flex-col items-center gap-0.5 px-4 py-2 text-water-300 hover:text-white transition-colors"
           >
             <span className="text-xl">🗺️</span>
             <span className="text-xs font-medium">Map</span>

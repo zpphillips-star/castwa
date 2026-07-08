@@ -84,8 +84,8 @@ export default async function HomePage() {
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-xl font-bold text-white">Popular WA Waters</h2>
-          <Link href="/map" className="text-sm text-water-400 hover:text-water-200 transition-colors">
-            View all on map →
+          <Link href="/waters" className="text-sm text-water-400 hover:text-water-200 transition-colors">
+            Browse all waters →
           </Link>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
