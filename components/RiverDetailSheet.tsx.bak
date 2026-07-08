@@ -1,0 +1,576 @@
+'use client'
+import { useState } from 'react'
+import { SPECIES, Species, SKAGIT_SECTIONS, RiverSection, GEAR_ICON_INFO, GearIconCode } from '@/lib/fishing-data'
+import FishDetailSheet from './FishDetailSheet'
+
+// Verified fishing tips — only add what is genuinely accurate for WA
+export const FISH_TIPS: Record<string, { howToSpot: string[]; howToCatch: string[]; whatToLookFor: string }> = {
+  chinook: {
+    whatToLookFor: 'Chinook (King) have a black gum line, small irregular black spots on back and both tail lobes, and are the largest Pacific salmon — often 20–60 lbs. Hatchery fish have a clipped adipose fin.',
+    howToSpot: ['Black gum line (unique among WA salmon)', 'Spots on both tail lobes', 'Deep body, large head', 'Adipose fin clipped = hatchery fish (legal to keep in most fisheries)'],
+    howToCatch: ['Fish deep holes and seams in rivers — Chinook hold in slow water near fast', 'Troll herring or anchovy at 30–80 ft in salt water', 'Back-troll with kwikfish or plugs in rivers', 'Drift eggs/corkies near bottom in rivers', 'Typically bite early morning and evening'],
+  },
+  coho: {
+    whatToLookFor: 'Coho (Silver) have white gums with black tongue, small spots only on upper tail lobe, and bright silver sides. Hatchery fish have clipped adipose fin.',
+    howToSpot: ['White gums, black tongue', 'Spots on upper lobe of tail only', 'More slender than Chinook', 'Hooked nose in males when spawning'],
+    howToCatch: ['Cast spinners or spoons near river mouths in fall (Aug–Nov)', 'Troll hoochies or herring near surface (15–30 ft) in salt water', 'Work tidal flats and river estuaries at high tide', 'Coho are aggressive biters — flashy lures work well'],
+  },
+  steelhead: {
+    whatToLookFor: 'Steelhead are sea-run rainbow trout — silvery in salt water, developing pink lateral stripe after time in fresh water. Hatchery fish have a clipped adipose fin.',
+    howToSpot: ['Pink/red lateral stripe (more visible the longer in freshwater)', 'Spots on body and tail', 'More slender than salmon', 'Adipose fin: intact = wild (must release in most rivers), clipped = hatchery (keep)'],
+    howToCatch: ['Drift fish jigs, eggs, or sand shrimp near bottom in runs', 'Swing wet flies or spey flies through runs — let fly drift across current', 'Focus on seams between fast and slow water', 'Wade carefully — fish lie in predictable spots: tail-outs, slots behind boulders', 'Skagit: fish from Oct through March for winter steelhead'],
+  },
+  rainbow: {
+    whatToLookFor: 'Rainbow trout have a pink lateral stripe, black spots on body and fins, and white-tipped fins. Hatchery fish often have worn fins.',
+    howToSpot: ['Pink stripe along lateral line', 'Black spots on back, sides, and fins', 'No red slash marks under jaw (that\'s cutthroat)'],
+    howToCatch: ['Drift worms or Power Bait under a float in lakes', 'Cast Kastmaster or Rooster Tail spinners in rivers', 'Fly fish with dry flies on calm evenings (hatches at dusk)', 'Troll wedding rings or gang trolls in lakes', 'Fish near inlets where fresh water enters a lake'],
+  },
+  cutthroat: {
+    whatToLookFor: 'Cutthroat trout are identified by red/orange slash marks under the jaw — hence the name. Found in streams and coastal waters.',
+    howToSpot: ['Red or orange slash marks under jaw — unmistakable', 'Heavier spotting than rainbow', 'Spotted at base of tail'],
+    howToCatch: ['Small spinners and spoons in coastal rivers (Sept–Feb)', 'Fly fish with streamers or nymphs in streams', 'Sea-run cutthroat hit hard in estuaries at high tide', 'Small presentation — these are not large fish; 8–14" typical'],
+  },
+  sockeye: {
+    whatToLookFor: 'Sockeye are the only salmon with no spots on back or tail. Brilliant red body with green head when spawning. In salt water they are bright silver-blue.',
+    howToSpot: ['No spots — clean back and tail (unique among WA salmon)', 'Bright silver in ocean, vivid red body in freshwater', 'Smaller than Chinook or Coho'],
+    howToCatch: ['Sockeye don\'t feed in freshwater — snagging is illegal', 'In salt water: troll small red/pink hoochies near surface', 'Lake sockeye: troll at specific depths with downrigger', 'Very limited open fisheries in WA — check regulations carefully'],
+  },
+  chum: {
+    whatToLookFor: 'Chum salmon have no spots but have distinctive vertical bars (purple/green tiger stripes) when spawning. Males develop extreme hooked jaw and large canine teeth.',
+    howToSpot: ['No spots on back or tail', 'Tiger-stripe markings on sides when spawning', 'Fang-like teeth in males'],
+    howToCatch: ['Fish with fluorescent green or chartreuse flies/lures — chum are drawn to these colors', 'Drift fish near bottom in slow water', 'October–November in most Puget Sound rivers'],
+  },
+  largemouth: {
+    whatToLookFor: 'Largemouth bass have a large mouth where the jaw extends past the eye, a dark lateral stripe, and two dorsal fins connected by a shallow notch.',
+    howToSpot: ['Jaw extends past rear of eye (vs smallmouth where it doesn\'t)', 'Dark horizontal stripe along side', 'Greenish body'],
+    howToCatch: ['Plastic worms Texas-rigged in vegetation and structure', 'Topwater frogs over lily pads in summer — exciting surface strikes', 'Jigs around docks and fallen logs', 'Best in warm shallow water 60–80°F', 'Early morning and evening in summer; midday in spring/fall'],
+  },
+  smallmouth: {
+    whatToLookFor: 'Smallmouth bass have vertical bars on sides (not horizontal stripe), bronze-green color, and jaw that does NOT extend past the eye.',
+    howToSpot: ['Vertical bars on sides (vs largemouth\'s horizontal stripe)', 'Bronze or brownish-green color', 'Red eyes common', 'Jaw stops at rear of eye'],
+    howToCatch: ['Drop shot rigs on rocky bottoms and gravel bars', 'Tubes and crayfish imitations work well — smallmouth love crayfish', 'Swim jigs along current seams in rivers', 'Best in rivers with rocky bottoms: Snake, Columbia, Yakima'],
+  },
+  walleye: {
+    whatToLookFor: 'Walleye have distinctive glassy, opaque eyes (tapetum lucidum reflects light — visible at night), olive-gold body, and white tip on lower tail lobe.',
+    howToSpot: ['Glassy white/opaque eyes — reflective in light', 'White tip on bottom lobe of tail — definitive ID', 'Olive to golden body color', 'Serrated dorsal spines'],
+    howToCatch: ['Jig or troll at dusk/dawn — walleye are most active in low light', 'Jigging with live minnow or paddle-tail swimbait along bottom', 'Troll crankbaits at 2–3 mph along breaks and ledges', 'Columbia and Snake Rivers are top WA walleye waters'],
+  },
+  perch: {
+    whatToLookFor: 'Yellow perch have bright yellow sides with 6–9 dark vertical bars and orange-red fins on adults. Easy to identify.',
+    howToSpot: ['Yellow body with dark vertical bars', 'Orange/red pectoral and pelvic fins', 'Two separate dorsal fins', 'Perch school together — find one, find many'],
+    howToCatch: ['Small jigs or live minnows 10–25 ft deep', 'Use light line (4–6 lb) and small hooks', 'Find schools with electronics — they suspend at specific depths', 'Lake Washington, Banks Lake, and many eastern WA lakes'],
+  },
+  sturgeon: {
+    whatToLookFor: 'White sturgeon are prehistoric-looking with bony scutes (plates) instead of scales, elongated snout, and whisker-like barbels. Can exceed 10 feet.',
+    howToSpot: ['Rows of bony plates along sides and back', 'Elongated pointed snout with barbels underneath', 'No scales — smooth skin with bony scutes', 'Legal to keep: 38–54" on Columbia (check current regs)'],
+    howToCatch: ['Fish with smelt, shrimp, or sand shrimp on bottom', 'Heavy gear required — 20–50 lb line minimum', 'Columbia River: most productive below Bonneville Dam', 'Sturgeon season has strict slot limits — measure before keeping'],
+  },
+}
+
+// ─── GEAR ICON BADGE ─────────────────────────────────────────────────────────
+
+function GearBadge({ code }: { code: GearIconCode }) {
+  const info = GEAR_ICON_INFO[code]
+  // Emergency, closures and tribal get red; everything else gets a neutral slate
+  const isAlert = ['EMERGENCY_RULE','TRIBAL_CLOSURE_RISK','CLOSED_WATERS_SUMMER','NO_MOTORS'].includes(code)
+  const bg    = isAlert ? 'rgba(239,68,68,0.12)'  : 'rgba(255,255,255,0.06)'
+  const border= isAlert ? 'rgba(239,68,68,0.35)'  : 'rgba(255,255,255,0.12)'
+  const color = isAlert ? '#ef4444'               : 'var(--text-muted)'
+  return (
+    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold"
+      style={{ background: bg, border: `1px solid ${border}`, color }}>
+      <span>{info.icon}</span>
+      <span>{info.label}</span>
+    </div>
+  )
+}
+
+// ─── LEGEND POPUP ─────────────────────────────────────────────────────────────
+
+const LEGEND_CODES: GearIconCode[] = [
+  'SGR','SINGLE_BARBLESS','ANTI_SNAGGING','NIGHT_CLOSURE',
+  'TWO_POLE_OK','NO_MOTORS','CATCH_AND_RELEASE','TRIBAL_CLOSURE_RISK',
+]
+
+function LegendPopup({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[80] flex items-end justify-end p-4"
+      onClick={onClose}
+      style={{ background: 'rgba(0,0,0,0.6)' }}>
+      <div className="rounded-xl p-4 w-full max-w-xs"
+        onClick={e => e.stopPropagation()}
+        style={{ background: 'var(--surface)', border: '1px solid var(--border)', maxHeight: '70vh', overflowY: 'auto' }}>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm font-bold text-white">Gear Icon Legend</p>
+          <button onClick={onClose}
+            className="w-6 h-6 rounded-full flex items-center justify-center text-xs"
+            style={{ background: 'rgba(255,255,255,0.1)', color: 'var(--text-muted)' }}>✕</button>
+        </div>
+        <div className="space-y-2.5">
+          {LEGEND_CODES.map(code => {
+            const info = GEAR_ICON_INFO[code]
+            return (
+              <div key={code} className="flex items-start gap-2">
+                <span className="text-base flex-shrink-0 mt-0.5">{info.icon}</span>
+                <div>
+                  <p className="text-xs font-semibold text-white">{info.label}</p>
+                  <p className="text-[11px] leading-snug" style={{ color: 'var(--text-faint)' }}>{info.detail}</p>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── SKAGIT SECTION CARD ──────────────────────────────────────────────────────
+
+function SkagitSectionCard({ section }: { section: RiverSection }) {
+  const [open, setOpen] = useState(false)
+  const hasEmergency = !!section.emergencyRule
+  const hasClosures = section.emergencyRule?.overrides.some(o => o.status === 'CLOSED')
+
+  return (
+    <div className="rounded-xl overflow-hidden"
+      style={{ border: `1px solid ${hasEmergency ? 'rgba(239,68,68,0.3)' : 'var(--border)'}`, background: 'var(--surface-raised)' }}>
+
+      {/* Header — always visible */}
+      <button onClick={() => setOpen(v => !v)}
+        className="w-full px-3 py-2.5 flex items-center justify-between text-left">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+            <p className="text-sm font-semibold text-white leading-tight">{section.name}</p>
+            {hasEmergency && (
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded flex-shrink-0"
+                style={{ background: 'rgba(239,68,68,0.15)', color: '#ef4444' }}>
+                {hasClosures ? '⚠️ CLOSURES' : '🚨 EMERGENCY'}
+              </span>
+            )}
+          </div>
+          <p className="text-[11px]" style={{ color: 'var(--text-faint)' }}>CRC #{section.crc}</p>
+        </div>
+        <span className="ml-3 text-xs flex-shrink-0" style={{ color: 'var(--text-faint)' }}>{open ? '▲' : '▼'}</span>
+      </button>
+
+      {open && (
+        <div className="pb-3 space-y-0" style={{ borderTop: '1px solid var(--border)' }}>
+
+          {/* Gear icons — compact row */}
+          <div className="px-3 pt-3 pb-2">
+            <p className="text-[10px] font-bold mb-2" style={{ color: 'var(--text-faint)' }}>GEAR RULES</p>
+            <div className="flex flex-wrap gap-1.5">
+              {section.gearIcons.map(code => <GearBadge key={code} code={code} />)}
+            </div>
+          </div>
+
+          {/* Gear periods — plain list, no colored dates */}
+          {section.gearPeriods.length > 0 && (
+            <div className="px-3 pb-2">
+              <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+                {section.gearPeriods.map((p, i) => (
+                  <div key={i} className="px-3 py-2 flex gap-3 items-baseline"
+                    style={{ borderBottom: i < section.gearPeriods.length - 1 ? '1px solid var(--border)' : 'none', background: 'var(--bg)' }}>
+                    <span className="text-[11px] font-semibold flex-shrink-0 w-28 text-white">{p.dates}</span>
+                    <span className="text-[11px] leading-snug" style={{ color: 'var(--text-muted)' }}>{p.rules}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Season table — clean rows */}
+          <div className="px-3 pb-2">
+            <p className="text-[10px] font-bold mb-2" style={{ color: 'var(--text-faint)' }}>WHAT'S OPEN</p>
+            <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+              {section.seasons.map((s, i) => (
+                <div key={i} className="px-3 py-2.5"
+                  style={{ borderBottom: i < section.seasons.length - 1 ? '1px solid var(--border)' : 'none', background: 'var(--bg)' }}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-white leading-tight">{s.species}</p>
+                      {!s.closed && s.open && (
+                        <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{s.open}</p>
+                      )}
+                      {s.notes && (
+                        <p className="text-[10px] mt-0.5 leading-snug" style={{ color: 'var(--text-faint)' }}>{s.notes}</p>
+                      )}
+                    </div>
+                    <div className="flex-shrink-0 text-right">
+                      {s.closed ? (
+                        <span className="text-[10px] font-bold" style={{ color: '#ef4444' }}>CLOSED</span>
+                      ) : (
+                        <div>
+                          <span className="text-[10px] font-bold" style={{ color: '#6ab04c' }}>OPEN</span>
+                          {s.dailyLimit && (
+                            <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-faint)' }}>Limit {s.dailyLimit}</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Emergency rule — compact */}
+          {section.emergencyRule && (
+            <div className="px-3 pb-1">
+              <div className="rounded-lg p-3" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.25)' }}>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs font-bold" style={{ color: '#ef4444' }}>🚨 Emergency Rule Active</p>
+                  <p className="text-[10px]" style={{ color: 'var(--text-faint)' }}>{section.emergencyRule.effective}</p>
+                </div>
+                <div className="space-y-1.5">
+                  {section.emergencyRule.overrides.map((o, i) => (
+                    <div key={i} className="flex gap-2 items-baseline">
+                      <span className="text-[10px] font-semibold flex-shrink-0 w-28"
+                        style={{ color: o.status === 'CLOSED' ? '#ef4444' : 'var(--text-muted)' }}>
+                        {o.status === 'CLOSED' ? '⛔ ' : ''}{o.dates}
+                      </span>
+                      <span className="text-[11px] leading-snug" style={{ color: 'var(--text-faint)' }}>{o.notes}</span>
+                    </div>
+                  ))}
+                </div>
+                <a href={section.emergencyRule.url} target="_blank" rel="noopener noreferrer"
+                  className="block text-xs font-semibold mt-2 active:opacity-70"
+                  style={{ color: '#ef4444' }}>
+                  Full rule at WDFW.wa.gov →
+                </a>
+              </div>
+            </div>
+          )}
+
+          {/* Boundary + map links — collapsed into a subtle row */}
+          <div className="px-3 pt-1">
+            <p className="text-[10px] mb-1 leading-relaxed" style={{ color: 'var(--text-faint)' }}>
+              {section.boundary} <span className="italic">({section.coordsNote})</span>
+            </p>
+            <div className="flex gap-2">
+              <a href={section.mapsLinkDownstream} target="_blank" rel="noopener noreferrer"
+                className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg active:opacity-70"
+                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+                📍 Downstream
+              </a>
+              <a href={section.mapsLinkUpstream} target="_blank" rel="noopener noreferrer"
+                className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg active:opacity-70"
+                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+                📍 Upstream
+              </a>
+            </div>
+          </div>
+
+        </div>
+      )}
+    </div>
+  )
+}
+
+
+type RiverData = {
+  id: string
+  name: string
+  region: string
+  usgsId: string
+  targetSpecies: string[]
+  idealCfs: { min: number; max: number }
+  description?: string
+  access?: string[]
+  fishingTips?: string[]
+}
+
+type FlowData = {
+  cfs: number | null
+  status: 'ideal' | 'low' | 'high' | 'loading' | 'error'
+  trend: 'rising' | 'falling' | 'stable' | null
+  fetchedAt: string
+}
+
+interface Props {
+  river: RiverData
+  flow: FlowData
+  onClose: () => void
+}
+
+const RIVER_DETAILS: Record<string, { description: string; access: string[]; fishingTips: string[] }> = {
+  skagit: {
+    description: 'One of Washington\'s premier salmon and steelhead rivers, flowing from the Cascade mountains to Puget Sound near Burlington.',
+    access: ['Rasar State Park (river left, good bank access)', 'Howard Miller Steelhead Park in Rockport', 'Marblemount boat launch', 'Various county road pullouts on Hwy 20'],
+    fishingTips: ['Best steelhead Nov–March; Chinook in late summer/fall', 'Wade near seams and tailouts — fish rest in slower water', 'Check Skagit River above Concrete for wild steelhead rules — adipose must be intact = release', 'Watch for tribal net closures — check WDFW before each trip'],
+  },
+  snohomish: {
+    description: 'The Snohomish River drains the Skykomish and Snoqualmie rivers near Monroe, offering fall Coho and Chinook runs.',
+    access: ['Ebey Waterfront Park in Everett', 'Spencer Island natural area', 'Langus Riverfront Park', 'Boat launch at Lake Stevens'],
+    fishingTips: ['Fall Coho arrive Oct–Nov — fish tidal flats and river mouth', 'Best bank fishing near river mouth at high tide', 'Chinook in Aug–Sept; Coho Oct–Nov', 'Troll herring or hootchies from boat in lower river'],
+  },
+  columbia: {
+    description: 'The Columbia River forms Washington\'s southern border and supports world-class Chinook salmon, steelhead, and walleye fisheries.',
+    access: ['Hood Park in Pasco', 'Columbia Park in Kennewick', 'Crow Butte State Park', 'McNary Wildlife Refuge'],
+    fishingTips: ['Walleye are the most reliable year-round bite — especially around Tri-Cities', 'Troll crankbaits for walleye along channel edges at dusk', 'Chinook season typically May–June (check yearly)', 'Sturgeon fishing below McNary Dam is excellent'],
+  },
+  yakima: {
+    description: 'One of WA\'s top trout streams — the Yakima is a blue-ribbon fly fishery for rainbow and brown trout flowing through wine country.',
+    access: ['Umtanum Recreation Area', 'Roza Recreation Site', 'Various pullouts on Hwy 821 (Canyon Road)', 'Ellensburg city access'],
+    fishingTips: ['Selective gear rules apply most of the river — artificial lures and flies only', 'Dry fly fishing excellent July–September (caddis, PMD hatches)', 'Nymph fish in deeper runs during winter and early spring', 'Best access via Canyon Rd (Hwy 821) through the canyon', 'Mostly catch-and-release — wild rainbows are beautiful'],
+  },
+  green: {
+    description: 'The Green River flows from the Cascades through Kent and Auburn, supporting fall salmon runs and a year-round trout fishery.',
+    access: ['Flaming Geyser State Park', 'Auburn Narrows', 'Various access points along Auburn-Black Diamond Rd'],
+    fishingTips: ['Coho run Oct–Nov through Auburn', 'Steelhead Dec–March in lower river', 'Check tribal fishing closures — Green River has co-management', 'Foot access mostly; some drift boat use'],
+  },
+  cedar: {
+    description: 'The Cedar River through Renton supports Lake Washington\'s massive sockeye run — one of the largest in the lower 48.',
+    access: ['Cedar River Park in Renton (main access)', 'Landsburg Park (upper river)', 'Maplewood Golf Course area'],
+    fishingTips: ['Sockeye season is closely managed — check WDFW for exact open dates in Aug–Sept', 'Cedar River can close with very little notice — watch emergency rules', 'Cutthroat fishing good in upper river near Landsburg', 'River in Renton: watch bald eagles during sockeye run'],
+  },
+  snake: {
+    description: 'The Snake River along WA\'s southeastern border offers steelhead, walleye, smallmouth bass, and Chinook salmon.',
+    access: ['Clarkston boat launch', 'Chief Looking Glass Park', 'Asotin boat ramp', 'Hells Canyon NRA launch points'],
+    fishingTips: ['Walleye and smallmouth bass are excellent and less regulated than salmon', 'Steelhead run Aug–Dec; fish near tributary mouths', 'Lower Snake has strong walleye fishery near Ice Harbor Dam', 'Jet boat or drift boat strongly recommended — limited bank access in canyon'],
+  },
+}
+
+function StatusBadge({ status }: { status: FlowData['status'] }) {
+  const config = {
+    ideal: { label: 'IDEAL CONDITIONS', bg: 'rgba(106,176,76,0.15)', color: '#6ab04c' },
+    low: { label: 'LOW WATER', bg: 'rgba(242,101,34,0.15)', color: '#f26522' },
+    high: { label: 'HIGH WATER', bg: 'rgba(239,68,68,0.15)', color: '#ef4444' },
+    loading: { label: 'LOADING', bg: 'rgba(107,114,128,0.15)', color: '#6b7280' },
+    error: { label: 'NO DATA', bg: 'rgba(107,114,128,0.15)', color: '#6b7280' },
+  }[status]
+  return (
+    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: config.bg, color: config.color }}>
+      {config.label}
+    </span>
+  )
+}
+
+function formatCfs(cfs: number): string {
+  if (cfs >= 10000) return `${(cfs / 1000).toFixed(0)}k`
+  return cfs.toLocaleString()
+}
+
+export default function RiverDetailSheet({ river, flow, onClose }: Props) {
+  const [selectedFish, setSelectedFish] = useState<Species | null>(null)
+  const [legendOpen, setLegendOpen] = useState(false)
+  const details = RIVER_DETAILS[river.id]
+  const cfs = flow.cfs
+  const pct = cfs ? Math.min(100, (cfs / (river.idealCfs.max * 2)) * 100) : 0
+
+  const statusText = {
+    ideal: 'River is in prime fishing condition right now.',
+    low: 'Water is low — fish may be more spooky and concentrated in deeper holes.',
+    high: 'Water is high — wade carefully, fish edges and slack water.',
+    loading: 'Fetching live data...',
+    error: 'Live gauge data unavailable.',
+  }[flow.status]
+
+  return (
+    <>
+      <div
+        className="fixed inset-0 z-50 flex flex-col justify-end"
+        onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+        style={{ background: 'rgba(0,0,0,0.75)' }}
+      >
+        <div
+          className="animate-slide-up rounded-t-2xl flex flex-col overflow-hidden"
+          style={{ background: 'var(--surface)', maxHeight: '92vh' }}
+        >
+          {/* Header */}
+          <div className="p-4 pb-3 flex-shrink-0" style={{ borderBottom: '1px solid var(--border)' }}>
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h2 className="text-lg font-bold text-white">{river.name}</h2>
+                  <StatusBadge status={flow.status} />
+                </div>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{river.region} · USGS Gauge {river.usgsId}</p>
+              </div>
+              <button onClick={onClose}
+                className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ml-2"
+                style={{ background: 'rgba(255,255,255,0.08)' }}>
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Scrollable content */}
+          <div className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-4">
+
+            {/* Live Flow Gauge — data grid */}
+            <div className="card-raised p-4">
+              <p className="text-xs font-semibold mb-3" style={{ color: 'var(--text-faint)' }}>LIVE FLOW</p>
+              {/* Big CFS + trend */}
+              <div className="flex items-end gap-2 mb-3">
+                {cfs !== null ? (
+                  <>
+                    <span className="text-3xl font-bold text-white leading-none">{formatCfs(cfs)}</span>
+                    <span className="text-sm mb-1" style={{ color: 'var(--text-muted)' }}>cfs</span>
+                    {flow.trend && (
+                      <span className="text-sm mb-1 font-semibold" style={{
+                        color: flow.trend === 'rising' ? '#ef4444' : flow.trend === 'falling' ? '#d1d5db' : '#22c55e'
+                      }}>
+                        {flow.trend === 'rising' ? '↑ Rising' : flow.trend === 'falling' ? '↓ Falling' : '→ Stable'}
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-lg font-bold" style={{ color: 'var(--text-faint)' }}>No data</span>
+                )}
+              </div>
+              {cfs !== null && (
+                <div className="h-2 rounded-full overflow-hidden mb-3" style={{ background: 'var(--border)' }}>
+                  <div className="h-full rounded-full" style={{
+                    width: `${pct}%`,
+                    background: flow.status === 'ideal' ? '#6ab04c' : flow.status === 'low' ? '#f26522' : '#ef4444',
+                  }} />
+                </div>
+              )}
+              {/* Stats data grid */}
+              <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+                {[
+                  { label: 'Status', value: flow.status.toUpperCase(), color: flow.status === 'ideal' ? '#6ab04c' : flow.status === 'low' ? '#f26522' : flow.status === 'high' ? '#ef4444' : 'var(--text-muted)' },
+                  { label: 'Ideal Range', value: `${formatCfs(river.idealCfs.min)}–${formatCfs(river.idealCfs.max)} cfs` },
+                  { label: 'Conditions', value: statusText },
+                  ...(flow.fetchedAt ? [{ label: 'Updated', value: flow.fetchedAt }] : []),
+                ].map((row, i, arr) => (
+                  <div key={row.label} className="grid gap-x-4 px-3 py-2"
+                    style={{ gridTemplateColumns: 'auto 1fr', borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none', background: 'var(--bg)' }}>
+                    <span className="text-[11px] font-medium" style={{ color: 'var(--text-faint)', whiteSpace: 'nowrap' }}>{row.label}</span>
+                    <span className="text-[11px] font-bold" style={{ color: row.color ?? 'var(--text-muted)' }}>{row.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* About this river */}
+            {details && (
+              <div>
+                <p className="text-xs font-semibold mb-2" style={{ color: 'var(--text-faint)' }}>ABOUT THIS RIVER</p>
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{details.description}</p>
+              </div>
+            )}
+
+            {/* Skagit River — section-by-section regulations */}
+            {river.id === 'skagit' && (
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-xs font-semibold" style={{ color: 'var(--text-faint)' }}>FISHING SECTIONS</p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>CRC #830 required</span>
+                    <button
+                      onClick={() => setLegendOpen(true)}
+                      className="flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded-lg active:opacity-70"
+                      style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+                      <span>?</span>
+                      <span>Legend</span>
+                    </button>
+                  </div>
+                </div>
+                <p className="text-[11px] mb-3" style={{ color: 'var(--text-faint)' }}>
+                  WDFW regulates by exact section. Know which stretch you're on — rules differ every few miles.
+                </p>
+                <div className="space-y-2">
+                  {SKAGIT_SECTIONS.map(section => (
+                    <SkagitSectionCard key={section.id} section={section} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Target Species — tappable */}
+            <div>
+              <p className="text-xs font-semibold mb-2" style={{ color: 'var(--text-faint)' }}>TARGET SPECIES</p>
+              <p className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>
+                Tap a species for ID tips and how-to-catch info
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {river.targetSpecies.map(name => {
+                  const sp = SPECIES.find(s => s.name === name || s.name.includes(name) || name.includes(s.name.split(' ')[0]))
+                  const hasTips = sp && FISH_TIPS[sp.id]
+                  return (
+                    <button
+                      key={name}
+                      onClick={() => sp ? setSelectedFish(sp) : null}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all active:scale-95"
+                      style={{
+                        background: hasTips ? 'rgba(242,101,34,0.15)' : 'var(--surface)',
+                        border: `1px solid ${hasTips ? '#f26522' : 'var(--border)'}`,
+                        color: hasTips ? '#f26522' : 'var(--text-muted)',
+                        cursor: sp ? 'pointer' : 'default',
+                      }}
+                    >
+                      🐟 {name}
+                      {hasTips && <span style={{ color: 'var(--text-faint)' }}>›</span>}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* River fishing tips — grid list */}
+            {details?.fishingTips && details.fishingTips.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold mb-2" style={{ color: 'var(--text-faint)' }}>RIVER-SPECIFIC TIPS</p>
+                <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+                  {details.fishingTips.map((tip, i) => (
+                    <div key={i} className="flex items-start gap-2.5 px-3 py-2.5"
+                      style={{ borderBottom: i < details.fishingTips.length - 1 ? '1px solid var(--border)' : 'none', background: 'var(--bg)' }}>
+                      <span className="flex-shrink-0 font-bold mt-0.5" style={{ color: '#f26522', fontSize: '14px', lineHeight: 1 }}>›</span>
+                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{tip}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Access points — grid list */}
+            {details?.access && details.access.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold mb-2" style={{ color: 'var(--text-faint)' }}>ACCESS POINTS</p>
+                <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+                  {details.access.map((point, i) => (
+                    <div key={i} className="flex items-start gap-2.5 px-3 py-2.5"
+                      style={{ borderBottom: i < details.access.length - 1 ? '1px solid var(--border)' : 'none', background: 'var(--bg)' }}>
+                      <span className="text-sm flex-shrink-0 mt-0.5">📍</span>
+                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{point}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* WDFW link */}
+            <div className="card p-3" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
+              <p className="text-xs font-semibold mb-1" style={{ color: '#ef4444' }}>⚠️ VERIFY BEFORE YOU FISH</p>
+              <p className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>
+                Regulations can close this river without notice. Always check before you go.
+              </p>
+              <a
+                href="https://wdfw.wa.gov/fishing/regulations"
+                target="_blank" rel="noopener noreferrer"
+                className="text-xs font-semibold underline"
+                style={{ color: '#f26522' }}
+              >
+                Check current regulations at WDFW.wa.gov →
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      {/* Fish detail sheet stacked on top */}
+      {selectedFish && (
+        <FishDetailSheet species={selectedFish} onClose={() => setSelectedFish(null)} showTips />
+      )}
+
+      {/* Legend popup */}
+      {legendOpen && <LegendPopup onClose={() => setLegendOpen(false)} />}
+    </>
+  )
+}

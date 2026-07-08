@@ -1,0 +1,790 @@
+'use client'
+import { useState, useRef } from 'react'
+import { Species, Regulation, WaterBody, REGULATIONS, WATER_BODIES, SKAGIT_SECTIONS, GEAR_ICON_INFO, GearIconCode, isOpenOn } from '@/lib/fishing-data'
+import { GEAR, GearItem } from '@/lib/gear-data'
+import { FISH_TIPS } from './RiverDetailSheet'
+import RiverDetailSheet from './RiverDetailSheet'
+import RiverSectionMap from './RiverSectionMap'
+import { SKAGIT_SECTION_COORDS } from '@/lib/river-sections-coords'
+import type { RiverSectionStatus } from './RiverSectionMapInner'
+import RiverConditionsSheet, { RiverMapConfig } from './RiverConditionsSheet'
+import { SKAGIT_COORDS, SAUK_COORDS, NOOKSACK_COORDS, STILLAGUAMISH_COORDS } from '@/lib/river-coords-generated'
+import WaterDetailSheet from './WaterDetailSheet'
+
+interface Props {
+  species: Species
+  onClose: () => void
+  showTips?: boolean
+  zIndex?: number
+}
+
+type Tab = 'regs' | 'gear' | 'tips'
+const TAB_ORDER: Tab[] = ['regs', 'gear', 'tips']
+
+// ─── GEAR EMOJI LOOKUP ────────────────────────────────────────────────────────
+function getGearEmoji(name: string): string {
+  const n = name.toLowerCase()
+  if (n.includes('spinner') || n.includes('rooster tail') || n.includes('vibrax') || n.includes('wedding ring') || n.includes('blade spinner') || n.includes('beetle spin')) return '🌀'
+  if (n.includes('spoon') || n.includes('kastmaster') || n.includes('krocodile') || n.includes('cyclone') || n.includes('pimple') || n.includes('denie') || n.includes('dick nite') || n.includes('dardevle')) return '🥄'
+  if (n.includes('frog') || n.includes('topwater') || n.includes('popper')) return '🐸'
+  if (n.includes('spinnerbait')) return '⚙️'
+  if (n.includes('swimbait')) return '🐟'
+  if (n.includes('glide') || n.includes('jerkbait') || n.includes('jake') || n.includes('believer')) return '🐠'
+  if (n.includes('plug') || n.includes('kwikfish') || n.includes('rapala') || n.includes('crankbait') || n.includes('shad rap') || n.includes('dt-') || n.includes('dt6') || n.includes('original floating')) return '🎣'
+  if (n.includes('fly') || n.includes('nymph') || n.includes('streamer') || n.includes('caddis') || n.includes('bugger') || n.includes("hare's ear") || n.includes('pheasant tail') || n.includes('hoochie') || n.includes('coho fly') || n.includes('dodger')) return '🦋'
+  if (n.includes('jig') || n.includes('curly tail') || n.includes('tube jig') || n.includes('ned rig') || n.includes('drop shot') || n.includes('hair jig') || n.includes('spin-n-glo') || n.includes('ketchum') || n.includes('jigging')) return '🪝'
+  if (n.includes('corky') || n.includes('yarn') || n.includes('egg') || n.includes('pautzke') || n.includes('salmon egg') || n.includes('roe')) return '🟠'
+  if (n.includes('powerbait') || n.includes('power bait') || n.includes('dough') || n.includes('boil') || n.includes('bread') || n.includes('corn') || n.includes('tiger nut') || n.includes('shoepeg') || n.includes('method feeder') || n.includes('ground bait')) return '🟡'
+  if (n.includes('worm') || n.includes('crawler') || n.includes('senko') || n.includes('grub') || n.includes('finesse worm') || n.includes('z-man') || n.includes('sandworm') || n.includes('pile worm') || n.includes('leech')) return '🪱'
+  if (n.includes('shrimp') || n.includes('prawn')) return '🦐'
+  if (n.includes('crayfish') || n.includes('crab') || n.includes('sand crab') || n.includes('mole crab')) return '🦀'
+  if (n.includes('herring') || n.includes('cut plug') || n.includes('anchovy') || n.includes('tuna') || n.includes('smelt') || n.includes('shad') || n.includes('cisco')) return '🐡'
+  if (n.includes('minnow') || n.includes('fathead') || n.includes('chub') || n.includes('sucker') || n.includes('waterdog') || n.includes('mudpuppies')) return '🐠'
+  if (n.includes('squid') || n.includes('octopus')) return '🦑'
+  if (n.includes('clam') || n.includes('mussel') || n.includes('neck')) return '🐚'
+  if (n.includes('chicken') || n.includes('turkey') || n.includes('liver') || n.includes('cat food')) return '🍗'
+  if (n.includes('maggot')) return '🐛'
+  if (n.includes('cricket') || n.includes('grasshopper')) return '🦗'
+  if (n.includes('lamprey')) return '🐍'
+  if (n.includes('pot') || n.includes('ring net') || n.includes('clam gun') || n.includes('digger')) return '🧺'
+  if (n.includes('bucktail')) return '🦌'
+  if (n.includes('hair rig')) return '🪢'
+  if (n.includes('not applicable')) return '—'
+  return '🎣'
+}
+
+// ─── GEAR ICON GRID ───────────────────────────────────────────────────────────
+function GearGrid({ items, accent }: { items: GearItem[]; accent: string }) {
+  const visible = items.filter(i => !i.name.toLowerCase().includes('not applicable'))
+  if (visible.length === 0) return null
+  return (
+    <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+      {visible.map((item, i) => (
+        <a
+          key={i}
+          href={item.amazonUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex flex-col items-center gap-1 py-3 px-1 rounded-xl active:opacity-70 text-center"
+          style={{ background: 'var(--bg)', border: '1px solid var(--border)', textDecoration: 'none' }}
+        >
+          <span style={{ fontSize: '26px', lineHeight: 1 }}>{getGearEmoji(item.name)}</span>
+          <span className="text-[10px] leading-tight font-medium"
+            style={{ color: 'var(--text-muted)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            {item.name.replace(/ fishing$/, '').replace(/\s+\(.*?\)$/, '')}
+          </span>
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded mt-0.5"
+            style={{ background: `${accent}20`, color: accent }}>
+            Amazon ↗
+          </span>
+        </a>
+      ))}
+    </div>
+  )
+}
+
+// Which species are found on the Skagit + which section IDs are relevant
+const SKAGIT_SPECIES_MAP: Record<string, string[]> = {
+  sockeye:   ['skagit-hwy536-to-gilligan', 'skagit-gilligan-to-dalles'],
+  chinook:   ['skagit-rockport-to-marblemount'],
+  coho:      ['skagit-mouth-to-hwy536', 'skagit-hwy536-to-gilligan', 'skagit-gilligan-to-dalles', 'skagit-dalles-to-baker-below', 'skagit-baker-confluence', 'skagit-baker-above-to-rockport', 'skagit-rockport-to-marblemount'],
+  steelhead: ['skagit-marblemount-to-newhalem'],
+}
+
+// ─── GAUGE MAP FOR WATER-TAP ─────────────────────────────────────────────────
+type GaugeConfig = {
+  gaugeId: string
+  gaugeName: string
+  thresholds: { low: number; high: number; flood: number }
+  riverMapConfig: RiverMapConfig
+}
+
+const FISH_GAUGE_MAP: Record<string, GaugeConfig> = {
+  skagit: {
+    gaugeId: '12194000',
+    gaugeName: 'Skagit (Concrete)',
+    thresholds: { low: 2000, high: 8000, flood: 22000 },
+    riverMapConfig: { riverName: 'Skagit River', coords: SKAGIT_COORDS, riverId: 'skagit', startLabel: 'Headwaters', endLabel: 'Mouth' },
+  },
+  sauk: {
+    gaugeId: '12186000',
+    gaugeName: 'Sauk River',
+    thresholds: { low: 500, high: 3000, flood: 8000 },
+    riverMapConfig: { riverName: 'Sauk River', coords: SAUK_COORDS, startLabel: 'Headwaters', endLabel: 'Confluence' },
+  },
+  nooksack: {
+    gaugeId: '12210500',
+    gaugeName: 'Nooksack River',
+    thresholds: { low: 1500, high: 8000, flood: 20000 },
+    riverMapConfig: { riverName: 'Nooksack River', coords: NOOKSACK_COORDS, startLabel: 'Headwaters', endLabel: 'Mouth' },
+  },
+  stillaguamish: {
+    gaugeId: '12167000',
+    gaugeName: 'Stillaguamish',
+    thresholds: { low: 800, high: 5000, flood: 15000 },
+    riverMapConfig: { riverName: 'Stillaguamish River', coords: STILLAGUAMISH_COORDS, startLabel: 'Headwaters', endLabel: 'Mouth' },
+  },
+}
+
+function findGaugeForWater(waterName: string): GaugeConfig | null {
+  const lower = waterName.toLowerCase()
+  for (const [key, val] of Object.entries(FISH_GAUGE_MAP)) {
+    if (lower.includes(key)) return val
+  }
+  return null
+}
+
+// Full river lookup for RiverDetailSheet (covers all major WA rivers)
+type RiverEntry = { id: string; name: string; region: string; usgsId: string; targetSpecies: string[]; idealCfs: { min: number; max: number } }
+const ALL_RIVERS: RiverEntry[] = [
+  { id: 'skagit',         name: 'Skagit River',         region: 'Northwest',   usgsId: '12200500', targetSpecies: ['Chinook Salmon','Coho Salmon','Steelhead'],             idealCfs: { min: 3000,  max: 18000  } },
+  { id: 'snohomish',      name: 'Snohomish River',       region: 'Northwest',   usgsId: '12150800', targetSpecies: ['Coho Salmon','Chinook Salmon','Steelhead'],             idealCfs: { min: 2000,  max: 12000  } },
+  { id: 'nooksack',       name: 'Nooksack River',        region: 'Northwest',   usgsId: '12210500', targetSpecies: ['Chinook Salmon','Coho Salmon','Steelhead'],             idealCfs: { min: 1500,  max: 8000   } },
+  { id: 'stillaguamish',  name: 'Stillaguamish River',   region: 'Northwest',   usgsId: '12167000', targetSpecies: ['Coho Salmon','Chinook Salmon','Steelhead'],             idealCfs: { min: 800,   max: 5000   } },
+  { id: 'sauk',           name: 'Sauk River',            region: 'Northwest',   usgsId: '12186000', targetSpecies: ['Chinook Salmon','Steelhead'],                          idealCfs: { min: 500,   max: 3000   } },
+  { id: 'skykomish',      name: 'Skykomish River',       region: 'Northwest',   usgsId: '12134500', targetSpecies: ['Coho Salmon','Chinook Salmon','Steelhead'],             idealCfs: { min: 1000,  max: 8000   } },
+  { id: 'columbia',       name: 'Columbia River',        region: 'Southeast',   usgsId: '14105700', targetSpecies: ['Chinook Salmon','Steelhead','Walleye','White Sturgeon'],idealCfs: { min: 80000, max: 250000 } },
+  { id: 'snake',          name: 'Snake River',           region: 'Southeast',   usgsId: '13334300', targetSpecies: ['Steelhead','Chinook Salmon','Walleye'],                 idealCfs: { min: 10000, max: 80000  } },
+  { id: 'yakima',         name: 'Yakima River',          region: 'Central',     usgsId: '12492800', targetSpecies: ['Rainbow Trout','Steelhead','Cutthroat Trout'],          idealCfs: { min: 800,   max: 5000   } },
+  { id: 'cowlitz',        name: 'Cowlitz River',         region: 'Southwest',   usgsId: '14243000', targetSpecies: ['Chinook Salmon','Coho Salmon','Steelhead'],             idealCfs: { min: 2000,  max: 15000  } },
+  { id: 'green',          name: 'Green River',           region: 'Puget Sound', usgsId: '12113000', targetSpecies: ['Coho Salmon','Chinook Salmon','Steelhead'],             idealCfs: { min: 500,   max: 4000   } },
+  { id: 'puyallup',       name: 'Puyallup River',        region: 'Puget Sound', usgsId: '12101500', targetSpecies: ['Coho Salmon','Chinook Salmon','Steelhead'],             idealCfs: { min: 1000,  max: 8000   } },
+  { id: 'nisqually',      name: 'Nisqually River',       region: 'Puget Sound', usgsId: '12089500', targetSpecies: ['Chinook Salmon','Coho Salmon','Steelhead'],             idealCfs: { min: 500,   max: 4000   } },
+  { id: 'hoh',            name: 'Hoh River',             region: 'Olympic',     usgsId: '12041200', targetSpecies: ['Chinook Salmon','Steelhead','Cutthroat Trout'],         idealCfs: { min: 1000,  max: 8000   } },
+]
+function findRiverEntry(waterName: string): RiverEntry | null {
+  const lower = waterName.toLowerCase()
+  return ALL_RIVERS.find(r => lower.includes(r.id) || r.name.toLowerCase().includes(lower.split(' ')[0])) ?? null
+}
+
+function getTodaySkagitStatus(speciesId: string): { sectionId: string; sectionName: string; status: 'OPEN' | 'CLOSED' | 'EMERGENCY'; detail: string; mapsUp: string; mapsDown: string }[] {
+  const sectionIds = SKAGIT_SPECIES_MAP[speciesId]
+  if (!sectionIds) return []
+  const today = new Date()
+  const mm = today.getMonth() + 1
+  const dd = today.getDate()
+  const dateStr = `${String(mm).padStart(2,'0')}-${String(dd).padStart(2,'0')}`
+
+  return sectionIds.map(id => {
+    const section = SKAGIT_SECTIONS.find(s => s.id === id)
+    if (!section) return null
+
+    // Check emergency rule first
+    if (section.emergencyRule) {
+      for (const o of section.emergencyRule.overrides) {
+        if (o.status === 'CLOSED') {
+          // Try to parse date range — if it matches today, mark CLOSED
+          // Simple check: if the override says "CLOSED" and we're past Jul 1 in this range
+          const closedDates = ['Jun 25 – Jun 26', 'Jun 30 – Jul 2'].some(d => o.dates === d)
+          // Jul 3–31 is OPEN with emergency sockeye
+          if (o.dates.includes('Jul 3') || o.dates.includes('Jul 1 – Jul 31') || o.dates.includes('Immediately')) {
+            return {
+              sectionId: id,
+              sectionName: section.name,
+              status: 'EMERGENCY' as const,
+              detail: o.notes,
+              mapsUp: section.mapsLinkUpstream,
+              mapsDown: section.mapsLinkDownstream,
+            }
+          }
+        }
+      }
+      // Has emergency rule and it's active — show the active override
+      const activeOverride = section.emergencyRule.overrides.find(o => o.status === 'OPEN' && (o.dates.includes('Jul 3') || o.dates.includes('Immediately') || o.dates.includes('Jun 27')))
+      if (activeOverride) {
+        return {
+          sectionId: id,
+          sectionName: section.name,
+          status: 'EMERGENCY' as const,
+          detail: activeOverride.notes,
+          mapsUp: section.mapsLinkUpstream,
+          mapsDown: section.mapsLinkDownstream,
+        }
+      }
+    }
+
+    // Check base seasons for this species
+    const matchingSeason = section.seasons.find(s =>
+      s.species.toLowerCase().includes(speciesId) ||
+      (speciesId === 'chinook' && s.species.toLowerCase().includes('chinook')) ||
+      (speciesId === 'coho' && s.species.toLowerCase().includes('coho')) ||
+      (speciesId === 'sockeye' && s.species.toLowerCase().includes('sockeye')) ||
+      (speciesId === 'steelhead' && s.species.toLowerCase().includes('steelhead'))
+    )
+
+    // Baker confluence is always closed in summer
+    if (id === 'skagit-baker-confluence' && mm >= 6 && mm <= 9) {
+      return {
+        sectionId: id,
+        sectionName: section.name,
+        status: 'CLOSED' as const,
+        detail: 'CLOSED WATERS Jun 1 – Sep 15',
+        mapsUp: section.mapsLinkUpstream,
+        mapsDown: section.mapsLinkDownstream,
+      }
+    }
+
+    const isOpen = matchingSeason && !matchingSeason.closed
+    return {
+      sectionId: id,
+      sectionName: section.name,
+      status: isOpen ? 'OPEN' as const : 'CLOSED' as const,
+      detail: matchingSeason?.notes ?? (isOpen ? `Limit: ${matchingSeason?.dailyLimit ?? '—'}` : 'No open season in base pamphlet for this period'),
+      mapsUp: section.mapsLinkUpstream,
+      mapsDown: section.mapsLinkDownstream,
+    }
+  }).filter(Boolean) as { sectionId: string; sectionName: string; status: 'OPEN' | 'CLOSED' | 'EMERGENCY'; detail: string; mapsUp: string; mapsDown: string }[]
+}
+
+function RegCard({ reg, water }: { reg: Regulation; water: WaterBody }) {
+  const isOpen = isOpenOn(reg, new Date())
+  return (
+    <div className="rounded-md p-3 mb-2"
+      style={{ background: 'var(--bg)', borderLeft: `3px solid ${isOpen ? 'var(--accent-green)' : '#374151'}` }}>
+      <div className="flex items-start justify-between mb-1">
+        <span className="text-sm font-semibold text-white">{water.name}</span>
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded ml-2"
+          style={{ background: isOpen ? 'rgba(106,176,76,0.15)' : 'rgba(239,68,68,0.15)',
+                   color: isOpen ? '#6ab04c' : '#ef4444' }}>
+          {isOpen ? 'OPEN' : 'CLOSED'}
+        </span>
+      </div>
+      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Season: {reg.seasonStart} – {reg.seasonEnd}</p>
+      {reg.dailyLimit && (
+        <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+          Daily limit: <span className="text-white">{reg.dailyLimit}</span>
+        </p>
+      )}
+      {reg.minSize && (
+        <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+          Min size: <span className="text-white">{reg.minSize}&quot;</span>
+        </p>
+      )}
+      {reg.hatcheryOnly && <p className="text-xs mt-0.5 text-amber-400">Hatchery fish only</p>}
+      {reg.gearRestriction && (
+        <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+          Gear: <span className="text-white">{reg.gearRestriction}</span>
+        </p>
+      )}
+      {reg.notes && <p className="text-xs mt-0.5 text-amber-400">{reg.notes}</p>}
+    </div>
+  )
+}
+
+export default function FishDetailSheet({ species, onClose, showTips = true, zIndex = 60 }: Props) {
+  const [activeTab, setActiveTab] = useState<Tab>('regs')
+  const [mapSection, setMapSection] = useState<{
+    sectionId: string
+    sectionName: string
+    status: RiverSectionStatus
+    detail: string
+  } | null>(null)
+  const [selectedWaterForConditions, setSelectedWaterForConditions] = useState<GaugeConfig | null>(null)
+  const [selectedFullWater, setSelectedFullWater] = useState<string | null>(null)
+  const regs    = REGULATIONS.filter(r => r.speciesId === species.id)
+  const waters  = regs.map(r => WATER_BODIES.find(w => w.id === r.waterBodyId)!).filter(Boolean)
+  const tips    = FISH_TIPS[species.id]
+  const gear    = GEAR[species.id]
+  const today   = new Date()
+
+  const openRegs      = regs.filter(r => WATER_BODIES.find(w => w.id === r.waterBodyId) && isOpenOn(r, today))
+  const anyOpen       = openRegs.length > 0
+
+  // Next opening — earliest seasonStart across all non-open regs
+  const allNonOpenRegs = regs.filter(r => WATER_BODIES.find(w => w.id === r.waterBodyId) && !isOpenOn(r, today))
+  const nextOpen = !anyOpen && allNonOpenRegs.length > 0
+    ? allNonOpenRegs.reduce((best, r) => {
+        if (!best) return r.seasonStart
+        return r.seasonStart < best ? r.seasonStart : best
+      }, '' as string)
+    : null
+
+  // Open waters count
+  const openWaterCount = openRegs.filter(r => WATER_BODIES.find(w => w.id === r.waterBodyId)).length
+
+  // Detect emergency rule on a water body for this species
+  function hasEmergencyOnWater(waterId: string): boolean {
+    if (waterId === 'skagit' && SKAGIT_SPECIES_MAP[species.id]) {
+      return SKAGIT_SPECIES_MAP[species.id].some(sid => {
+        const sec = SKAGIT_SECTIONS.find(s => s.id === sid)
+        return !!sec?.emergencyRule
+      })
+    }
+    const reg = regs.find(r => r.waterBodyId === waterId)
+    return !!(reg?.notes && /emergency/i.test(reg.notes))
+  }
+
+  // Format MM-DD → "Aug 16"
+  function fmtDate(mmdd: string) {
+    const MNAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+    const [m, d] = mmdd.split('-').map(Number)
+    return `${MNAMES[m-1]} ${d}`
+  }
+
+  // Days until season opens (MM-DD string → integer days, future occurrences only)
+  function daysUntilOpen(mmdd: string): number {
+    const [m, d] = mmdd.split('-').map(Number)
+    const year = today.getFullYear()
+    let openDate = new Date(year, m - 1, d)
+    if (openDate <= today) openDate = new Date(year + 1, m - 1, d)
+    return Math.ceil((openDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  }
+
+  // ── Share handler ──────────────────────────────────────────────────────────
+  async function handleShare() {
+    const firstOpenWater = openRegs[0] ? waters.find(w => w?.id === openRegs[0].waterBodyId) : null
+    const shareText = anyOpen
+      ? `${species.name} is OPEN${firstOpenWater ? ` on ${firstOpenWater.name}` : ''} right now! Check castwa.com for regulations and gear tips.`
+      : nextOpen
+        ? `${species.name} season opens ${fmtDate(nextOpen)}. Set a reminder at castwa.com`
+        : `${species.name} fishing info at castwa.com`
+    const shareData = { title: `${species.name} — CastWA`, text: shareText, url: 'https://castwa.com' }
+    try {
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        await navigator.share(shareData)
+      } else {
+        await navigator.clipboard.writeText(`${shareText} https://castwa.com`)
+        // Brief visual feedback — no state needed, just rely on the button press
+      }
+    } catch { /* user cancelled or clipboard failed */ }
+  }
+
+  const touchStartX = useRef<number | null>(null)
+  function handleTouchStart(e: React.TouchEvent) { touchStartX.current = e.touches[0].clientX }
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null) return
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    if (Math.abs(dx) < 50) return
+    const idx = TAB_ORDER.indexOf(activeTab)
+    if (dx < 0 && idx < TAB_ORDER.length - 1) setActiveTab(TAB_ORDER[idx + 1])
+    if (dx > 0 && idx > 0) setActiveTab(TAB_ORDER[idx - 1])
+    touchStartX.current = null
+  }
+
+  const tabs: { key: Tab; label: string }[] = [
+    { key: 'regs', label: 'Regulations' },
+    { key: 'gear', label: 'Gear'        },
+    { key: 'tips', label: 'Tips'        },
+  ]
+
+  return (
+    <>
+    <div className="fixed inset-0 flex flex-col justify-end"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+      style={{ background: 'rgba(0,0,0,0.8)', zIndex }}>
+      <div className="animate-slide-up rounded-t-xl overflow-hidden flex flex-col"
+        style={{ background: 'var(--surface)', height: '92vh' }}>
+
+        {/* ── Hero photo — compact ── */}
+        <div className="relative flex-shrink-0 flex items-center justify-center"
+          style={{ height: '120px', background: 'rgb(11,13,20)' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={species.photo} alt={species.name}
+            style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '10px' }} />
+          <div className="absolute inset-x-0 bottom-0 h-8"
+            style={{ background: 'linear-gradient(to top, var(--surface), transparent)' }} />
+          <button onClick={onClose}
+            className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center"
+            style={{ background: 'rgba(0,0,0,0.5)' }}>
+            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* ── Status banner — always visible, no scrolling required ── */}
+        <div className="flex-shrink-0 px-4 py-2.5"
+          style={{ background: anyOpen ? 'rgba(106,176,76,0.12)' : 'rgba(55,65,81,0.4)',
+                   borderBottom: `2px solid ${anyOpen ? 'rgba(106,176,76,0.4)' : 'rgba(55,65,81,0.6)'}` }}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm font-black" style={{ color: anyOpen ? '#6ab04c' : '#6b7280' }}>
+                {anyOpen ? '● OPEN' : '○ CLOSED'}
+              </span>
+              {anyOpen && openWaterCount > 0 && (
+                <button
+                  onClick={() => setActiveTab('regs')}
+                  className="text-[11px] font-bold px-2 py-0.5 rounded-full active:opacity-70"
+                  style={{ background: 'rgba(106,176,76,0.18)', color: '#6ab04c', border: '1px solid rgba(106,176,76,0.3)' }}>
+                  🟢 {openWaterCount} {openWaterCount === 1 ? 'water' : 'waters'} open — see all →
+                </button>
+              )}
+              {anyOpen && openRegs[0] && openWaterCount === 0 && (
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                  style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)' }}>
+                  {fmtDate(openRegs[0].seasonStart)}–{fmtDate(openRegs[0].seasonEnd)}
+                </span>
+              )}
+              {!anyOpen && nextOpen && (
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                  style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)' }}>
+                  Opens {fmtDate(nextOpen)}
+                </span>
+              )}
+            </div>
+            <div className="text-right">
+              <p className="text-sm font-bold text-white leading-tight">{species.name}</p>
+              <p className="text-[10px]" style={{ color: 'var(--text-faint)' }}>{species.category}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Tabs ── */}
+        <div className="flex gap-2 flex-shrink-0 px-4 py-2.5" style={{ borderBottom: '1px solid var(--border)' }}>
+          {tabs.map(t => (
+            <button key={t.key} onClick={() => setActiveTab(t.key)}
+              className="flex-1 py-2 text-sm font-bold rounded-md transition-all active:scale-95"
+              style={{
+                background: activeTab === t.key ? 'var(--accent)' : 'var(--surface)',
+                color: activeTab === t.key ? '#fff' : 'var(--text-faint)',
+                border: `1.5px solid ${activeTab === t.key ? 'var(--accent)' : 'var(--border)'}`,
+              }}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* ── Tab content ── */}
+        <div className="flex-1 overflow-y-auto no-scrollbar p-4"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}>
+
+          {/* ════ REGULATIONS TAB ════ */}
+          {activeTab === 'regs' && (
+            <div className="space-y-3">
+
+              {regs.length === 0 ? (
+                <div className="rounded-xl p-4 text-center" style={{ border: '1px solid var(--border)' }}>
+                  <p className="text-sm font-semibold text-white mb-1">No regulation data on file</p>
+                  <a href="https://wdfw.wa.gov/fishing/regulations" target="_blank" rel="noopener noreferrer"
+                    className="text-xs underline" style={{ color: '#f26522' }}>
+                    Check WDFW directly →
+                  </a>
+                </div>
+              ) : (
+                <>
+                  {/* ── Water list: emergency first, then open, then closed ── */}
+                  <div className="space-y-2">
+                    {[...regs]
+                      .map(r => ({ reg: r, water: WATER_BODIES.find(w => w.id === r.waterBodyId) }))
+                      .filter((item): item is { reg: Regulation; water: WaterBody } => !!item.water)
+                      .sort((a, b) => {
+                        const aEmerg = hasEmergencyOnWater(a.water.id) ? 0 : isOpenOn(a.reg, today) ? 1 : 2
+                        const bEmerg = hasEmergencyOnWater(b.water.id) ? 0 : isOpenOn(b.reg, today) ? 1 : 2
+                        if (aEmerg !== bEmerg) return aEmerg - bEmerg
+                        return a.water.name.localeCompare(b.water.name)
+                      })
+                      .map(({ reg, water }) => {
+                        const isEmerg = hasEmergencyOnWater(water.id)
+                        const isOpen  = isOpenOn(reg, today)
+                        const days    = !isOpen ? daysUntilOpen(reg.seasonStart) : null
+                        const soon    = days !== null && days <= 30
+
+                        const borderColor = isEmerg ? '#f97316' : isOpen ? '#6ab04c' : '#374151'
+                        const bgColor     = isEmerg ? 'rgba(249,115,22,0.08)' : isOpen ? 'rgba(106,176,76,0.08)' : 'transparent'
+                        const opacity     = (!isOpen && !isEmerg) ? 0.6 : 1
+
+                        const badge = isEmerg
+                          ? { text: '🚨 EMERGENCY RULE', color: '#f97316', bg: 'rgba(249,115,22,0.18)' }
+                          : isOpen
+                            ? { text: '● OPEN',   color: '#6ab04c', bg: 'rgba(106,176,76,0.18)' }
+                            : { text: '○ CLOSED', color: '#6b7280', bg: 'rgba(107,114,128,0.18)' }
+
+                        return (
+                          <button
+                            key={reg.id}
+                            onClick={() => setSelectedFullWater(water.name)}
+                            className="flex items-center w-full text-left rounded-lg overflow-hidden transition-colors active:opacity-70"
+                            style={{
+                              background: bgColor,
+                              border: `1px solid ${isEmerg ? 'rgba(249,115,22,0.3)' : isOpen ? 'rgba(106,176,76,0.2)' : 'var(--border)'}`,
+                              borderLeft: `3px solid ${borderColor}`,
+                              opacity,
+                              padding: '12px 12px 12px 14px',
+                            }}
+                          >
+                            <div className="flex-1 min-w-0 mr-2">
+                              <p className="text-sm font-bold text-white leading-tight">{water.name}</p>
+                              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
+                                  style={{ background: badge.bg, color: badge.color }}>
+                                  {badge.text}
+                                </span>
+                                {!isOpen && !isEmerg && soon && (
+                                  <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>
+                                    Opens {fmtDate(reg.seasonStart)}
+                                  </span>
+                                )}
+                                {!isOpen && !isEmerg && !soon && (
+                                  <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>
+                                    {fmtDate(reg.seasonStart)}–{fmtDate(reg.seasonEnd)}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <span className="flex-shrink-0 text-lg font-light" style={{ color: 'var(--text-faint)' }}>›</span>
+                          </button>
+                        )
+                      })
+                    }
+                  </div>
+
+                  {/* ── Skagit section detail moved into water detail popup ── */}
+                  {false && SKAGIT_SPECIES_MAP[species.id] && (() => {
+                    const STATUS_ORDER = { OPEN: 0, EMERGENCY: 1, CLOSED: 2 } as const
+                    const sortedSkagit = [...getTodaySkagitStatus(species.id)].sort(
+                      (a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]
+                    )
+                    return (
+                    <div className="rounded-xl overflow-hidden"
+                      style={{ border: '1px solid rgba(242,101,34,0.3)' }}>
+                      <div className="px-3 py-2.5 flex items-center justify-between"
+                        style={{ background: 'rgba(242,101,34,0.1)', borderBottom: '1px solid rgba(242,101,34,0.2)' }}>
+                        <p className="text-xs font-black tracking-widest" style={{ color: 'var(--accent)' }}>SKAGIT RIVER — BY SECTION</p>
+                        <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>CRC #830</span>
+                      </div>
+                      {sortedSkagit.map((sec, i, arr) => {
+                        const coordData = SKAGIT_SECTION_COORDS[sec.sectionId]
+                        const mapStatus: RiverSectionStatus =
+                          sec.status === 'OPEN' ? 'open' :
+                          sec.status === 'EMERGENCY' ? 'emergency' : 'closed'
+                        const rowContent = (
+                          <>
+                            <span className="flex-shrink-0 text-[10px] font-black mt-0.5 px-1.5 py-0.5 rounded"
+                              style={{
+                                background: sec.status === 'OPEN' ? 'rgba(106,176,76,0.15)' : sec.status === 'EMERGENCY' ? 'rgba(242,101,34,0.15)' : 'rgba(239,68,68,0.15)',
+                                color: sec.status === 'OPEN' ? '#6ab04c' : sec.status === 'EMERGENCY' ? '#f26522' : '#ef4444',
+                                whiteSpace: 'nowrap',
+                              }}>
+                              {sec.status === 'OPEN' ? '● OPEN' : sec.status === 'EMERGENCY' ? '! EMERG.' : '○ CLOSED'}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold text-white leading-tight">{sec.sectionName}</p>
+                              <p className="text-[11px] leading-snug mt-0.5" style={{ color: 'var(--text-faint)' }}>{sec.detail}</p>
+                            </div>
+                            {coordData && (
+                              <span className="flex-shrink-0 text-gray-400 text-base font-light ml-1">›</span>
+                            )}
+                          </>
+                        )
+                        const rowStyle = {
+                          borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none',
+                          background: 'var(--bg)',
+                        }
+                        if (coordData) {
+                          return (
+                            <button key={i}
+                              onClick={() => setMapSection({
+                                sectionId: sec.sectionId,
+                                sectionName: sec.sectionName,
+                                status: mapStatus,
+                                detail: sec.detail,
+                              })}
+                              className="flex items-start gap-3 px-3 py-2.5 w-full text-left cursor-pointer hover:bg-gray-800/50 active:bg-gray-800 transition-colors"
+                              style={rowStyle}>
+                              {rowContent}
+                            </button>
+                          )
+                        }
+                        return (
+                          <div key={i} className="flex items-start gap-3 px-3 py-2.5" style={rowStyle}>
+                            {rowContent}
+                          </div>
+                        )
+                      })}
+                    </div>
+                    )
+                  })()}
+
+                  <a href="https://wdfw.wa.gov/fishing/regulations" target="_blank" rel="noopener noreferrer"
+                    className="block text-center text-xs py-2" style={{ color: 'var(--text-faint)', textDecoration: 'none' }}>
+                    Always verify at wdfw.wa.gov ↗
+                  </a>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* ════ GEAR TAB ════ */}
+          {activeTab === 'gear' && (
+            <div className="space-y-3">
+              {!gear ? (
+                <p className="text-sm" style={{ color: 'var(--text-faint)' }}>No gear data on file yet.</p>
+              ) : (
+                <>
+                  <div className="rounded-md" style={{ border: '1px solid var(--border)' }}>
+                    <div className="px-3 py-2" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
+                      <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>ROD & LINE SETUP</p>
+                    </div>
+                    <div className="px-3 py-3" style={{ background: 'var(--bg)' }}>
+                      <p className="text-sm font-medium text-white">{gear.rodSetup}</p>
+                    </div>
+                  </div>
+
+                  <div className="rounded-md overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+                    <div className="px-3 py-2" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
+                      <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>LURES</p>
+                    </div>
+                    <div className="p-3" style={{ background: 'var(--bg)' }}>
+                      <GearGrid items={gear.lures} accent="#f26522" />
+                    </div>
+                  </div>
+
+                  <div className="rounded-md overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+                    <div className="px-3 py-2" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
+                      <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>BAIT</p>
+                    </div>
+                    <div className="p-3" style={{ background: 'var(--bg)' }}>
+                      <GearGrid items={gear.bait} accent="#22c55e" />
+                    </div>
+                  </div>
+
+                  <div className="rounded-md" style={{ border: '1px solid var(--border)' }}>
+                    <div className="px-3 py-2" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
+                      <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>TECHNIQUE</p>
+                    </div>
+                    <div style={{ background: 'var(--bg)' }}>
+                      {gear.technique.map((t, i) => (
+                        <div key={i} className="flex gap-3 px-3 py-3"
+                          style={{ borderBottom: i < gear.technique.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                          <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-black"
+                            style={{ background: 'rgba(242,101,34,0.2)', color: 'var(--accent)' }}>{i + 1}</span>
+                          <p className="text-sm leading-snug" style={{ color: 'var(--text-muted)' }}>{t}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* ════ TIPS TAB ════ */}
+          {activeTab === 'tips' && (
+            <div className="space-y-3">
+              {/* Best times */}
+              {gear?.bestTimes && (
+                <div className="rounded-md" style={{ border: '1px solid var(--border)' }}>
+                  <div className="px-3 py-2" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
+                    <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>BEST TIMES</p>
+                  </div>
+                  <div className="px-3 py-3" style={{ background: 'var(--bg)' }}>
+                    <p className="text-sm font-semibold text-white">{gear.bestTimes}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* How to catch */}
+              {showTips && tips && (
+                <div className="rounded-md" style={{ border: '1px solid var(--border)' }}>
+                  <div className="px-3 py-2" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
+                    <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>HOW TO CATCH</p>
+                  </div>
+                  <div style={{ background: 'var(--bg)' }}>
+                    {tips.howToCatch.map((tip, i) => (
+                      <div key={i} className="flex gap-3 px-3 py-2.5"
+                        style={{ borderBottom: i < tips.howToCatch.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                        <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black mt-0.5"
+                          style={{ background: 'rgba(242,101,34,0.2)', color: 'var(--accent)' }}>{i + 1}</span>
+                        <p className="text-sm leading-snug" style={{ color: 'var(--text-muted)' }}>{tip}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Identification */}
+              {showTips && tips && (
+                <div className="rounded-md" style={{ border: '1px solid var(--border)' }}>
+                  <div className="px-3 py-2" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
+                    <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>IDENTIFICATION</p>
+                  </div>
+                  <div style={{ background: 'var(--bg)' }}>
+                    <div className="px-3 py-2.5" style={{ borderBottom: '1px solid var(--border)' }}>
+                      <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{tips.whatToLookFor}</p>
+                    </div>
+                    {tips.howToSpot.map((tip, i) => (
+                      <div key={i} className="flex gap-3 px-3 py-2.5"
+                        style={{ borderBottom: i < tips.howToSpot.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                        <span className="flex-shrink-0 font-bold text-sm mt-0.5" style={{ color: '#6ab04c' }}>✓</span>
+                        <p className="text-sm leading-snug" style={{ color: 'var(--text-muted)' }}>{tip}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* About */}
+              <div className="rounded-md" style={{ border: '1px solid var(--border)' }}>
+                <div className="px-3 py-2" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
+                  <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>ABOUT</p>
+                </div>
+                <div className="px-3 py-3" style={{ background: 'var(--bg)' }}>
+                  <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>{species.description}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
+
+        {/* ── License footer ── */}
+        <a
+          href="https://fishhunt.dfw.wa.gov/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-shrink-0 flex items-center justify-between px-4 py-3 no-underline"
+          style={{ borderTop: '1px solid var(--border)', background: 'var(--surface)', textDecoration: 'none' }}
+        >
+          <span className="text-sm font-semibold" style={{ color: 'var(--text-muted)' }}>
+            Buy / Renew WA Fishing License
+          </span>
+          <span className="text-sm font-bold" style={{ color: 'var(--accent)' }}>↗</span>
+        </a>
+      </div>
+    </div>
+
+    {/* ── River section map modal ── */}
+    {mapSection && (() => {
+      const coordData = SKAGIT_SECTION_COORDS[mapSection.sectionId]
+      if (!coordData) return null
+      return (
+        <RiverSectionMap
+          sectionName={mapSection.sectionName}
+          startLabel={coordData.startLabel}
+          endLabel={coordData.endLabel}
+          coordinates={coordData.coords}
+          status={mapSection.status}
+          detail={mapSection.detail}
+          onClose={() => setMapSection(null)}
+          riverId="skagit"
+          startCoord={coordData.coords[0]}
+          endCoord={coordData.coords[coordData.coords.length - 1]}
+        />
+      )
+    })()}
+
+    {/* ── River conditions sheet (gauge waters) ── */}
+    {selectedWaterForConditions && (
+      <RiverConditionsSheet
+        gaugeId={selectedWaterForConditions.gaugeId}
+        gaugeName={selectedWaterForConditions.gaugeName}
+        thresholds={selectedWaterForConditions.thresholds}
+        riverMapConfig={selectedWaterForConditions.riverMapConfig}
+        onClose={() => setSelectedWaterForConditions(null)}
+      />
+    )}
+
+    {/* ── Full water detail sheet (opens with this species pre-selected) ── */}
+    {selectedFullWater && (
+      <WaterDetailSheet
+        waterName={selectedFullWater}
+        onClose={() => setSelectedFullWater(null)}
+        zIndex={90}
+        initialSpeciesId={species.id}
+      />
+    )}
+
+    </>
+  )
+}

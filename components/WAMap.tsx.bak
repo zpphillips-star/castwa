@@ -1,0 +1,331 @@
+'use client'
+import { useState } from 'react'
+import { MapContainer, TileLayer, CircleMarker, Polyline, Popup } from 'react-leaflet'
+import 'leaflet/dist/leaflet.css'
+import { WATER_BODIES, REGULATIONS, SPECIES, SKAGIT_SECTIONS, isOpenOn } from '@/lib/fishing-data'
+import RiverSectionMap from './RiverSectionMap'
+import { SKAGIT_SECTION_COORDS } from '@/lib/river-sections-coords'
+import type { RiverSectionStatus } from './RiverSectionMapInner'
+import {
+  SKAGIT_COORDS,
+  SAUK_COORDS,
+  NOOKSACK_COORDS,
+  STILLAGUAMISH_COORDS,
+  SNOHOMISH_COORDS,
+  SKYKOMISH_COORDS,
+} from '@/lib/river-coords-generated'
+import { sliceRiverBetween } from '@/lib/river-regulation-segments'
+
+// ─── DATE RANGE PARSER ────────────────────────────────────────────────────────
+// Parses strings like "Jul 3 – Jul 31", "Jun 25 – Jun 26", "Immediately – Jul 31 2026"
+
+const MONTH_MAP: Record<string, number> = {
+  jan:0, feb:1, mar:2, apr:3, may:4, jun:5,
+  jul:6, aug:7, sep:8, oct:9, nov:10, dec:11,
+}
+
+function parseMonDay(s: string): { m: number; d: number } | null {
+  const m = s.trim().match(/^(\w{3})\.?\s+(\d+)/i)
+  if (!m) return null
+  const mon = MONTH_MAP[m[1].toLowerCase()]
+  return mon !== undefined ? { m: mon, d: parseInt(m[2]) } : null
+}
+
+function isInRange(today: Date, rangeStr: string): boolean {
+  const yr = today.getFullYear()
+  const s = rangeStr.trim()
+  if (s.toLowerCase().startsWith('year')) return true
+  if (s.toLowerCase().startsWith('all other') || s === '—') return false
+
+  if (s.toLowerCase().startsWith('immediately') || s.toLowerCase().startsWith('now')) {
+    const endPart = s.match(/–\s*(.+)/)
+    if (!endPart) return true
+    const ep = parseMonDay(endPart[1])
+    if (!ep) return true
+    return today <= new Date(yr, ep.m, ep.d, 23, 59, 59)
+  }
+
+  const parts = s.split(/\s*–\s*/)
+  if (parts.length !== 2) return false
+  const a = parseMonDay(parts[0])
+  const b = parseMonDay(parts[1])
+  if (!a || !b) return false
+  const start = new Date(yr, a.m, a.d)
+  const end   = new Date(b.m < a.m ? yr + 1 : yr, b.m, b.d, 23, 59, 59)
+  return today >= start && today <= end
+}
+
+// ─── SKAGIT SECTION STATUS ────────────────────────────────────────────────────
+
+type SegStatus = 'open' | 'closed_hard' | 'closed'
+
+function skagitStatus(sectionId: string, today: Date): { status: SegStatus; line1: string; line2?: string } {
+  const sec = SKAGIT_SECTIONS.find(s => s.id === sectionId)
+  if (!sec) return { status: 'closed', line1: 'No data' }
+
+  // Emergency rule: hard closures first
+  if (sec.emergencyRule) {
+    for (const o of sec.emergencyRule.overrides) {
+      if (o.status === 'CLOSED' && isInRange(today, o.dates)) {
+        return { status: 'closed_hard', line1: '⛔ Emergency closure', line2: o.notes }
+      }
+    }
+    // Emergency open overrides
+    for (const o of sec.emergencyRule.overrides) {
+      if (o.status === 'OPEN' && isInRange(today, o.dates)) {
+        return { status: 'open', line1: '🚨 Emergency rule', line2: o.notes.split('.')[0] }
+      }
+    }
+  }
+
+  // Base pamphlet — check each season entry
+  for (const s of sec.seasons) {
+    if (s.closed) continue
+    if (!s.open || s.open === '—') continue
+    // season.open can be compound: "Jun 1–Jun 30 / Aug 1–Aug 15"
+    const ranges = s.open.split(/[/&+]/).map(r => r.trim())
+    for (const r of ranges) {
+      if (isInRange(today, r)) {
+        return {
+          status: 'open',
+          line1: s.species,
+          line2: s.dailyLimit ? `Limit ${s.dailyLimit}` : undefined,
+        }
+      }
+    }
+  }
+
+  // Hard-closed seasons (e.g. "CLOSED WATERS Jun 1 – Sep 15")
+  for (const s of sec.seasons) {
+    if (!s.closed) continue
+    if (s.open && s.open !== '—' && isInRange(today, s.open)) {
+      return { status: 'closed_hard', line1: s.notes ?? 'Closed waters', line2: undefined }
+    }
+  }
+
+  return { status: 'closed', line1: 'No open season today' }
+}
+
+// ─── PRE-COMPUTE SKAGIT PRECISE COORDS FROM OSM TRACE ────────────────────────
+// For each regulation section, slice the full OSM trace between its endpoints.
+// Falls back to existing simple coords if the OSM slice is too short.
+const SKAGIT_PRECISE: Record<string, [number, number][]> = Object.fromEntries(
+  Object.entries(SKAGIT_SECTION_COORDS).map(([id, sec]) => {
+    const start = sec.coords[0]
+    const end   = sec.coords[sec.coords.length - 1]
+    const slice = sliceRiverBetween(SKAGIT_COORDS, start, end)
+    return [id, slice.length >= 3 ? slice : sec.coords]
+  })
+)
+
+// ─── RIVER SEGMENT DEFINITIONS ───────────────────────────────────────────────
+// Skagit: 8 regulation sections — coords now come from OSM trace
+// Other rivers: OSM geometry, colored by basic regulation status or geography
+
+type RiverSeg = {
+  id: string
+  label: string
+  skagitId?: string          // links to SKAGIT_SECTIONS
+  waterBodyId?: string       // links to WATER_BODIES for regulation lookup
+  coords: [number, number][]
+  weight?: number
+  geoOnly?: boolean          // true = geography only, always blue-gray
+}
+
+const RIVER_SEGS: RiverSeg[] = [
+  // ── Skagit — 8 individually colored regulation sections (OSM trace) ──
+  { id: 'sk-1', label: 'Skagit: Mouth → Hwy 536 (Mt. Vernon)', skagitId: 'skagit-mouth-to-hwy536', weight: 5,
+    coords: SKAGIT_PRECISE['skagit-mouth-to-hwy536'] },
+  { id: 'sk-2', label: 'Skagit: Hwy 536 → Gilligan Creek', skagitId: 'skagit-hwy536-to-gilligan', weight: 5,
+    coords: SKAGIT_PRECISE['skagit-hwy536-to-gilligan'] },
+  { id: 'sk-3', label: 'Skagit: Gilligan Creek → Dalles Bridge (Concrete)', skagitId: 'skagit-gilligan-to-dalles', weight: 5,
+    coords: SKAGIT_PRECISE['skagit-gilligan-to-dalles'] },
+  { id: 'sk-4', label: 'Skagit: Dalles Bridge → 200\' Below Baker River', skagitId: 'skagit-dalles-to-baker-below', weight: 5,
+    coords: SKAGIT_PRECISE['skagit-dalles-to-baker-below'] },
+  { id: 'sk-5', label: 'Skagit: Baker Confluence Zone (±200\')', skagitId: 'skagit-baker-confluence', weight: 6,
+    coords: SKAGIT_PRECISE['skagit-baker-confluence'] },
+  { id: 'sk-6', label: 'Skagit: 200\' Above Baker → Hwy 530 (Rockport)', skagitId: 'skagit-baker-above-to-rockport', weight: 5,
+    coords: SKAGIT_PRECISE['skagit-baker-above-to-rockport'] },
+  { id: 'sk-7', label: 'Skagit: Rockport → Marblemount', skagitId: 'skagit-rockport-to-marblemount', weight: 5,
+    coords: SKAGIT_PRECISE['skagit-rockport-to-marblemount'] },
+  { id: 'sk-8', label: 'Skagit: Marblemount → Gorge Powerhouse (Newhalem)', skagitId: 'skagit-marblemount-to-newhalem', weight: 5,
+    coords: SKAGIT_PRECISE['skagit-marblemount-to-newhalem'] },
+  // ── Northwest tributary rivers (OSM geometry) ──
+  { id: 'sauk',          label: 'Sauk River',          geoOnly: true, weight: 3, coords: SAUK_COORDS },
+  { id: 'nooksack',      label: 'Nooksack River',      geoOnly: true, weight: 3, coords: NOOKSACK_COORDS },
+  { id: 'stillaguamish', label: 'Stillaguamish River', geoOnly: true, weight: 3, coords: STILLAGUAMISH_COORDS },
+  { id: 'skykomish',     label: 'Skykomish River',     geoOnly: true, weight: 3, coords: SKYKOMISH_COORDS },
+  // ── Other major WA rivers (regulation-colored) ──
+  { id: 'yakima',    label: 'Yakima River',    waterBodyId: 'yakima',
+    coords: [[46.98,-120.52],[46.83,-120.46],[46.65,-120.40],[46.50,-120.30],[46.36,-120.12],[46.20,-119.88],[46.20,-119.50]] },
+  { id: 'columbia',  label: 'Columbia River',  waterBodyId: 'columbia',
+    coords: [[49.0,-117.5],[48.5,-118.2],[47.9,-118.8],[47.2,-119.6],[46.65,-119.65],[46.2,-119.0],[45.86,-119.7],[45.66,-120.9],[45.64,-121.85],[45.62,-122.4]] },
+  { id: 'snake',     label: 'Snake River',     waterBodyId: 'snake',
+    coords: [[46.43,-117.04],[46.40,-117.4],[46.35,-117.7],[46.28,-118.0],[46.20,-118.5],[46.21,-119.02]] },
+  { id: 'green',     label: 'Green River',     waterBodyId: 'green',
+    coords: [[47.07,-122.13],[47.14,-122.17],[47.22,-122.22],[47.32,-122.21]] },
+  { id: 'snohomish', label: 'Snohomish River', waterBodyId: 'snohomish', coords: SNOHOMISH_COORDS },
+  { id: 'cedar',     label: 'Cedar River',     waterBodyId: 'cedar',
+    coords: [[47.48,-122.20],[47.50,-122.12],[47.52,-121.99],[47.53,-121.88]] },
+]
+
+// River water body IDs that are rendered as polylines (skip CircleMarker for these)
+const RIVER_POLY_IDS = new Set(RIVER_SEGS.map(s => s.waterBodyId).filter(Boolean))
+const SKAGIT_WB_IDS  = new Set(['skagit'])   // Skagit water body covered by section polylines
+
+// ─── COLORS ───────────────────────────────────────────────────────────────────
+const C_OPEN  = '#22c55e'   // green  — open today
+const C_HARD  = '#ef4444'   // red    — hard closed (emergency/regulation closure)
+const C_GREY  = '#374151'   // grey   — no open season
+const C_GREY2 = '#4b5563'   // lighter grey for stroke
+const C_GEO   = '#64748b'   // blue-gray — geography only, no regulation data
+
+export default function WAMap() {
+  const today = new Date()
+  const [mapSection, setMapSection] = useState<{
+    segId: string
+    label: string
+    status: RiverSectionStatus
+    popup1: string
+    popup2?: string
+  } | null>(null)
+
+  return (
+    <>
+    <MapContainer
+      center={[47.5, -120.5]}
+      zoom={7}
+      style={{ height: '100%', width: '100%', background: '#08080f' }}
+    >
+      <TileLayer
+        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+      />
+
+      {/* ── River polylines ── */}
+      {RIVER_SEGS.map(seg => {
+        let color: string
+        let popup1: string
+        let popup2: string | undefined
+
+        if (seg.geoOnly) {
+          // Geography-only river — no regulation data, always blue-gray
+          color  = C_GEO
+          popup1 = 'River geography'
+        } else if (seg.skagitId) {
+          // Skagit section — use section-level status
+          const { status, line1, line2 } = skagitStatus(seg.skagitId, today)
+          color  = status === 'open' ? C_OPEN : status === 'closed_hard' ? C_HARD : C_GREY
+          popup1 = line1
+          popup2 = line2
+        } else if (seg.waterBodyId) {
+          // Other river — check REGULATIONS
+          const regs = REGULATIONS.filter(r => r.waterBodyId === seg.waterBodyId)
+          const open = regs.filter(r => isOpenOn(r, today))
+          if (open.length > 0) {
+            color  = C_OPEN
+            popup1 = open.map(r => SPECIES.find(s => s.id === r.speciesId)?.name).filter(Boolean).join(', ')
+          } else {
+            color  = C_GREY
+            popup1 = 'No open species today'
+          }
+        } else {
+          color = C_GREY; popup1 = ''
+        }
+
+        return (
+          <Polyline
+            key={seg.id}
+            positions={seg.coords}
+            pathOptions={{ color, weight: seg.weight ?? 3, opacity: 0.9, lineCap: 'round', lineJoin: 'round' }}
+            eventHandlers={seg.skagitId ? {
+              click: () => {
+                const segStatus: RiverSectionStatus =
+                  color === C_OPEN ? 'open' : color === C_HARD ? 'closed' : 'closed'
+                setMapSection({
+                  segId: seg.skagitId!,
+                  label: seg.label,
+                  status: segStatus,
+                  popup1,
+                  popup2,
+                })
+              }
+            } : {}}
+          >
+            <Popup>
+              <div style={{ background: '#111118', color: '#fff', borderRadius: 8, padding: '8px 12px', minWidth: 170 }}>
+                <p style={{ fontWeight: 700, fontSize: 12, marginBottom: 3 }}>{seg.label}</p>
+                <p style={{ fontSize: 11, marginBottom: popup2 ? 2 : 0,
+                  color: color === C_OPEN ? C_OPEN : color === C_HARD ? '#ef4444' : color === C_GEO ? C_GEO : '#6b7280' }}>
+                  {popup1}
+                </p>
+                {popup2 && <p style={{ fontSize: 10, color: '#9ca3af' }}>{popup2}</p>}
+                {seg.skagitId && (
+                  <p style={{ fontSize: 10, color: '#6b7280', marginTop: 4 }}>Tap line to open section map</p>
+                )}
+              </div>
+            </Popup>
+          </Polyline>
+        )
+      })}
+
+      {/* ── Lakes, sounds, bays — CircleMarker ── */}
+      {WATER_BODIES
+        .filter(wb => !RIVER_POLY_IDS.has(wb.id) && !SKAGIT_WB_IDS.has(wb.id) && wb.type !== 'river' && wb.type !== 'stream')
+        .map(wb => {
+          const regs = REGULATIONS.filter(r => r.waterBodyId === wb.id)
+          const open = regs.filter(r => isOpenOn(r, today))
+          const hasOpen = open.length > 0
+          const names  = open.map(r => SPECIES.find(s => s.id === r.speciesId)?.name).filter(Boolean)
+          return (
+            <CircleMarker
+              key={wb.id}
+              center={[wb.lat, wb.lng]}
+              radius={7}
+              pathOptions={{
+                fillColor: hasOpen ? C_OPEN : C_GREY,
+                fillOpacity: 0.85,
+                color: hasOpen ? C_OPEN : C_GREY2,
+                weight: 2,
+              }}
+            >
+              <Popup>
+                <div style={{ background: '#111118', color: '#fff', borderRadius: 8, padding: '8px 12px', minWidth: 160 }}>
+                  <p style={{ fontWeight: 700, marginBottom: 3, fontSize: 12 }}>{wb.name}</p>
+                  <p style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>{wb.region} · {wb.type}</p>
+                  {names.length > 0 ? (
+                    <>
+                      <p style={{ fontSize: 10, color: C_OPEN, fontWeight: 600, marginBottom: 2 }}>OPEN TODAY:</p>
+                      {names.map((n, i) => <p key={i} style={{ fontSize: 11, color: '#e5e7eb' }}>{n}</p>)}
+                    </>
+                  ) : (
+                    <p style={{ fontSize: 11, color: '#6b7280' }}>No open species today</p>
+                  )}
+                </div>
+              </Popup>
+            </CircleMarker>
+          )
+        })}
+    </MapContainer>
+
+    {/* ── River section map modal (opened by clicking a Skagit polyline) ── */}
+    {mapSection && (() => {
+      const coordData = SKAGIT_SECTION_COORDS[mapSection.segId]
+      if (!coordData) return null
+      // Use precise OSM-traced coords if available, otherwise fall back to simple coords
+      const preciseCoords = SKAGIT_PRECISE[mapSection.segId] ?? coordData.coords
+      return (
+        <RiverSectionMap
+          sectionName={mapSection.label}
+          startLabel={coordData.startLabel}
+          endLabel={coordData.endLabel}
+          coordinates={preciseCoords}
+          status={mapSection.status}
+          detail={mapSection.popup2 ?? mapSection.popup1}
+          onClose={() => setMapSection(null)}
+        />
+      )
+    })()}
+    </>
+  )
+}

@@ -1,111 +1,61 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
-import Link from 'next/link'
-import { WaterSheetProvider } from '@/contexts/WaterSheetContext'
-import RiverDetailSheet from '@/components/RiverDetailSheet'
+import type { Metadata, Viewport } from "next"
+import { Geist, Barlow_Condensed } from "next/font/google"
+import "./globals.css"
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] })
+const barlowCondensed = Barlow_Condensed({
+  variable: "--font-barlow",
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "800"],
+})
 
 export const metadata: Metadata = {
-  title: 'CastWA — Washington State Fishing Guide',
-  description: 'Find where to fish in Washington State. Species search, interactive map, and real-time regulations.',
-  keywords: 'Washington fishing, WA fishing regulations, fishing map, WDFW, salmon fishing, trout fishing',
-  openGraph: {
-    title: 'CastWA — Washington State Fishing Guide',
-    description: 'Find where to fish in Washington State',
-    type: 'website',
+  title: "CastWA — Washington Fishing Guide",
+  description: "Your guide to fishing in Washington State — species, regulations, seasons, and more",
+  icons: {
+    icon: [
+      { url: "/favicon-32.png", sizes: "32x32",   type: "image/png" },
+      { url: "/icon-192.png",   sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png",   sizes: "512x512", type: "image/png" },
+    ],
+    apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
   },
+}
+
+export const viewport: Viewport = {
+  themeColor: "#08080f",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable}>
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          crossOrigin=""
-        />
-      </head>
-      <body className="min-h-screen bg-[#0c1a2e] text-blue-50 antialiased">
-        <WaterSheetProvider>
-        <nav className="sticky top-0 z-[1001] border-b border-water-700/30 bg-water-950/80 backdrop-blur-md">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex h-16 items-center justify-between">
-              <Link href="/" className="flex items-center gap-2 group">
-                <span className="text-2xl">🎣</span>
-                <span className="text-xl font-bold text-white group-hover:text-water-300 transition-colors">
-                  CastWA
-                </span>
-              </Link>
-              <div className="flex items-center gap-1 sm:gap-2">
-                <Link
-                  href="/"
-                  className="px-3 py-2 rounded-lg text-sm font-medium text-water-200 hover:text-white hover:bg-water-800/50 transition-colors"
-                >
-                  Search
-                </Link>
-                <Link
-                  href="/waters"
-                  className="px-3 py-2 rounded-lg text-sm font-medium text-water-200 hover:text-white hover:bg-water-800/50 transition-colors"
-                >
-                  Waters
-                </Link>
-                <Link
-                  href="/map"
-                  className="px-3 py-2 rounded-lg text-sm font-medium text-water-200 hover:text-white hover:bg-water-800/50 transition-colors"
-                >
-                  Map
-                </Link>
-              </div>
-            </div>
-          </div>
-        </nav>
-        <div className="pb-14 md:pb-0">
-          <main>{children}</main>
-          <footer className="mt-16 border-t border-water-700/30 bg-water-950/50">
-          <div className="mx-auto max-w-7xl px-4 py-8 text-center text-sm text-water-400">
-            <p>
-              Regulations data sourced from{' '}
-              <a href="https://wdfw.wa.gov" className="text-water-300 hover:text-white underline">
-                WDFW
-              </a>
-              . Always verify current regulations before fishing.
-            </p>
-            <p className="mt-1">CastWA — Washington State Fishing Guide</p>
-          </div>
-        </footer>
+    <html lang="en">
+      <body className={`${geistSans.variable} ${barlowCondensed.variable} antialiased`}
+            style={{ background: "var(--bg)", color: "var(--text)" }}>
+        {/* ⚠️ Legal Disclaimer Banner */}
+        <div style={{
+          background: '#7f1d1d',
+          borderBottom: '2px solid #ef4444',
+          padding: '5px 16px',
+          textAlign: 'center',
+          fontSize: '11px',
+          lineHeight: '1.4',
+          color: '#fecaca',
+          fontFamily: 'var(--font-geist-sans)',
+          zIndex: 9999,
+          position: 'relative',
+        }}>
+          <strong style={{ color: '#fff' }}>⚠️ Reference only — always verify at</strong>
+          {' '}<a href="https://wdfw.wa.gov/fishing/regulations" target="_blank" rel="noopener noreferrer" 
+             style={{ color: '#fbbf24', textDecoration: 'underline' }}>
+            WDFW.wa.gov
+          </a>
         </div>
-
-        {/* Bottom nav — mobile only */}
-        <nav className="fixed bottom-0 left-0 right-0 z-[1001] flex h-14 items-center justify-around border-t border-water-700/30 bg-water-950/90 backdrop-blur-md md:hidden">
-          <Link
-            href="/"
-            className="flex flex-col items-center gap-0.5 px-4 py-2 text-water-300 hover:text-white transition-colors"
-          >
-            <span className="text-xl">🔍</span>
-            <span className="text-xs font-medium">Search</span>
-          </Link>
-          <Link
-            href="/waters"
-            className="flex flex-col items-center gap-0.5 px-4 py-2 text-water-300 hover:text-white transition-colors"
-          >
-            <span className="text-xl">💧</span>
-            <span className="text-xs font-medium">Waters</span>
-          </Link>
-          <Link
-            href="/map"
-            className="flex flex-col items-center gap-0.5 px-4 py-2 text-water-300 hover:text-white transition-colors"
-          >
-            <span className="text-xl">🗺️</span>
-            <span className="text-xs font-medium">Map</span>
-          </Link>
-        </nav>
-
-        {/* Universal water detail sheet — rendered once, globally */}
-        <RiverDetailSheet />
-        </WaterSheetProvider>
+        {children}
       </body>
     </html>
   )

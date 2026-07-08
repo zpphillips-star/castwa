@@ -1,49 +1,34 @@
-import { createServerSupabaseClient } from '@/lib/supabase-server'
-import MapView from '@/components/MapView'
-import type { WaterBody } from '@/types'
+'use client'
+import dynamic from 'next/dynamic'
+import BottomNav from '@/components/BottomNav'
 
-export const metadata = {
-  title: 'Interactive Fishing Map | CastWA',
-  description: 'Interactive map of Washington State fishing waters',
-}
+const MapWithFishSelector = dynamic(() => import('@/components/MapWithFishSelector'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex-1 flex items-center justify-center" style={{ color: 'var(--text-muted)' }}>
+      Loading map...
+    </div>
+  ),
+})
 
-export default async function MapPage() {
-  const supabase = await createServerSupabaseClient()
-
-  const { data: waters } = await supabase
-    .from('water_bodies')
-    .select('*')
-    .order('name')
-
-  const { data: openRegulations } = await supabase
-    .from('open_regulations')
-    .select('water_body_id')
-
-  const openWaterIds = new Set((openRegulations ?? []).map((r: { water_body_id: string }) => r.water_body_id))
-
-  const watersWithStatus = (waters ?? []).map((w: WaterBody) => ({
-    ...w,
-    hasOpenSeason: openWaterIds.has(w.id),
-  }))
-
+export default function MapPage() {
   return (
-    <div className="flex h-[calc(100vh-64px-56px)] flex-col md:h-[calc(100vh-64px)]">
-      <div className="border-b border-water-700/30 bg-water-950/50 px-4 py-3">
-        <div className="flex items-center gap-4 text-sm text-water-300">
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block h-3 w-3 rounded-full bg-water-400" /> Open season
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block h-3 w-3 rounded-full bg-gray-500" /> Closed / unknown
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block h-3 w-3 rounded-full bg-yellow-400" /> Opening soon
-          </span>
+    <div className="flex flex-col" style={{ height: '100dvh', background: 'var(--bg)', paddingBottom: '80px' }}>
+      <header className="glass-header px-4 flex-shrink-0">
+        <div className="max-w-lg mx-auto py-3 flex items-center justify-between">
+          <h1 className="text-lg font-bold text-white">WA Waters Map</h1>
+          <div className="flex items-center gap-3 text-[11px] font-semibold" style={{ color: 'var(--text-muted)' }}>
+            <span className="flex items-center gap-1"><span style={{ color: '#4ade80' }}>●</span> Open</span>
+            <span className="flex items-center gap-1"><span style={{ color: '#ef4444' }}>●</span> Closed</span>
+            <span className="flex items-center gap-1"><span style={{ color: '#6b7280' }}>●</span> No season</span>
+          </div>
         </div>
+      </header>
+      <div className="flex-1 relative">
+        <MapWithFishSelector />
       </div>
-      <div className="flex-1">
-        <MapView waters={watersWithStatus} />
-      </div>
+      <BottomNav />
     </div>
   )
 }
+
