@@ -225,10 +225,13 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
   const segments = useMemo<MapSegment[]>(() => {
     if (isSkagit) return buildSkagitSegmentsForSpecies(species.id)
     const coords = getRiverCoords(riverId ?? '')
-    if (coords.length === 0) return []
     const hasOpenReg = fishRegs.some(r => isOpenOn(r, today))
-    return [{ idx: 0, coords, status: hasOpenReg ? 'open' : 'closed', label: waterName }]
-  }, [isSkagit, species.id, riverId, fishRegs, waterName, today]) // eslint-disable-line react-hooks/exhaustive-deps
+    if (coords.length > 0) {
+      return [{ idx: 0, coords, status: hasOpenReg ? 'open' : 'closed', label: waterName }]
+    }
+    // Non-river water bodies (lakes, sounds, bays): fall back to a single map marker
+    return [{ idx: 0, coords: [[water.lat, water.lng]], status: hasOpenReg ? 'open' : 'closed', label: waterName }]
+  }, [isSkagit, species.id, riverId, fishRegs, waterName, water.lat, water.lng, today]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Emergency rules for this species on this river
   const emergencyRules = useMemo(() => {
@@ -526,6 +529,12 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
     return buildFullRiverSegment(riverEntry.id)
   }, [riverEntry])
 
+  // ── Location map for non-river water bodies (lakes, sounds, bays) ──
+  const lakeSegments = useMemo<MapSegment[]>(() => {
+    if (riverEntry || !water) return []
+    return [{ idx: 0, coords: [[water.lat, water.lng]], status: 'neutral', label: water.name }]
+  }, [riverEntry, water])
+
   // ── Self-fetch USGS flow ────────────────────────────────────────────────────
   useEffect(() => {
     if (!riverEntry) return
@@ -656,6 +665,24 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                 )}
                 <p className="text-[10px] mb-3" style={{ color: 'var(--text-faint)' }}>
                   Tap a fish below to see restrictions on the map
+                </p>
+              </div>
+            )}
+
+            {/* ── Location Map (lakes, sounds, bays — non-gauged waters) ── */}
+            {lakeSegments.length > 0 && (
+              <div className="px-4 pt-4">
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-2"
+                  style={{ color: 'var(--text-faint)' }}>Location</p>
+                <div className="rounded-xl overflow-hidden mb-1" style={{ height: '200px' }}>
+                  <RiverDetailMapInner
+                    segments={lakeSegments}
+                    selectedIdx={-1}
+                    onSegmentClick={() => {}}
+                  />
+                </div>
+                <p className="text-[10px] mb-3" style={{ color: 'var(--text-faint)' }}>
+                  Tap a fish below to see regulations
                 </p>
               </div>
             )}
