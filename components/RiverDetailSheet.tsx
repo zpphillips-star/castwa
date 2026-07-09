@@ -2,7 +2,7 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import {
-  SPECIES, Species, SKAGIT_SECTIONS, RiverSection,
+  SPECIES, Species, SKAGIT_SECTIONS, RiverSection, SeasonEntry,
   GEAR_ICON_INFO, GearIconCode,
 } from '@/lib/fishing-data'
 import {
@@ -43,6 +43,83 @@ function getSectionStatus(section: RiverSection): SegmentStatus {
   if (section.emergencyRule) return 'emergency'
   const allClosed = section.seasons.every(s => s.closed)
   return allClosed ? 'closed' : 'open'
+}
+
+// ─── Shared season-activity helpers (used by RestrictionCard + tile strip) ───
+
+const SEASON_MONTH_MAP: Record<string, number> = {
+  Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11
+}
+function parseSeasonMonthDay(str: string): number | null {
+  const m = str.trim().match(/^([A-Za-z]+)\s*(\d+)/)
+  if (!m) return null
+  const mo = SEASON_MONTH_MAP[m[1]]
+  if (mo === undefined) return null
+  return mo * 100 + parseInt(m[2])
+}
+function isSeasonRangeActiveToday(rangeStr: string, todayMD: number): boolean {
+  const parts = rangeStr.split(/\s*[–—-]\s*/)
+  if (parts.length < 2) return false
+  const start = parseSeasonMonthDay(parts[0])
+  const end   = parseSeasonMonthDay(parts[parts.length - 1])
+  if (start === null || end === null) return false
+  if (start <= end) return todayMD >= start && todayMD <= end
+  return todayMD >= start || todayMD <= end
+}
+function isSeasonEntryActiveToday(entry: { open?: string; closed?: boolean }): boolean {
+  if (entry.closed) return false
+  const open = (entry.open ?? '').trim()
+  if (!open || open === '—') return false
+  if (/year.round|c&r/i.test(open)) return true
+  const today   = new Date()
+  const todayMD = today.getMonth() * 100 + today.getDate()
+  return open.split(/[&\/]/).some(r => isSeasonRangeActiveToday(r.trim(), todayMD))
+}
+
+// ─── Tile fish-status (section color coding when a species is selected) ───────
+
+type TileFishStatus = 'green' | 'orange' | 'red' | 'blue'
+
+/**
+ * Returns the color status for a tile given the selected species:
+ *  blue   = no data for this fish in this section (no matching season entries)
+ *  red    = fish is explicitly closed here (all matching entries have closed:true,
+ *           OR no entry is active today)
+ *  orange = fish is open today but has notable restrictions (emergency rule, gear
+ *           restrictions, limits)
+ *  green  = fish is open today with no notable restrictions
+ */
+function getSpeciesStatusForTile(section: RiverSection, speciesName: string): TileFishStatus {
+  const entries = section.seasons.filter(e => e.species === speciesName)
+  if (entries.length === 0) return 'blue'
+
+  const allExplicitlyClosed = entries.every(e => e.closed === true)
+  if (allExplicitlyClosed) return 'red'
+
+  const hasActiveToday = entries.some(e => isSeasonEntryActiveToday(e))
+  if (!hasActiveToday) return 'red'
+
+  // Open today — check for restrictions
+  const RESTRICTION_ICONS: string[] = [
+    'EMERGENCY_RULE', 'TRIBAL_CLOSURE_RISK', 'CLOSED_WATERS_SUMMER',
+    'ANTI_SNAGGING', 'SINGLE_BARBLESS',
+  ]
+  const hasRestrictions =
+    !!section.emergencyRule ||
+    section.gearIcons.some(g => RESTRICTION_ICONS.includes(g)) ||
+    entries.some(e => e.dailyLimit !== undefined && e.dailyLimit !== null)
+
+  return hasRestrictions ? 'orange' : 'green'
+}
+
+const TILE_STATUS_COLORS: Record<TileFishStatus, {
+  bg: string; border: string; nameColor: string
+  numBg: string; numColor: string; glow: string
+}> = {
+  green:  { bg: 'rgba(74,222,128,0.15)',  border: 'rgba(74,222,128,0.60)',  nameColor: '#86efac', numBg: 'rgba(74,222,128,0.20)',  numColor: '#4ade80', glow: '0 0 14px rgba(74,222,128,0.18), 0 2px 8px rgba(0,0,0,0.4)'  },
+  orange: { bg: 'rgba(249,115,22,0.15)',  border: 'rgba(249,115,22,0.60)',  nameColor: '#fdba74', numBg: 'rgba(249,115,22,0.20)',  numColor: '#f97316', glow: '0 0 14px rgba(249,115,22,0.22), 0 2px 8px rgba(0,0,0,0.4)'  },
+  red:    { bg: 'rgba(239,68,68,0.12)',   border: 'rgba(239,68,68,0.50)',   nameColor: '#fca5a5', numBg: 'rgba(239,68,68,0.20)',   numColor: '#ef4444', glow: '0 0 12px rgba(239,68,68,0.16), 0 2px 8px rgba(0,0,0,0.4)'   },
+  blue:   { bg: 'rgba(96,165,250,0.10)',  border: 'rgba(96,165,250,0.40)',  nameColor: '#93c5fd', numBg: 'rgba(96,165,250,0.15)',  numColor: '#60a5fa', glow: '0 0 10px rgba(96,165,250,0.12), 0 2px 8px rgba(0,0,0,0.4)'  },
 }
 
 function getRiverFullCoords(riverId: string): [number, number][] {
@@ -193,36 +270,9 @@ function RestrictionCard({
     neutral:    '#60a5fa',
   }[getSectionStatus(section)]
 
-  // ── Today-aware season helpers ──────────────────────────────────────────────
-  const MONTH_MAP: Record<string, number> = {
-    Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11
-  }
-  function parseMonthDay(str: string): number | null {
-    const m = str.trim().match(/^([A-Za-z]+)\s*(\d+)/)
-    if (!m) return null
-    const mo = MONTH_MAP[m[1]]
-    if (mo === undefined) return null
-    return mo * 100 + parseInt(m[2])
-  }
-  function isRangeActiveToday(rangeStr: string): boolean {
-    const today = new Date()
-    const todayMD = today.getMonth() * 100 + today.getDate()
-    const parts = rangeStr.split(/\s*[–—-]\s*/)
-    if (parts.length < 2) return false
-    const start = parseMonthDay(parts[0])
-    const end = parseMonthDay(parts[parts.length - 1])
-    if (start === null || end === null) return false
-    if (start <= end) return todayMD >= start && todayMD <= end
-    // wraps year (e.g. Nov 1 – Mar 31)
-    return todayMD >= start || todayMD <= end
-  }
+  // ── Today-aware season helpers (using shared module-level functions) ──────────
   function isSeasonActiveToday(entry: { open?: string; closed?: boolean }): boolean {
-    if (entry.closed) return false
-    const open = (entry.open ?? '').trim()
-    if (!open || open === '—') return false
-    if (/year.round|c&r/i.test(open)) return true
-    // multiple ranges joined by & or /
-    return open.split(/[&\/]/).some(r => isRangeActiveToday(r.trim()))
+    return isSeasonEntryActiveToday(entry)
   }
 
   // ── Deduplicate seasons by species name — one card per fish, pick best entry ──
@@ -244,11 +294,40 @@ function RestrictionCard({
       season: best,
       allEntries: entries,
       speciesRecord: sp,
+      isFallback: false,
     }
   })
 
+  // ── Fallback: when this section has no seasons data, show all river-wide ──────
+  // species as CLOSED — absence of data = not authorised = closed.
+  const isSectionEmpty = fishItems.length === 0
+  const effectiveFishItems = isSectionEmpty
+    ? Array.from(new Set(SKAGIT_SECTIONS.flatMap(s => s.seasons.map(e => e.species))))
+        .map(name => {
+          const sp = SPECIES.find(x =>
+            x.name.toLowerCase() === name.toLowerCase() ||
+            x.name.toLowerCase().includes(name.toLowerCase().split(' ')[0]) ||
+            name.toLowerCase().includes(x.name.toLowerCase().split(' ')[0])
+          )
+          const fallbackEntry: SeasonEntry = {
+            species: name,
+            open: '—',
+            closed: true,
+            notes: 'No specific regulations found for this section — species is presumed closed. Check WDFW for details.',
+          }
+          return {
+            species: name,
+            openToday: false,
+            season: fallbackEntry,
+            allEntries: [fallbackEntry],
+            speciesRecord: sp,
+            isFallback: true,
+          }
+        })
+    : fishItems
+
   const selectedItem = selectedSpecies
-    ? fishItems.find(f => f.species === selectedSpecies)
+    ? effectiveFishItems.find(f => f.species === selectedSpecies)
     : null
   // for the drill-down, show the today-active entry or the "best" one
   const selectedSeason = selectedItem
@@ -316,9 +395,22 @@ function RestrictionCard({
         {/* ── Fish picker grid (no species selected) ── */}
         {!selectedSpecies && (
           <div className="p-4 space-y-4">
+            {/* Fallback notice: section has no data so we're showing river-wide species as CLOSED */}
+            {isSectionEmpty && (
+              <div className="rounded-xl p-3 flex gap-2.5 items-start"
+                style={{ background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.25)' }}>
+                <span className="text-base flex-shrink-0">ℹ️</span>
+                <div>
+                  <p className="text-xs font-bold mb-0.5" style={{ color: '#93c5fd' }}>No section-specific data</p>
+                  <p className="text-[11px] leading-snug" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                    No regulations were found for this section. All species are shown from the rest of the river and are presumed <span style={{ color: '#fca5a5', fontWeight: 700 }}>CLOSED</span> here. Verify with WDFW before fishing.
+                  </p>
+                </div>
+              </div>
+            )}
             {/* Fish photo grid — 3 per row, one card per species, today-aware */}
             <div className="grid grid-cols-3 gap-2.5">
-              {fishItems.map(({ species: name, openToday, season: s, speciesRecord: sp }) => {
+              {effectiveFishItems.map(({ species: name, openToday, season: s, speciesRecord: sp }) => {
                 return (
                   <button key={name}
                     onClick={() => setSelectedSpecies(name)}
@@ -400,12 +492,25 @@ function RestrictionCard({
           const todayOverride = er?.overrides.find(o =>
             o.startDate && o.endDate && today >= o.startDate && today <= o.endDate
           ) ?? null
-          const currentItem = fishItems.find(f => f.species === selectedSpecies)!
+          const currentItem = effectiveFishItems.find(f => f.species === selectedSpecies)!
+          const isFallbackItem = currentItem?.isFallback ?? false
 
           return (
             <div className="p-4 space-y-4">
 
-              {/* ── RIGHT NOW banner (always first) ── */}
+              {/* ── Fallback notice for sections without data ── */}
+              {isFallbackItem && (
+                <div className="rounded-xl p-3 flex gap-2.5 items-start"
+                  style={{ background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.3)' }}>
+                  <span className="text-base flex-shrink-0">🔵</span>
+                  <div>
+                    <p className="text-xs font-bold mb-0.5" style={{ color: '#93c5fd' }}>No data for this section</p>
+                    <p className="text-[11px] leading-snug" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                      No specific regulations were found for <strong style={{ color: 'rgba(255,255,255,0.8)' }}>{selectedSpecies}</strong> in this section. Absence of data means this species is <strong style={{ color: '#fca5a5' }}>presumed closed</strong> here. Always verify with WDFW before fishing.
+                    </p>
+                  </div>
+                </div>
+              )}
               {er && (
                 <div className="rounded-xl overflow-hidden"
                   style={{ border: `2px solid ${todayOverride?.status === 'CLOSED' ? '#ef4444' : todayOverride?.status === 'OPEN' ? '#4ade80' : '#f97316'}` }}>
@@ -789,6 +894,30 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
                 <div className="flex gap-2" style={{ paddingRight: 40 }}>
                   {sections.map((section, i) => {
                     const selected = selectedSectionIdx === i && cardOpen
+                    // When a fish is selected, compute its status for THIS tile's section
+                    const tileFishStatus: TileFishStatus | null = selectedSpecies
+                      ? getSpeciesStatusForTile(section, selectedSpecies)
+                      : null
+                    const tc = tileFishStatus ? TILE_STATUS_COLORS[tileFishStatus] : null
+
+                    // Background & border: fish-status-aware when a species is selected,
+                    // else fall back to the classic orange-selected / neutral-unselected style
+                    const tileBg     = tc ? tc.bg : selected
+                      ? 'linear-gradient(135deg, rgba(249,115,22,0.25), rgba(249,115,22,0.10))'
+                      : 'linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04))'
+                    const tileBorder = tc
+                      ? `${selected ? '2px' : '1.5px'} solid ${tc.border}`
+                      : selected
+                        ? '1.5px solid rgba(249,115,22,0.7)'
+                        : '1.5px solid rgba(255,255,255,0.18)'
+                    const tileShadow = tc ? tc.glow : selected
+                      ? '0 0 14px rgba(249,115,22,0.25), 0 2px 8px rgba(0,0,0,0.4)'
+                      : '0 2px 8px rgba(0,0,0,0.4)'
+                    const numBg    = tc ? tc.numBg    : selected ? 'rgba(249,115,22,0.3)' : 'rgba(255,255,255,0.1)'
+                    const numColor = tc ? tc.numColor : selected ? '#f97316' : 'rgba(255,255,255,0.5)'
+                    const nameColor = tc ? tc.nameColor : selected ? '#fdba74' : 'rgba(255,255,255,0.9)'
+                    const hintColor = tc ? tc.numColor : selected ? '#f97316' : 'rgba(255,255,255,0.3)'
+
                     return (
                       <button key={section.id}
                         onClick={() => handleTileClick(i)}
@@ -799,40 +928,36 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
                           maxWidth: 200,
                           borderRadius: 14,
                           padding: '10px 12px',
-                          background: selected
-                            ? 'linear-gradient(135deg, rgba(249,115,22,0.25), rgba(249,115,22,0.10))'
-                            : 'linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04))',
-                          border: selected
-                            ? '1.5px solid rgba(249,115,22,0.7)'
-                            : '1.5px solid rgba(255,255,255,0.18)',
-                          boxShadow: selected
-                            ? '0 0 14px rgba(249,115,22,0.25), 0 2px 8px rgba(0,0,0,0.4)'
-                            : '0 2px 8px rgba(0,0,0,0.4)',
+                          background: tileBg,
+                          border: tileBorder,
+                          boxShadow: tileShadow,
                           transform: selected ? 'translateY(-1px)' : 'none',
                         }}>
                         {/* Top row: pin icon + section number */}
                         <div className="flex items-center justify-between mb-1">
                           <span style={{ fontSize: 13 }}>📍</span>
                           <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
-                            style={{
-                              background: selected ? 'rgba(249,115,22,0.3)' : 'rgba(255,255,255,0.1)',
-                              color: selected ? '#f97316' : 'rgba(255,255,255,0.5)',
-                            }}>
+                            style={{ background: numBg, color: numColor }}>
                             {i + 1}/{sections.length}
                           </span>
                         </div>
                         {/* Section name */}
                         <p className="text-sm font-bold leading-snug"
                           style={{
-                            color: selected ? '#fdba74' : 'rgba(255,255,255,0.9)',
+                            color: nameColor,
                             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                           }}>
                           {section.name}
                         </p>
-                        {/* Tap hint arrow */}
+                        {/* Status hint row */}
                         <p className="text-[10px] mt-0.5 font-semibold"
-                          style={{ color: selected ? '#f97316' : 'rgba(255,255,255,0.3)' }}>
-                          {selected ? 'Viewing ›' : 'Tap to view ›'}
+                          style={{ color: hintColor }}>
+                          {selected ? 'Viewing ›' : tileFishStatus
+                            ? tileFishStatus === 'green'  ? '● Open ›'
+                            : tileFishStatus === 'orange' ? '⚠ Open / restricted ›'
+                            : tileFishStatus === 'red'    ? '○ Closed ›'
+                            :                               '? No data ›'
+                            : 'Tap to view ›'}
                         </p>
                       </button>
                     )
