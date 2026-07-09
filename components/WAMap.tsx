@@ -4,9 +4,7 @@ import type L from 'leaflet'
 import { MapContainer, TileLayer, CircleMarker, Polyline, Polygon, Popup, useMapEvents, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { WATER_BODIES, REGULATIONS, SKAGIT_SECTIONS, isOpenOn } from '@/lib/fishing-data'
-import RiverSectionMap from './RiverSectionMap'
 import { SKAGIT_SECTION_COORDS } from '@/lib/river-sections-coords'
-import type { RiverSectionStatus } from './RiverSectionMapInner'
 import {
   SKAGIT_COORDS,
   SAUK_COORDS,
@@ -25,6 +23,7 @@ interface WAMapProps {
   selectedFish?: string | null
   fishSegments?: FishSegment[]
   onSegmentClick?: (segment: FishSegment) => void
+  onOpenRiver?: (riverId: string) => void
   zoomToSkagit?: number
 }
 
@@ -314,25 +313,17 @@ const C_MARINE_GREY = '#374151'   // grey fill for closed/restricted marine area
 // ─── INNER MAP COMPONENT ─────────────────────────────────────────────────────
 // Must live inside <MapContainer> to use react-leaflet hooks.
 
-type MapSectionPayload = {
-  segId: string
-  label: string
-  status: RiverSectionStatus
-  popup1: string
-  popup2?: string
-}
-
 function WAMapContents({
   today,
-  onSelectSection,
+  onOpenRiver,
   fishSegments,
   onSegmentClick,
 }: {
   today: Date
-  onSelectSection: (s: MapSectionPayload) => void
+  onOpenRiver?: (riverId: string) => void
   fishSegments?: FishSegment[]
   onSegmentClick?: (segment: FishSegment) => void
-}) {
+}){
   // Track zoom for zoom-gated unregulated rivers
   const [zoom, setZoom] = useState(7)
   useMapEvents({ zoomend: (e) => setZoom((e.target as L.Map).getZoom()) })
@@ -374,13 +365,8 @@ function WAMapContents({
                 if (fishSeg && onSegmentClick) {
                   onSegmentClick(fishSeg)
                 } else {
-                  onSelectSection({
-                    segId: seg.skagitId,
-                    label: seg.label,
-                    status: status === 'open' ? 'open' : 'closed',
-                    popup1: line1,
-                    popup2: line2,
-                  })
+                  // No fish selected → open RiverDetailSheet for the Skagit
+                  onOpenRiver?.('skagit')
                 }
               },
             }}
@@ -627,12 +613,10 @@ function WAMapContents({
   )
 }
 
-export default function WAMap({ selectedFish, fishSegments, onSegmentClick, zoomToSkagit = 0 }: WAMapProps = {}) {
+export default function WAMap({ selectedFish, fishSegments, onSegmentClick, onOpenRiver, zoomToSkagit = 0 }: WAMapProps = {}) {
   const today = new Date()
-  const [mapSection, setMapSection] = useState<MapSectionPayload | null>(null)
 
   return (
-    <>
     <MapContainer
       center={[47.5, -120.5]}
       zoom={7}
@@ -644,26 +628,7 @@ export default function WAMap({ selectedFish, fishSegments, onSegmentClick, zoom
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
       />
       <MapController zoomToSkagit={zoomToSkagit} />
-      <WAMapContents today={today} onSelectSection={setMapSection} fishSegments={fishSegments} onSegmentClick={onSegmentClick} />
+      <WAMapContents today={today} onOpenRiver={onOpenRiver} fishSegments={fishSegments} onSegmentClick={onSegmentClick} />
     </MapContainer>
-
-    {/* ── River section map modal (opened by clicking a Skagit polyline) ── */}
-    {mapSection && (() => {
-      const coordData = SKAGIT_SECTION_COORDS[mapSection.segId]
-      if (!coordData) return null
-      const preciseCoords = SKAGIT_PRECISE[mapSection.segId] ?? coordData.coords
-      return (
-        <RiverSectionMap
-          sectionName={mapSection.label}
-          startLabel={coordData.startLabel}
-          endLabel={coordData.endLabel}
-          coordinates={preciseCoords}
-          status={mapSection.status}
-          detail={mapSection.popup2 ?? mapSection.popup1}
-          onClose={() => setMapSection(null)}
-        />
-      )
-    })()}
-    </>
   )
 }

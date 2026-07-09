@@ -1,35 +1,54 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import BottomNav from '@/components/BottomNav'
 import WaterDetailSheet from '@/components/WaterDetailSheet'
+import RiverDetailSheet from '@/components/RiverDetailSheet'
 import { WATER_BODIES, REGULATIONS, isOpenOn } from '@/lib/fishing-data'
+import type { WaterBody } from '@/lib/fishing-data'
 
-// ─── USGS gauged rivers ───────────────────────────────────────────────────────
-type GaugedRiver = {
+// ─── Canonical river list (matches RiverDetailSheet / FishDetailSheet) ────────
+// Every river water body must open RiverDetailSheet — this is the single source of
+// truth for which water bodies are "rivers" that get the river detail view.
+type RiverEntry = {
   id: string
   name: string
   region: string
   usgsId: string
+  targetSpecies: string[]
   idealCfs: { min: number; max: number }
 }
 
-const GAUGED_RIVERS: GaugedRiver[] = [
-  { id: 'skagit',        name: 'Skagit River',        region: 'Northwest',   usgsId: '12200500', idealCfs: { min: 3000,  max: 18000  } },
-  { id: 'snohomish',     name: 'Snohomish River',      region: 'Northwest',   usgsId: '12150800', idealCfs: { min: 2000,  max: 12000  } },
-  { id: 'nooksack',      name: 'Nooksack River',       region: 'Northwest',   usgsId: '12210500', idealCfs: { min: 1500,  max: 8000   } },
-  { id: 'stillaguamish', name: 'Stillaguamish River',  region: 'Northwest',   usgsId: '12167000', idealCfs: { min: 800,   max: 5000   } },
-  { id: 'sauk',          name: 'Sauk River',           region: 'Northwest',   usgsId: '12186000', idealCfs: { min: 500,   max: 3000   } },
-  { id: 'skykomish',     name: 'Skykomish River',      region: 'Northwest',   usgsId: '12134500', idealCfs: { min: 1000,  max: 8000   } },
-  { id: 'columbia',      name: 'Columbia River',       region: 'Southeast',   usgsId: '14105700', idealCfs: { min: 80000, max: 250000 } },
-  { id: 'snake',         name: 'Snake River',          region: 'Southeast',   usgsId: '13334300', idealCfs: { min: 10000, max: 80000  } },
-  { id: 'yakima',        name: 'Yakima River',         region: 'Central',     usgsId: '12492800', idealCfs: { min: 800,   max: 5000   } },
-  { id: 'cowlitz',       name: 'Cowlitz River',        region: 'Southwest',   usgsId: '14243000', idealCfs: { min: 2000,  max: 15000  } },
-  { id: 'green',         name: 'Green River',          region: 'Puget Sound', usgsId: '12113000', idealCfs: { min: 500,   max: 4000   } },
-  { id: 'puyallup',      name: 'Puyallup River',       region: 'Puget Sound', usgsId: '12101500', idealCfs: { min: 1000,  max: 8000   } },
-  { id: 'nisqually',     name: 'Nisqually River',      region: 'Puget Sound', usgsId: '12089500', idealCfs: { min: 500,   max: 4000   } },
-  { id: 'hoh',           name: 'Hoh River',            region: 'Olympic',     usgsId: '12041200', idealCfs: { min: 1000,  max: 8000   } },
+const ALL_RIVERS: RiverEntry[] = [
+  { id: 'skagit',        name: 'Skagit River',        region: 'Northwest',   usgsId: '12200500', targetSpecies: ['Chinook Salmon','Coho Salmon','Steelhead'],              idealCfs: { min: 3000,  max: 18000  } },
+  { id: 'snohomish',     name: 'Snohomish River',      region: 'Northwest',   usgsId: '12150800', targetSpecies: ['Coho Salmon','Chinook Salmon','Steelhead'],              idealCfs: { min: 2000,  max: 12000  } },
+  { id: 'nooksack',      name: 'Nooksack River',       region: 'Northwest',   usgsId: '12210500', targetSpecies: ['Chinook Salmon','Coho Salmon','Steelhead'],              idealCfs: { min: 1500,  max: 8000   } },
+  { id: 'stillaguamish', name: 'Stillaguamish River',  region: 'Northwest',   usgsId: '12167000', targetSpecies: ['Coho Salmon','Chinook Salmon','Steelhead'],              idealCfs: { min: 800,   max: 5000   } },
+  { id: 'sauk',          name: 'Sauk River',           region: 'Northwest',   usgsId: '12186000', targetSpecies: ['Chinook Salmon','Steelhead'],                           idealCfs: { min: 500,   max: 3000   } },
+  { id: 'skykomish',     name: 'Skykomish River',      region: 'Northwest',   usgsId: '12134500', targetSpecies: ['Coho Salmon','Chinook Salmon','Steelhead'],              idealCfs: { min: 1000,  max: 8000   } },
+  { id: 'columbia',      name: 'Columbia River',       region: 'Southeast',   usgsId: '14105700', targetSpecies: ['Chinook Salmon','Steelhead','Walleye','White Sturgeon'], idealCfs: { min: 80000, max: 250000 } },
+  { id: 'snake',         name: 'Snake River',          region: 'Southeast',   usgsId: '13334300', targetSpecies: ['Steelhead','Chinook Salmon','Walleye'],                  idealCfs: { min: 10000, max: 80000  } },
+  { id: 'yakima',        name: 'Yakima River',         region: 'Central',     usgsId: '12492800', targetSpecies: ['Rainbow Trout','Steelhead','Cutthroat Trout'],           idealCfs: { min: 800,   max: 5000   } },
+  { id: 'cowlitz',       name: 'Cowlitz River',        region: 'Southwest',   usgsId: '14243000', targetSpecies: ['Chinook Salmon','Coho Salmon','Steelhead'],              idealCfs: { min: 2000,  max: 15000  } },
+  { id: 'green',         name: 'Green River',          region: 'Puget Sound', usgsId: '12113000', targetSpecies: ['Coho Salmon','Chinook Salmon','Steelhead'],              idealCfs: { min: 500,   max: 4000   } },
+  { id: 'puyallup',      name: 'Puyallup River',       region: 'Puget Sound', usgsId: '12101500', targetSpecies: ['Coho Salmon','Chinook Salmon','Steelhead'],              idealCfs: { min: 1000,  max: 8000   } },
+  { id: 'nisqually',     name: 'Nisqually River',      region: 'Puget Sound', usgsId: '12089500', targetSpecies: ['Chinook Salmon','Coho Salmon','Steelhead'],              idealCfs: { min: 500,   max: 4000   } },
+  { id: 'hoh',           name: 'Hoh River',            region: 'Olympic',     usgsId: '12041200', targetSpecies: ['Chinook Salmon','Steelhead','Cutthroat Trout'],          idealCfs: { min: 1000,  max: 8000   } },
 ]
+
+// Keep GAUGED_RIVERS / GAUGED_IDS as aliases for flow-fetching (same set of rivers)
+type GaugedRiver = RiverEntry
+const GAUGED_RIVERS: GaugedRiver[] = ALL_RIVERS
 const GAUGED_IDS = new Set(GAUGED_RIVERS.map(r => r.id))
+
+// Find a river entry by water body id or name (fuzzy)
+function findRiverEntry(water: WaterBody): RiverEntry | null {
+  const lower = water.name.toLowerCase()
+  return (
+    ALL_RIVERS.find(r => r.id === water.id) ??
+    ALL_RIVERS.find(r => lower.includes(r.id) || r.name.toLowerCase() === lower) ??
+    null
+  )
+}
 
 type FlowStatus = 'ideal' | 'low' | 'high' | 'loading' | 'error'
 type FlowData = { cfs: number | null; status: FlowStatus; trend: 'rising' | 'falling' | 'stable' | null }
@@ -352,9 +371,21 @@ export default function WatersPage() {
   const [flowData, setFlowData] = useState<Record<string, FlowData>>({})
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  // Rivers → RiverDetailSheet (gold-standard view); everything else → WaterDetailSheet
+  const [selectedRiver, setSelectedRiver] = useState<RiverEntry | null>(null)
   const [selectedWaterName, setSelectedWaterName] = useState<string | null>(null)
   const [activeFilter, setActiveFilter] = useState<'all' | 'river' | 'lake' | 'marine'>('all')
   const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null)
+
+  // ── Single entry-point for all water-body taps ────────────────────────────
+  const openWater = useCallback((water: WaterBody) => {
+    const river = findRiverEntry(water)
+    if (river) {
+      setSelectedRiver(river)
+    } else {
+      setSelectedWaterName(water.name)
+    }
+  }, [])
 
   const allSections = buildSections(today)
 
@@ -475,7 +506,7 @@ export default function WatersPage() {
                 return (
                   <button
                     key={water.id}
-                    onClick={() => setSelectedWaterName(water.name)}
+                    onClick={() => openWater(water)}
                     className="rounded-2xl text-left transition-all active:scale-[0.97] flex flex-col"
                     style={{
                       background: 'var(--surface)',
@@ -573,7 +604,7 @@ export default function WatersPage() {
                 return (
                   <button
                     key={water.id}
-                    onClick={() => setSelectedWaterName(water.name)}
+                    onClick={() => openWater(water)}
                     className="w-full text-left transition-all active:scale-[0.99]"
                     style={{
                       background: 'var(--surface)',
@@ -649,6 +680,18 @@ export default function WatersPage() {
         <WaterDetailSheet
           waterName={selectedWaterName}
           onClose={() => setSelectedWaterName(null)}
+        />
+      )}
+      {selectedRiver && (
+        <RiverDetailSheet
+          river={selectedRiver}
+          flow={{
+            cfs: flowData[selectedRiver.id]?.cfs ?? null,
+            status: flowData[selectedRiver.id]?.status ?? 'loading',
+            trend: flowData[selectedRiver.id]?.trend ?? null,
+            fetchedAt: lastUpdated ?? '',
+          }}
+          onClose={() => setSelectedRiver(null)}
         />
       )}
       <BottomNav />
