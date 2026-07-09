@@ -1,5 +1,5 @@
 'use client'
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import {
   SPECIES, Species, SKAGIT_SECTIONS, RiverSection,
@@ -13,6 +13,7 @@ import {
 import { sliceRiverBetween } from '@/lib/river-regulation-segments'
 import FishDetailSheet from './FishDetailSheet'
 import type { MapSegment, SegmentStatus } from './RiverDetailMapInner'
+import { useSwipeBack } from '@/hooks/useSwipeBack'
 
 // ─── Dynamic map (no SSR) ────────────────────────────────────────────────────
 const RiverDetailMapInner = dynamic(
@@ -713,6 +714,17 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
     setSelectedSpecies(null)
   }
 
+  // Swipe right = pop innermost layer: fish drill-down → section card → close sheet
+  // The restriction card div intercepts its own swipes (stopPropagation), so this
+  // handler only fires when the card is NOT intercepting (header/map area, or card closed)
+  const handleBack = useCallback(() => {
+    if (selectedSpecies) setSelectedSpecies(null)
+    else if (cardOpen) closeCard()
+    else onClose()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSpecies, cardOpen, onClose])
+  const swipeBack = useSwipeBack(handleBack)
+
   const currentSection = sections?.[selectedSectionIdx] ?? null
 
   return (
@@ -725,6 +737,7 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
         <div
           className="animate-slide-up rounded-t-2xl flex flex-col overflow-hidden"
           style={{ background: '#0d0f1a', height: '92dvh', position: 'relative' }}
+          {...swipeBack}
         >
 
           {/* ── Header ── */}
@@ -920,10 +933,15 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
                 background: '#0d0f1a',
                 overflow: 'hidden',
               }}
-              onTouchStart={e => setTouchStartX(e.touches[0].clientX)}
+              onTouchStart={e => { e.stopPropagation(); setTouchStartX(e.touches[0].clientX) }}
               onTouchEnd={e => {
+                e.stopPropagation()
                 const dx = e.changedTouches[0].clientX - touchStartX
-                if (Math.abs(dx) > 50) dx < 0 ? goNext() : goPrev()
+                if (Math.abs(dx) > 50) {
+                  if (dx < 0) goNext()
+                  else if (selectedSpecies) setSelectedSpecies(null)  // back: fish drill-down → section
+                  else closeCard()                                     // back: section card → river view
+                }
               }}
             >
               {currentSection && (

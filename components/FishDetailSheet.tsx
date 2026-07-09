@@ -358,7 +358,8 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
     if (Math.abs(dx) < 50) return
     const idx = TAB_ORDER.indexOf(activeTab)
     if (dx < 0 && idx < TAB_ORDER.length - 1) setActiveTab(TAB_ORDER[idx + 1])
-    if (dx > 0 && idx > 0) setActiveTab(TAB_ORDER[idx - 1])
+    else if (dx > 0 && idx > 0) setActiveTab(TAB_ORDER[idx - 1])
+    else if (dx > 0 && idx === 0) onClose()   // swipe right at first tab = go back / close
     touchStartX.current = null
   }
 

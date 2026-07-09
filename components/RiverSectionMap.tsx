@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
 import type { RiverSectionStatus } from './RiverSectionMapInner'
+import { useSwipeBack } from '@/hooks/useSwipeBack'
 
 const RiverSectionMapInner = dynamic(
   () => import('./RiverSectionMapInner'),
@@ -60,6 +61,7 @@ export default function RiverSectionMap({
   endCoord,
 }: RiverSectionMapProps) {
   const [fullScreen, setFullScreen] = useState(false)
+  const swipeBack = useSwipeBack(onClose)
 
   const color = STATUS_COLOR[status]
   const label = STATUS_LABEL[status]
@@ -84,6 +86,7 @@ export default function RiverSectionMap({
           transition: 'height 0.25s ease, border-radius 0.25s ease',
           boxShadow: '0 -4px 32px rgba(0,0,0,0.7)',
         }}
+        {...swipeBack}
       >
         {/* ── Header ── */}
         <div

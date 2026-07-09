@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import {
   WATER_BODIES, REGULATIONS, SPECIES, SKAGIT_SECTIONS,
@@ -14,6 +14,7 @@ import {
 import { sliceRiverBetween } from '@/lib/river-regulation-segments'
 import type { MapSegment, SegmentStatus } from './RiverDetailMapInner'
 import { FISH_TIPS } from './RiverDetailSheet'
+import { useSwipeBack } from '@/hooks/useSwipeBack'
 
 const RiverDetailMapInner = dynamic(
   () => import('./RiverDetailMapInner'),
@@ -512,6 +513,13 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
   const [sectionHighlighted, setSectionHighlighted] = useState(false)
   const [flow, setFlow]                         = useState<FlowData>({ cfs: null, status: 'loading', trend: null, fetchedAt: '' })
 
+  // Swipe right = pop innermost state: if species selected → clear it, else → close sheet
+  const handleBack = useCallback(() => {
+    if (selectedSpecies) setSelectedSpecies(null)
+    else onClose()
+  }, [selectedSpecies, onClose])
+  const swipeBack = useSwipeBack(handleBack)
+
   const today = new Date()
 
   // ── Look up water body ──────────────────────────────────────────────────────
@@ -594,6 +602,7 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
         <div
           className="animate-slide-up rounded-t-2xl flex flex-col overflow-hidden"
           style={{ background: '#0d0f1a', height: '92dvh' }}
+          {...swipeBack}
         >
 
           {/* ── When a species is selected: show fish-in-river view ── */}

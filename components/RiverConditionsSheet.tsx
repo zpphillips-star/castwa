@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import RiverSectionMap from './RiverSectionMap'
+import { useSwipeBack } from '@/hooks/useSwipeBack'
 
 // ─── TYPES ────────────────────────────────────────────────────────────────────
 
@@ -94,6 +95,7 @@ export default function RiverConditionsSheet({
 }: RiverConditionsSheetProps) {
   const [data, setData] = useState<SheetData>({ cfs: null, status: 'loading', trend: null })
   const [showMap, setShowMap] = useState(false)
+  const swipeBack = useSwipeBack(onClose)
 
   useEffect(() => {
     let cancelled = false
@@ -168,6 +170,7 @@ export default function RiverConditionsSheet({
           border: `1px solid ${borderColor}30`,
           borderBottom: 'none',
         }}
+        {...swipeBack}
       >
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
