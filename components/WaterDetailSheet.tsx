@@ -28,6 +28,19 @@ const RiverDetailMapInner = dynamic(
   }
 )
 
+const LakeMapInner = dynamic(
+  () => import('./LakeMapInner'),
+  {
+    ssr: false,
+    loading: () => (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',
+        height: '100%', background: '#b8d8ea', color: '#374151', fontSize: 14 }}>
+        Loading map…
+      </div>
+    ),
+  }
+)
+
 // ─── River data (rivers with USGS gauges) ─────────────────────────────────────
 type RiverEntry = {
   id: string; name: string; region: string; usgsId: string
@@ -221,7 +234,7 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
     return REGULATIONS.filter(r => r.speciesId === species.id && r.waterBodyId === water.id)
   }, [species.id, water.id])
 
-  // Build map segments
+  // Build map segments (river / Skagit only — lakes handled separately)
   const segments = useMemo<MapSegment[]>(() => {
     if (isSkagit) return buildSkagitSegmentsForSpecies(species.id)
     const coords = getRiverCoords(riverId ?? '')
@@ -229,9 +242,12 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
     if (coords.length > 0) {
       return [{ idx: 0, coords, status: hasOpenReg ? 'open' : 'closed', label: waterName }]
     }
-    // Non-river water bodies (lakes, sounds, bays): fall back to a single map marker
-    return [{ idx: 0, coords: [[water.lat, water.lng]], status: hasOpenReg ? 'open' : 'closed', label: waterName }]
-  }, [isSkagit, species.id, riverId, fishRegs, waterName, water.lat, water.lng, today]) // eslint-disable-line react-hooks/exhaustive-deps
+    return []
+  }, [isSkagit, species.id, riverId, fishRegs, waterName, today]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // True when the water body has no river-polyline data (lakes, sounds, bays)
+  const isLakeType = !isSkagit && segments.length === 0
+  const lakeRegStatus: 'open' | 'closed' = fishRegs.some(r => isOpenOn(r, today)) ? 'open' : 'closed'
 
   // Emergency rules for this species on this river
   const emergencyRules = useMemo(() => {
@@ -302,7 +318,16 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
       )}
 
       {/* ── Map (fixed height, not scrollable) ── */}
-      {segments.length > 0 && (
+      {isLakeType ? (
+        <div className="flex-shrink-0" style={{ height: '200px' }}>
+          <LakeMapInner
+            waterName={waterName}
+            lat={water.lat}
+            lng={water.lng}
+            fillColor={lakeRegStatus === 'open' ? '#4ade80' : '#ef4444'}
+          />
+        </div>
+      ) : segments.length > 0 ? (
         <div className="flex-shrink-0" style={{ height: '200px' }}>
           <RiverDetailMapInner
             segments={segments}
@@ -310,7 +335,7 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
             onSegmentClick={idx => { setSelectedSegIdx(idx); setSegHighlighted(true) }}
           />
         </div>
-      )}
+      ) : null}
 
       {/* ── Section tile strip (Skagit only, same as RiverDetailSheet) ── */}
       {isSkagit && segments.length > 0 && (
@@ -351,7 +376,7 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
       <div className="flex-1 overflow-y-auto no-scrollbar">
 
         {/* Legend (only when map is shown) */}
-        {segments.length > 0 && (
+        {(segments.length > 0 || isLakeType) && (
           <div className="flex gap-3 px-4 pt-3 pb-1 flex-wrap">
             {[
               { color: '#4ade80', label: 'OPEN' },
@@ -529,12 +554,6 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
     return buildFullRiverSegment(riverEntry.id)
   }, [riverEntry])
 
-  // ── Location map for non-river water bodies (lakes, sounds, bays) ──
-  const lakeSegments = useMemo<MapSegment[]>(() => {
-    if (riverEntry || !water) return []
-    return [{ idx: 0, coords: [[water.lat, water.lng]], status: 'neutral', label: water.name }]
-  }, [riverEntry, water])
-
   // ── Self-fetch USGS flow ────────────────────────────────────────────────────
   useEffect(() => {
     if (!riverEntry) return
@@ -670,15 +689,15 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
             )}
 
             {/* ── Location Map (lakes, sounds, bays — non-gauged waters) ── */}
-            {lakeSegments.length > 0 && (
+            {!riverEntry && water && (
               <div className="px-4 pt-4">
                 <p className="text-[10px] font-bold uppercase tracking-widest mb-2"
                   style={{ color: 'var(--text-faint)' }}>Location</p>
                 <div className="rounded-xl overflow-hidden mb-1" style={{ height: '200px' }}>
-                  <RiverDetailMapInner
-                    segments={lakeSegments}
-                    selectedIdx={-1}
-                    onSegmentClick={() => {}}
+                  <LakeMapInner
+                    waterName={water.name}
+                    lat={water.lat}
+                    lng={water.lng}
                   />
                 </div>
                 <p className="text-[10px] mb-3" style={{ color: 'var(--text-faint)' }}>
