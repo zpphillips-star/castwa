@@ -17,13 +17,23 @@ interface Props {
 function FitToPolygon({ geojson }: { geojson: GeoJsonObject }) {
   const map = useMap()
   useEffect(() => {
-    try {
-      const layer = L.geoJSON(geojson)
-      const bounds = layer.getBounds()
-      if (bounds.isValid()) {
-        map.fitBounds(bounds, { padding: [24, 24], animate: false })
-      }
-    } catch { /* ignore invalid geometry */ }
+    // Delay slightly so the map container is fully sized before we call
+    // fitBounds — otherwise Leaflet may only see a 0×0 or partial viewport.
+    const timer = setTimeout(() => {
+      try {
+        map.invalidateSize()          // force Leaflet to recalculate container size
+        const layer = L.geoJSON(geojson)
+        const bounds = layer.getBounds()
+        if (bounds.isValid()) {
+          map.fitBounds(bounds, {
+            padding: [40, 40],        // generous padding so edges aren't clipped
+            maxZoom: 14,              // don't zoom in too tight on tiny ponds
+            animate: false,
+          })
+        }
+      } catch { /* ignore invalid geometry */ }
+    }, 100)
+    return () => clearTimeout(timer)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [geojson])
   return null
@@ -77,7 +87,7 @@ export default function LakeMapInner({ waterName, lat, lng, fillColor = '#3b82f6
   return (
     <MapContainer
       center={[lat, lng]}
-      zoom={12}
+      zoom={10}
       style={{ height: '100%', width: '100%', background: '#b8d8ea' }}
       zoomControl={false}
       attributionControl={false}

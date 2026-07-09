@@ -31,13 +31,21 @@ const STATUS_COLOR: Record<SegmentStatus, string> = {
 function FitBounds({ coords }: { coords: [number, number][] }) {
   const map = useMap()
   useEffect(() => {
-    if (coords.length >= 2) {
+    const timer = setTimeout(() => {
       try {
-        map.fitBounds(L.latLngBounds(coords), { padding: [30, 30], animate: true })
+        map.invalidateSize()          // ensure container is properly sized
+        if (coords.length >= 2) {
+          map.fitBounds(L.latLngBounds(coords), {
+            padding: [40, 40],
+            maxZoom: 14,
+            animate: false,
+          })
+        } else if (coords.length === 1) {
+          map.setView(coords[0], 11, { animate: false })
+        }
       } catch { /* ignore invalid bounds */ }
-    } else if (coords.length === 1) {
-      map.setView(coords[0], 11, { animate: true })
-    }
+    }, 100)
+    return () => clearTimeout(timer)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [coords])
   return null
@@ -57,8 +65,8 @@ export default function RiverDetailMapInner({ segments, selectedIdx, onSegmentCl
   // Single-point (lake / bay / sound): use center+zoom instead of bounds
   const isSinglePoint = allCoords.length === 1
   const mapProps = isSinglePoint
-    ? { center: allCoords[0] as [number, number], zoom: 11 }
-    : { bounds: L.latLngBounds(allCoords), boundsOptions: { padding: [30, 30] as [number, number] } }
+    ? { center: allCoords[0] as [number, number], zoom: 10 }
+    : { bounds: L.latLngBounds(allCoords), boundsOptions: { padding: [40, 40] as [number, number], maxZoom: 14 } }
 
   const selectedCoords = segments[selectedIdx]?.coords ?? allCoords
 
