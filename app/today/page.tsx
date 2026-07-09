@@ -226,7 +226,7 @@ export default function TodayPage() {
         {/* ── WDFW EMERGENCY RULES — hero alert panel ── */}
         <button
           onClick={() => setShowAlertsSheet(true)}
-          className="w-full text-left rounded-2xl mb-5 transition-all active:scale-[0.99] overflow-hidden"
+          className="w-full text-left rounded-lg mb-5 transition-all active:scale-[0.99] overflow-hidden"
           style={{
             background: totalAlertCount > 0 ? 'rgba(239,68,68,0.10)' : 'rgba(255,255,255,0.04)',
             border: `1px solid ${totalAlertCount > 0 ? 'rgba(239,68,68,0.5)' : 'rgba(255,255,255,0.09)'}`,
@@ -294,29 +294,31 @@ export default function TodayPage() {
                 <button
                   key={g.name}
                   onClick={() => openRiverDetail(g.name)}
-                  className="w-full flex items-center justify-between px-5 py-4 transition-colors active:bg-white/5 cursor-pointer text-left"
+                  className="w-full flex items-center justify-between px-5 py-[18px] transition-colors active:bg-white/5 cursor-pointer text-left"
                   style={{ background: 'transparent' }}
                 >
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="flex items-center gap-3.5 flex-1 min-w-0">
                     {/* Status dot */}
-                    <span className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                      style={{ background: cfg.color, boxShadow: `0 0 6px ${cfg.color}` }} />
-                    <span className="text-base font-bold text-white truncate">{g.name}</span>
+                    <span className="w-3 h-3 rounded-full flex-shrink-0"
+                      style={{ background: cfg.color, boxShadow: `0 0 8px ${cfg.color}` }} />
+                    <div className="min-w-0">
+                      <p className="text-[17px] font-bold text-white leading-snug truncate">{g.name}</p>
+                      <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-faint)' }}>
+                        {g.trend ? `${TREND_ARROW[g.trend]} ${g.trend}` : 'Live · USGS'}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3 flex-shrink-0 ml-4">
-                    <span className="text-lg font-black tabular-nums" style={{ color: cfg.color }}>
-                      {g.cfs !== null ? g.cfs.toLocaleString() : '—'}
-                      <span className="text-xs font-semibold ml-1" style={{ color: 'var(--text-faint)' }}>cfs</span>
-                    </span>
-                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-md"
+                  <div className="flex items-center gap-2.5 flex-shrink-0 ml-4">
+                    <div className="text-right">
+                      <p className="text-xl font-black tabular-nums leading-tight" style={{ color: cfg.color }}>
+                        {g.cfs !== null ? g.cfs.toLocaleString() : '—'}
+                      </p>
+                      <p className="text-[10px] font-semibold leading-tight" style={{ color: 'var(--text-faint)' }}>cfs</p>
+                    </div>
+                    <span className="text-[10px] font-bold px-2.5 py-1.5 rounded-lg"
                       style={{ color: cfg.color, background: `${cfg.color}20`, border: `1px solid ${cfg.color}30` }}>
                       {cfg.label}
                     </span>
-                    {g.trend && (
-                      <span className="text-base font-black" style={{ color: cfg.color }}>
-                        {TREND_ARROW[g.trend]}
-                      </span>
-                    )}
                     <span className="text-sm font-light" style={{ color: 'var(--text-faint)' }}>›</span>
                   </div>
                 </button>

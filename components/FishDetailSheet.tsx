@@ -281,6 +281,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
   } | null>(null)
   const [selectedWaterForConditions, setSelectedWaterForConditions] = useState<GaugeConfig | null>(null)
   const [selectedFullWater, setSelectedFullWater] = useState<string | null>(null)
+  const [selectedRiverFromFish, setSelectedRiverFromFish] = useState<RiverEntry | null>(null)
   const regs    = REGULATIONS.filter(r => r.speciesId === species.id)
   const waters  = regs.map(r => WATER_BODIES.find(w => w.id === r.waterBodyId)!).filter(Boolean)
   const tips    = FISH_TIPS[species.id]
@@ -493,7 +494,14 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                         return (
                           <button
                             key={reg.id}
-                            onClick={() => setSelectedFullWater(water.name)}
+                            onClick={() => {
+                              const riverEntry = findRiverEntry(water.name)
+                              if (riverEntry) {
+                                setSelectedRiverFromFish(riverEntry)
+                              } else {
+                                setSelectedFullWater(water.name)
+                              }
+                            }}
                             className="flex items-center w-full text-left rounded-lg overflow-hidden transition-colors active:opacity-70"
                             style={{
                               background: bgColor,
@@ -782,6 +790,16 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
         onClose={() => setSelectedFullWater(null)}
         zIndex={90}
         initialSpeciesId={species.id}
+      />
+    )}
+
+    {/* ── River detail sheet (full RiverDetailSheet for rivers with USGS gauges) ── */}
+    {selectedRiverFromFish && (
+      <RiverDetailSheet
+        river={selectedRiverFromFish}
+        flow={{ cfs: null, status: 'loading', trend: null, fetchedAt: '' }}
+        onClose={() => setSelectedRiverFromFish(null)}
+        zIndex={zIndex + 40}
       />
     )}
 

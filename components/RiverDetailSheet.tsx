@@ -950,7 +950,7 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
       </div>
 
       {selectedFish && (
-        <FishDetailSheet species={selectedFish} onClose={() => setSelectedFish(null)} showTips />
+        <FishDetailSheet species={selectedFish} onClose={() => setSelectedFish(null)} showTips zIndex={zIndex + 30} />
       )}
     </>
   )
