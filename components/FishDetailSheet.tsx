@@ -351,8 +351,12 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
   }
 
   const touchStartX = useRef<number | null>(null)
-  function handleTouchStart(e: React.TouchEvent) { touchStartX.current = e.touches[0].clientX }
+  function handleTouchStart(e: React.TouchEvent) {
+    e.stopPropagation()
+    touchStartX.current = e.touches[0].clientX
+  }
   function handleTouchEnd(e: React.TouchEvent) {
+    e.stopPropagation()
     if (touchStartX.current === null) return
     const dx = e.changedTouches[0].clientX - touchStartX.current
     if (Math.abs(dx) < 50) return

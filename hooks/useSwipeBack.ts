@@ -20,6 +20,14 @@ export function useSwipeBack(onBack: () => void) {
   callbackRef.current = onBack
 
   const onTouchStart = useCallback((e: React.TouchEvent) => {
+    // Only arm swipe-back when the touch begins in the left 25 % of the screen
+    // (matches native iOS/Android edge-swipe zones and avoids conflicts with
+    // horizontal content swipes that start in the middle/right of the screen).
+    if (e.touches[0].clientX > window.innerWidth * 0.25) {
+      startX.current = null
+      startY.current = null
+      return
+    }
     startX.current = e.touches[0].clientX
     startY.current = e.touches[0].clientY
   }, [])

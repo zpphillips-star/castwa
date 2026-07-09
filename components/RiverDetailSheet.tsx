@@ -783,7 +783,9 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
               <div className="absolute right-0 top-0 bottom-0 w-12 pointer-events-none z-10"
                 style={{ background: 'linear-gradient(to right, transparent, rgba(0,0,0,0.7))' }} />
               <div className="overflow-x-auto no-scrollbar px-3 py-3"
-                style={{ scrollSnapType: 'x mandatory' }}>
+                style={{ scrollSnapType: 'x mandatory' }}
+                onTouchStart={e => e.stopPropagation()}
+                onTouchEnd={e => e.stopPropagation()}>
                 <div className="flex gap-2" style={{ paddingRight: 40 }}>
                   {sections.map((section, i) => {
                     const selected = selectedSectionIdx === i && cardOpen
