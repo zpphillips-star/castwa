@@ -543,7 +543,7 @@ export const REGULATIONS: Regulation[] = [
   { id: 'r234', speciesId: 'rainbow',    waterBodyId: 'washougal',  seasonStart: '04-25', seasonEnd: '10-31', dailyLimit: 5,  minSize: null, hatcheryOnly: false, gearRestriction: null,                 notes: null },
 
   // ── ENTIAT RIVER ─────────────────────────────────────────────────────────────
-  { id: 'r235', speciesId: 'chinook',    waterBodyId: 'entiat',     seasonStart: '08-01', seasonEnd: '10-31', dailyLimit: 2,  minSize: 24, hatcheryOnly: true,  gearRestriction: 'Barbless hooks only',  notes: 'Upper Columbia tributary; CRC required; see WDFW regulations for current restrictions' },
+  { id: 'r235', speciesId: 'chinook',    waterBodyId: 'entiat',     seasonStart: '08-01', seasonEnd: '10-31', dailyLimit: 2,  minSize: 24, hatcheryOnly: true,  gearRestriction: 'Barbless hooks only',  notes: '⚠️ EMERGENCY OPENER IN EFFECT: Entiat River open for summer Chinook starting Jul 9, 2026 until further notice (WDFW ER 26-125-136777). Emergency rules: limit 6 Chinook/day, min 12", release all other salmon, night closure. Base pamphlet season Aug 1–Oct 31, limit 2, min 24". May close on short notice — verify WDFW before fishing. Upper Columbia tributary; CRC required.' },
   { id: 'r236', speciesId: 'steelhead',  waterBodyId: 'entiat',     seasonStart: '09-01', seasonEnd: '03-31', dailyLimit: 2,  minSize: 20, hatcheryOnly: false, gearRestriction: null,                  notes: 'See WDFW regulations for current season dates and restrictions' },
   { id: 'r237', speciesId: 'rainbow',    waterBodyId: 'entiat',     seasonStart: '04-25', seasonEnd: '10-31', dailyLimit: 5,  minSize: null, hatcheryOnly: false, gearRestriction: null,                 notes: null },
 

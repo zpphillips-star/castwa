@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-const WDFW_RSS_URL = 'https://wdfw.wa.gov/rss/emergency-rules.xml'
+const WDFW_RSS_URL = 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/rss'
 
 export interface WDFWAlert {
   title: string
