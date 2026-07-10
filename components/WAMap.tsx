@@ -444,6 +444,9 @@ function WAMapContents({
                 lineCap: 'round',
                 lineJoin: 'round',
               }}
+              eventHandlers={fishingId && onOpenRiver ? {
+                click: () => onOpenRiver(fishingId),
+              } : undefined}
             >
               <Popup>
                 <div style={{ background: '#111118', color: '#fff', borderRadius: 8, padding: '8px 12px', minWidth: 160 }}>

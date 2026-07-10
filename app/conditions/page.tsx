@@ -6,54 +6,17 @@ import RiverDetailSheet from '@/components/RiverDetailSheet'
 import { WATER_BODIES, REGULATIONS, isOpenOn } from '@/lib/fishing-data'
 import type { WaterBody } from '@/lib/fishing-data'
 
-// ─── Canonical river list (matches RiverDetailSheet / FishDetailSheet) ────────
-// Every river water body must open RiverDetailSheet — this is the single source of
-// truth for which water bodies are "rivers" that get the river detail view.
-type RiverEntry = {
-  id: string
-  name: string
-  region: string
-  usgsId: string
-  targetSpecies: string[]
-  idealCfs: { min: number; max: number }
-}
+// ─── Canonical river list — single source of truth ───────────────────────────
+// Imported from lib/river-lookup; never duplicate here.
+import { RiverEntry, GAUGED_RIVERS, findRiverEntry } from '@/lib/river-lookup'
 
-const ALL_RIVERS: RiverEntry[] = [
-  { id: 'skagit',        name: 'Skagit River',        region: 'Northwest',   usgsId: '12200500', targetSpecies: ['Chinook Salmon','Coho Salmon','Steelhead'],              idealCfs: { min: 3000,  max: 18000  } },
-  { id: 'snohomish',     name: 'Snohomish River',      region: 'Northwest',   usgsId: '12150800', targetSpecies: ['Coho Salmon','Chinook Salmon','Steelhead'],              idealCfs: { min: 2000,  max: 12000  } },
-  { id: 'nooksack',      name: 'Nooksack River',       region: 'Northwest',   usgsId: '12210500', targetSpecies: ['Chinook Salmon','Coho Salmon','Steelhead'],              idealCfs: { min: 1500,  max: 8000   } },
-  { id: 'stillaguamish', name: 'Stillaguamish River',  region: 'Northwest',   usgsId: '12167000', targetSpecies: ['Coho Salmon','Chinook Salmon','Steelhead'],              idealCfs: { min: 800,   max: 5000   } },
-  { id: 'sauk',          name: 'Sauk River',           region: 'Northwest',   usgsId: '12186000', targetSpecies: ['Chinook Salmon','Steelhead'],                           idealCfs: { min: 500,   max: 3000   } },
-  { id: 'skykomish',     name: 'Skykomish River',      region: 'Northwest',   usgsId: '12134500', targetSpecies: ['Coho Salmon','Chinook Salmon','Steelhead'],              idealCfs: { min: 1000,  max: 8000   } },
-  { id: 'columbia',      name: 'Columbia River',       region: 'Southeast',   usgsId: '14105700', targetSpecies: ['Chinook Salmon','Steelhead','Walleye','White Sturgeon'], idealCfs: { min: 80000, max: 250000 } },
-  { id: 'snake',         name: 'Snake River',          region: 'Southeast',   usgsId: '13334300', targetSpecies: ['Steelhead','Chinook Salmon','Walleye'],                  idealCfs: { min: 10000, max: 80000  } },
-  { id: 'yakima',        name: 'Yakima River',         region: 'Central',     usgsId: '12492800', targetSpecies: ['Rainbow Trout','Steelhead','Cutthroat Trout'],           idealCfs: { min: 800,   max: 5000   } },
-  { id: 'cowlitz',       name: 'Cowlitz River',        region: 'Southwest',   usgsId: '14243000', targetSpecies: ['Chinook Salmon','Coho Salmon','Steelhead'],              idealCfs: { min: 2000,  max: 15000  } },
-  { id: 'green',         name: 'Green River',          region: 'Puget Sound', usgsId: '12113000', targetSpecies: ['Coho Salmon','Chinook Salmon','Steelhead'],              idealCfs: { min: 500,   max: 4000   } },
-  { id: 'puyallup',      name: 'Puyallup River',       region: 'Puget Sound', usgsId: '12101500', targetSpecies: ['Coho Salmon','Chinook Salmon','Steelhead'],              idealCfs: { min: 1000,  max: 8000   } },
-  { id: 'nisqually',     name: 'Nisqually River',      region: 'Puget Sound', usgsId: '12089500', targetSpecies: ['Chinook Salmon','Coho Salmon','Steelhead'],              idealCfs: { min: 500,   max: 4000   } },
-  { id: 'hoh',           name: 'Hoh River',            region: 'Olympic',     usgsId: '12041200', targetSpecies: ['Chinook Salmon','Steelhead','Cutthroat Trout'],          idealCfs: { min: 1000,  max: 8000   } },
-]
-
-// Keep GAUGED_RIVERS / GAUGED_IDS as aliases for flow-fetching (same set of rivers)
-type GaugedRiver = RiverEntry
-const GAUGED_RIVERS: GaugedRiver[] = ALL_RIVERS
+// GAUGED_IDS: used to show flow-rate indicators only for gauged rivers
 const GAUGED_IDS = new Set(GAUGED_RIVERS.map(r => r.id))
-
-// Find a river entry by water body id or name (fuzzy)
-function findRiverEntry(water: WaterBody): RiverEntry | null {
-  const lower = water.name.toLowerCase()
-  return (
-    ALL_RIVERS.find(r => r.id === water.id) ??
-    ALL_RIVERS.find(r => lower.includes(r.id) || r.name.toLowerCase() === lower) ??
-    null
-  )
-}
 
 type FlowStatus = 'ideal' | 'low' | 'high' | 'loading' | 'error'
 type FlowData = { cfs: number | null; status: FlowStatus; trend: 'rising' | 'falling' | 'stable' | null }
 
-function getFlowStatus(cfs: number, r: GaugedRiver): FlowStatus {
+function getFlowStatus(cfs: number, r: RiverEntry): FlowStatus {
   if (cfs >= r.idealCfs.min && cfs <= r.idealCfs.max) return 'ideal'
   if (cfs < r.idealCfs.min) return 'low'
   return 'high'

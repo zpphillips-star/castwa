@@ -9,18 +9,7 @@ import { useSelectedFishSegments } from '@/lib/use-fish-map-segments'
 import type { FishSegment } from '@/lib/use-fish-map-segments'
 import { SPECIES } from '@/lib/fishing-data'
 
-// Canonical Skagit entry for RiverDetailSheet
-const SKAGIT_RIVER = {
-  id: 'skagit', name: 'Skagit River', region: 'Northwest',
-  usgsId: '12200500',
-  targetSpecies: ['Chinook Salmon', 'Coho Salmon', 'Steelhead'],
-  idealCfs: { min: 3000, max: 18000 },
-}
-
-// All rivers that can be opened via onOpenRiver
-const RIVER_MAP: Record<string, typeof SKAGIT_RIVER> = {
-  skagit: SKAGIT_RIVER,
-}
+import { RIVER_MAP } from '@/lib/river-lookup'
 
 export default function MapWithFishSelector() {
   const [selectedFish, setSelectedFish] = useState<string | null>(null)
