@@ -246,6 +246,7 @@ function RestrictionCard({
   onNext,
   selectedSpecies,
   setSelectedSpecies,
+  onSelectFish,
 }: {
   section: RiverSection
   sectionIdx: number
@@ -255,6 +256,7 @@ function RestrictionCard({
   onNext: () => void
   selectedSpecies: string | null
   setSelectedSpecies: (s: string | null) => void
+  onSelectFish?: (sp: Species) => void
 }) {
   // No longer managing selectedSpecies locally — it lives in parent so swipes preserve it
   const [showFutureSeasons, setShowFutureSeasons] = useState(false)
@@ -413,7 +415,10 @@ function RestrictionCard({
               {effectiveFishItems.map(({ species: name, openToday, season: s, speciesRecord: sp }) => {
                 return (
                   <button key={name}
-                    onClick={() => setSelectedSpecies(name)}
+                    onClick={() => {
+                      if (sp && onSelectFish) { onSelectFish(sp) }
+                      else { setSelectedSpecies(name) }
+                    }}
                     className="flex flex-col items-center rounded-xl overflow-hidden transition-all active:scale-95"
                     style={{
                       background: 'rgba(255,255,255,0.05)',
@@ -1091,6 +1096,7 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
                   onNext={goNext}
                   selectedSpecies={selectedSpecies}
                   setSelectedSpecies={setSelectedSpecies}
+                  onSelectFish={setSelectedFish}
                 />
               )}
               {!currentSection && (

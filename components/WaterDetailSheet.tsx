@@ -14,6 +14,7 @@ import {
 import { sliceRiverBetween } from '@/lib/river-regulation-segments'
 import type { MapSegment, SegmentStatus } from './RiverDetailMapInner'
 import { FISH_TIPS } from './RiverDetailSheet'
+import FishDetailSheet from './FishDetailSheet'
 import { useSwipeBack } from '@/hooks/useSwipeBack'
 
 const RiverDetailMapInner = dynamic(
@@ -509,6 +510,8 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
   const [selectedSpecies, setSelectedSpecies] = useState<Species | null>(
     initialSpeciesId ? (SPECIES.find(s => s.id === initialSpeciesId) ?? null) : null
   )
+  // Fish tapped in the fish grid → open FishDetailSheet (consistent across all surfaces)
+  const [selectedFishForSheet, setSelectedFishForSheet] = useState<Species | null>(null)
   const [selectedSectionIdx, setSelectedSectionIdx] = useState(0)
   const [sectionHighlighted, setSectionHighlighted] = useState(false)
   const [flow, setFlow]                         = useState<FlowData>({ cfs: null, status: 'loading', trend: null, fetchedAt: '' })
@@ -736,7 +739,7 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                     return (
                       <button
                         key={reg.id}
-                        onClick={() => setSelectedSpecies(sp)}
+                        onClick={() => setSelectedFishForSheet(sp)}
                         className="flex flex-col items-center rounded-xl overflow-hidden transition-all active:scale-95"
                         style={{
                           background: 'rgba(255,255,255,0.05)',
@@ -798,6 +801,15 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
 
         </div>
       </div>
+
+      {/* Fish tapped in the fish grid → open FishDetailSheet (navigation parity with all other surfaces) */}
+      {selectedFishForSheet && (
+        <FishDetailSheet
+          species={selectedFishForSheet}
+          onClose={() => setSelectedFishForSheet(null)}
+          zIndex={(zIndex ?? 50) + 30}
+        />
+      )}
     </>
   )
 }
