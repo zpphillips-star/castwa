@@ -442,26 +442,30 @@ export default function TodayPage() {
                         </span>
                       </div>
                       {isOpen && bestReg ? (
-                        <div className="flex items-center gap-3 flex-wrap">
+                        <div className="grid grid-cols-2 gap-x-5 gap-y-1 mt-0.5">
                           {bestReg.dailyLimit !== null && (
-                            <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>
-                              🎣 {bestReg.dailyLimit}/day
-                            </span>
+                            <div className="flex items-baseline gap-1.5">
+                              <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 34 }}>Limit</span>
+                              <span className="text-xs font-semibold text-white">{bestReg.dailyLimit} / day</span>
+                            </div>
                           )}
                           {bestReg.minSize !== null && (
-                            <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>
-                              📏 {bestReg.minSize}&quot; min
-                            </span>
-                          )}
-                          {bestReg.gearRestriction && (
-                            <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>
-                              🪝 {bestReg.gearRestriction}
-                            </span>
+                            <div className="flex items-baseline gap-1.5">
+                              <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 34 }}>Min</span>
+                              <span className="text-xs font-semibold text-white">{bestReg.minSize}&quot;</span>
+                            </div>
                           )}
                           {bestReg.hatcheryOnly && (
-                            <span className="text-xs font-semibold" style={{ color: '#f59e0b' }}>
-                              Hatchery only
-                            </span>
+                            <div className="flex items-baseline gap-1.5">
+                              <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 34 }}>Type</span>
+                              <span className="text-xs font-semibold" style={{ color: '#f59e0b' }}>Hatchery</span>
+                            </div>
+                          )}
+                          {bestReg.gearRestriction && (
+                            <div className="flex items-baseline gap-1.5 col-span-2">
+                              <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 34 }}>Gear</span>
+                              <span className="text-xs font-semibold text-white">{bestReg.gearRestriction}</span>
+                            </div>
                           )}
                         </div>
                       ) : (
