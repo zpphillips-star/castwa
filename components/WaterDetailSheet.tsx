@@ -715,10 +715,8 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
               </div>
             )}
 
-            {/* ── Regulations by Species ── */}
+            {/* ── Fish Grid ── */}
             <div className="px-4 pt-4 pb-4">
-              <p className="text-[10px] font-bold uppercase tracking-widest mb-3"
-                style={{ color: 'var(--text-faint)' }}>Regulations by Species</p>
 
               {speciesRegs.length === 0 ? (
                 <div className="rounded-xl p-4 text-center" style={{ border: '1px solid var(--border)' }}>
@@ -729,49 +727,49 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                   </a>
                 </div>
               ) : (
-                <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
-                  {speciesRegs.map(({ reg, species: sp }, i) => {
+                <div className="grid grid-cols-3 gap-2.5">
+                  {speciesRegs.map(({ reg, species: sp }) => {
                     const isOpen = isOpenOn(reg, today)
+                    const isTarget = riverEntry?.targetSpecies.some(n =>
+                      n === sp.name || sp.name.includes(n) || n.includes(sp.name.split(' ')[0])
+                    )
                     return (
                       <button
                         key={reg.id}
                         onClick={() => setSelectedSpecies(sp)}
-                        className="w-full text-left flex items-center gap-3 px-3 py-3 transition-colors active:opacity-70"
+                        className="flex flex-col items-center rounded-xl overflow-hidden transition-all active:scale-95"
                         style={{
-                          background: 'var(--bg)',
-                          borderBottom: i < speciesRegs.length - 1 ? '1px solid var(--border)' : 'none',
-                          borderLeft: `3px solid ${isOpen ? '#6ab04c' : '#374151'}`,
+                          background: 'rgba(255,255,255,0.05)',
+                          border: isTarget
+                            ? '1.5px solid rgba(242,101,34,0.4)'
+                            : '1.5px solid rgba(255,255,255,0.10)',
                         }}
                       >
-                        {/* Photo thumbnail */}
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={sp.photo} alt={sp.name}
-                          style={{ width: 40, height: 40, objectFit: 'contain', flexShrink: 0, borderRadius: 6, background: '#0b0d14' }} />
-
-                        {/* Name + dates */}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-white leading-tight">{sp.name}</p>
-                          <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                            {fmtDate(reg.seasonStart)} – {fmtDate(reg.seasonEnd)}
-                          </p>
-                          {reg.dailyLimit != null && (
-                            <p className="text-[11px]" style={{ color: 'var(--text-faint)' }}>
-                              Limit {reg.dailyLimit}
-                            </p>
+                        <div className="w-full aspect-square relative" style={{ background: '#0a0c14' }}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={sp.photo} alt={sp.name}
+                            className="w-full h-full object-contain"
+                            style={{ opacity: isOpen ? 1 : 0.45 }} />
+                          {/* Target badge */}
+                          {isTarget && (
+                            <div className="absolute top-1 left-1 px-1 py-0.5 rounded text-[9px] font-black"
+                              style={{ background: 'rgba(242,101,34,0.85)', color: 'white' }}>
+                              ★
+                            </div>
                           )}
-                        </div>
-
-                        {/* Badge + chevron */}
-                        <div className="flex-shrink-0 flex flex-col items-end gap-1">
-                          <span className="text-[10px] font-black px-2 py-0.5 rounded"
+                          {/* Open/Closed badge */}
+                          <div className="absolute top-1 right-1 px-1 py-0.5 rounded text-[9px] font-bold"
                             style={{
-                              background: isOpen ? 'rgba(106,176,76,0.18)' : 'rgba(107,114,128,0.18)',
-                              color: isOpen ? '#6ab04c' : '#9ca3af',
+                              background: isOpen ? 'rgba(74,222,128,0.9)' : 'rgba(239,68,68,0.85)',
+                              color: isOpen ? '#0d1a0d' : 'white',
                             }}>
-                            {isOpen ? '● OPEN' : '○ CLOSED'}
-                          </span>
-                          <span className="text-base font-light" style={{ color: 'var(--text-faint)' }}>›</span>
+                            {isOpen ? 'OPEN' : 'CLOSED'}
+                          </div>
                         </div>
+                        <p className="w-full text-center text-[10px] font-semibold px-1 py-1.5 leading-tight"
+                          style={{ color: isOpen ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.45)' }}>
+                          {sp.name}
+                        </p>
                       </button>
                     )
                   })}

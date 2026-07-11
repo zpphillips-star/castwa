@@ -986,27 +986,37 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
                 </div>
               )}
 
-              {/* Target species */}
-              <div>
-                <p className="text-[10px] font-bold mb-2 uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>Target Species</p>
-                <div className="flex flex-wrap gap-2">
-                  {river.targetSpecies.map(name => {
-                    const sp = SPECIES.find(s => s.name === name || s.name.includes(name) || name.includes(s.name.split(' ')[0]))
-                    const hasTips = sp && FISH_TIPS[sp.id]
-                    return (
-                      <button key={name}
-                        onClick={() => sp ? setSelectedFish(sp) : undefined}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all active:scale-95"
-                        style={{
-                          background: hasTips ? 'rgba(242,101,34,0.15)' : 'var(--surface)',
-                          border: `1px solid ${hasTips ? '#f26522' : 'var(--border)'}`,
-                          color: hasTips ? '#f26522' : 'var(--text-muted)',
-                        }}>
-                        🐟 {name}{hasTips ? ' ›' : ''}
-                      </button>
-                    )
-                  })}
-                </div>
+              {/* Fish grid */}
+              <div className="grid grid-cols-3 gap-2.5">
+                {river.targetSpecies.map(name => {
+                  const sp = SPECIES.find(s => s.name === name || s.name.includes(name) || name.includes(s.name.split(' ')[0]))
+                  return (
+                    <button key={name}
+                      onClick={() => sp ? setSelectedFish(sp) : undefined}
+                      className="flex flex-col items-center rounded-xl overflow-hidden transition-all active:scale-95"
+                      style={{
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1.5px solid rgba(242,101,34,0.4)',
+                      }}>
+                      <div className="w-full aspect-square relative" style={{ background: '#0a0c14' }}>
+                        {sp?.photo ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={sp.photo} alt={name} className="w-full h-full object-contain" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-2xl">🐟</div>
+                        )}
+                        <div className="absolute top-1 left-1 px-1 py-0.5 rounded text-[9px] font-black"
+                          style={{ background: 'rgba(242,101,34,0.85)', color: 'white', letterSpacing: '0.02em' }}>
+                          ★
+                        </div>
+                      </div>
+                      <p className="w-full text-center text-[10px] font-semibold px-1 py-1.5 leading-tight"
+                        style={{ color: 'rgba(255,255,255,0.85)' }}>
+                        {name}
+                      </p>
+                    </button>
+                  )
+                })}
               </div>
 
               {/* Access points */}
