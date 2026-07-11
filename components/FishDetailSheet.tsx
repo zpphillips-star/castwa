@@ -25,8 +25,8 @@ interface Props {
   zIndex?: number
 }
 
-type Tab = 'regs' | 'map' | 'gear' | 'tips'
-const TAB_ORDER: Tab[] = ['regs', 'map', 'gear', 'tips']
+type Tab = 'regs' | 'gear' | 'tips'
+const TAB_ORDER: Tab[] = ['regs', 'gear', 'tips']
 
 // ─── GEAR EMOJI LOOKUP ────────────────────────────────────────────────────────
 function getGearEmoji(name: string): string {
@@ -356,10 +356,9 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
   }
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: 'regs', label: 'Regs'  },
-    { key: 'map',  label: 'Map'   },
-    { key: 'gear', label: 'Gear'  },
-    { key: 'tips', label: 'Tips'  },
+    { key: 'regs', label: 'Waters' },
+    { key: 'gear', label: 'Gear'   },
+    { key: 'tips', label: 'Tips'   },
   ]
 
   return (
@@ -440,14 +439,46 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
         </div>
 
         {/* ── Tab content ── */}
-        <div className="flex-1 overflow-y-auto no-scrollbar p-4"
+        <div className="flex-1 overflow-y-auto no-scrollbar"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}>
 
-          {/* ════ REGULATIONS TAB ════ */}
+          {/* ════ WATERS TAB — map then list ════ */}
           {activeTab === 'regs' && (
-            <div className="space-y-3">
+            <div>
+              {/* ── WA State map ── */}
+              <div style={{ height: '38vh', position: 'relative' }}>
+                <WAMapDynamic
+                  fishSegments={fishSegments}
+                  onSegmentClick={(seg: FishSegment) => {
+                    const wb = WATER_BODIES.find(w => w.id === seg.waterId)
+                    if (wb) {
+                      const riverEntry = findRiverEntry(wb)
+                      if (riverEntry) setSelectedRiverFromFish(riverEntry)
+                      else setSelectedFullWater(seg.waterName)
+                    }
+                  }}
+                  onOpenRiver={(riverId: string) => {
+                    const wb = WATER_BODIES.find(w => w.id === riverId)
+                    if (wb) {
+                      const riverEntry = findRiverEntry(wb)
+                      if (riverEntry) setSelectedRiverFromFish(riverEntry)
+                    }
+                  }}
+                />
+                {/* Legend overlay */}
+                <div className="absolute bottom-2 left-2 flex gap-2.5 px-2.5 py-1.5 rounded-lg"
+                  style={{ background: 'rgba(10,12,20,0.85)', backdropFilter: 'blur(4px)' }}>
+                  {([['#22c55e','Open'],['#ef4444','Closed'],['#374151','No data']] as [string,string][]).map(([c,l]) => (
+                    <span key={l} className="flex items-center gap-1 text-[10px] font-semibold text-white">
+                      <span style={{ width:8, height:8, borderRadius:'50%', background:c, display:'inline-block', flexShrink:0 }} />{l}
+                    </span>
+                  ))}
+                </div>
+              </div>
 
+              {/* ── Water list ── */}
+              <div className="p-4 space-y-3">
               {regs.length === 0 ? (
                 <div className="rounded-xl p-4 text-center" style={{ border: '1px solid var(--border)' }}>
                   <p className="text-sm font-semibold text-white mb-1">No regulation data on file</p>
@@ -604,73 +635,13 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                   </a>
                 </>
               )}
-            </div>
-          )}
-
-          {/* ════ MAP TAB ════ */}
-          {activeTab === 'map' && (
-            <div className="-mx-4 -mt-4 flex flex-col" style={{ height: 'calc(92vh - 240px)' }}>
-              {/* WA state map — fills available space */}
-              <div className="flex-1 relative min-h-0">
-                <WAMapDynamic
-                  fishSegments={fishSegments}
-                  onSegmentClick={(seg: FishSegment) => {
-                    const wb = WATER_BODIES.find(w => w.id === seg.waterId)
-                    if (wb) {
-                      const riverEntry = findRiverEntry(wb)
-                      if (riverEntry) setSelectedRiverFromFish(riverEntry)
-                      else setSelectedFullWater(seg.waterName)
-                    }
-                  }}
-                  onOpenRiver={(riverId: string) => {
-                    const wb = WATER_BODIES.find(w => w.id === riverId)
-                    if (wb) {
-                      const riverEntry = findRiverEntry(wb)
-                      if (riverEntry) setSelectedRiverFromFish(riverEntry)
-                    }
-                  }}
-                />
-              </div>
-
-              {/* Legend + open waters summary */}
-              <div className="flex-shrink-0 px-4 py-3 space-y-2"
-                style={{ background: 'var(--surface)', borderTop: '1px solid var(--border)' }}>
-                {/* Legend */}
-                <div className="flex gap-4 flex-wrap">
-                  <span className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: '#22c55e' }}>
-                    <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#22c55e', display: 'inline-block', flexShrink: 0 }} />
-                    Open now
-                  </span>
-                  <span className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: '#ef4444' }}>
-                    <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#ef4444', display: 'inline-block', flexShrink: 0 }} />
-                    Closed
-                  </span>
-                  <span className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: '#6b7280' }}>
-                    <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#374151', display: 'inline-block', flexShrink: 0 }} />
-                    No data
-                  </span>
-                </div>
-                {/* Open waters pill list */}
-                {fishSegments.filter(s => s.status === 'open').length > 0 && (
-                  <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-                    <span className="font-bold text-white">
-                      {fishSegments.filter(s => s.status === 'open').length} open
-                    </span>
-                    {' '}— tap a body of water for details
-                  </p>
-                )}
-                {fishSegments.filter(s => s.status === 'open').length === 0 && (
-                  <p className="text-[11px]" style={{ color: 'var(--text-faint)' }}>
-                    No open waters today — check Regs tab for upcoming dates
-                  </p>
-                )}
-              </div>
+              </div>{/* end p-4 water list */}
             </div>
           )}
 
           {/* ════ GEAR TAB ════ */}
           {activeTab === 'gear' && (
-            <div className="space-y-3">
+            <div className="p-4 space-y-3">
               {!gear ? (
                 <p className="text-sm" style={{ color: 'var(--text-faint)' }}>No gear data on file yet.</p>
               ) : (
@@ -724,7 +695,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
 
           {/* ════ TIPS TAB ════ */}
           {activeTab === 'tips' && (
-            <div className="space-y-3">
+            <div className="p-4 space-y-3">
               {/* Best times */}
               {gear?.bestTimes && (
                 <div className="rounded-md" style={{ border: '1px solid var(--border)' }}>
