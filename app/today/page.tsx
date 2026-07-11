@@ -463,7 +463,7 @@ export default function TodayPage() {
                           )}
                           {bestReg.gearRestriction && (
                             <div className="flex items-baseline gap-1.5 col-span-2">
-                              <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 34 }}>Gear</span>
+                              <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 34 }}>Rules</span>
                               <span className="text-xs font-semibold text-white">{bestReg.gearRestriction}</span>
                             </div>
                           )}
