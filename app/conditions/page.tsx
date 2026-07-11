@@ -184,7 +184,7 @@ function WaGridMap({
   onSelect: (cell: [number, number] | null) => void
 }) {
   return (
-    <div style={{ borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+    <div style={{ borderRadius: '12px', overflow: 'hidden' }}>
       <svg
         viewBox="0 0 600 380"
         className="w-full"
@@ -437,8 +437,8 @@ export default function WatersPage() {
   }, [])
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg)', paddingBottom: '100px' }}>
-      <header className="glass-header sticky top-0 z-30 px-4">
+    <div className="flex flex-col" style={{ height: '100dvh', background: 'var(--bg)' }}>
+      <header className="glass-header flex-shrink-0 z-30 px-4">
         <div className="max-w-lg mx-auto py-3 flex items-center justify-between">
           <h1 className="text-lg font-bold text-white">Waters</h1>
           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
@@ -447,11 +447,13 @@ export default function WatersPage() {
         </div>
       </header>
 
-      <div className="max-w-lg mx-auto px-4 pt-3">
+      {/* ── Pinned: Most Active + Map ── */}
+      <div className="flex-shrink-0 max-w-lg mx-auto w-full px-4 pt-3"
+        style={{ background: 'var(--bg)' }}>
 
-        {/* ── Featured: top 4 waters with most open fishing ── */}
+        {/* Most Active Right Now */}
         {activeFilter === 'all' && selectedCell === null && featuredWaters.length > 0 && (
-          <div className="mb-6">
+          <div className="mb-4">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-xs font-bold tracking-widest uppercase" style={{ color: 'var(--text-faint)' }}>
                 Most Active Right Now
@@ -478,7 +480,6 @@ export default function WatersPage() {
                       overflow: 'hidden',
                     }}
                   >
-                    {/* Top stripe with type label */}
                     <div className="px-4 pt-4 pb-3 flex-1">
                       <div className="flex items-start justify-between mb-2">
                         <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded"
@@ -493,7 +494,6 @@ export default function WatersPage() {
                       <p className="text-base font-black text-white leading-tight mb-0.5">{water.name}</p>
                       <p className="text-xs font-medium" style={{ color: 'var(--text-faint)' }}>{water.region}</p>
                     </div>
-                    {/* Flow footer */}
                     {isGauged && flow && flow.cfs !== null && palette ? (
                       <div className="px-4 py-3 flex items-center gap-2"
                         style={{ borderTop: '1px solid var(--border)', background: `${palette.color}0d` }}>
@@ -515,13 +515,16 @@ export default function WatersPage() {
           </div>
         )}
 
-        {/* ── WA State Grid Map — sticky so it stays visible while list scrolls ── */}
-        <div className="sticky z-20 -mx-4 px-4 py-2"
-          style={{ top: '52px', background: 'var(--bg)' }}>
+        {/* WA Map — cushioned card */}
+        <div className="rounded-2xl mb-3"
+          style={{ background: 'var(--surface)', border: '1px solid var(--border)', padding: '10px 10px 6px' }}>
           <WaGridMap selected={selectedCell} onSelect={setSelectedCell} />
         </div>
+      </div>
 
-        {/* ── Filter chips ── */}
+      {/* ── Scrollable: filter chips + water list ── */}
+      <div className="flex-1 overflow-y-auto no-scrollbar" style={{ paddingBottom: '100px' }}>
+      <div className="max-w-lg mx-auto px-4 pt-1">
         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-4">
           {([
             { key: 'all',    label: 'All Waters' },
@@ -641,6 +644,7 @@ export default function WatersPage() {
           </div>
         </div>
       </div>{/* end max-w-lg */}
+      </div>{/* end scrollable */}
 
       {selectedWaterName && (
         <WaterDetailSheet
