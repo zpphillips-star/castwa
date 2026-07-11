@@ -452,7 +452,7 @@ export default function WatersPage() {
         style={{ background: 'var(--bg)' }}>
 
         {/* Most Active Right Now */}
-        {activeFilter === 'all' && featuredWaters.length > 0 && (
+        {featuredWaters.length > 0 && (
           <div className="mb-4">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-xs font-bold tracking-widest uppercase" style={{ color: 'var(--text-faint)' }}>
