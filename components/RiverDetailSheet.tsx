@@ -4,7 +4,7 @@ import { useStarredWaters } from '@/hooks/useStarred'
 import dynamic from 'next/dynamic'
 import {
   SPECIES, Species, SKAGIT_SECTIONS, RiverSection, SeasonEntry,
-  GEAR_ICON_INFO, GearIconCode,
+  GEAR_ICON_INFO, GearIconCode, REGULATIONS, WATER_BODIES, isOpenOn,
 } from '@/lib/fishing-data'
 import {
   SKAGIT_COORDS, SNOHOMISH_COORDS, NOOKSACK_COORDS,
@@ -804,6 +804,7 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
   }, [river.id])
 
   const details = RIVER_DETAILS[river.id]
+  const today = new Date()
 
   const handleTileClick = (idx: number) => {
     setSelectedSectionIdx(idx)
@@ -853,18 +854,30 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
         >
 
           {/* ── Header ── */}
-          <div className="flex-shrink-0 flex items-center justify-between px-4 py-3"
+          <div className="flex-shrink-0 flex items-start justify-between px-4 py-3"
             style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-            <div>
-              <div className="flex items-center gap-2 mb-0.5">
-                <h2 className="text-base font-bold text-white">{river.name}</h2>
-                <FlowBadge status={flow.status} />
+            <div className="flex-1 min-w-0 mr-3">
+              <h2 className="text-2xl font-black text-white leading-tight">{river.name}</h2>
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>
+                  {river.region} · River
+                </span>
+                <div className="flex items-center gap-1.5">
+                  <FlowBadge status={flow.status} />
+                  {flow.cfs !== null && (
+                    <span className="text-xs font-semibold tabular-nums" style={{ color: 'var(--text-muted)' }}>
+                      {formatCfs(flow.cfs)} cfs
+                    </span>
+                  )}
+                  {flow.trend && (
+                    <span className="text-xs font-bold" style={{ color: flow.trend === 'rising' ? '#ef4444' : flow.trend === 'falling' ? '#60a5fa' : '#22c55e' }}>
+                      {flow.trend === 'rising' ? '↑' : flow.trend === 'falling' ? '↓' : '→'}
+                    </span>
+                  )}
+                </div>
               </div>
-              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                {flow.cfs !== null ? `${formatCfs(flow.cfs)} cfs` : 'No data'}{flow.trend ? ` · ${flow.trend === 'rising' ? '↑' : flow.trend === 'falling' ? '↓' : '→'} ${flow.trend}` : ''} · {river.region}
-              </p>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+            <div className="flex items-center gap-2 flex-shrink-0 mt-1">
               {/* Star button */}
               <button
                 onClick={() => toggleWaterStar(river.id)}
@@ -996,7 +1009,74 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
                 <div />
               )}
 
-              {/* River about */}
+              {/* ── What's Open Today ── */}
+              {(() => {
+                const waterBody = WATER_BODIES.find(w => w.id === river.id)
+                const openRegs = waterBody
+                  ? REGULATIONS.filter(r => r.waterBodyId === waterBody.id && isOpenOn(r, today))
+                  : []
+                const openItems = openRegs
+                  .map(r => ({ reg: r, species: SPECIES.find(s => s.id === r.speciesId) }))
+                  .filter((x): x is { reg: typeof x.reg; species: NonNullable<typeof x.species> } => !!x.species)
+
+                if (openItems.length === 0) return (
+                  <div className="px-4 py-4 rounded-xl"
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--text-faint)' }}>What&apos;s Open Today</p>
+                    <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No species open today — check calendar for upcoming seasons</p>
+                  </div>
+                )
+
+                return (
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-widest mb-2 px-1" style={{ color: 'var(--text-faint)' }}>What&apos;s Open Today</p>
+                    <div className="rounded-2xl overflow-hidden"
+                      style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      {openItems.map(({ reg, species: sp }, i) => (
+                        <div key={reg.id}
+                          className="flex items-center gap-4 px-4 py-3.5"
+                          style={{ borderBottom: i < openItems.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+                          <div className="flex-shrink-0 rounded-lg overflow-hidden"
+                            style={{ width: 48, height: 48, background: '#0b0d14' }}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={sp.photo} alt={sp.name}
+                              style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 6 }} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-white leading-tight">{sp.name}</p>
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 mt-1">
+                              {reg.dailyLimit !== null && (
+                                <div className="flex items-baseline gap-1.5">
+                                  <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Limit</span>
+                                  <span className="text-xs font-semibold text-white">{reg.dailyLimit}/day</span>
+                                </div>
+                              )}
+                              {reg.minSize !== null && (
+                                <div className="flex items-baseline gap-1.5">
+                                  <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Min</span>
+                                  <span className="text-xs font-semibold text-white">{reg.minSize}&quot;</span>
+                                </div>
+                              )}
+                              {reg.hatcheryOnly && (
+                                <div className="flex items-baseline gap-1.5">
+                                  <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Type</span>
+                                  <span className="text-xs font-semibold" style={{ color: '#f59e0b' }}>Hatchery only</span>
+                                </div>
+                              )}
+                              {reg.gearRestriction && (
+                                <div className="flex items-baseline gap-1.5 col-span-2">
+                                  <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Rules</span>
+                                  <span className="text-xs font-semibold text-white">{reg.gearRestriction}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })()}
               {details && (
                 <div>
                   <p className="text-[10px] font-bold mb-2 uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>About this River</p>

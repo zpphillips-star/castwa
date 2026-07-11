@@ -733,6 +733,69 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
               </div>
             )}
 
+            {/* ── What's Open Today ── */}
+            {speciesRegs.length > 0 && (() => {
+              const openItems = speciesRegs.filter(({ reg }) => isOpenOn(reg, today))
+              if (openItems.length === 0) return (
+                <div className="px-4 pb-2">
+                  <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-faint)' }}>What&apos;s Open Today</p>
+                  <div className="px-4 py-3 rounded-xl"
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No species open today — check calendar for upcoming seasons</p>
+                  </div>
+                </div>
+              )
+              return (
+                <div className="px-4 pb-2">
+                  <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-faint)' }}>What&apos;s Open Today</p>
+                  <div className="rounded-2xl overflow-hidden"
+                    style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    {openItems.map(({ reg, species: sp }, i) => (
+                      <div key={reg.id}
+                        className="flex items-center gap-4 px-4 py-3.5"
+                        style={{ borderBottom: i < openItems.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+                        <div className="flex-shrink-0 rounded-lg overflow-hidden"
+                          style={{ width: 48, height: 48, background: '#0b0d14' }}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={sp.photo} alt={sp.name}
+                            style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 6 }} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-white leading-tight">{sp.name}</p>
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 mt-1">
+                            {reg.dailyLimit !== null && (
+                              <div className="flex items-baseline gap-1.5">
+                                <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Limit</span>
+                                <span className="text-xs font-semibold text-white">{reg.dailyLimit}/day</span>
+                              </div>
+                            )}
+                            {reg.minSize !== null && (
+                              <div className="flex items-baseline gap-1.5">
+                                <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Min</span>
+                                <span className="text-xs font-semibold text-white">{reg.minSize}&quot;</span>
+                              </div>
+                            )}
+                            {reg.hatcheryOnly && (
+                              <div className="flex items-baseline gap-1.5">
+                                <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Type</span>
+                                <span className="text-xs font-semibold" style={{ color: '#f59e0b' }}>Hatchery only</span>
+                              </div>
+                            )}
+                            {reg.gearRestriction && (
+                              <div className="flex items-baseline gap-1.5 col-span-2">
+                                <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Rules</span>
+                                <span className="text-xs font-semibold text-white">{reg.gearRestriction}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
+
             {/* ── Fish Grid ── */}
             <div className="px-4 pt-4 pb-4">
 
