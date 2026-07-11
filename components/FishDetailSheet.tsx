@@ -439,15 +439,15 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
         </div>
 
         {/* ── Tab content ── */}
-        <div className="flex-1 overflow-y-auto no-scrollbar"
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}>
 
-          {/* ════ WATERS TAB — map then list ════ */}
+          {/* ════ WATERS TAB — sticky map + scrollable list ════ */}
           {activeTab === 'regs' && (
-            <div>
-              {/* ── WA State map ── */}
-              <div style={{ height: '38vh', position: 'relative' }}>
+            <div className="flex flex-col min-h-0 flex-1">
+              {/* ── WA State map — stays put while list scrolls ── */}
+              <div className="flex-shrink-0" style={{ height: '38vh', position: 'relative' }}>
                 <WAMapDynamic
                   fishSegments={fishSegments}
                   onSegmentClick={(seg: FishSegment) => {
@@ -477,8 +477,8 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                 </div>
               </div>
 
-              {/* ── Water list ── */}
-              <div className="p-4 space-y-3">
+              {/* ── Water list — scrolls independently ── */}
+              <div className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-3">
               {regs.length === 0 ? (
                 <div className="rounded-xl p-4 text-center" style={{ border: '1px solid var(--border)' }}>
                   <p className="text-sm font-semibold text-white mb-1">No regulation data on file</p>
@@ -641,7 +641,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
 
           {/* ════ GEAR TAB ════ */}
           {activeTab === 'gear' && (
-            <div className="p-4 space-y-3">
+            <div className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-3">
               {!gear ? (
                 <p className="text-sm" style={{ color: 'var(--text-faint)' }}>No gear data on file yet.</p>
               ) : (
@@ -695,7 +695,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
 
           {/* ════ TIPS TAB ════ */}
           {activeTab === 'tips' && (
-            <div className="p-4 space-y-3">
+            <div className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-3">
               {/* Best times */}
               {gear?.bestTimes && (
                 <div className="rounded-md" style={{ border: '1px solid var(--border)' }}>
