@@ -1,12 +1,12 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import BottomNav from '@/components/BottomNav'
 import FishDetailSheet from '@/components/FishDetailSheet'
 import RiverDetailSheet from '@/components/RiverDetailSheet'
 import WaterDetailSheet from '@/components/WaterDetailSheet'
-import { REGULATIONS, WATER_BODIES, isOpenOn, getOpenSpeciesForDate, SPECIES, Species } from '@/lib/fishing-data'
+import { REGULATIONS, WATER_BODIES, isOpenOn, getOpenSpeciesForDate, daysUntilOpen, SPECIES, Species } from '@/lib/fishing-data'
 import { getActiveAlerts, EmergencyAlert } from '@/lib/emergency-alerts'
-import { useStarredFish, useStarredWaters } from '@/hooks/useStarred'
+import { useStarred } from '@/hooks/useStarred'
 
 // ─── WDFW LIVE ALERT TYPE ─────────────────────────────────────────────────────
 type WDFWLiveAlert = { title: string; link: string; pubDate: string }
@@ -169,14 +169,21 @@ export default function TodayPage() {
   const [liveAlerts, setLiveAlerts] = useState<WDFWLiveAlert[]>([])
   const [alertsLoading, setAlertsLoading] = useState(true)
 
-  const { ids: starredFishIds } = useStarredFish()
-  const { ids: starredWaterIds } = useStarredWaters()
+  const { starredFishIds, starredWaterIds, hydrated } = useStarred()
 
   // Starred fish species objects
   const starredFish = SPECIES.filter(s => starredFishIds.includes(s.id))
 
   // Starred water body objects
   const starredWaters = WATER_BODIES.filter(w => starredWaterIds.includes(w.id))
+
+  // Opening Soon — species not open today but opening within 14 days
+  const openingSoon = SPECIES
+    .filter(s => !getOpenSpeciesForDate(today).some(o => o.id === s.id))
+    .map(s => ({ species: s, days: daysUntilOpen(s.id, today) }))
+    .filter(x => x.days !== null && x.days <= 14)
+    .sort((a, b) => (a.days ?? 99) - (b.days ?? 99))
+    .slice(0, 6)
 
   // Static alerts (from lib/emergency-alerts.ts)
   const staticAlerts = getActiveAlerts(today)
@@ -193,35 +200,6 @@ export default function TodayPage() {
 
   const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
   const openSpecies = getOpenSpeciesForDate(today)
-
-  const openRiverDetail = useCallback(async (gaugeName: string) => {
-    const river = GAUGE_TO_RIVER[gaugeName]
-    if (!river) return
-    const loadingFlow: FlowData = { cfs: null, status: 'loading', trend: null, fetchedAt: '' }
-    setSelectedRiver(river)
-    setSelectedRiverFlow(loadingFlow)
-    try {
-      const url = `https://waterservices.usgs.gov/nwis/iv/?sites=${river.usgsId}&parameterCd=00060&format=json&period=PT2H`
-      const res = await fetch(url, { cache: 'no-store' })
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      const data = await res.json()
-      const series = data?.value?.timeSeries?.[0]
-      const values = series?.values?.[0]?.value
-      if (!values?.length) throw new Error('No data')
-      const latest = parseFloat(values[values.length - 1]?.value)
-      const prev = values.length > 1 ? parseFloat(values[values.length - 2]?.value) : latest
-      const trend: FlowData['trend'] =
-        latest > prev * 1.05 ? 'rising' : latest < prev * 0.95 ? 'falling' : 'stable'
-      setSelectedRiverFlow({
-        cfs: latest,
-        status: getFlowStatus(latest, river),
-        trend,
-        fetchedAt: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
-      })
-    } catch {
-      setSelectedRiverFlow({ cfs: null, status: 'error', trend: null, fetchedAt: '' })
-    }
-  }, [])
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg)', paddingBottom: '100px' }}>
@@ -285,15 +263,23 @@ export default function TodayPage() {
         <div className="mb-5">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-gray-400 text-xs font-semibold tracking-widest uppercase">My Fish</h2>
-            {starredFish.length > 0 && (
-              <span className="text-xs" style={{ color: 'var(--text-faint)' }}>
-                Tap ☆ on any fish to add
-              </span>
-            )}
+            <span className="text-xs" style={{ color: 'var(--text-faint)' }}>tap ☆ on any fish to add</span>
           </div>
 
-          {starredFish.length === 0 ? (
-            /* Onboarding empty state */
+          {!hydrated ? (
+            /* Skeleton while localStorage loads */
+            <div className="grid grid-cols-3 gap-3">
+              {[1,2,3].map(i => (
+                <div key={i} className="rounded-xl overflow-hidden animate-pulse"
+                  style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{ width: '100%', aspectRatio: '4/3', background: 'rgba(255,255,255,0.04)' }} />
+                  <div className="px-3 py-2.5">
+                    <div className="h-3 rounded" style={{ background: 'rgba(255,255,255,0.07)', width: '70%' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : starredFish.length === 0 ? (
             <button
               onClick={() => setShowOpenSheet(true)}
               className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl transition-all active:scale-[0.99]"
@@ -303,7 +289,7 @@ export default function TodayPage() {
               <div className="text-left flex-1 min-w-0">
                 <p className="text-sm font-bold text-white leading-tight">Star your favorite fish</p>
                 <p className="text-xs mt-0.5 leading-snug" style={{ color: 'var(--text-muted)' }}>
-                  Open a fish and tap ☆ — it will show up here every day
+                  Open any fish and tap ☆ — it shows up here every day
                 </p>
               </div>
               <span className="text-sm" style={{ color: 'var(--text-faint)' }}>›</span>
@@ -350,17 +336,25 @@ export default function TodayPage() {
         <div className="mb-5">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-gray-400 text-xs font-semibold tracking-widest uppercase">My Waters</h2>
-            {starredWaters.length > 0 && (
-              <span className="text-xs" style={{ color: 'var(--text-faint)' }}>
-                Tap ☆ on any water to add
-              </span>
-            )}
+            <span className="text-xs" style={{ color: 'var(--text-faint)' }}>tap ☆ on any water to add</span>
           </div>
 
-          {starredWaters.length === 0 ? (
-            /* Onboarding empty state */
+          {!hydrated ? (
+            <div className="flex flex-col gap-2">
+              {[1,2].map(i => (
+                <div key={i} className="flex items-center gap-3 px-4 py-3.5 rounded-xl animate-pulse"
+                  style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div className="w-8 h-8 rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }} />
+                  <div className="flex-1">
+                    <div className="h-3 rounded mb-1.5" style={{ background: 'rgba(255,255,255,0.07)', width: '55%' }} />
+                    <div className="h-2 rounded" style={{ background: 'rgba(255,255,255,0.04)', width: '35%' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : starredWaters.length === 0 ? (
             <button
-              onClick={() => setSelectedWater('skagit')}
+              onClick={() => setSelectedWater('Skagit River')}
               className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl transition-all active:scale-[0.99]"
               style={{ background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.15)' }}
             >
@@ -368,7 +362,7 @@ export default function TodayPage() {
               <div className="text-left flex-1 min-w-0">
                 <p className="text-sm font-bold text-white leading-tight">Star your go-to waters</p>
                 <p className="text-xs mt-0.5 leading-snug" style={{ color: 'var(--text-muted)' }}>
-                  Open a river or lake and tap ☆ — it shows up here every day
+                  Open any river or lake and tap ☆ — it shows up here every day
                 </p>
               </div>
               <span className="text-sm" style={{ color: 'var(--text-faint)' }}>›</span>
@@ -401,6 +395,45 @@ export default function TodayPage() {
             </div>
           )}
         </div>
+
+        {/* ── OPENING SOON — next 14 days ── */}
+        {openingSoon.length > 0 && (
+          <div className="mb-5">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-gray-400 text-xs font-semibold tracking-widest uppercase">Opening Soon</h2>
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                style={{ background: 'rgba(99,179,237,0.12)', color: '#63b3ed', border: '1px solid rgba(99,179,237,0.25)' }}>
+                Next 14 days
+              </span>
+            </div>
+            <div className="rounded-2xl overflow-hidden"
+              style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              {openingSoon.map(({ species: fish, days }, i) => (
+                <button
+                  key={fish.id}
+                  onClick={() => setSelectedFish(fish)}
+                  className="w-full flex items-center gap-3 px-4 py-3 transition-all active:opacity-75 text-left"
+                  style={{ borderBottom: i < openingSoon.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={fish.photo} alt={fish.name}
+                    className="rounded-lg flex-shrink-0"
+                    style={{ width: 44, height: 44, objectFit: 'contain', padding: 4, background: '#0b0d14' }} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-white leading-tight truncate">{fish.name}</p>
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-faint)' }}>{fish.category}</p>
+                  </div>
+                  <div className="flex-shrink-0 text-right ml-2">
+                    <p className="text-base font-black" style={{ color: '#63b3ed' }}>{days}d</p>
+                    <p className="text-[10px]" style={{ color: 'var(--text-faint)' }}>
+                      {days === 1 ? 'Opens tomorrow' : `Opens in ${days} days`}
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* ── WHAT'S OPEN TODAY — CTA button ── */}
         <button
