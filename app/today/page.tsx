@@ -213,70 +213,173 @@ export default function TodayPage() {
       </header>
 
       <div className="max-w-lg mx-auto px-4 pt-4">
-        {/* ── WDFW EMERGENCY RULES — hero alert panel ── */}
+        {/* ── EMERGENCY RULES — compact inline banner ── */}
         <button
           onClick={() => setShowAlertsSheet(true)}
-          className="w-full text-left rounded-lg mb-5 transition-all active:scale-[0.99] overflow-hidden"
+          className="w-full text-left rounded-xl mb-5 transition-all active:scale-[0.99] flex items-center gap-3 px-4 py-3"
           style={{
             background: totalAlertCount > 0 ? 'rgba(239,68,68,0.10)' : 'rgba(255,255,255,0.04)',
-            boxShadow: totalAlertCount > 0
-              ? 'inset 5px 0 0 #ef4444, 0 4px 24px rgba(239,68,68,0.12)'
-              : '0 2px 12px rgba(0,0,0,0.2)',
+            border: `1px solid ${totalAlertCount > 0 ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.07)'}`,
           }}
         >
-          {/* Top accent bar when alerts active */}
-          {totalAlertCount > 0 && (
-            <div style={{ height: 3, background: 'linear-gradient(90deg, #ef4444, #b91c1c)' }} />
-          )}
-          <div className="px-5 py-5 flex items-start justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              {/* Label row */}
-              <div className="flex items-center gap-2 mb-1.5">
-                <p className="text-[10px] font-bold uppercase tracking-widest"
-                  style={{ color: totalAlertCount > 0 ? '#f87171' : 'var(--text-faint)' }}>
-                  WDFW
-                </p>
-                {totalAlertCount > 0 && (
-                  <span className="text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide"
-                    style={{ background: 'rgba(239,68,68,0.22)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.35)' }}>
-                    {totalAlertCount} Active
-                  </span>
-                )}
-              </div>
-              <p className="text-xl font-black text-white leading-tight tracking-tight">
-                Emergency Rules
-              </p>
-              <p className="text-sm mt-1.5 leading-snug"
-                style={{ color: totalAlertCount > 0 ? '#fca5a5' : 'var(--text-muted)' }}>
-                {alertsLoading
-                  ? 'Checking WDFW emergency feed…'
-                  : totalAlertCount > 0
-                    ? `${totalAlertCount} rule${totalAlertCount > 1 ? 's' : ''} currently in effect — tap to review`
-                    : 'No active emergency closures or restrictions today'}
-              </p>
-            </div>
-            <div className="flex-shrink-0 flex items-center self-center">
-              <span className="text-2xl font-light" style={{ color: totalAlertCount > 0 ? '#ef4444' : 'var(--text-faint)' }}>›</span>
-            </div>
+          <span className="text-xl flex-shrink-0">{totalAlertCount > 0 ? '🚨' : '✅'}</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-white leading-tight">
+              {totalAlertCount > 0 ? `${totalAlertCount} Emergency Rule${totalAlertCount > 1 ? 's' : ''} Active` : 'No Emergency Rules Today'}
+            </p>
+            <p className="text-xs mt-0.5 leading-snug" style={{ color: totalAlertCount > 0 ? '#fca5a5' : 'var(--text-muted)' }}>
+              {alertsLoading ? 'Checking WDFW…' : totalAlertCount > 0 ? 'Tap to review before fishing' : 'All clear — no active closures'}
+            </p>
           </div>
+          <span className="text-base font-light flex-shrink-0" style={{ color: totalAlertCount > 0 ? '#ef4444' : 'var(--text-faint)' }}>›</span>
         </button>
 
-        {/* ── STARRED FISH ── */}
-        <div className="mb-5">
+        {/* ── MY WATERS ── */}
+        <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-gray-400 text-xs font-semibold tracking-widest uppercase">My Fish</h2>
-            <span className="text-xs" style={{ color: 'var(--text-faint)' }}>tap ☆ on any fish to add</span>
+            <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>My Waters</h2>
+            {starredWaters.length === 0 && hydrated && (
+              <span className="text-xs" style={{ color: 'var(--text-faint)' }}>tap ☆ on any water to add</span>
+            )}
           </div>
 
           {!hydrated ? (
-            /* Skeleton while localStorage loads */
-            <div className="grid grid-cols-3 gap-3">
-              {[1,2,3].map(i => (
-                <div key={i} className="rounded-xl overflow-hidden animate-pulse"
+            <div className="rounded-2xl animate-pulse" style={{ height: 130, background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.06)' }} />
+          ) : starredWaters.length === 0 ? (
+            <button
+              onClick={() => setSelectedWater('Skagit River')}
+              className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl transition-all active:scale-[0.99]"
+              style={{ background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.15)' }}
+            >
+              <span className="text-3xl">💧</span>
+              <div className="text-left flex-1 min-w-0">
+                <p className="text-sm font-bold text-white leading-tight">Star your go-to waters</p>
+                <p className="text-xs mt-0.5 leading-snug" style={{ color: 'var(--text-muted)' }}>
+                  Open any river or lake and tap ☆ — conditions show up here every day
+                </p>
+              </div>
+              <span className="text-sm" style={{ color: 'var(--text-faint)' }}>›</span>
+            </button>
+          ) : (
+            <>
+              {/* FEATURED — first starred water */}
+              {(() => {
+                const water = starredWaters[0]
+                const firstWord = water.name.toLowerCase().split(' ')[0]
+                const gauge = gauges.find(g => g.name.toLowerCase().includes(firstWord))
+                const hasGauge = !!gauge && gauge.cfs !== null
+                const cfg = hasGauge ? STATUS_CONFIG[gauge!.status] : null
+                const openHere = REGULATIONS
+                  .filter(r => r.waterBodyId === water.id && isOpenOn(r, today))
+                  .map(r => SPECIES.find(s => s.id === r.speciesId)?.name)
+                  .filter((n): n is string => !!n)
+                  .filter((v, i, a) => a.indexOf(v) === i)
+                  .slice(0, 4)
+                return (
+                  <button
+                    onClick={() => setSelectedWater(water.name)}
+                    className="w-full text-left rounded-2xl overflow-hidden mb-3 transition-all active:scale-[0.99]"
+                    style={{
+                      background: 'var(--surface)',
+                      border: `1px solid ${hasGauge && cfg ? cfg.color + '50' : 'rgba(255,255,255,0.08)'}`,
+                    }}
+                  >
+                    {hasGauge && cfg && <div style={{ height: 3, background: cfg.color }} />}
+                    <div className="px-5 py-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--text-faint)' }}>
+                            {water.region} · {water.type}
+                          </p>
+                          <p className="text-xl font-black text-white leading-tight">{water.name}</p>
+                          {openHere.length > 0 ? (
+                            <div className="flex items-center gap-1.5 mt-2.5 flex-wrap">
+                              <span className="text-[10px] font-bold uppercase tracking-wide mr-0.5" style={{ color: 'var(--text-faint)' }}>Open now:</span>
+                              {openHere.map(name => (
+                                <span key={name} className="text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                                  style={{ background: 'rgba(106,176,76,0.15)', color: '#6ab04c' }}>
+                                  {name.replace(' Salmon', '').replace(' Trout', '')}
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm mt-2" style={{ color: 'var(--text-faint)' }}>No species open today</p>
+                          )}
+                        </div>
+                        {hasGauge && cfg && gauge && (
+                          <div className="flex-shrink-0 text-right">
+                            <p className="text-3xl font-black leading-none" style={{ color: cfg.color }}>
+                              {gauge.cfs?.toLocaleString() ?? '—'}
+                            </p>
+                            <p className="text-[10px] font-semibold uppercase mt-1" style={{ color: 'var(--text-faint)' }}>
+                              cfs {gauge.trend ? TREND_ARROW[gauge.trend] : ''}
+                            </p>
+                            <span className="inline-block mt-1.5 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wide"
+                              style={{ background: cfg.bg, color: cfg.color }}>
+                              {cfg.label}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                )
+              })()}
+
+              {/* Additional waters — compact rows */}
+              {starredWaters.length > 1 && (
+                <div className="rounded-xl overflow-hidden" style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  {starredWaters.slice(1).map((water, i) => {
+                    const firstWord = water.name.toLowerCase().split(' ')[0]
+                    const gauge = gauges.find(g => g.name.toLowerCase().includes(firstWord))
+                    const hasGauge = !!gauge && gauge.cfs !== null
+                    const cfg = hasGauge ? STATUS_CONFIG[gauge!.status] : null
+                    return (
+                      <button
+                        key={water.id}
+                        onClick={() => setSelectedWater(water.name)}
+                        className="w-full flex items-center justify-between px-4 py-3 text-left transition-all active:opacity-75"
+                        style={{ borderBottom: i < starredWaters.length - 2 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}
+                      >
+                        <p className="text-sm font-semibold text-white">{water.name}</p>
+                        <div className="flex items-center gap-2">
+                          {hasGauge && cfg && gauge ? (
+                            <span className="text-[11px] font-bold px-2 py-0.5 rounded"
+                              style={{ background: cfg.bg, color: cfg.color }}>
+                              {gauge.cfs?.toLocaleString()} cfs{gauge.trend ? ` ${TREND_ARROW[gauge.trend]}` : ''}
+                            </span>
+                          ) : (
+                            <span className="text-xs capitalize" style={{ color: 'var(--text-faint)' }}>{water.type}</span>
+                          )}
+                          <span style={{ color: 'var(--text-faint)', fontSize: 14 }}>›</span>
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* ── MY FISH ── */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>My Fish</h2>
+            {starredFish.length === 0 && hydrated && (
+              <span className="text-xs" style={{ color: 'var(--text-faint)' }}>tap ☆ on any fish to add</span>
+            )}
+          </div>
+
+          {!hydrated ? (
+            <div className="flex flex-col gap-2">
+              {[1, 2].map(i => (
+                <div key={i} className="flex items-center gap-4 px-4 py-4 rounded-2xl animate-pulse"
                   style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <div style={{ width: '100%', aspectRatio: '4/3', background: 'rgba(255,255,255,0.04)' }} />
-                  <div className="px-3 py-2.5">
-                    <div className="h-3 rounded" style={{ background: 'rgba(255,255,255,0.07)', width: '70%' }} />
+                  <div className="w-16 h-16 rounded-xl flex-shrink-0" style={{ background: 'rgba(255,255,255,0.06)' }} />
+                  <div className="flex-1">
+                    <div className="h-4 rounded mb-2" style={{ background: 'rgba(255,255,255,0.07)', width: '50%' }} />
+                    <div className="h-3 rounded" style={{ background: 'rgba(255,255,255,0.04)', width: '75%' }} />
                   </div>
                 </div>
               ))}
@@ -287,139 +390,88 @@ export default function TodayPage() {
               className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl transition-all active:scale-[0.99]"
               style={{ background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.15)' }}
             >
-              <span className="text-3xl">⭐</span>
+              <span className="text-3xl">🐟</span>
               <div className="text-left flex-1 min-w-0">
-                <p className="text-sm font-bold text-white leading-tight">Star your favorite fish</p>
+                <p className="text-sm font-bold text-white leading-tight">Star your target fish</p>
                 <p className="text-xs mt-0.5 leading-snug" style={{ color: 'var(--text-muted)' }}>
-                  Open any fish and tap ☆ — it shows up here every day
+                  Open any fish and tap ☆ — regulations show up here every day
                 </p>
               </div>
               <span className="text-sm" style={{ color: 'var(--text-faint)' }}>›</span>
             </button>
           ) : (
-            <div className="grid grid-cols-3 gap-3">
-              {starredFish.map(fish => {
+            <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              {starredFish.map((fish, i) => {
                 const isOpen = openSpecies.some(s => s.id === fish.id)
+                const regs = REGULATIONS.filter(r => r.speciesId === fish.id && isOpenOn(r, today))
+                const bestReg = regs[0] ?? null
                 return (
                   <button
                     key={fish.id}
                     onClick={() => setSelectedFish(fish)}
-                    className="rounded-xl overflow-hidden transition-all active:scale-95 flex flex-col"
-                    style={{
-                      background: 'var(--surface)',
-                      border: `1px solid ${isOpen ? 'rgba(106,176,76,0.35)' : 'rgba(255,255,255,0.08)'}`,
-                    }}
+                    className="w-full flex items-center gap-4 px-4 py-4 text-left transition-all active:opacity-75"
+                    style={{ borderBottom: i < starredFish.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}
                   >
-                    <div style={{ width: '100%', aspectRatio: '4/3', background: 'var(--bg)', overflow: 'hidden' }}>
+                    {/* LEFT: fish photo */}
+                    <div className="flex-shrink-0 rounded-xl overflow-hidden"
+                      style={{ width: 64, height: 64, background: '#0b0d14' }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={fish.photo} alt={fish.name}
-                        style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '10px' }}
-                        onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                      <img
+                        src={fish.photo}
+                        alt={fish.name}
+                        style={{
+                          width: '100%', height: '100%', objectFit: 'contain', padding: 8,
+                          filter: isOpen ? 'none' : 'grayscale(1)',
+                          opacity: isOpen ? 1 : 0.45,
+                        }}
+                        onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+                      />
                     </div>
-                    <div className="px-3 py-2.5 flex items-center justify-between">
-                      <p className="text-sm font-bold text-white leading-tight truncate">
-                        {fish.name.replace(' Salmon','').replace(' Trout','')}
-                      </p>
-                      <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full flex-shrink-0 ml-1"
-                        style={isOpen
-                          ? { background: 'rgba(106,176,76,0.2)', color: '#6ab04c' }
-                          : { background: 'rgba(107,114,128,0.2)', color: '#6b7280' }}>
-                        {isOpen ? 'OPEN' : 'CLOSED'}
-                      </span>
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
-          )}
-        </div>
 
-        {/* ── STARRED WATERS ── */}
-        <div className="mb-5">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-gray-400 text-xs font-semibold tracking-widest uppercase">My Waters</h2>
-            <span className="text-xs" style={{ color: 'var(--text-faint)' }}>tap ☆ on any water to add</span>
-          </div>
-
-          {!hydrated ? (
-            <div className="flex flex-col gap-2">
-              {[1,2].map(i => (
-                <div key={i} className="flex items-center gap-3 px-4 py-3.5 rounded-xl animate-pulse"
-                  style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <div className="w-8 h-8 rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }} />
-                  <div className="flex-1">
-                    <div className="h-3 rounded mb-1.5" style={{ background: 'rgba(255,255,255,0.07)', width: '55%' }} />
-                    <div className="h-2 rounded" style={{ background: 'rgba(255,255,255,0.04)', width: '35%' }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : starredWaters.length === 0 ? (
-            <button
-              onClick={() => setSelectedWater('Skagit River')}
-              className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl transition-all active:scale-[0.99]"
-              style={{ background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.15)' }}
-            >
-              <span className="text-3xl">⭐</span>
-              <div className="text-left flex-1 min-w-0">
-                <p className="text-sm font-bold text-white leading-tight">Star your go-to waters</p>
-                <p className="text-xs mt-0.5 leading-snug" style={{ color: 'var(--text-muted)' }}>
-                  Open any river or lake and tap ☆ — it shows up here every day
-                </p>
-              </div>
-              <span className="text-sm" style={{ color: 'var(--text-faint)' }}>›</span>
-            </button>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {starredWaters.map(water => {
-                // Try to match this water to a known gauge
-                const firstWord = water.name.toLowerCase().split(' ')[0]
-                const gaugeForWater = gauges.find(g =>
-                  g.name.toLowerCase().includes(firstWord)
-                )
-                const hasGauge = !!gaugeForWater && gaugeForWater.cfs !== null
-                const cfg = hasGauge ? STATUS_CONFIG[gaugeForWater!.status] : null
-
-                return (
-                  <button
-                    key={water.id}
-                    onClick={() => setSelectedWater(water.name)}
-                    className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl transition-all active:opacity-75 text-left"
-                    style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span className="text-xl flex-shrink-0">
-                        {water.type === 'river' || water.type === 'stream' ? '🏞️'
-                         : water.type === 'lake' ? '🏔️'
-                         : '🌊'}
-                      </span>
-                      <div className="min-w-0">
-                        <p className="text-sm font-bold text-white leading-tight truncate">{water.name}</p>
-                        <p className="text-xs mt-0.5 capitalize" style={{ color: 'var(--text-faint)' }}>
-                          {water.region} · {water.type}
-                        </p>
+                    {/* RIGHT: info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <p className="text-base font-bold text-white leading-tight">{fish.name}</p>
+                        <span
+                          className="text-[10px] font-black px-1.5 py-0.5 rounded-full flex-shrink-0"
+                          style={isOpen
+                            ? { background: 'rgba(106,176,76,0.2)', color: '#6ab04c' }
+                            : { background: 'rgba(107,114,128,0.15)', color: '#6b7280' }}
+                        >
+                          {isOpen ? 'OPEN' : 'CLOSED'}
+                        </span>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2 flex-shrink-0 ml-3">
-                      {hasGauge && cfg ? (
-                        <span style={{
-                          background: cfg.bg,
-                          color: cfg.color,
-                          borderRadius: 6,
-                          padding: '2px 8px',
-                          fontSize: 11,
-                          fontWeight: 700,
-                        }}>
-                          {gaugeForWater!.cfs?.toLocaleString() ?? '—'} cfs{gaugeForWater!.trend ? ` ${TREND_ARROW[gaugeForWater!.trend!]}` : ''}
-                        </span>
+                      {isOpen && bestReg ? (
+                        <div className="flex items-center gap-3 flex-wrap">
+                          {bestReg.dailyLimit !== null && (
+                            <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>
+                              🎣 {bestReg.dailyLimit}/day
+                            </span>
+                          )}
+                          {bestReg.minSize !== null && (
+                            <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>
+                              📏 {bestReg.minSize}&quot; min
+                            </span>
+                          )}
+                          {bestReg.gearRestriction && (
+                            <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>
+                              🪝 {bestReg.gearRestriction}
+                            </span>
+                          )}
+                          {bestReg.hatcheryOnly && (
+                            <span className="text-xs font-semibold" style={{ color: '#f59e0b' }}>
+                              Hatchery only
+                            </span>
+                          )}
+                        </div>
                       ) : (
-                        <span className="text-xs px-2 py-0.5 rounded"
-                          style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--text-faint)' }}>
-                          {water.type === 'lake' ? 'lake' : 'no gauge'}
-                        </span>
+                        <p className="text-xs" style={{ color: 'var(--text-faint)' }}>
+                          Season closed — check dates in Fish tab
+                        </p>
                       )}
-                      <span className="text-sm font-light" style={{ color: 'var(--text-faint)' }}>›</span>
                     </div>
+
+                    <span className="flex-shrink-0 text-sm font-light" style={{ color: 'var(--text-faint)' }}>›</span>
                   </button>
                 )
               })}
@@ -465,30 +517,6 @@ export default function TodayPage() {
             </div>
           </div>
         )}
-
-        {/* ── WHAT'S OPEN TODAY — CTA button ── */}
-        <button
-          onClick={() => setShowOpenSheet(true)}
-          className="w-full flex items-center justify-between px-5 py-4 rounded-2xl mb-5 transition-all active:scale-[0.99]"
-          style={{
-            background: 'rgba(106,176,76,0.08)',
-            border: '1px solid rgba(106,176,76,0.3)',
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <span className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-base"
-              style={{ background: 'rgba(106,176,76,0.15)', color: '#6ab04c' }}>
-              ✓
-            </span>
-            <div className="text-left">
-              <p className="text-base font-bold text-white leading-tight">What&apos;s Open Today</p>
-              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                {openSpecies.length} species open right now
-              </p>
-            </div>
-          </div>
-          <span className="text-xl font-light flex-shrink-0" style={{ color: '#6ab04c' }}>›</span>
-        </button>
 
         {/* ── WA FISHING LICENSE ── */}
         <a
