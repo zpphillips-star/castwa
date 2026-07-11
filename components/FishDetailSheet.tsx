@@ -1,6 +1,7 @@
 'use client'
 import { useState, useRef } from 'react'
 import dynamic from 'next/dynamic'
+import { useStarredFish } from '@/hooks/useStarred'
 import { Species, Regulation, WaterBody, REGULATIONS, WATER_BODIES, SKAGIT_SECTIONS, GEAR_ICON_INFO, GearIconCode, isOpenOn } from '@/lib/fishing-data'
 import { GEAR, GearItem } from '@/lib/gear-data'
 import { FISH_TIPS } from './RiverDetailSheet'
@@ -259,6 +260,7 @@ function RegCard({ reg, water }: { reg: Regulation; water: WaterBody }) {
 }
 
 export default function FishDetailSheet({ species, onClose, showTips = true, zIndex = 60 }: Props) {
+  const { isStarred: isFishStarred, toggle: toggleFishStar } = useStarredFish()
   const [activeTab, setActiveTab] = useState<Tab>('regs')
   const [mapSection, setMapSection] = useState<{
     sectionId: string
@@ -383,6 +385,15 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
             <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
             </svg>
+          </button>
+          {/* ── Star button ── */}
+          <button
+            onClick={() => toggleFishStar(species.id)}
+            className="absolute top-3 left-3 w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-90"
+            style={{ background: 'rgba(0,0,0,0.5)' }}>
+            <span style={{ fontSize: '16px', lineHeight: 1 }}>
+              {isFishStarred(species.id) ? '⭐' : '☆'}
+            </span>
           </button>
         </div>
 

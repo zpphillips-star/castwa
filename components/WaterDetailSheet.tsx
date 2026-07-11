@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useStarredWaters } from '@/hooks/useStarred'
 import dynamic from 'next/dynamic'
 import {
   WATER_BODIES, REGULATIONS, SPECIES, SKAGIT_SECTIONS,
@@ -507,6 +508,7 @@ interface Props {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, initialSpeciesId }: Props) {
+  const { isStarred: isWaterStarred, toggle: toggleWaterStar } = useStarredWaters()
   const [selectedSpecies, setSelectedSpecies] = useState<Species | null>(
     initialSpeciesId ? (SPECIES.find(s => s.id === initialSpeciesId) ?? null) : null
   )
@@ -637,13 +639,26 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                 )}
               </div>
             </div>
-            <button onClick={onClose}
-              className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-1"
-              style={{ background: 'rgba(255,255,255,0.08)' }}>
-              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-            </button>
+            <div className="flex items-center gap-2 flex-shrink-0 mt-1">
+              {/* Star button */}
+              {water && (
+                <button
+                  onClick={() => toggleWaterStar(water.id)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-90"
+                  style={{ background: 'rgba(255,255,255,0.08)' }}>
+                  <span style={{ fontSize: '15px', lineHeight: 1 }}>
+                    {isWaterStarred(water.id) ? '⭐' : '☆'}
+                  </span>
+                </button>
+              )}
+              <button onClick={onClose}
+                className="w-8 h-8 rounded-full flex items-center justify-center"
+                style={{ background: 'rgba(255,255,255,0.08)' }}>
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
           </div>
 
           {/* ── Scrollable body ── */}

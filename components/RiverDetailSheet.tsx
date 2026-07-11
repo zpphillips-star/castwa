@@ -1,5 +1,6 @@
 'use client'
 import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useStarredWaters } from '@/hooks/useStarred'
 import dynamic from 'next/dynamic'
 import {
   SPECIES, Species, SKAGIT_SECTIONS, RiverSection, SeasonEntry,
@@ -761,6 +762,7 @@ interface Props {
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zIndex = 50 }: Props) {
+  const { isStarred: isWaterStarred, toggle: toggleWaterStar } = useStarredWaters()
   const [selectedSectionIdx, setSelectedSectionIdx] = useState<number>(0)
   const [cardOpen, setCardOpen] = useState(false)
   const [touchStartX, setTouchStartX] = useState(0)
@@ -862,13 +864,24 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
                 {flow.cfs !== null ? `${formatCfs(flow.cfs)} cfs` : 'No data'}{flow.trend ? ` · ${flow.trend === 'rising' ? '↑' : flow.trend === 'falling' ? '↓' : '→'} ${flow.trend}` : ''} · {river.region}
               </p>
             </div>
-            <button onClick={onClose}
-              className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ml-2"
-              style={{ background: 'rgba(255,255,255,0.08)' }}>
-              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-            </button>
+            <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+              {/* Star button */}
+              <button
+                onClick={() => toggleWaterStar(river.id)}
+                className="w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-90"
+                style={{ background: 'rgba(255,255,255,0.08)' }}>
+                <span style={{ fontSize: '15px', lineHeight: 1 }}>
+                  {isWaterStarred(river.id) ? '⭐' : '☆'}
+                </span>
+              </button>
+              <button onClick={onClose}
+                className="w-8 h-8 rounded-full flex items-center justify-center"
+                style={{ background: 'rgba(255,255,255,0.08)' }}>
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
           </div>
 
           {/* ── Map — tap to close card if open ── */}
