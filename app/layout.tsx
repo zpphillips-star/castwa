@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next"
 import { Geist, Barlow_Condensed } from "next/font/google"
 import "./globals.css"
+import Providers from "./providers"
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] })
 const barlowCondensed = Barlow_Condensed({
@@ -55,7 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             WDFW.wa.gov
           </a>
         </div>
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   )
