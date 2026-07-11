@@ -42,22 +42,51 @@ type FlowData = {
 }
 
 const GAUGES = [
-  { id: '12194000', name: 'Skagit (Concrete)', shortName: 'Skagit↑',   thresholds: { low: 2000, high: 8000, flood: 22000 } },
-  { id: '12200500', name: 'Skagit (Mt Vernon)', shortName: 'Skagit↓',  thresholds: { low: 4000, high: 15000, flood: 35000 } },
-  { id: '12186000', name: 'Sauk River',          shortName: 'Sauk',    thresholds: { low: 500,  high: 3000,  flood: 8000  } },
-  { id: '12210500', name: 'Nooksack River',       shortName: 'Nooksack',thresholds: { low: 1500, high: 8000,  flood: 20000 } },
-  { id: '12167000', name: 'Stillaguamish',        shortName: 'Stilly',  thresholds: { low: 800,  high: 5000,  flood: 15000 } },
+  // Skagit watershed
+  { id: '12194000', name: 'Skagit River (Concrete)',    shortName: 'Skagit↑',     thresholds: { low: 2000, high: 8000,   flood: 22000  } },
+  { id: '12200500', name: 'Skagit River (Mt Vernon)',   shortName: 'Skagit↓',     thresholds: { low: 4000, high: 15000,  flood: 35000  } },
+  { id: '12186000', name: 'Sauk River',                 shortName: 'Sauk',         thresholds: { low: 500,  high: 3000,   flood: 8000   } },
+  // Snohomish watershed
+  { id: '12134500', name: 'Skykomish River',            shortName: 'Skykomish',    thresholds: { low: 600,  high: 5000,   flood: 16000  } },
+  { id: '12149000', name: 'Snoqualmie River',           shortName: 'Snoqualmie',   thresholds: { low: 400,  high: 4000,   flood: 14000  } },
+  { id: '12167000', name: 'Stillaguamish River',        shortName: 'Stilly',       thresholds: { low: 800,  high: 5000,   flood: 15000  } },
+  { id: '12210500', name: 'Nooksack River',             shortName: 'Nooksack',     thresholds: { low: 1500, high: 8000,   flood: 20000  } },
+  // Central / Eastern
+  { id: '12462500', name: 'Wenatchee River',            shortName: 'Wenatchee',    thresholds: { low: 500,  high: 4000,   flood: 10000  } },
+  { id: '12449950', name: 'Methow River',               shortName: 'Methow',       thresholds: { low: 200,  high: 2500,   flood: 7000   } },
+  { id: '12452990', name: 'Entiat River',               shortName: 'Entiat',       thresholds: { low: 100,  high: 800,    flood: 2500   } },
+  { id: '12439500', name: 'Okanogan River',             shortName: 'Okanogan',     thresholds: { low: 500,  high: 4000,   flood: 10000  } },
+  // Yakima / Columbia
+  { id: '12500450', name: 'Yakima River',               shortName: 'Yakima',       thresholds: { low: 300,  high: 3000,   flood: 9000   } },
+  { id: '14105700', name: 'Columbia River (Bonneville)',shortName: 'Columbia',     thresholds: { low: 80000,high: 350000, flood: 600000 } },
+  // Southwest / Coast
+  { id: '14222500', name: 'Lewis River',                shortName: 'Lewis',        thresholds: { low: 800,  high: 8000,   flood: 22000  } },
+  { id: '14243000', name: 'Cowlitz River',              shortName: 'Cowlitz',      thresholds: { low: 1500, high: 12000,  flood: 30000  } },
+  { id: '12025700', name: 'Chehalis River',             shortName: 'Chehalis',     thresholds: { low: 400,  high: 5000,   flood: 18000  } },
+  { id: '12039500', name: 'Humptulips River',           shortName: 'Humptulips',   thresholds: { low: 200,  high: 2500,   flood: 8000   } },
+  { id: '12041200', name: 'Hoh River',                  shortName: 'Hoh',          thresholds: { low: 500,  high: 5000,   flood: 16000  } },
+  { id: '12076500', name: 'Skokomish River',            shortName: 'Skokomish',    thresholds: { low: 200,  high: 2500,   flood: 8000   } },
+  // South Sound / Metro
+  { id: '12101500', name: 'Puyallup River',             shortName: 'Puyallup',     thresholds: { low: 600,  high: 7000,   flood: 20000  } },
+  { id: '12106700', name: 'Green River',                shortName: 'Green',        thresholds: { low: 300,  high: 3500,   flood: 12000  } },
+  { id: '12089500', name: 'Nisqually River',            shortName: 'Nisqually',    thresholds: { low: 300,  high: 3000,   flood: 9000   } },
+  // Peninsula
+  { id: '12045500', name: 'Sol Duc River',              shortName: 'Sol Duc',      thresholds: { low: 300,  high: 3500,   flood: 10000  } },
+  { id: '12048000', name: 'Bogachiel River',            shortName: 'Bogachiel',    thresholds: { low: 200,  high: 2500,   flood: 8000   } },
+  { id: '12056500', name: 'Dungeness River',            shortName: 'Dungeness',    thresholds: { low: 100,  high: 1200,   flood: 4000   } },
+  { id: '12058500', name: 'Elwha River',                shortName: 'Elwha',        thresholds: { low: 300,  high: 2500,   flood: 7000   } },
 ]
 
 // Mapping from gauge name → RiverData for RiverDetailSheet
 const GAUGE_TO_RIVER: Record<string, RiverData> = {
-  'Skagit (Concrete)': {
+  // Skagit watershed
+  'Skagit River (Concrete)': {
     id: 'skagit', name: 'Skagit River', region: 'Northwest',
     usgsId: '12194000',
     targetSpecies: ['Chinook Salmon', 'Coho Salmon', 'Steelhead'],
     idealCfs: { min: 2000, max: 8000 },
   },
-  'Skagit (Mt Vernon)': {
+  'Skagit River (Mt Vernon)': {
     id: 'skagit', name: 'Skagit River', region: 'Northwest',
     usgsId: '12200500',
     targetSpecies: ['Chinook Salmon', 'Coho Salmon', 'Steelhead'],
@@ -75,11 +104,143 @@ const GAUGE_TO_RIVER: Record<string, RiverData> = {
     targetSpecies: ['Chinook Salmon', 'Coho Salmon', 'Steelhead', 'Chum Salmon'],
     idealCfs: { min: 1500, max: 8000 },
   },
-  'Stillaguamish': {
+  'Stillaguamish River': {
     id: 'stillaguamish', name: 'Stillaguamish River', region: 'Northwest',
     usgsId: '12167000',
     targetSpecies: ['Steelhead', 'Coho Salmon', 'Chinook Salmon'],
     idealCfs: { min: 800, max: 5000 },
+  },
+  // Snohomish watershed
+  'Skykomish River': {
+    id: 'skykomish', name: 'Skykomish River', region: 'Northwest',
+    usgsId: '12134500',
+    targetSpecies: ['Chinook Salmon', 'Steelhead', 'Coho Salmon'],
+    idealCfs: { min: 600, max: 5000 },
+  },
+  'Snoqualmie River': {
+    id: 'snoqualmie', name: 'Snoqualmie River', region: 'Northwest',
+    usgsId: '12149000',
+    targetSpecies: ['Coho Salmon', 'Steelhead', 'Chinook Salmon'],
+    idealCfs: { min: 400, max: 4000 },
+  },
+  // Central / Eastern
+  'Wenatchee River': {
+    id: 'wenatchee', name: 'Wenatchee River', region: 'Central',
+    usgsId: '12462500',
+    targetSpecies: ['Chinook Salmon', 'Sockeye Salmon', 'Steelhead'],
+    idealCfs: { min: 500, max: 4000 },
+  },
+  'Methow River': {
+    id: 'methow', name: 'Methow River', region: 'Eastern',
+    usgsId: '12449950',
+    targetSpecies: ['Chinook Salmon', 'Sockeye Salmon', 'Steelhead'],
+    idealCfs: { min: 200, max: 2500 },
+  },
+  'Entiat River': {
+    id: 'entiat', name: 'Entiat River', region: 'Central',
+    usgsId: '12452990',
+    targetSpecies: ['Chinook Salmon', 'Steelhead'],
+    idealCfs: { min: 100, max: 800 },
+  },
+  'Okanogan River': {
+    id: 'okanogan', name: 'Okanogan River', region: 'Eastern',
+    usgsId: '12439500',
+    targetSpecies: ['Sockeye Salmon', 'Chinook Salmon', 'Steelhead'],
+    idealCfs: { min: 500, max: 4000 },
+  },
+  // Yakima / Columbia
+  'Yakima River': {
+    id: 'yakima', name: 'Yakima River', region: 'Central',
+    usgsId: '12500450',
+    targetSpecies: ['Rainbow Trout', 'Steelhead', 'Cutthroat Trout'],
+    idealCfs: { min: 300, max: 3000 },
+  },
+  'Columbia River (Bonneville)': {
+    id: 'columbia', name: 'Columbia River', region: 'Southeast',
+    usgsId: '14105700',
+    targetSpecies: ['Chinook Salmon', 'Steelhead', 'Walleye', 'White Sturgeon'],
+    idealCfs: { min: 80000, max: 350000 },
+  },
+  // Southwest / Coast
+  'Lewis River': {
+    id: 'lewis', name: 'Lewis River', region: 'Southwest',
+    usgsId: '14222500',
+    targetSpecies: ['Chinook Salmon', 'Coho Salmon', 'Steelhead'],
+    idealCfs: { min: 800, max: 8000 },
+  },
+  'Cowlitz River': {
+    id: 'cowlitz', name: 'Cowlitz River', region: 'Southwest',
+    usgsId: '14243000',
+    targetSpecies: ['Chinook Salmon', 'Coho Salmon', 'Steelhead'],
+    idealCfs: { min: 1500, max: 12000 },
+  },
+  'Chehalis River': {
+    id: 'chehalis', name: 'Chehalis River', region: 'Southwest',
+    usgsId: '12025700',
+    targetSpecies: ['Chinook Salmon', 'Coho Salmon', 'Steelhead'],
+    idealCfs: { min: 400, max: 5000 },
+  },
+  'Humptulips River': {
+    id: 'humptulips', name: 'Humptulips River', region: 'Coast',
+    usgsId: '12039500',
+    targetSpecies: ['Coho Salmon', 'Steelhead', 'Chinook Salmon'],
+    idealCfs: { min: 200, max: 2500 },
+  },
+  'Hoh River': {
+    id: 'hoh', name: 'Hoh River', region: 'Olympic',
+    usgsId: '12041200',
+    targetSpecies: ['Chinook Salmon', 'Steelhead', 'Cutthroat Trout'],
+    idealCfs: { min: 500, max: 5000 },
+  },
+  'Skokomish River': {
+    id: 'skokomish', name: 'Skokomish River', region: 'Olympic',
+    usgsId: '12076500',
+    targetSpecies: ['Chum Salmon', 'Coho Salmon', 'Chinook Salmon'],
+    idealCfs: { min: 200, max: 2500 },
+  },
+  // South Sound / Metro
+  'Puyallup River': {
+    id: 'puyallup', name: 'Puyallup River', region: 'Puget Sound',
+    usgsId: '12101500',
+    targetSpecies: ['Chinook Salmon', 'Coho Salmon', 'Steelhead'],
+    idealCfs: { min: 600, max: 7000 },
+  },
+  'Green River': {
+    id: 'green', name: 'Green River', region: 'Puget Sound',
+    usgsId: '12106700',
+    targetSpecies: ['Coho Salmon', 'Chinook Salmon', 'Steelhead'],
+    idealCfs: { min: 300, max: 3500 },
+  },
+  'Nisqually River': {
+    id: 'nisqually', name: 'Nisqually River', region: 'Puget Sound',
+    usgsId: '12089500',
+    targetSpecies: ['Chinook Salmon', 'Coho Salmon', 'Steelhead'],
+    idealCfs: { min: 300, max: 3000 },
+  },
+  // Peninsula
+  'Sol Duc River': {
+    id: 'sol-duc', name: 'Sol Duc River', region: 'Olympic',
+    usgsId: '12045500',
+    targetSpecies: ['Steelhead', 'Chinook Salmon', 'Coho Salmon'],
+    idealCfs: { min: 300, max: 3500 },
+  },
+  'Bogachiel River': {
+    id: 'bogachiel', name: 'Bogachiel River', region: 'Olympic',
+    usgsId: '12048000',
+    targetSpecies: ['Steelhead', 'Coho Salmon'],
+    idealCfs: { min: 200, max: 2500 },
+  },
+  'Dungeness River': {
+    id: 'dungeness', name: 'Dungeness River', region: 'Olympic',
+    usgsId: '12056500',
+    targetSpecies: ['Pink Salmon', 'Chum Salmon', 'Coho Salmon'],
+    idealCfs: { min: 100, max: 1200 },
+  },
+  'Elwha River': {
+    id: 'elwha', name: 'Elwha River', region: 'Olympic',
+    usgsId: '12058500',
+    targetSpecies: ['Chinook Salmon', 'Steelhead', 'Coho Salmon'],
+    idealCfs: { min: 300, max: 2500 },
   },
 }
 

@@ -173,6 +173,10 @@ export const WATER_BODIES: WaterBody[] = [
   { id: 'sammamish-river', name: 'Sammamish River',  type: 'river', lat: 47.68, lng: -122.10, region: 'Puget Sound' },
   { id: 'issaquah-creek',  name: 'Issaquah Creek',   type: 'stream',lat: 47.53, lng: -122.04, region: 'Puget Sound' },
 
+  // ── ADDITIONAL RIVERS (missing from original list) ────────────────────────────
+  { id: 'deschutes',      name: 'Deschutes River',    type: 'river', lat: 46.96, lng: -122.91, region: 'Southwest' },
+  { id: 'carbon',         name: 'Carbon River',       type: 'river', lat: 47.07, lng: -121.96, region: 'Southwest' },
+
   // ── CENTRAL WASHINGTON LAKES ──────────────────────────────────────────────────
   { id: 'rimrock',      name: 'Rimrock Lake (Tieton Reservoir)', type: 'lake', lat: 46.64, lng: -121.14, region: 'Central' },
   { id: 'bumping',      name: 'Bumping Lake',        type: 'lake', lat: 46.86, lng: -121.27, region: 'Central' },
@@ -683,6 +687,16 @@ export const REGULATIONS: Regulation[] = [
 
   // ── MISSING CHUM on Green River ───────────────────────────────────────────
   { id: 'r305', speciesId: 'chum',  waterBodyId: 'green',      seasonStart: '10-01', seasonEnd: '12-15', dailyLimit: 6, minSize: null, hatcheryOnly: false, gearRestriction: null, notes: 'Green River chum run. Check WDFW regulations for current season dates.' },
+
+  // ── DESCHUTES RIVER (Thurston County — South Sound tributary) ─────────────────
+  { id: 'r306', speciesId: 'coho',       waterBodyId: 'deschutes', seasonStart: '09-01', seasonEnd: '11-30', dailyLimit: 2,  minSize: 16,  hatcheryOnly: false, gearRestriction: null,              notes: 'Coho salmon into Deschutes estuary. South Sound coho run; see WDFW regulations for current dates.' },
+  { id: 'r307', speciesId: 'chum',       waterBodyId: 'deschutes', seasonStart: '10-01', seasonEnd: '12-15', dailyLimit: 4,  minSize: null,hatcheryOnly: false, gearRestriction: null,              notes: 'Chum salmon. South Sound chum run; see WDFW regulations for current season dates.' },
+  { id: 'r308', speciesId: 'cutthroat',  waterBodyId: 'deschutes', seasonStart: '06-01', seasonEnd: '10-31', dailyLimit: 2,  minSize: 14,  hatcheryOnly: false, gearRestriction: null,              notes: 'Sea-run cutthroat trout. See WDFW regulations.' },
+
+  // ── CARBON RIVER (Pierce County — Puyallup tributary) ─────────────────────────
+  { id: 'r309', speciesId: 'coho',       waterBodyId: 'carbon',    seasonStart: '09-01', seasonEnd: '11-30', dailyLimit: 2,  minSize: 16,  hatcheryOnly: true,  gearRestriction: 'Barbless hooks only', notes: 'Hatchery coho. Puyallup tributary; see WDFW regulations for current season dates.' },
+  { id: 'r310', speciesId: 'steelhead',  waterBodyId: 'carbon',    seasonStart: '01-01', seasonEnd: '03-31', dailyLimit: 2,  minSize: 20,  hatcheryOnly: true,  gearRestriction: null,              notes: 'Hatchery winter steelhead. See WDFW regulations for current season dates.' },
+  { id: 'r311', speciesId: 'chinook',    waterBodyId: 'carbon',    seasonStart: '07-01', seasonEnd: '09-15', dailyLimit: 2,  minSize: 24,  hatcheryOnly: true,  gearRestriction: 'Barbless hooks only', notes: 'Summer Chinook, hatchery only. See WDFW regulations for current season dates.' },
 ]
 
 // ─── GEAR ICONS ───────────────────────────────────────────────────────────────
