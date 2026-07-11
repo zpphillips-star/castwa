@@ -437,8 +437,8 @@ export default function WatersPage() {
   }, [])
 
   return (
-    <div className="flex flex-col" style={{ background: 'var(--bg)', height: '100dvh' }}>
-      <header className="glass-header sticky top-0 z-30 px-4 flex-shrink-0">
+    <div className="min-h-screen" style={{ background: 'var(--bg)', paddingBottom: '100px' }}>
+      <header className="glass-header sticky top-0 z-30 px-4">
         <div className="max-w-lg mx-auto py-3 flex items-center justify-between">
           <h1 className="text-lg font-bold text-white">Waters</h1>
           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
@@ -447,14 +447,7 @@ export default function WatersPage() {
         </div>
       </header>
 
-      {/* ── Pinned WA map — nestled with padding, doesn't scroll ── */}
-      <div className="flex-shrink-0 max-w-lg mx-auto w-full px-4 pt-3 pb-1">
-        <WaGridMap selected={selectedCell} onSelect={setSelectedCell} />
-      </div>
-
-      {/* ── Scrollable content below map ── */}
-      <div className="flex-1 overflow-y-auto no-scrollbar" style={{ paddingBottom: '100px' }}>
-      <div className="max-w-lg mx-auto px-4 pt-2">
+      <div className="max-w-lg mx-auto px-4 pt-3">
 
         {/* ── Featured: top 4 waters with most open fishing ── */}
         {activeFilter === 'all' && selectedCell === null && featuredWaters.length > 0 && (
@@ -521,6 +514,12 @@ export default function WatersPage() {
             </div>
           </div>
         )}
+
+        {/* ── WA State Grid Map — sticky so it stays visible while list scrolls ── */}
+        <div className="sticky z-20 -mx-4 px-4 py-2"
+          style={{ top: '52px', background: 'var(--bg)' }}>
+          <WaGridMap selected={selectedCell} onSelect={setSelectedCell} />
+        </div>
 
         {/* ── Filter chips ── */}
         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-4">
@@ -642,7 +641,6 @@ export default function WatersPage() {
           </div>
         </div>
       </div>{/* end max-w-lg */}
-      </div>{/* end scrollable area */}
 
       {selectedWaterName && (
         <WaterDetailSheet
