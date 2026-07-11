@@ -1,34 +1,11 @@
 'use client'
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import BottomNav from '@/components/BottomNav'
 import FishDetailSheet from '@/components/FishDetailSheet'
-import WDFWAlertBanner from '@/components/WDFWAlertBanner'
 import { SPECIES, Species, Habitat, REGULATIONS, WATER_BODIES, isOpenOn } from '@/lib/fishing-data'
+import { useStarred } from '@/hooks/useStarred'
 
 type FilterKey = 'all' | 'river' | 'lake' | 'salt' | 'shellfish' | 'starred'
-
-// ─── FAVORITES HOOK ───────────────────────────────────────────────────────────
-function useFavorites() {
-  const [favorites, setFavorites] = useState<Set<string>>(() => {
-    if (typeof window === 'undefined') return new Set()
-    try {
-      const stored = localStorage.getItem('castwa-favorites')
-      return stored ? new Set<string>(JSON.parse(stored) as string[]) : new Set<string>()
-    } catch { return new Set<string>() }
-  })
-
-  const toggle = useCallback((id: string) => {
-    setFavorites(prev => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      try { localStorage.setItem('castwa-favorites', JSON.stringify([...next])) } catch { /* ignore */ }
-      return next
-    })
-  }, [])
-
-  return { favorites, toggle }
-}
 
 const FILTERS: { key: FilterKey; label: string; desc: string }[] = [
   { key: 'all',       label: 'All',        desc: 'All species in Washington' },
@@ -60,14 +37,14 @@ export default function FishPage() {
   const [activeFilter, setActiveFilter] = useState<FilterKey>('all')
   const [selectedFish, setSelectedFish] = useState<Species | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const { favorites, toggle: toggleFavorite } = useFavorites()
+  const { isFishStarred, toggleFish } = useStarred()
   const today = new Date()
 
   // Base habitat/starred filter
   const habitatFiltered = activeFilter === 'all'
     ? SPECIES
     : activeFilter === 'starred'
-    ? SPECIES.filter(s => favorites.has(s.id))
+    ? SPECIES.filter(s => isFishStarred(s.id))
     : SPECIES.filter(s => s.habitats.includes(activeFilter as Habitat))
 
   // Search filter on top
@@ -97,12 +74,11 @@ export default function FishPage() {
       <header className="glass-header sticky top-0 z-30 px-4 pt-safe">
         <div className="max-w-lg mx-auto py-3">
           <h1 className="text-lg font-bold text-white">Fish</h1>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>What do you want to catch today?</p>
         </div>
       </header>
 
       <div className="max-w-lg mx-auto px-4 pt-4">
-        {/* WDFW live emergency alert banner */}
-        <WDFWAlertBanner />
 
         {/* ── Search bar ── */}
         <div className="relative mb-4">
@@ -158,7 +134,7 @@ export default function FishPage() {
         <div className="grid grid-cols-3 gap-4">
           {sortedFiltered.map(fish => {
             const inSeason = isInSeasonToday(fish.id)
-            const isFav = favorites.has(fish.id)
+            const isFav = isFishStarred(fish.id)
             return (
               <button
                 key={fish.id}
@@ -172,7 +148,7 @@ export default function FishPage() {
               >
                 {/* Star icon — top-right corner */}
                 <button
-                  onClick={e => { e.stopPropagation(); toggleFavorite(fish.id) }}
+                  onClick={e => { e.stopPropagation(); toggleFish(fish.id) }}
                   className="absolute top-2 right-2 z-10 w-7 h-7 flex items-center justify-center rounded-full"
                   style={{ background: 'rgba(0,0,0,0.45)', fontSize: '14px', lineHeight: 1 }}
                   aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}

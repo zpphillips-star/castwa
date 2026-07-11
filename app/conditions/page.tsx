@@ -440,7 +440,10 @@ export default function WatersPage() {
     <div className="flex flex-col" style={{ height: '100dvh', background: 'var(--bg)' }}>
       <header className="glass-header flex-shrink-0 z-30 px-4">
         <div className="max-w-lg mx-auto py-3 flex items-center justify-between">
-          <h1 className="text-lg font-bold text-white">Waters</h1>
+          <div>
+            <h1 className="text-lg font-bold text-white">Waters</h1>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Find a place to fish</p>
+          </div>
           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
             {lastUpdated ? `Gauges updated ${lastUpdated}` : loading ? 'Loading gauges…' : 'Tap any water for details'}
           </p>

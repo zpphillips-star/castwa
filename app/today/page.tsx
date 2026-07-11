@@ -171,6 +171,8 @@ export default function TodayPage() {
 
   const { starredFishIds, starredWaterIds, hydrated } = useStarred()
 
+  const gauges = useRiverGauges()
+
   // Starred fish species objects
   const starredFish = SPECIES.filter(s => starredFishIds.includes(s.id))
 
@@ -369,29 +371,58 @@ export default function TodayPage() {
             </button>
           ) : (
             <div className="flex flex-col gap-2">
-              {starredWaters.map(water => (
-                <button
-                  key={water.id}
-                  onClick={() => setSelectedWater(water.name)}
-                  className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl transition-all active:opacity-75 text-left"
-                  style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="text-xl flex-shrink-0">
-                      {water.type === 'river' || water.type === 'stream' ? '🏞️'
-                       : water.type === 'lake' ? '🏔️'
-                       : '🌊'}
-                    </span>
-                    <div className="min-w-0">
-                      <p className="text-sm font-bold text-white leading-tight truncate">{water.name}</p>
-                      <p className="text-xs mt-0.5 capitalize" style={{ color: 'var(--text-faint)' }}>
-                        {water.region} · {water.type}
-                      </p>
+              {starredWaters.map(water => {
+                // Try to match this water to a known gauge
+                const firstWord = water.name.toLowerCase().split(' ')[0]
+                const gaugeForWater = gauges.find(g =>
+                  g.name.toLowerCase().includes(firstWord)
+                )
+                const hasGauge = !!gaugeForWater && gaugeForWater.cfs !== null
+                const cfg = hasGauge ? STATUS_CONFIG[gaugeForWater!.status] : null
+
+                return (
+                  <button
+                    key={water.id}
+                    onClick={() => setSelectedWater(water.name)}
+                    className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl transition-all active:opacity-75 text-left"
+                    style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="text-xl flex-shrink-0">
+                        {water.type === 'river' || water.type === 'stream' ? '🏞️'
+                         : water.type === 'lake' ? '🏔️'
+                         : '🌊'}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-white leading-tight truncate">{water.name}</p>
+                        <p className="text-xs mt-0.5 capitalize" style={{ color: 'var(--text-faint)' }}>
+                          {water.region} · {water.type}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <span className="text-sm font-light flex-shrink-0 ml-3" style={{ color: 'var(--text-faint)' }}>›</span>
-                </button>
-              ))}
+                    <div className="flex items-center gap-2 flex-shrink-0 ml-3">
+                      {hasGauge && cfg ? (
+                        <span style={{
+                          background: cfg.bg,
+                          color: cfg.color,
+                          borderRadius: 6,
+                          padding: '2px 8px',
+                          fontSize: 11,
+                          fontWeight: 700,
+                        }}>
+                          {gaugeForWater!.cfs?.toLocaleString() ?? '—'} cfs{gaugeForWater!.trend ? ` ${TREND_ARROW[gaugeForWater!.trend!]}` : ''}
+                        </span>
+                      ) : (
+                        <span className="text-xs px-2 py-0.5 rounded"
+                          style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--text-faint)' }}>
+                          {water.type === 'lake' ? 'lake' : 'no gauge'}
+                        </span>
+                      )}
+                      <span className="text-sm font-light" style={{ color: 'var(--text-faint)' }}>›</span>
+                    </div>
+                  </button>
+                )
+              })}
             </div>
           )}
         </div>
