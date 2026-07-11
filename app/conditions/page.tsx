@@ -452,7 +452,7 @@ export default function WatersPage() {
         style={{ background: 'var(--bg)' }}>
 
         {/* Most Active Right Now */}
-        {activeFilter === 'all' && selectedCell === null && featuredWaters.length > 0 && (
+        {activeFilter === 'all' && featuredWaters.length > 0 && (
           <div className="mb-4">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-xs font-bold tracking-widest uppercase" style={{ color: 'var(--text-faint)' }}>
@@ -519,6 +519,14 @@ export default function WatersPage() {
         <div className="rounded-2xl mb-3"
           style={{ background: 'var(--surface)', border: '1px solid var(--border)', padding: '10px 10px 6px' }}>
           <WaGridMap selected={selectedCell} onSelect={setSelectedCell} />
+          {selectedCell && (
+            <button
+              onClick={() => setSelectedCell(null)}
+              className="w-full text-center text-xs font-semibold py-1.5 mt-1 rounded-lg active:opacity-70"
+              style={{ color: '#f26522', background: 'rgba(242,101,34,0.08)' }}>
+              ✕ Clear region filter
+            </button>
+          )}
         </div>
       </div>
 
