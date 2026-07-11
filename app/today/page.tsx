@@ -422,10 +422,8 @@ export default function TodayPage() {
               <span className="text-sm" style={{ color: 'var(--text-faint)' }}>›</span>
             </button>
           ) : (
-            <>
-              {/* FEATURED — first starred water */}
-              {(() => {
-                const water = starredWaters[0]
+            <div className="flex flex-col gap-3">
+              {starredWaters.map(water => {
                 const firstWord = water.name.toLowerCase().split(' ')[0]
                 const gauge = gauges.find(g => g.name.toLowerCase().includes(firstWord))
                 const hasGauge = !!gauge && gauge.cfs !== null
@@ -438,8 +436,9 @@ export default function TodayPage() {
                   .slice(0, 4)
                 return (
                   <button
+                    key={water.id}
                     onClick={() => setSelectedWater(water.name)}
-                    className="w-full text-left rounded-2xl overflow-hidden mb-3 transition-all active:scale-[0.99]"
+                    className="w-full text-left rounded-2xl overflow-hidden transition-all active:scale-[0.99]"
                     style={{
                       background: 'var(--surface)',
                       border: `1px solid ${hasGauge && cfg ? cfg.color + '50' : 'rgba(255,255,255,0.08)'}`,
@@ -485,41 +484,8 @@ export default function TodayPage() {
                     </div>
                   </button>
                 )
-              })()}
-
-              {/* Additional waters — compact rows */}
-              {starredWaters.length > 1 && (
-                <div className="rounded-xl overflow-hidden" style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  {starredWaters.slice(1).map((water, i) => {
-                    const firstWord = water.name.toLowerCase().split(' ')[0]
-                    const gauge = gauges.find(g => g.name.toLowerCase().includes(firstWord))
-                    const hasGauge = !!gauge && gauge.cfs !== null
-                    const cfg = hasGauge ? STATUS_CONFIG[gauge!.status] : null
-                    return (
-                      <button
-                        key={water.id}
-                        onClick={() => setSelectedWater(water.name)}
-                        className="w-full flex items-center justify-between px-4 py-3 text-left transition-all active:opacity-75"
-                        style={{ borderBottom: i < starredWaters.length - 2 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}
-                      >
-                        <p className="text-sm font-semibold text-white">{water.name}</p>
-                        <div className="flex items-center gap-2">
-                          {hasGauge && cfg && gauge ? (
-                            <span className="text-[11px] font-bold px-2 py-0.5 rounded"
-                              style={{ background: cfg.bg, color: cfg.color }}>
-                              {gauge.cfs?.toLocaleString()} cfs{gauge.trend ? ` ${TREND_ARROW[gauge.trend]}` : ''}
-                            </span>
-                          ) : (
-                            <span className="text-xs capitalize" style={{ color: 'var(--text-faint)' }}>{water.type}</span>
-                          )}
-                          <span style={{ color: 'var(--text-faint)', fontSize: 14 }}>›</span>
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
-            </>
+              })}
+            </div>
           )}
         </div>
 
