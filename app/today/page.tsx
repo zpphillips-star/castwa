@@ -229,7 +229,6 @@ export default function TodayPage() {
           className="w-full text-left rounded-lg mb-5 transition-all active:scale-[0.99] overflow-hidden"
           style={{
             background: totalAlertCount > 0 ? 'rgba(239,68,68,0.10)' : 'rgba(255,255,255,0.04)',
-            border: `1px solid ${totalAlertCount > 0 ? 'rgba(239,68,68,0.5)' : 'rgba(255,255,255,0.09)'}`,
             boxShadow: totalAlertCount > 0
               ? 'inset 5px 0 0 #ef4444, 0 4px 24px rgba(239,68,68,0.12)'
               : '0 2px 12px rgba(0,0,0,0.2)',
