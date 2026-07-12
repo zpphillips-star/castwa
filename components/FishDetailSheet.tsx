@@ -5,6 +5,7 @@ import { useStarredFish } from '@/hooks/useStarred'
 import { Species, Regulation, WaterBody, REGULATIONS, WATER_BODIES, SKAGIT_SECTIONS, GEAR_ICON_INFO, GearIconCode, isOpenOn } from '@/lib/fishing-data'
 import { GEAR, GearItem } from '@/lib/gear-data'
 import { FISH_TIPS } from './RiverDetailSheet'
+import { CATCH_GUIDES } from '@/lib/catch-guides'
 import RiverDetailSheet from './RiverDetailSheet'
 import RiverSectionMap from './RiverSectionMap'
 import { SKAGIT_SECTION_COORDS } from '@/lib/river-sections-coords'
@@ -276,6 +277,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
   const waters  = regs.map(r => WATER_BODIES.find(w => w.id === r.waterBodyId)!).filter(Boolean)
   const tips    = FISH_TIPS[species.id]
   const gear    = GEAR[species.id]
+  const guide   = CATCH_GUIDES.find(g => g.speciesId === species.id) ?? null
   const today   = new Date()
 
   const openRegs      = regs.filter(r => WATER_BODIES.find(w => w.id === r.waterBodyId) && isOpenOn(r, today))
@@ -704,70 +706,148 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
             </div>
           )}
 
-          {/* ════ TIPS TAB ════ */}
+          {/* ════ TIPS TAB — How to Catch Guide ════ */}
           {activeTab === 'tips' && (
-            <div className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-3">
-              {/* Best times */}
-              {gear?.bestTimes && (
-                <div className="rounded-md" style={{ border: '1px solid var(--border)' }}>
-                  <div className="px-3 py-2" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
-                    <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>BEST TIMES</p>
+            <div className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-5">
+              {guide ? (
+                <>
+                  {/* Where to Find */}
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-faint)' }}>Where to Find Them</p>
+                    <ul className="space-y-1.5">
+                      {guide.whereToFind.map((tip, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <span className="flex-shrink-0 mt-0.5 text-xs" style={{ color: '#6ab04c' }}>●</span>
+                          <span className="text-sm text-white leading-snug">{tip}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <div className="px-3 py-3" style={{ background: 'var(--bg)' }}>
-                    <p className="text-sm font-semibold text-white">{gear.bestTimes}</p>
-                  </div>
-                </div>
-              )}
 
-              {/* How to catch */}
-              {showTips && tips && (
-                <div className="rounded-md" style={{ border: '1px solid var(--border)' }}>
-                  <div className="px-3 py-2" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
-                    <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>HOW TO CATCH</p>
-                  </div>
-                  <div style={{ background: 'var(--bg)' }}>
-                    {tips.howToCatch.map((tip, i) => (
-                      <div key={i} className="flex gap-3 px-3 py-2.5"
-                        style={{ borderBottom: i < tips.howToCatch.length - 1 ? '1px solid var(--border)' : 'none' }}>
-                        <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black mt-0.5"
-                          style={{ background: 'rgba(242,101,34,0.2)', color: 'var(--accent)' }}>{i + 1}</span>
-                        <p className="text-sm leading-snug" style={{ color: 'var(--text-muted)' }}>{tip}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Identification */}
-              {showTips && tips && (
-                <div className="rounded-md" style={{ border: '1px solid var(--border)' }}>
-                  <div className="px-3 py-2" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
-                    <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>IDENTIFICATION</p>
-                  </div>
-                  <div style={{ background: 'var(--bg)' }}>
-                    <div className="px-3 py-2.5" style={{ borderBottom: '1px solid var(--border)' }}>
-                      <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{tips.whatToLookFor}</p>
+                  {/* Best Bait */}
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-faint)' }}>Best Bait &amp; Lures</p>
+                    <div className="space-y-2">
+                      {guide.bestBait.map((bait, i) => (
+                        <div key={i} className="flex items-start gap-3 px-3 py-2.5 rounded"
+                          style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-white leading-tight">{bait.name}</p>
+                            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{bait.when}</p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    {tips.howToSpot.map((tip, i) => (
-                      <div key={i} className="flex gap-3 px-3 py-2.5"
-                        style={{ borderBottom: i < tips.howToSpot.length - 1 ? '1px solid var(--border)' : 'none' }}>
-                        <span className="flex-shrink-0 font-bold text-sm mt-0.5" style={{ color: '#6ab04c' }}>✓</span>
-                        <p className="text-sm leading-snug" style={{ color: 'var(--text-muted)' }}>{tip}</p>
-                      </div>
-                    ))}
                   </div>
-                </div>
-              )}
 
-              {/* About */}
-              <div className="rounded-md" style={{ border: '1px solid var(--border)' }}>
-                <div className="px-3 py-2" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
-                  <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>ABOUT</p>
-                </div>
-                <div className="px-3 py-3" style={{ background: 'var(--bg)' }}>
-                  <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>{species.description}</p>
-                </div>
-              </div>
+                  {/* Technique */}
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-faint)' }}>Technique</p>
+                    <ul className="space-y-1.5">
+                      {guide.technique.map((tip, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <span className="flex-shrink-0 mt-0.5 text-xs" style={{ color: '#63b3ed' }}>●</span>
+                          <span className="text-sm text-white leading-snug">{tip}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Best Time */}
+                  <div className="px-3 py-2.5 rounded" style={{ background: 'rgba(242,101,34,0.08)', border: '1px solid rgba(242,101,34,0.2)' }}>
+                    <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: '#f26522' }}>Best Time</p>
+                    <p className="text-sm text-white leading-snug">{guide.bestTime}</p>
+                  </div>
+
+                  {/* Pro Tips */}
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-faint)' }}>WA Pro Tips</p>
+                    <ul className="space-y-1.5">
+                      {guide.proTips.map((tip, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <span className="flex-shrink-0 mt-0.5 text-xs" style={{ color: '#f59e0b' }}>★</span>
+                          <span className="text-sm text-white leading-snug">{tip}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* About (preserved below guide) */}
+                  <div className="rounded-md" style={{ border: '1px solid var(--border)' }}>
+                    <div className="px-3 py-2" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
+                      <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>ABOUT</p>
+                    </div>
+                    <div className="px-3 py-3" style={{ background: 'var(--bg)' }}>
+                      <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>{species.description}</p>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                // Fallback for species without a dedicated guide
+                <>
+                  {/* Best times from gear data */}
+                  {gear?.bestTimes && (
+                    <div className="rounded-md" style={{ border: '1px solid var(--border)' }}>
+                      <div className="px-3 py-2" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
+                        <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>BEST TIMES</p>
+                      </div>
+                      <div className="px-3 py-3" style={{ background: 'var(--bg)' }}>
+                        <p className="text-sm font-semibold text-white">{gear.bestTimes}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* How to catch from FISH_TIPS */}
+                  {showTips && tips && (
+                    <div className="rounded-md" style={{ border: '1px solid var(--border)' }}>
+                      <div className="px-3 py-2" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
+                        <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>HOW TO CATCH</p>
+                      </div>
+                      <div style={{ background: 'var(--bg)' }}>
+                        {tips.howToCatch.map((tip, i) => (
+                          <div key={i} className="flex gap-3 px-3 py-2.5"
+                            style={{ borderBottom: i < tips.howToCatch.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                            <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black mt-0.5"
+                              style={{ background: 'rgba(242,101,34,0.2)', color: 'var(--accent)' }}>{i + 1}</span>
+                            <p className="text-sm leading-snug" style={{ color: 'var(--text-muted)' }}>{tip}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Identification */}
+                  {showTips && tips && (
+                    <div className="rounded-md" style={{ border: '1px solid var(--border)' }}>
+                      <div className="px-3 py-2" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
+                        <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>IDENTIFICATION</p>
+                      </div>
+                      <div style={{ background: 'var(--bg)' }}>
+                        <div className="px-3 py-2.5" style={{ borderBottom: '1px solid var(--border)' }}>
+                          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{tips.whatToLookFor}</p>
+                        </div>
+                        {tips.howToSpot.map((tip, i) => (
+                          <div key={i} className="flex gap-3 px-3 py-2.5"
+                            style={{ borderBottom: i < tips.howToSpot.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                            <span className="flex-shrink-0 font-bold text-sm mt-0.5" style={{ color: '#6ab04c' }}>✓</span>
+                            <p className="text-sm leading-snug" style={{ color: 'var(--text-muted)' }}>{tip}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* About */}
+                  <div className="rounded-md" style={{ border: '1px solid var(--border)' }}>
+                    <div className="px-3 py-2" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
+                      <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>ABOUT</p>
+                    </div>
+                    <div className="px-3 py-3" style={{ background: 'var(--bg)' }}>
+                      <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>{species.description}</p>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           )}
 
