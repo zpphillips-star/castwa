@@ -334,8 +334,17 @@ export default function TodayPage() {
 
   const gauges = useRiverGauges()
 
-  // Starred fish species objects
-  const starredFish = SPECIES.filter(s => starredFishIds.includes(s.id))
+  const openSpecies = getOpenSpeciesForDate(today)
+
+  // Starred fish species objects — open first (alpha), then closed (alpha)
+  const starredFish = SPECIES
+    .filter(s => starredFishIds.includes(s.id))
+    .sort((a, b) => {
+      const aOpen = openSpecies.some(s => s.id === a.id)
+      const bOpen = openSpecies.some(s => s.id === b.id)
+      if (aOpen !== bOpen) return aOpen ? -1 : 1
+      return a.name.localeCompare(b.name)
+    })
 
   // Starred water body objects
   const starredWaters = WATER_BODIES.filter(w => starredWaterIds.includes(w.id))
@@ -362,7 +371,6 @@ export default function TodayPage() {
   const totalAlertCount = staticAlerts.length + liveAlerts.length
 
   const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
-  const openSpecies = getOpenSpeciesForDate(today)
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg)', paddingBottom: '100px' }}>
