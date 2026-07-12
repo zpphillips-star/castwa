@@ -15,6 +15,7 @@ import { sliceRiverBetween } from '@/lib/river-regulation-segments'
 import FishDetailSheet from './FishDetailSheet'
 import type { MapSegment, SegmentStatus } from './RiverDetailMapInner'
 import { useSwipeBack } from '@/hooks/useSwipeBack'
+import { WATER_COORDS } from '@/lib/water-coords'
 
 // ─── Dynamic map (no SSR) ────────────────────────────────────────────────────
 const RiverDetailMapInner = dynamic(
@@ -33,6 +34,18 @@ const RiverDetailMapInner = dynamic(
 )
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+const REGS_VERIFIED_DATE = 'July 2026'
+
+function getCfsDescriptionForFlow(status: string): string {
+  switch (status) {
+    case 'low':   return 'Running low — fish may be concentrated in deeper holes'
+    case 'ideal': return 'Ideal conditions — great time to fish'
+    case 'high':  return 'Running high — fish slower side channels and eddies near banks'
+    default:      return ''
+  }
+}
 
 function parseGoogleMapsCoord(url: string): [number, number] | null {
   const m = url.match(/[?&]q=([\d.-]+),([\d.-]+)/)
@@ -769,6 +782,21 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
   const [selectedFish, setSelectedFish] = useState<Species | null>(null)
   const [selectedSpecies, setSelectedSpecies] = useState<string | null>(null)
   const [flow, setFlow] = useState<FlowData>(initialFlow)
+  const [weather, setWeather] = useState<{ temp: number; wind: number; precip: number } | null>(null)
+
+  // Fetch weather from Open-Meteo (no API key needed)
+  useEffect(() => {
+    const coords = WATER_COORDS[river.id]
+    if (!coords) return
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lng}&current=temperature_2m,wind_speed_10m,precipitation_probability&wind_speed_unit=mph&temperature_unit=fahrenheit&forecast_days=1`
+    fetch(url)
+      .then(r => r.json())
+      .then(json => {
+        const c = json.current
+        setWeather({ temp: c.temperature_2m, wind: c.wind_speed_10m, precip: c.precipitation_probability })
+      })
+      .catch(() => {})
+  }, [river.id])
 
   // Self-fetch USGS data when opened without live flow (e.g. from fish page)
   useEffect(() => {
@@ -876,6 +904,16 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
                   )}
                 </div>
               </div>
+              {flow.status !== 'loading' && getCfsDescriptionForFlow(flow.status) && (
+                <p className="text-xs italic mt-1" style={{ color: 'var(--text-faint)' }}>
+                  {getCfsDescriptionForFlow(flow.status)}
+                </p>
+              )}
+              {weather && (
+                <p className="text-xs mt-1" style={{ color: 'var(--text-faint)' }}>
+                  🌡 {Math.round(weather.temp)}°F · 💨 {Math.round(weather.wind)} mph{weather.precip > 20 ? ` · 🌧 ${weather.precip}% rain` : ''}
+                </p>
+              )}
             </div>
             <div className="flex items-center gap-2 flex-shrink-0 mt-1">
               {/* Star button */}
@@ -1029,7 +1067,13 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
 
                 return (
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-widest mb-2 px-1" style={{ color: 'var(--text-faint)' }}>What&apos;s Open Today</p>
+                     <div className="flex items-center justify-between mb-2 px-1">
+                       <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>What&apos;s Open Today</p>
+                       <span className="text-[10px] font-semibold px-2 py-0.5 rounded"
+                         style={{ background: 'rgba(106,176,76,0.1)', color: '#6ab04c', border: '1px solid rgba(106,176,76,0.2)' }}>
+                         ✓ Verified {REGS_VERIFIED_DATE}
+                       </span>
+                     </div>
                     <div className="rounded-2xl overflow-hidden"
                       style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}>
                       {openItems.map(({ reg, species: sp }, i) => (

@@ -7,6 +7,7 @@ import WaterDetailSheet from '@/components/WaterDetailSheet'
 import { REGULATIONS, WATER_BODIES, isOpenOn, getOpenSpeciesForDate, daysUntilOpen, SPECIES, Species } from '@/lib/fishing-data'
 import { getActiveAlerts, EmergencyAlert } from '@/lib/emergency-alerts'
 import { useStarred } from '@/hooks/useStarred'
+import { WATER_COORDS } from '@/lib/water-coords'
 
 // ─── WDFW LIVE ALERT TYPE ─────────────────────────────────────────────────────
 type WDFWLiveAlert = { title: string; link: string; pubDate: string }
@@ -271,6 +272,74 @@ const TREND_ARROW: Record<NonNullable<GaugeTrend>, string> = {
   stable:  '→',
 }
 
+// ─── Plain-English CFS description ───────────────────────────────────────────
+function getCfsDescription(status: GaugeStatus): string {
+  switch (status) {
+    case 'low':    return 'Running low — wading is easy, fish may be concentrated in deeper holes'
+    case 'good':   return 'Ideal conditions — great time to fish'
+    case 'high':   return 'Running high — fish slower side channels and eddies near banks'
+    case 'flood':  return 'Flood stage — dangerous, not recommended for fishing'
+    default:       return ''
+  }
+}
+
+// ─── Weather hook (Open-Meteo, no API key) ────────────────────────────────────
+type WeatherData = { temp: number; wind: number; precip: number }
+
+function useWeather(waterIds: string[]): Record<string, WeatherData | null> {
+  const [data, setData] = useState<Record<string, WeatherData | null>>({})
+  const key = waterIds.slice().sort().join(',')
+
+  useEffect(() => {
+    if (!key) return
+    const entries = key.split(',').filter(id => WATER_COORDS[id])
+    if (entries.length === 0) return
+    Promise.all(entries.map(async id => {
+      const coords = WATER_COORDS[id]
+      try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lng}&current=temperature_2m,wind_speed_10m,precipitation_probability&wind_speed_unit=mph&temperature_unit=fahrenheit&forecast_days=1`
+        const res = await fetch(url)
+        const json = await res.json()
+        const c = json.current
+        return { id, data: { temp: c.temperature_2m as number, wind: c.wind_speed_10m as number, precip: c.precipitation_probability as number } }
+      } catch {
+        return { id, data: null }
+      }
+    })).then(results => {
+      const m: Record<string, WeatherData | null> = {}
+      for (const r of results) m[r.id] = r.data
+      setData(m)
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key])
+
+  return data
+}
+
+// ─── Solunar bite times (pure math, no API) ───────────────────────────────────
+function getSolunarTimes(date: Date, lat: number, lng: number): { major: string[]; minor: string[] } {
+  void lat // lat reserved for future precision improvement
+  const dayOfYear = Math.floor((date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / 86400000)
+  const moonCycle = ((dayOfYear % 29.5) / 29.5) * 24
+  const overhead = (moonCycle + lng / 15 + 24) % 24
+  const underfoot = (overhead + 12) % 24
+  const moonrise = (overhead - 6 + 24) % 24
+  const moonset = (overhead + 6) % 24
+
+  const fmt = (h: number) => {
+    const hour = Math.floor(h)
+    const min = Math.round((h % 1) * 60)
+    const ampm = hour >= 12 ? 'PM' : 'AM'
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour
+    return `${displayHour}:${min.toString().padStart(2, '0')} ${ampm}`
+  }
+
+  return {
+    major: [fmt(overhead), fmt(underfoot)],
+    minor: [fmt(moonrise), fmt(moonset)],
+  }
+}
+
 function useRiverGauges(): GaugeReading[] {
   const [data, setData] = useState<GaugeReading[]>(
     GAUGES.map(g => ({ name: g.name, shortName: g.shortName, cfs: null, status: 'loading', trend: null }))
@@ -333,6 +402,7 @@ export default function TodayPage() {
   const { starredFishIds, starredWaterIds, hydrated } = useStarred()
 
   const gauges = useRiverGauges()
+  const weatherData = useWeather(starredWaterIds)
 
   const openSpecies = getOpenSpeciesForDate(today)
 
@@ -402,6 +472,31 @@ export default function TodayPage() {
           </div>
           <span className="text-base font-light flex-shrink-0" style={{ color: totalAlertCount > 0 ? '#ef4444' : 'var(--text-faint)' }}>›</span>
         </button>
+
+        {/* ── SOLUNAR BITE TIMES ── */}
+        {(() => {
+          const times = getSolunarTimes(today, 47.5, -120.5)
+          return (
+            <div className="mb-5 px-4 py-3 flex items-center justify-between"
+              style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6 }}>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--text-faint)' }}>Best Bite Times Today</p>
+                <div className="flex items-center gap-4">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase" style={{ color: '#6ab04c' }}>Major</p>
+                    <p className="text-sm font-bold text-white">{times.major.join(' · ')}</p>
+                  </div>
+                  <div style={{ width: 1, height: 28, background: 'rgba(255,255,255,0.1)' }} />
+                  <div>
+                    <p className="text-[10px] font-bold uppercase" style={{ color: '#63b3ed' }}>Minor</p>
+                    <p className="text-sm font-bold text-white">{times.minor.join(' · ')}</p>
+                  </div>
+                </div>
+              </div>
+              <span className="text-xl flex-shrink-0">🌙</span>
+            </div>
+          )
+        })()}
 
         {/* ── MY WATERS ── */}
         <div className="mb-6">
@@ -473,6 +568,15 @@ export default function TodayPage() {
                           ) : (
                             <p className="text-sm mt-2" style={{ color: 'var(--text-faint)' }}>No species open today</p>
                           )}
+                          {(() => {
+                            const w = weatherData[water.id]
+                            if (!w) return null
+                            return (
+                              <p className="text-xs mt-2" style={{ color: 'var(--text-faint)' }}>
+                                {Math.round(w.temp)}°F · {Math.round(w.wind)} mph wind{w.precip > 20 ? ` · ${w.precip}% rain` : ''}
+                              </p>
+                            )
+                          })()}
                         </div>
                         {hasGauge && cfg && gauge && (
                           <div className="flex-shrink-0 text-right">
@@ -486,6 +590,11 @@ export default function TodayPage() {
                               style={{ background: cfg.bg, color: cfg.color }}>
                               {cfg.label}
                             </span>
+                            {gauge.status !== 'loading' && (
+                              <p className="text-[10px] italic mt-1 text-left" style={{ color: 'var(--text-faint)', maxWidth: 90 }}>
+                                {getCfsDescription(gauge.status)}
+                              </p>
+                            )}
                           </div>
                         )}
                       </div>

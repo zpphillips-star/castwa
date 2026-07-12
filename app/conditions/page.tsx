@@ -9,12 +9,22 @@ import type { WaterBody } from '@/lib/fishing-data'
 // ─── Canonical river list — single source of truth ───────────────────────────
 // Imported from lib/river-lookup; never duplicate here.
 import { RiverEntry, GAUGED_RIVERS, findRiverEntry } from '@/lib/river-lookup'
+import { WATER_COORDS } from '@/lib/water-coords'
 
 // GAUGED_IDS: used to show flow-rate indicators only for gauged rivers
 const GAUGED_IDS = new Set(GAUGED_RIVERS.map(r => r.id))
 
 type FlowStatus = 'ideal' | 'low' | 'high' | 'loading' | 'error'
 type FlowData = { cfs: number | null; status: FlowStatus; trend: 'rising' | 'falling' | 'stable' | null }
+
+// ─── Haversine distance ───────────────────────────────────────────────────────
+function distanceMiles(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 3958.8
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLng = (lng2 - lng1) * Math.PI / 180
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2
+  return R * 2 * Math.asin(Math.sqrt(a))
+}
 
 function getFlowStatus(cfs: number, r: RiverEntry): FlowStatus {
   if (cfs >= r.idealCfs.min && cfs <= r.idealCfs.max) return 'ideal'
@@ -339,6 +349,32 @@ export default function WatersPage() {
   const [selectedWaterName, setSelectedWaterName] = useState<string | null>(null)
   const [activeFilter, setActiveFilter] = useState<'all' | 'river' | 'lake' | 'marine'>('all')
   const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null)
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
+  const [locationRequested, setLocationRequested] = useState(false)
+  const [locationDenied, setLocationDenied] = useState(false)
+
+  // ── Nearby waters (Near Me feature) ──────────────────────────────────────
+  const nearbyWaters = userLocation
+    ? WATER_BODIES
+        .filter(w => WATER_COORDS[w.id])
+        .map(w => {
+          const coords = WATER_COORDS[w.id]
+          const distMiles = distanceMiles(userLocation.lat, userLocation.lng, coords.lat, coords.lng)
+          const openCount = new Set(REGULATIONS.filter(r => r.waterBodyId === w.id && isOpenOn(r, today)).map(r => r.speciesId)).size
+          return { water: w, distMiles, openCount }
+        })
+        .filter(x => x.openCount > 0)
+        .sort((a, b) => a.distMiles - b.distMiles)
+        .slice(0, 5)
+    : []
+
+  function requestLocation() {
+    setLocationRequested(true)
+    navigator.geolocation.getCurrentPosition(
+      pos => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => setLocationDenied(true)
+    )
+  }
 
   // ── Single entry-point for all water-body taps ────────────────────────────
   const openWater = useCallback((water: WaterBody) => {
@@ -536,6 +572,54 @@ export default function WatersPage() {
       {/* ── Scrollable: filter chips + water list ── */}
       <div className="flex-1 overflow-y-auto no-scrollbar" style={{ paddingBottom: '100px' }}>
       <div className="max-w-lg mx-auto px-4 pt-1">
+        {/* ── NEAR YOU ── */}
+        {!locationRequested ? (
+          <div className="mb-4">
+            <button
+              onClick={requestLocation}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.99]"
+              style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)', color: 'var(--text-muted)' }}
+            >
+              <span>📍</span>
+              <span>Find waters near you</span>
+            </button>
+          </div>
+        ) : locationDenied ? (
+          <div className="mb-4 px-4 py-3 rounded-xl text-xs" style={{ color: 'var(--text-faint)', background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            Location access denied — enable in browser settings to use Near You
+          </div>
+        ) : nearbyWaters.length > 0 ? (
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>Near You</h2>
+              <span className="text-xs" style={{ color: 'var(--text-faint)' }}>open today</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              {nearbyWaters.map(({ water, distMiles, openCount }) => (
+                <button key={water.id} onClick={() => openWater(water)}
+                  className="flex items-center justify-between px-4 py-3 text-left transition-all active:opacity-75"
+                  style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6 }}>
+                  <div>
+                    <p className="text-sm font-bold text-white">{water.name}</p>
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-faint)' }}>{openCount} species open</p>
+                  </div>
+                  <div className="text-right flex-shrink-0 ml-3">
+                    <p className="text-sm font-bold" style={{ color: '#f26522' }}>{distMiles < 10 ? distMiles.toFixed(1) : Math.round(distMiles)} mi</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : userLocation ? (
+          <div className="mb-4 px-4 py-3 rounded-xl text-xs" style={{ color: 'var(--text-faint)', background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            No open waters found nearby today
+          </div>
+        ) : (
+          <div className="mb-4 px-4 py-3 rounded-xl text-xs" style={{ color: 'var(--text-faint)', background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            Getting your location…
+          </div>
+        )}
+
         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-4">
           {([
             { key: 'all',    label: 'All Waters' },

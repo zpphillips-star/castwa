@@ -18,6 +18,9 @@ import { FISH_TIPS } from './RiverDetailSheet'
 import FishDetailSheet from './FishDetailSheet'
 import { useSwipeBack } from '@/hooks/useSwipeBack'
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+const REGS_VERIFIED_DATE = 'July 2026'
+
 const RiverDetailMapInner = dynamic(
   () => import('./RiverDetailMapInner'),
   {
@@ -738,7 +741,13 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
               const openItems = speciesRegs.filter(({ reg }) => isOpenOn(reg, today))
               if (openItems.length === 0) return (
                 <div className="px-4 pb-2">
-                  <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-faint)' }}>What&apos;s Open Today</p>
+                  <div className="flex items-center justify-between mb-2">
+                     <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>What&apos;s Open Today</p>
+                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded"
+                       style={{ background: 'rgba(106,176,76,0.1)', color: '#6ab04c', border: '1px solid rgba(106,176,76,0.2)' }}>
+                       ✓ Verified {REGS_VERIFIED_DATE}
+                     </span>
+                   </div>
                   <div className="px-4 py-3 rounded-xl"
                     style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
                     <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No species open today — check calendar for upcoming seasons</p>
@@ -747,7 +756,13 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
               )
               return (
                 <div className="px-4 pb-2">
-                  <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-faint)' }}>What&apos;s Open Today</p>
+                  <div className="flex items-center justify-between mb-2">
+                     <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>What&apos;s Open Today</p>
+                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded"
+                       style={{ background: 'rgba(106,176,76,0.1)', color: '#6ab04c', border: '1px solid rgba(106,176,76,0.2)' }}>
+                       ✓ Verified {REGS_VERIFIED_DATE}
+                     </span>
+                   </div>
                   <div className="rounded-2xl overflow-hidden"
                     style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}>
                     {openItems.map(({ reg, species: sp }, i) => (

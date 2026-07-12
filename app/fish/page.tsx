@@ -80,6 +80,14 @@ export default function FishPage() {
 
       <div className="max-w-lg mx-auto px-4 pt-4">
 
+        {/* Reg trust signal */}
+        <p className="text-xs mb-3" style={{ color: 'var(--text-faint)' }}>
+          <span className="inline-block px-2 py-0.5 rounded font-semibold"
+            style={{ background: 'rgba(106,176,76,0.1)', color: '#6ab04c', border: '1px solid rgba(106,176,76,0.2)' }}>
+            ✓ Regs verified July 2026
+          </span>
+        </p>
+
         {/* ── Search bar ── */}
         <div className="relative mb-4">
           <input
