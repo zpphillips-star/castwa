@@ -541,7 +541,7 @@ export default function TodayPage() {
                   >
                     {/* LEFT: fish photo */}
                     <div className="flex-shrink-0 rounded-xl overflow-hidden"
-                      style={{ width: 80, height: 80, background: '#0b0d14' }}>
+                      style={{ width: 96, height: 96, background: '#0b0d14' }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={fish.photo}
