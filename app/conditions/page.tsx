@@ -494,9 +494,10 @@ export default function WatersPage() {
         {featuredWaters.length > 0 && (
           <div className="mb-4">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-xs font-bold tracking-widest uppercase" style={{ color: 'var(--text-faint)' }}>
-                Most Active Right Now
-              </h2>
+              <div className="flex items-center gap-2">
+                <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />
+                <h2 className="text-sm font-black text-white">Most Active Right Now</h2>
+              </div>
               <span className="text-xs" style={{ color: 'var(--text-faint)' }}>Top waters today</span>
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -591,7 +592,10 @@ export default function WatersPage() {
         ) : nearbyWaters.length > 0 ? (
           <div className="mb-4">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>Near You</h2>
+              <div className="flex items-center gap-2">
+                <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />
+                <h2 className="text-sm font-black text-white">Near You</h2>
+              </div>
               <span className="text-xs" style={{ color: 'var(--text-faint)' }}>open today</span>
             </div>
             <div className="flex flex-col gap-2">
@@ -644,12 +648,14 @@ export default function WatersPage() {
 
         {/* ── Water sections ── */}
         {visibleSections.map(section => (
-          <div key={section.label} className="mb-6">
+          <div key={section.label} className="mb-8">
             <div className="flex items-center gap-2 mb-3">
-              <h2 className="text-xs font-bold tracking-widest uppercase" style={{ color: 'var(--text-faint)' }}>
-                {section.label}
-              </h2>
-              <span className="text-xs" style={{ color: 'var(--text-faint)' }}>· {section.waters.length}</span>
+              <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />
+              <h2 className="text-sm font-black text-white">{section.label}</h2>
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
+                style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-muted)' }}>
+                {section.waters.length}
+              </span>
             </div>
 
             {/* Water rows */}

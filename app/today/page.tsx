@@ -376,9 +376,12 @@ function SolunarTimeline({ date }: { date: Date }) {
 
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>Best Bite Times</p>
-          <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Based on moon position · today</p>
+        <div className="flex items-center gap-2">
+          <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />
+          <div>
+            <p className="text-sm font-black text-white">Best Bite Times</p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Based on moon position · today</p>
+          </div>
         </div>
         <div className="flex items-center gap-3 text-[10px] font-bold">
           <span className="flex items-center gap-1"><span style={{ color: '#6ab04c' }}>■</span> Major 2h</span>
@@ -586,12 +589,24 @@ export default function TodayPage() {
         {/* ── SOLUNAR BITE TIMES ── */}
         <SolunarTimeline date={today} />
 
+        {/* ── separator ── */}
+        <div className="mb-8" style={{ height: 1, background: 'rgba(255,255,255,0.05)' }} />
+
         {/* ── MY WATERS ── */}
-        <div className="mb-6">
+        <div className="mb-8">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>My Waters</h2>
+            <div className="flex items-center gap-2">
+              <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />
+              <h2 className="text-sm font-black text-white">My Waters</h2>
+              {starredWaters.length > 0 && (
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
+                  style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-muted)' }}>
+                  {starredWaters.length}
+                </span>
+              )}
+            </div>
             {starredWaters.length === 0 && hydrated && (
-              <span className="text-xs" style={{ color: 'var(--text-faint)' }}>tap ☆ on any water to add</span>
+              <span className="text-xs" style={{ color: 'var(--text-faint)' }}>tap ☆ to add</span>
             )}
           </div>
 
@@ -694,12 +709,24 @@ export default function TodayPage() {
           )}
         </div>
 
+        {/* ── separator ── */}
+        <div className="mb-8" style={{ height: 1, background: 'rgba(255,255,255,0.05)' }} />
+
         {/* ── MY FISH ── */}
-        <div className="mb-6">
+        <div className="mb-8">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>My Fish</h2>
+            <div className="flex items-center gap-2">
+              <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />
+              <h2 className="text-sm font-black text-white">My Fish</h2>
+              {starredFish.length > 0 && (
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
+                  style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-muted)' }}>
+                  {starredFish.length}
+                </span>
+              )}
+            </div>
             {starredFish.length === 0 && hydrated && (
-              <span className="text-xs" style={{ color: 'var(--text-faint)' }}>tap ☆ on any fish to add</span>
+              <span className="text-xs" style={{ color: 'var(--text-faint)' }}>tap ☆ to add</span>
             )}
           </div>
 
@@ -815,11 +842,21 @@ export default function TodayPage() {
           )}
         </div>
 
+        {/* ── separator ── */}
+        {openingSoon.length > 0 && <div className="mb-8" style={{ height: 1, background: 'rgba(255,255,255,0.05)' }} />}
+
         {/* ── OPENING SOON — next 14 days ── */}
         {openingSoon.length > 0 && (
-          <div className="mb-5">
+          <div className="mb-8">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-gray-400 text-xs font-semibold tracking-widest uppercase">Opening Soon</h2>
+              <div className="flex items-center gap-2">
+                <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />
+                <h2 className="text-sm font-black text-white">Opening Soon</h2>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
+                  style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-muted)' }}>
+                  {openingSoon.length}
+                </span>
+              </div>
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
                 style={{ background: 'rgba(99,179,237,0.12)', color: '#63b3ed', border: '1px solid rgba(99,179,237,0.25)' }}>
                 Next 14 days

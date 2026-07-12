@@ -138,6 +138,18 @@ export default function FishPage() {
           })}
         </div>
 
+        {/* Section header above fish grid */}
+        <div className="flex items-center gap-2 mb-3">
+          <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />
+          <h2 className="text-sm font-black text-white">
+            {activeFilter === 'starred' ? 'Saved Fish' : activeFilter === 'all' ? 'All Species' : activeFilter === 'river' ? 'River Fish' : activeFilter === 'lake' ? 'Lake Fish' : activeFilter === 'salt' ? 'Saltwater Fish' : 'Shellfish'}
+          </h2>
+          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
+            style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-muted)' }}>
+            {sortedFiltered.length}
+          </span>
+        </div>
+
         {/* Fish grid */}
         <div className="grid grid-cols-3 gap-4">
           {sortedFiltered.map(fish => {
