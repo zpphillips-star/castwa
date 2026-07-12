@@ -316,28 +316,138 @@ function useWeather(waterIds: string[]): Record<string, WeatherData | null> {
   return data
 }
 
-// ─── Solunar bite times (pure math, no API) ───────────────────────────────────
-function getSolunarTimes(date: Date, lat: number, lng: number): { major: string[]; minor: string[] } {
-  void lat // lat reserved for future precision improvement
-  const dayOfYear = Math.floor((date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / 86400000)
-  const moonCycle = ((dayOfYear % 29.5) / 29.5) * 24
-  const overhead = (moonCycle + lng / 15 + 24) % 24
-  const underfoot = (overhead + 12) % 24
-  const moonrise = (overhead - 6 + 24) % 24
-  const moonset = (overhead + 6) % 24
+// ─── Solunar bite times — accurate moon transit calculation ─────────────────
+// Returns major (2h) and minor (1h) period center-hours in local time (0–24)
+function getSolunarPeriods(date: Date): { major: number[]; minor: number[] } {
+  // Known new moon: Jan 6, 2000 18:14 UTC (Julian epoch reference)
+  const KNOWN_NEW_MOON_MS = 946_137_240_000
+  const SYNODIC_MS = 29.530589 * 86_400_000
 
-  const fmt = (h: number) => {
-    const hour = Math.floor(h)
-    const min = Math.round((h % 1) * 60)
-    const ampm = hour >= 12 ? 'PM' : 'AM'
-    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour
-    return `${displayHour}:${min.toString().padStart(2, '0')} ${ampm}`
-  }
+  // Compute moon age (days into synodic cycle) at local noon
+  const localNoon = new Date(date)
+  localNoon.setHours(12, 0, 0, 0)
+  const elapsed = localNoon.getTime() - KNOWN_NEW_MOON_MS
+  const moonAge = ((elapsed % SYNODIC_MS) + SYNODIC_MS) % SYNODIC_MS / 86_400_000
+
+  // Moon advances ~48.79 min/day relative to solar noon
+  // At new moon (age=0) moon transits at ~solar noon
+  // WA longitude ~121.5°W → solar noon ≈ 12:30 PDT in summer
+  const SOLAR_NOON = 12.5
+  const advanceHours = (moonAge * 24) / 29.530589
+  const upperTransit = (SOLAR_NOON + advanceHours) % 24   // moon overhead
+  const lowerTransit = (upperTransit + 12) % 24           // moon underfoot
+  const moonrise     = (upperTransit + 6) % 24            // rises ~6h after overhead
+  const moonset      = (upperTransit + 18) % 24           // sets ~6h before overhead
 
   return {
-    major: [fmt(overhead), fmt(underfoot)],
-    minor: [fmt(moonrise), fmt(moonset)],
+    major: [upperTransit, lowerTransit],   // ±1h each = 2h window
+    minor: [moonrise, moonset],            // ±0.5h each = 1h window
   }
+}
+
+// Approximate WA sunrise/sunset hours for mid-summer (used for day/night bg)
+function getSunriseSunset(date: Date): { rise: number; set: number } {
+  const doy = Math.floor((date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / 86_400_000)
+  // Simple sinusoidal approximation for WA (~48°N)
+  const offset = Math.cos(((doy - 172) / 365) * 2 * Math.PI) * 2.0
+  return { rise: 5.3 + offset, set: 21.1 - offset }
+}
+
+function fmtHour(h: number): string {
+  const norm = ((h % 24) + 24) % 24
+  const hour = Math.floor(norm)
+  const min  = Math.round((norm % 1) * 60)
+  const ampm = hour >= 12 ? 'PM' : 'AM'
+  const disp = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour
+  return `${disp}:${min.toString().padStart(2, '0')} ${ampm}`
+}
+
+function SolunarTimeline({ date }: { date: Date }) {
+  const { major, minor } = getSolunarPeriods(date)
+  const { rise, set } = getSunriseSunset(date)
+  const nowHour = date.getHours() + date.getMinutes() / 60
+
+  const pct = (h: number) => `${(((h % 24) + 24) % 24 / 24 * 100).toFixed(2)}%`
+  const wid = (h: number) => `${(h / 24 * 100).toFixed(2)}%`
+
+  return (
+    <div className="mb-5 px-4 py-4"
+      style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6 }}>
+
+      {/* Header */}
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>Best Bite Times</p>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Based on moon position · today</p>
+        </div>
+        <div className="flex items-center gap-3 text-[10px] font-bold">
+          <span className="flex items-center gap-1"><span style={{ color: '#6ab04c' }}>■</span> Major 2h</span>
+          <span className="flex items-center gap-1"><span style={{ color: '#63b3ed' }}>■</span> Minor 1h</span>
+        </div>
+      </div>
+
+      {/* 24-hour timeline bar */}
+      <div className="relative w-full mb-2" style={{ height: 36 }}>
+        {/* Night background */}
+        <div className="absolute inset-0 rounded" style={{ background: '#070910' }} />
+        {/* Day band */}
+        <div className="absolute rounded" style={{
+          left: pct(rise), width: wid(set - rise),
+          top: 0, bottom: 0,
+          background: 'rgba(255,210,100,0.07)',
+        }} />
+        {/* Minor periods (1h centered on moonrise/set) */}
+        {minor.map((center, i) => (
+          <div key={`mn-${i}`} className="absolute" style={{
+            left: pct(center - 0.5),
+            width: wid(1),
+            top: 6, bottom: 6,
+            background: 'rgba(99,179,237,0.55)',
+            borderRadius: 3,
+          }} />
+        ))}
+        {/* Major periods (2h centered on transit) */}
+        {major.map((center, i) => (
+          <div key={`mj-${i}`} className="absolute" style={{
+            left: pct(center - 1),
+            width: wid(2),
+            top: 2, bottom: 2,
+            background: 'rgba(106,176,76,0.75)',
+            borderRadius: 3,
+          }} />
+        ))}
+        {/* Current time line */}
+        <div className="absolute" style={{
+          left: pct(nowHour),
+          top: 0, bottom: 0, width: 2,
+          background: '#f26522',
+          borderRadius: 1,
+          boxShadow: '0 0 6px rgba(242,101,34,0.8)',
+        }} />
+        {/* Hour labels */}
+        {[0, 6, 12, 18].map(h => (
+          <div key={h} className="absolute flex flex-col items-center" style={{ left: pct(h), top: '50%', transform: 'translate(-50%,-50%)' }}>
+            <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', lineHeight: 1 }}>
+              {h === 0 ? '12a' : h === 6 ? '6a' : h === 12 ? '12p' : '6p'}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Time labels below bar */}
+      <div className="flex gap-4 mt-2">
+        <div>
+          <p className="text-[10px] font-bold uppercase" style={{ color: '#6ab04c' }}>Major</p>
+          <p className="text-xs font-semibold text-white">{major.map(fmtHour).join(' · ')}</p>
+        </div>
+        <div style={{ width: 1, background: 'rgba(255,255,255,0.1)' }} />
+        <div>
+          <p className="text-[10px] font-bold uppercase" style={{ color: '#63b3ed' }}>Minor</p>
+          <p className="text-xs font-semibold text-white">{minor.map(fmtHour).join(' · ')}</p>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function useRiverGauges(): GaugeReading[] {
@@ -474,29 +584,7 @@ export default function TodayPage() {
         </button>
 
         {/* ── SOLUNAR BITE TIMES ── */}
-        {(() => {
-          const times = getSolunarTimes(today, 47.5, -120.5)
-          return (
-            <div className="mb-5 px-4 py-3 flex items-center justify-between"
-              style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6 }}>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--text-faint)' }}>Best Bite Times Today</p>
-                <div className="flex items-center gap-4">
-                  <div>
-                    <p className="text-[10px] font-bold uppercase" style={{ color: '#6ab04c' }}>Major</p>
-                    <p className="text-sm font-bold text-white">{times.major.join(' · ')}</p>
-                  </div>
-                  <div style={{ width: 1, height: 28, background: 'rgba(255,255,255,0.1)' }} />
-                  <div>
-                    <p className="text-[10px] font-bold uppercase" style={{ color: '#63b3ed' }}>Minor</p>
-                    <p className="text-sm font-bold text-white">{times.minor.join(' · ')}</p>
-                  </div>
-                </div>
-              </div>
-              <span className="text-xl flex-shrink-0">🌙</span>
-            </div>
-          )
-        })()}
+        <SolunarTimeline date={today} />
 
         {/* ── MY WATERS ── */}
         <div className="mb-6">
