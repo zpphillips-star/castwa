@@ -317,40 +317,23 @@ function useWeather(waterIds: string[]): Record<string, WeatherData | null> {
 }
 
 // ─── Solunar bite times — accurate moon transit calculation ─────────────────
-// Returns major (2h) and minor (1h) period center-hours in local time (0–24)
 function getSolunarPeriods(date: Date): { major: number[]; minor: number[] } {
-  // Known new moon: Jan 6, 2000 18:14 UTC (Julian epoch reference)
   const KNOWN_NEW_MOON_MS = 946_137_240_000
   const SYNODIC_MS = 29.530589 * 86_400_000
-
-  // Compute moon age (days into synodic cycle) at local noon
   const localNoon = new Date(date)
   localNoon.setHours(12, 0, 0, 0)
   const elapsed = localNoon.getTime() - KNOWN_NEW_MOON_MS
   const moonAge = ((elapsed % SYNODIC_MS) + SYNODIC_MS) % SYNODIC_MS / 86_400_000
-
-  // Moon advances ~48.79 min/day relative to solar noon
-  // At new moon (age=0) moon transits at ~solar noon
-  // WA longitude ~121.5°W → solar noon ≈ 12:30 PDT in summer
   const SOLAR_NOON = 12.5
   const advanceHours = (moonAge * 24) / 29.530589
-  const upperTransit = (SOLAR_NOON + advanceHours) % 24   // moon overhead
-  const lowerTransit = (upperTransit + 12) % 24           // moon underfoot
-  const moonrise     = (upperTransit + 6) % 24            // rises ~6h after overhead
-  const moonset      = (upperTransit + 18) % 24           // sets ~6h before overhead
-
+  const upperTransit = (SOLAR_NOON + advanceHours) % 24
+  const lowerTransit = (upperTransit + 12) % 24
+  const moonrise     = (upperTransit + 6) % 24
+  const moonset      = (upperTransit + 18) % 24
   return {
-    major: [upperTransit, lowerTransit],   // ±1h each = 2h window
-    minor: [moonrise, moonset],            // ±0.5h each = 1h window
+    major: [upperTransit, lowerTransit],
+    minor: [moonrise, moonset],
   }
-}
-
-// Approximate WA sunrise/sunset hours for mid-summer (used for day/night bg)
-function getSunriseSunset(date: Date): { rise: number; set: number } {
-  const doy = Math.floor((date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / 86_400_000)
-  // Simple sinusoidal approximation for WA (~48°N)
-  const offset = Math.cos(((doy - 172) / 365) * 2 * Math.PI) * 2.0
-  return { rise: 5.3 + offset, set: 21.1 - offset }
 }
 
 function fmtHour(h: number): string {
@@ -364,91 +347,116 @@ function fmtHour(h: number): string {
 
 function SolunarTimeline({ date }: { date: Date }) {
   const { major, minor } = getSolunarPeriods(date)
-  const { rise, set } = getSunriseSunset(date)
   const nowHour = date.getHours() + date.getMinutes() / 60
+  const [selected, setSelected] = useState<{ label: string; time: string; type: 'major' | 'minor' } | null>(null)
 
+  // Convert center+halfWidth to left% and width% on the 24h bar, handling midnight wrap
   const pct = (h: number) => `${(((h % 24) + 24) % 24 / 24 * 100).toFixed(2)}%`
   const wid = (h: number) => `${(h / 24 * 100).toFixed(2)}%`
+
+  const fmtRange = (center: number, half: number) => {
+    const s = ((center - half) % 24 + 24) % 24
+    const e = ((center + half) % 24 + 24) % 24
+    return `${fmtHour(s)} – ${fmtHour(e)}`
+  }
 
   return (
     <div className="mb-5 px-4 py-4"
       style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6 }}>
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />
-          <div>
-            <p className="text-sm font-black text-white">Best Bite Times</p>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Based on moon position · today</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3 text-[10px] font-bold">
-          <span className="flex items-center gap-1"><span style={{ color: '#6ab04c' }}>■</span> Major 2h</span>
-          <span className="flex items-center gap-1"><span style={{ color: '#63b3ed' }}>■</span> Minor 1h</span>
-        </div>
+      <div className="flex items-center gap-2 mb-3">
+        <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />
+        <h2 className="text-sm font-black text-white">Best Bite Times</h2>
+        <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>· all species · tap to see times</span>
       </div>
 
-      {/* 24-hour timeline bar */}
-      <div className="relative w-full mb-2" style={{ height: 36 }}>
-        {/* Night background */}
-        <div className="absolute inset-0 rounded" style={{ background: '#070910' }} />
-        {/* Day band */}
-        <div className="absolute rounded" style={{
-          left: pct(rise), width: wid(set - rise),
-          top: 0, bottom: 0,
-          background: 'rgba(255,210,100,0.07)',
-        }} />
-        {/* Minor periods (1h centered on moonrise/set) */}
+      {/* Midnight-to-midnight timeline */}
+      <div className="relative w-full" style={{ height: 32 }}>
+        {/* Dark track */}
+        <div className="absolute inset-0" style={{ background: '#070910', borderRadius: 4 }} />
+
+        {/* Minor periods — orange, 1h wide */}
         {minor.map((center, i) => (
-          <div key={`mn-${i}`} className="absolute" style={{
-            left: pct(center - 0.5),
-            width: wid(1),
-            top: 6, bottom: 6,
-            background: 'rgba(99,179,237,0.55)',
-            borderRadius: 3,
-          }} />
+          <button
+            key={`mn-${i}`}
+            onClick={() => setSelected(s => s?.label === `mn${i}` ? null : { label: `mn${i}`, time: fmtRange(center, 0.5), type: 'minor' })}
+            className="absolute transition-opacity active:opacity-60"
+            style={{
+              left: pct(center - 0.5), width: wid(1),
+              top: 5, bottom: 5,
+              background: '#f26522',
+              borderRadius: 3, opacity: 0.8,
+              cursor: 'pointer',
+            }}
+          />
         ))}
-        {/* Major periods (2h centered on transit) */}
+
+        {/* Major periods — green, 2h wide */}
         {major.map((center, i) => (
-          <div key={`mj-${i}`} className="absolute" style={{
-            left: pct(center - 1),
-            width: wid(2),
-            top: 2, bottom: 2,
-            background: 'rgba(106,176,76,0.75)',
-            borderRadius: 3,
-          }} />
+          <button
+            key={`mj-${i}`}
+            onClick={() => setSelected(s => s?.label === `mj${i}` ? null : { label: `mj${i}`, time: fmtRange(center, 1), type: 'major' })}
+            className="absolute transition-opacity active:opacity-60"
+            style={{
+              left: pct(center - 1), width: wid(2),
+              top: 2, bottom: 2,
+              background: '#6ab04c',
+              borderRadius: 3,
+              cursor: 'pointer',
+            }}
+          />
         ))}
-        {/* Current time line */}
-        <div className="absolute" style={{
-          left: pct(nowHour),
-          top: 0, bottom: 0, width: 2,
-          background: '#f26522',
+
+        {/* Current time — white line */}
+        <div className="absolute pointer-events-none" style={{
+          left: pct(nowHour), top: 0, bottom: 0, width: 2,
+          background: 'rgba(255,255,255,0.7)',
           borderRadius: 1,
-          boxShadow: '0 0 6px rgba(242,101,34,0.8)',
         }} />
-        {/* Hour labels */}
-        {[0, 6, 12, 18].map(h => (
-          <div key={h} className="absolute flex flex-col items-center" style={{ left: pct(h), top: '50%', transform: 'translate(-50%,-50%)' }}>
-            <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', lineHeight: 1 }}>
-              {h === 0 ? '12a' : h === 6 ? '6a' : h === 12 ? '12p' : '6p'}
+
+        {/* Time labels: 12  6  12  6  12 */}
+        {[0, 6, 12, 18, 24].map(h => (
+          <div key={h} className="absolute pointer-events-none"
+            style={{ left: h === 24 ? '100%' : pct(h), bottom: -16, transform: 'translateX(-50%)' }}>
+            <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>
+              {h === 0 || h === 24 ? '12' : h === 6 || h === 18 ? '6' : '12'}
             </span>
           </div>
         ))}
       </div>
 
-      {/* Time labels below bar */}
-      <div className="flex gap-4 mt-2">
-        <div>
-          <p className="text-[10px] font-bold uppercase" style={{ color: '#6ab04c' }}>Major</p>
-          <p className="text-xs font-semibold text-white">{major.map(fmtHour).join(' · ')}</p>
+      {/* Spacer for time labels below bar */}
+      <div style={{ height: 18 }} />
+
+      {/* Legend */}
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-1.5">
+          <div style={{ width: 10, height: 10, background: '#6ab04c', borderRadius: 2 }} />
+          <span className="text-[11px]" style={{ color: 'var(--text-faint)' }}>Optimal</span>
         </div>
-        <div style={{ width: 1, background: 'rgba(255,255,255,0.1)' }} />
-        <div>
-          <p className="text-[10px] font-bold uppercase" style={{ color: '#63b3ed' }}>Minor</p>
-          <p className="text-xs font-semibold text-white">{minor.map(fmtHour).join(' · ')}</p>
+        <div className="flex items-center gap-1.5">
+          <div style={{ width: 10, height: 10, background: '#f26522', borderRadius: 2, opacity: 0.8 }} />
+          <span className="text-[11px]" style={{ color: 'var(--text-faint)' }}>Good</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div style={{ width: 2, height: 10, background: 'rgba(255,255,255,0.5)', borderRadius: 1 }} />
+          <span className="text-[11px]" style={{ color: 'var(--text-faint)' }}>Now</span>
         </div>
       </div>
+
+      {/* Tap detail */}
+      {selected && (
+        <div className="mt-3 px-3 py-2 flex items-center justify-between"
+          style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.08)' }}>
+          <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>
+            {selected.type === 'major' ? 'Optimal bite window' : 'Good bite window'}
+          </span>
+          <span className="text-xs font-black" style={{ color: selected.type === 'major' ? '#6ab04c' : '#f26522' }}>
+            {selected.time}
+          </span>
+        </div>
+      )}
     </div>
   )
 }
@@ -693,14 +701,16 @@ export default function TodayPage() {
                               style={{ background: cfg.bg, color: cfg.color }}>
                               {cfg.label}
                             </span>
-                            {gauge.status !== 'loading' && (
-                              <p className="text-[10px] italic mt-1 text-left" style={{ color: 'var(--text-faint)', maxWidth: 90 }}>
-                                {getCfsDescription(gauge.status)}
-                              </p>
-                            )}
                           </div>
                         )}
                       </div>
+                      {/* Notes row — full width below the flex row */}
+                      {hasGauge && cfg && gauge && gauge.status !== 'loading' && (
+                        <div className="mt-2 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                          <span className="text-[10px] font-bold uppercase tracking-wide mr-2" style={{ color: 'var(--text-faint)' }}>Note</span>
+                          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{getCfsDescription(gauge.status)}</span>
+                        </div>
+                      )}
                     </div>
                   </button>
                 )
