@@ -96,7 +96,7 @@ export default function FishPage() {
         </p>
 
         {/* ── Search bar ── */}
-        <div className="relative mb-4">
+        <div className="relative mb-6">
           {/* Search icon */}
           <svg
             className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
@@ -141,7 +141,7 @@ export default function FishPage() {
               <button
                 key={f.key}
                 onClick={() => setActiveFilter(f.key)}
-                className="flex-shrink-0 font-semibold transition-all active:scale-95 rounded-full"
+                className="flex-shrink-0 font-semibold transition-all active:scale-[0.99] rounded-full"
                 style={{
                   padding: '7px 16px',
                   fontSize: '13px',
