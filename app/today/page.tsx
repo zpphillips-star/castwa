@@ -635,22 +635,21 @@ export default function TodayPage() {
         {/* ── EMERGENCY RULES — compact inline banner ── */}
         <button
           onClick={() => setShowAlertsSheet(true)}
-          className="w-full text-left rounded-xl mb-5 transition-all active:scale-[0.99] flex items-center gap-3 px-4 py-3"
+          className="w-full text-left rounded-xl mb-3 transition-all active:scale-[0.99] flex items-center gap-3 px-4 py-3"
           style={{
             background: totalAlertCount > 0 ? 'rgba(239,68,68,0.10)' : 'rgba(255,255,255,0.04)',
             border: `1px solid ${totalAlertCount > 0 ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.07)'}`,
           }}
         >
-          <span className="text-xl flex-shrink-0">{totalAlertCount > 0 ? '🚨' : '✅'}</span>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-white leading-tight">
-              {totalAlertCount > 0 ? `${totalAlertCount} Emergency Rule${totalAlertCount > 1 ? 's' : ''} Active` : 'No Emergency Rules Today'}
-            </p>
-            <p className="text-xs mt-0.5 leading-snug" style={{ color: totalAlertCount > 0 ? '#fca5a5' : 'var(--text-muted)' }}>
-              {alertsLoading ? 'Checking WDFW…' : totalAlertCount > 0 ? 'Tap to review before fishing' : 'All clear — no active closures'}
-            </p>
+            <p className="text-sm font-bold text-white leading-tight">Emergency Rules</p>
           </div>
-          <span className="text-base font-light flex-shrink-0" style={{ color: totalAlertCount > 0 ? '#ef4444' : 'var(--text-faint)' }}>›</span>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-sm font-semibold" style={{ color: totalAlertCount > 0 ? '#fca5a5' : 'var(--text-muted)' }}>
+              {alertsLoading ? 'Checking…' : totalAlertCount > 0 ? `${totalAlertCount} active` : 'All clear'}
+            </span>
+            <span className="text-base font-light" style={{ color: totalAlertCount > 0 ? '#ef4444' : 'var(--text-faint)', opacity: 0.8 }}>›</span>
+          </div>
         </button>
 
         {/* ── BEST BITE TIMES — featured banner ── */}
