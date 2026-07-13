@@ -36,106 +36,114 @@ function formatCfs(cfs: number): string {
 
 // ── Water type labels ─────────────────────────────────────────────────────────
 // ── Near Me card (list-row style, no emojis) ─────────────────────────────────
+function getCfsDescription(status: FlowStatus): string {
+  if (status === 'ideal') return 'Flow levels look good — prime conditions for fishing'
+  if (status === 'low') return 'River running low — fish may be concentrated in deeper holes'
+  if (status === 'high') return 'High water — wade carefully, fish closer to the banks'
+  return 'Flow data unavailable'
+}
+
 function NearMeCard({
   water,
   distMiles,
   openSpecies,
   flowData,
   onTap,
+  isLast,
 }: {
   water: WaterBody
   distMiles: number
   openSpecies: string[]
   flowData: FlowData | null
   onTap: () => void
+  isLast: boolean
 }) {
   const dist = distMiles < 10
     ? `${distMiles.toFixed(1)} mi`
     : `${Math.round(distMiles)} mi`
 
+  const hasFlow = flowData && flowData.cfs !== null
+  const flowColor = hasFlow ? FLOW_COLORS[flowData!.status] : null
+
   return (
     <button
       onClick={onTap}
-      className="w-full text-left transition-all active:scale-[0.99]"
+      className="w-full text-left transition-all active:opacity-70"
       style={{
-        padding: '16px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-        background: 'var(--surface)',
-        border: '1px solid rgba(255,255,255,0.08)',
-        borderRadius: '16px',
+        padding: '16px 20px',
+        borderBottom: isLast ? 'none' : '1px solid rgba(255,255,255,0.06)',
+        display: 'block',
       }}
     >
-      {/* Left: name + meta */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontWeight: 700, fontSize: '15px', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {water.name}
+      {/* Top row: name left, CFS right */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+        {/* Left */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-faint)', marginBottom: '4px' }}>
+            {water.region} · {water.type}
+          </p>
+          <p style={{ fontSize: '20px', fontWeight: 900, color: '#fff', lineHeight: 1.1 }}>{water.name}</p>
+
+          {/* Species pills */}
+          {openSpecies.length > 0 ? (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '10px' }}>
+              <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-faint)', marginRight: '2px', alignSelf: 'center' }}>Open now:</span>
+              {openSpecies.slice(0, 4).map(sp => (
+                <span key={sp} style={{
+                  background: 'rgba(106,176,76,0.15)',
+                  color: '#6ab04c',
+                  borderRadius: '20px',
+                  padding: '2px 8px',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                }}>
+                  {sp.replace(' Salmon', '').replace(' Trout', '')}
+                </span>
+              ))}
+              {openSpecies.length > 4 && (
+                <span style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-faint)', borderRadius: '20px', padding: '2px 8px', fontSize: '11px' }}>
+                  +{openSpecies.length - 4}
+                </span>
+              )}
+            </div>
+          ) : (
+            <p style={{ fontSize: '13px', marginTop: '8px', color: 'var(--text-faint)' }}>No species open today</p>
+          )}
         </div>
-        <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
-          {water.region} · {water.type}
-        </div>
-        {openSpecies.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '6px' }}>
-            {openSpecies.slice(0, 4).map(sp => (
-              <span key={sp} style={{
-                background: '#6ab04c',
-                color: '#fff',
-                borderRadius: '10px',
-                padding: '1px 7px',
-                fontSize: '10px',
-                fontWeight: 700,
-              }}>
-                {sp.replace(' Salmon', '').replace(' Trout', '')}
-              </span>
-            ))}
-            {openSpecies.length > 4 && (
-              <span style={{
-                background: 'rgba(255,255,255,0.08)',
-                color: 'var(--text-muted)',
-                borderRadius: '10px',
-                padding: '1px 7px',
-                fontSize: '10px',
-              }}>
-                +{openSpecies.length - 4}
-              </span>
-            )}
+
+        {/* Right: CFS */}
+        {hasFlow && flowColor ? (
+          <div style={{ flexShrink: 0, textAlign: 'right' }}>
+            <p style={{ fontSize: '30px', fontWeight: 900, lineHeight: 1, color: flowColor }}>
+              {formatCfs(flowData!.cfs!)}
+            </p>
+            <p style={{ fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', color: 'var(--text-faint)', marginTop: '2px' }}>
+              cfs
+            </p>
+            <span style={{
+              display: 'inline-block', marginTop: '6px',
+              fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em',
+              background: flowColor + '22', color: flowColor,
+              borderRadius: '20px', padding: '2px 8px',
+            }}>
+              {flowData!.status}
+            </span>
+            <p style={{ fontSize: '10px', color: 'var(--text-faint)', marginTop: '4px' }}>{dist}</p>
+          </div>
+        ) : (
+          <div style={{ flexShrink: 0, textAlign: 'right' }}>
+            <p style={{ fontSize: '13px', fontWeight: 700, color: '#f26522' }}>{dist}</p>
           </div>
         )}
-        {openSpecies.length === 0 && (
-          <div style={{ fontSize: '11px', color: 'var(--text-faint)', marginTop: '3px' }}>No species open today</div>
-        )}
       </div>
 
-      {/* Right: CFS + distance */}
-      <div style={{ flexShrink: 0, textAlign: 'right' }}>
-        {flowData && flowData.cfs !== null ? (
-          <>
-            <div style={{ fontSize: '20px', fontWeight: 900, lineHeight: 1, color: FLOW_COLORS[flowData.status] }}>
-              {formatCfs(flowData.cfs)}
-            </div>
-            <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-faint)', marginTop: '2px', textTransform: 'uppercase' }}>
-              cfs
-            </div>
-            <div style={{
-              fontSize: '9px', fontWeight: 800, textTransform: 'uppercase',
-              background: FLOW_COLORS[flowData.status] + '22',
-              color: FLOW_COLORS[flowData.status],
-              borderRadius: '6px', padding: '1px 5px', marginTop: '3px',
-              letterSpacing: '0.05em',
-            }}>
-              {flowData.status}
-            </div>
-          </>
-        ) : (
-          <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-faint)' }}>{dist}</div>
-        )}
-        {flowData && flowData.cfs !== null && (
-          <div style={{ fontSize: '10px', color: 'var(--text-faint)', marginTop: '4px' }}>{dist}</div>
-        )}
-      </div>
-
-      <span style={{ color: 'var(--text-faint)', fontSize: '14px', flexShrink: 0 }}>›</span>
+      {/* Note bar */}
+      {hasFlow && flowData!.status !== 'loading' && flowData!.status !== 'error' && (
+        <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+          <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-faint)', flexShrink: 0 }}>Note</span>
+          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{getCfsDescription(flowData!.status)}</span>
+        </div>
+      )}
     </button>
   )
 }
@@ -314,8 +322,8 @@ export default function NearMePage() {
                   <div style={{ fontSize: '14px' }}>No waters found with this filter.</div>
                 </div>
               ) : (
-                <div className="flex flex-col gap-3">
-                  {filtered.map(({ water, distMiles, openSpecies }) => (
+                <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  {filtered.map(({ water, distMiles, openSpecies }, idx) => (
                     <NearMeCard
                       key={water.id}
                       water={water}
@@ -323,6 +331,7 @@ export default function NearMePage() {
                       openSpecies={openSpecies}
                       flowData={flowMap[water.id] ?? null}
                       onTap={() => openWater(water)}
+                      isLast={idx === filtered.length - 1}
                     />
                   ))}
                 </div>
