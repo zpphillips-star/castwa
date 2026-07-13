@@ -196,10 +196,10 @@ export default function FishPage() {
                 <div className="px-3 py-2.5"
                   style={{ background: inSeason ? '#22c55e' : 'transparent' }}>
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-semibold leading-tight" style={{ color: inSeason ? '#000000' : '#ffffff' }}>{fish.name}</p>
+                    <p className="text-sm font-semibold leading-tight" style={{ color: '#ffffff' }}>{fish.name}</p>
                     {inSeason && (
                       <span className="text-[9px] font-bold px-1.5 py-0.5 rounded flex-shrink-0"
-                        style={{ background: 'rgba(0,0,0,0.2)', color: '#000000' }}>
+                        style={{ background: 'rgba(0,0,0,0.2)', color: '#ffffff' }}>
                         OPEN
                       </span>
                     )}
