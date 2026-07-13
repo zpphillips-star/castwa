@@ -360,8 +360,8 @@ function SolunarTimeline({ date }: { date: Date }) {
   }
 
   const allWindows = [
-    ...major.map(c => ({ center: c, half: 1, type: 'Optimal' as const, color: '#6ab04c' })),
-    ...minor.map(c => ({ center: c, half: 0.5, type: 'Good' as const, color: '#f26522' })),
+    ...major.map(c => ({ center: c, half: 1, type: 'Optimal' as const, color: '#22c55e' })),
+    ...minor.map(c => ({ center: c, half: 0.5, type: 'Good' as const, color: '#f97316' })),
   ]
 
   // Is now inside a window?
@@ -404,21 +404,22 @@ function SolunarTimeline({ date }: { date: Date }) {
       {/* ── Tappable row ── */}
       <button
         onClick={() => setOpen(true)}
-        className="w-full mb-5 px-4 py-3 flex items-center justify-between"
+        className="w-full mb-5 px-4 py-4 flex items-center justify-between"
         style={{
-          background: activeWindow ? activeWindow.color : 'var(--surface)',
-          border: `1px solid ${activeWindow ? activeWindow.color : 'rgba(255,255,255,0.08)'}`,
+          background: activeWindow
+            ? activeWindow.color
+            : 'var(--surface)',
+          border: '1px solid rgba(255,255,255,0.08)',
           borderRadius: 6,
           cursor: 'pointer',
         }}>
         <div className="flex items-center gap-2">
-          {!activeWindow && <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />}
           <div>
-            <div className="text-sm font-black text-left" style={{ color: 'white' }}>Best Bite Times</div>
-            <div className="text-[11px] font-semibold text-left mt-0.5" style={{ color: activeWindow ? 'rgba(255,255,255,0.7)' : 'var(--text-faint)' }}>{statusText}</div>
+            <div className="text-sm font-black text-left" style={{ color: '#ffffff' }}>Best Bite Times</div>
+            <div className="text-[11px] font-semibold text-left mt-0.5" style={{ color: activeWindow ? 'rgba(255,255,255,0.85)' : 'var(--text-faint)' }}>{statusText}</div>
           </div>
         </div>
-        <span className="text-base font-light" style={{ color: activeWindow ? 'rgba(255,255,255,0.5)' : 'var(--text-faint)' }}>›</span>
+        <span className="text-base font-light" style={{ color: '#ffffff', opacity: activeWindow ? 0.8 : 0.4 }}>›</span>
       </button>
 
       {/* ── Bottom sheet modal ── */}
@@ -454,7 +455,7 @@ function SolunarTimeline({ date }: { date: Date }) {
               {/* Major — green */}
               {major.map((center, i) => (
                 <div key={`mj-${i}`} className="absolute"
-                  style={{ left: pct(center - 1), width: wid(2), top: 3, bottom: 3, background: '#6ab04c', borderRadius: 3 }} />
+                  style={{ left: pct(center - 1), width: wid(2), top: 3, bottom: 3, background: '#22c55e', borderRadius: 3 }} />
               ))}
 
               {/* Current time */}
@@ -476,11 +477,11 @@ function SolunarTimeline({ date }: { date: Date }) {
             {/* Legend row */}
             <div className="flex items-center gap-5 mb-6">
               <div className="flex items-center gap-1.5">
-                <div style={{ width: 10, height: 10, background: '#6ab04c', borderRadius: 2 }} />
+                <div style={{ width: 10, height: 10, background: '#22c55e', borderRadius: 2 }} />
                 <span className="text-xs" style={{ color: 'var(--text-faint)' }}>Optimal</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div style={{ width: 10, height: 10, background: '#f26522', borderRadius: 2, opacity: 0.85 }} />
+                <div style={{ width: 10, height: 10, background: '#f97316', borderRadius: 2, opacity: 0.85 }} />
                 <span className="text-xs" style={{ color: 'var(--text-faint)' }}>Good</span>
               </div>
               <div className="flex items-center gap-1.5">
@@ -492,13 +493,13 @@ function SolunarTimeline({ date }: { date: Date }) {
             {/* Window list */}
             <div className="flex flex-col gap-3">
               {[
-                ...major.map(c => ({ center: c, half: 1, type: 'Optimal' as const, color: '#6ab04c', desc: 'Moon directly overhead or underfoot — peak feeding activity' })),
-                ...minor.map(c => ({ center: c, half: 0.5, type: 'Good' as const, color: '#f26522', desc: 'Moonrise or moonset — elevated feeding activity' })),
+                ...major.map(c => ({ center: c, half: 1, type: 'Optimal' as const, color: '#22c55e', desc: 'Moon directly overhead or underfoot — peak feeding activity' })),
+                ...minor.map(c => ({ center: c, half: 0.5, type: 'Good' as const, color: '#f97316', desc: 'Moonrise or moonset — elevated feeding activity' })),
               ]
                 .sort((a, b) => (((a.center) % 24 + 24) % 24) - (((b.center) % 24 + 24) % 24))
                 .map((w, i) => (
                   <div key={i} className="flex items-start gap-3 px-4 py-3"
-                    style={{ background: 'var(--surface)', borderRadius: 6, border: `1px solid ${w.color}30` }}>
+                    style={{ background: 'var(--surface)', borderRadius: 6, border: '1px solid rgba(255,255,255,0.06)' }}>
                     <div style={{ width: 4, borderRadius: 2, background: w.color, alignSelf: 'stretch', flexShrink: 0 }} />
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">
@@ -665,7 +666,6 @@ export default function TodayPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />
               <h2 className="text-sm font-black text-white">My Waters</h2>
               {starredWaters.length > 0 && (
                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
@@ -786,7 +786,6 @@ export default function TodayPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />
               <h2 className="text-sm font-black text-white">My Fish</h2>
               {starredFish.length > 0 && (
                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
@@ -920,7 +919,6 @@ export default function TodayPage() {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />
                 <h2 className="text-sm font-black text-white">Opening Soon</h2>
                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
                   style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-muted)' }}>
