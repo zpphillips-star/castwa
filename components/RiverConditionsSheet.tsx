@@ -46,8 +46,8 @@ function formatCfs(cfs: number): string {
 
 // Three-tier fishability label
 const FISHABLE: Record<GaugeStatus, { label: string; color: string }> = {
-  low:     { label: 'Safe',      color: '#22c55e' },
-  good:    { label: 'Safe',      color: '#22c55e' },
+  low:     { label: 'Safe',      color: '#6ab04c' },
+  good:    { label: 'Safe',      color: '#6ab04c' },
   high:    { label: 'Caution',   color: '#f59e0b' },
   flood:   { label: 'Dangerous', color: '#ef4444' },
   loading: { label: '…',         color: '#6b7280' },
@@ -56,8 +56,8 @@ const FISHABLE: Record<GaugeStatus, { label: string; color: string }> = {
 
 // Border accent per status
 const STATUS_BORDER: Record<GaugeStatus, string> = {
-  low:     '#22c55e',
-  good:    '#22c55e',
+  low:     '#6ab04c',
+  good:    '#6ab04c',
   high:    '#f59e0b',
   flood:   '#ef4444',
   loading: '#6b7280',
@@ -162,7 +162,7 @@ export default function RiverConditionsSheet({
       <div
         className="fixed bottom-0 left-0 right-0 z-[71] flex flex-col"
         style={{
-          background: '#0d0f1a',
+          background: 'var(--bg)',
           borderTopLeftRadius: 20,
           borderTopRightRadius: 20,
           maxHeight: '90dvh',
@@ -233,7 +233,7 @@ export default function RiverConditionsSheet({
                   <span
                     className="text-3xl font-black"
                     style={{
-                      color: data.trend === 'rising' ? '#ef4444' : data.trend === 'falling' ? '#60a5fa' : '#22c55e',
+                      color: data.trend === 'rising' ? '#ef4444' : data.trend === 'falling' ? '#60a5fa' : '#6ab04c',
                       lineHeight: 1,
                     }}
                   >
@@ -258,7 +258,7 @@ export default function RiverConditionsSheet({
           {riverMapConfig ? (
             <button
               onClick={() => setShowMap(true)}
-              className="flex items-center justify-between w-full px-5 py-4 rounded-2xl active:opacity-70"
+              className="flex items-center justify-between w-full px-5 py-4 rounded-2xl active:scale-[0.99]"
               style={{
                 background: 'rgba(74,222,128,0.08)',
                 border: '1px solid rgba(74,222,128,0.22)',
@@ -272,7 +272,7 @@ export default function RiverConditionsSheet({
               href={`https://waterdata.usgs.gov/monitoring-location/${gaugeId}/`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-between w-full px-5 py-4 rounded-2xl active:opacity-70 no-underline"
+              className="flex items-center justify-between w-full px-5 py-4 rounded-2xl active:scale-[0.99] no-underline"
               style={{
                 background: 'rgba(255,255,255,0.05)',
                 border: '1px solid rgba(255,255,255,0.1)',

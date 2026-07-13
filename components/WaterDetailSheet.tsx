@@ -204,7 +204,7 @@ function FlowStatusBadge({ status, cfs, trend }: { status: FlowData['status']; c
   }
   const c = cfg[status] ?? cfg.loading
   const trendIcon = trend === 'rising' ? '↑' : trend === 'falling' ? '↓' : trend === 'stable' ? '→' : null
-  const trendColor = trend === 'rising' ? '#ef4444' : trend === 'falling' ? '#60a5fa' : '#22c55e'
+  const trendColor = trend === 'rising' ? '#ef4444' : trend === 'falling' ? '#60a5fa' : '#6ab04c'
   return (
     <div className="flex items-center gap-1.5">
       {cfs !== null && (
@@ -276,13 +276,13 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
   }
 
   return (
-    <div className="flex flex-col h-full overflow-hidden" style={{ background: '#0d0f1a' }}>
+    <div className="flex flex-col h-full overflow-hidden" style={{ background: 'var(--bg)' }}>
 
       {/* ── Back header ── */}
       <div className="flex-shrink-0 flex items-center gap-3 px-4 py-3"
         style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <button onClick={onBack}
-          className="flex items-center gap-1.5 text-sm font-semibold active:opacity-70"
+          className="flex items-center gap-1.5 text-sm font-semibold active:scale-[0.99]"
           style={{ color: 'var(--accent)' }}>
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/>
@@ -359,7 +359,7 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
               return (
                 <button key={i}
                   onClick={() => { setSelectedSegIdx(i); setSegHighlighted(true) }}
-                  className="flex-shrink-0 px-3 py-2 rounded-xl text-left transition-all active:scale-[0.97]"
+                  className="flex-shrink-0 px-3 py-2 rounded-xl text-left transition-all active:scale-[0.99]"
                   style={{
                     background: selected ? `${cfg.color}18` : 'rgba(255,255,255,0.05)',
                     border: `1.5px solid ${selected ? cfg.color : 'rgba(255,255,255,0.09)'}`,
@@ -609,7 +609,7 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
       >
         <div
           className="animate-slide-up rounded-t-2xl flex flex-col overflow-hidden"
-          style={{ background: '#0d0f1a', height: '92dvh' }}
+          style={{ background: 'var(--bg)', height: '92dvh' }}
           {...swipeBack}
         >
 
@@ -695,7 +695,7 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                       {flow.status === 'ideal' ? 'IDEAL' : flow.status === 'low' ? 'LOW' : flow.status === 'high' ? 'HIGH' : flow.status === 'loading' ? '…' : 'N/A'}
                     </p>
                     {flow.trend && (
-                      <p className="text-[11px] mt-0.5" style={{ color: flow.trend === 'rising' ? '#ef4444' : flow.trend === 'falling' ? '#60a5fa' : '#22c55e' }}>
+                      <p className="text-[11px] mt-0.5" style={{ color: flow.trend === 'rising' ? '#ef4444' : flow.trend === 'falling' ? '#60a5fa' : '#6ab04c' }}>
                         {flow.trend === 'rising' ? '↑ rising' : flow.trend === 'falling' ? '↓ falling' : '→ stable'}
                       </p>
                     )}
@@ -833,7 +833,7 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                       <button
                         key={reg.id}
                         onClick={() => setSelectedFishForSheet(sp)}
-                        className="flex flex-col items-center rounded-xl overflow-hidden transition-all active:scale-95"
+                        className="flex flex-col items-center rounded-xl overflow-hidden transition-all active:scale-[0.99]"
                         style={{
                           background: 'rgba(255,255,255,0.05)',
                           border: isTarget
@@ -882,7 +882,7 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
               href="https://wdfw.wa.gov/fishing/regulations"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-between w-full px-5 py-3.5 rounded-xl no-underline transition-opacity active:opacity-75"
+              className="flex items-center justify-between w-full px-5 py-3.5 rounded-xl no-underline transition-opacity active:scale-[0.99]"
               style={{ background: 'rgba(242,101,34,0.12)', border: '1px solid rgba(242,101,34,0.3)', textDecoration: 'none' }}
             >
               <span className="text-sm font-bold" style={{ color: '#f26522' }}>View on WDFW →</span>

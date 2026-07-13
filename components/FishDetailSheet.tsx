@@ -74,7 +74,7 @@ function GearGrid({ items, accent }: { items: GearItem[]; accent: string }) {
           href={item.amazonUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex flex-col items-center gap-1 py-3 px-1 rounded-xl active:opacity-70 text-center"
+          className="flex flex-col items-center gap-1 py-3 px-1 rounded-xl active:scale-[0.99] text-center"
           style={{ background: 'var(--bg)', border: '1px solid var(--border)', textDecoration: 'none' }}
         >
           <span style={{ fontSize: '26px', lineHeight: 1 }}>{getGearEmoji(item.name)}</span>
@@ -411,7 +411,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
               {anyOpen && openWaterCount > 0 && (
                 <button
                   onClick={() => setActiveTab('regs')}
-                  className="text-[11px] font-bold px-2 py-0.5 rounded-full active:opacity-70"
+                  className="text-[11px] font-bold px-2 py-0.5 rounded-full active:scale-[0.99]"
                   style={{ background: 'rgba(106,176,76,0.18)', color: '#6ab04c', border: '1px solid rgba(106,176,76,0.3)' }}>
                   🟢 {openWaterCount} {openWaterCount === 1 ? 'water' : 'waters'} open — see all →
                 </button>
@@ -440,7 +440,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
         <div className="flex gap-2 flex-shrink-0 px-4 py-2.5" style={{ borderBottom: '1px solid var(--border)' }}>
           {tabs.map(t => (
             <button key={t.key} onClick={() => setActiveTab(t.key)}
-              className="flex-1 py-2 text-sm font-bold rounded-md transition-all active:scale-95"
+              className="flex-1 py-2 text-sm font-bold rounded-md transition-all active:scale-[0.99]"
               style={{
                 background: activeTab === t.key ? 'var(--accent)' : 'var(--surface)',
                 color: activeTab === t.key ? '#fff' : 'var(--text-faint)',
@@ -482,7 +482,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                 {/* Legend overlay */}
                 <div className="absolute bottom-2 left-2 flex gap-2.5 px-2.5 py-1.5 rounded-lg"
                   style={{ background: 'rgba(10,12,20,0.85)', backdropFilter: 'blur(4px)' }}>
-                  {([['#22c55e','Open'],['#ef4444','Closed'],['#374151','No data']] as [string,string][]).map(([c,l]) => (
+                  {([['#6ab04c','Open'],['#ef4444','Closed'],['#374151','No data']] as [string,string][]).map(([c,l]) => (
                     <span key={l} className="flex items-center gap-1 text-[10px] font-semibold text-white">
                       <span style={{ width:8, height:8, borderRadius:'50%', background:c, display:'inline-block', flexShrink:0 }} />{l}
                     </span>
@@ -543,7 +543,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                                 setSelectedFullWater(water.name)
                               }
                             }}
-                            className="flex items-center w-full text-left rounded-lg overflow-hidden transition-colors active:opacity-70"
+                            className="flex items-center w-full text-left rounded-lg overflow-hidden transition-colors active:scale-[0.99]"
                             style={{
                               background: bgColor,
                               border: `1px solid ${isEmerg ? 'rgba(249,115,22,0.3)' : isOpen ? 'rgba(106,176,76,0.2)' : 'var(--border)'}`,
@@ -685,7 +685,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                       <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>BAIT</p>
                     </div>
                     <div className="p-3" style={{ background: 'var(--bg)' }}>
-                      <GearGrid items={gear.bait} accent="#22c55e" />
+                      <GearGrid items={gear.bait} accent="#6ab04c" />
                     </div>
                   </div>
 

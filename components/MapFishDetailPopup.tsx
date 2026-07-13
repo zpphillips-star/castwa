@@ -12,7 +12,7 @@ interface Props {
 }
 
 const STATUS_CONFIG = {
-  open:      { label: 'OPEN',      color: '#22c55e', bg: 'rgba(34,197,94,0.15)' },
+  open:      { label: 'OPEN',      color: '#6ab04c', bg: 'rgba(34,197,94,0.15)' },
   closed:    { label: 'CLOSED',    color: '#ef4444', bg: 'rgba(239,68,68,0.15)' },
   emergency: { label: 'EMERGENCY', color: '#f97316', bg: 'rgba(249,115,22,0.15)' },
 } as const

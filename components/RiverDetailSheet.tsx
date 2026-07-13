@@ -351,7 +351,7 @@ function RestrictionCard({
     : null
 
   return (
-    <div className="flex flex-col h-full" style={{ background: '#0d0f1a' }}>
+    <div className="flex flex-col h-full" style={{ background: 'var(--bg)' }}>
       {/* Card header */}
       <div className="flex items-center justify-between px-4 py-3 flex-shrink-0"
         style={{ borderBottom: `1.5px solid ${statusColor}30`, background: `${statusColor}08` }}>
@@ -433,7 +433,7 @@ function RestrictionCard({
                       if (sp && onSelectFish) { onSelectFish(sp) }
                       else { setSelectedSpecies(name) }
                     }}
-                    className="flex flex-col items-center rounded-xl overflow-hidden transition-all active:scale-95"
+                    className="flex flex-col items-center rounded-xl overflow-hidden transition-all active:scale-[0.99]"
                     style={{
                       background: 'rgba(255,255,255,0.05)',
                       border: '1.5px solid rgba(255,255,255,0.10)',
@@ -491,12 +491,12 @@ function RestrictionCard({
             {/* Map links */}
             <div className="flex gap-2 pb-2">
               <a href={section.mapsLinkDownstream} target="_blank" rel="noopener noreferrer"
-                className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg active:opacity-70"
+                className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg active:scale-[0.99]"
                 style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border)', color: 'var(--text-muted)', textDecoration: 'none' }}>
                 📍 Downstream
               </a>
               <a href={section.mapsLinkUpstream} target="_blank" rel="noopener noreferrer"
-                className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg active:opacity-70"
+                className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg active:scale-[0.99]"
                 style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border)', color: 'var(--text-muted)', textDecoration: 'none' }}>
                 📍 Upstream
               </a>
@@ -578,7 +578,7 @@ function RestrictionCard({
                           <div className="flex-shrink-0 w-24">
                             {isNow && (
                               <span className="inline-block text-[9px] font-black px-1.5 py-0.5 rounded mb-1"
-                                style={{ background: o.status === 'CLOSED' ? '#ef4444' : '#22c55e', color: 'white' }}>
+                                style={{ background: o.status === 'CLOSED' ? '#ef4444' : '#6ab04c', color: 'white' }}>
                                 TODAY
                               </span>
                             )}
@@ -591,7 +591,7 @@ function RestrictionCard({
                       )
                     })}
                     <a href={er.url} target="_blank" rel="noopener noreferrer"
-                      className="block text-xs font-semibold px-4 py-3 active:opacity-70"
+                      className="block text-xs font-semibold px-4 py-3 active:scale-[0.99]"
                       style={{ color: '#f97316', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
                       Official rule source at WDFW.wa.gov →
                     </a>
@@ -623,7 +623,7 @@ function RestrictionCard({
                             }}>
                             <div className="flex items-center gap-2 mb-1 flex-wrap">
                               <span className="text-[9px] font-black px-1.5 py-0.5 rounded"
-                                style={{ background: '#22c55e', color: 'white' }}>TODAY</span>
+                                style={{ background: '#6ab04c', color: 'white' }}>TODAY</span>
                               <span className="text-sm font-bold" style={{ color: '#4ade80' }}>✅ Open now</span>
                               {entry.dailyLimit && (
                                 <span className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.5)' }}>
@@ -654,7 +654,7 @@ function RestrictionCard({
                           <>
                             <button
                               onClick={() => setShowFutureSeasons(v => !v)}
-                              className="w-full px-4 py-2.5 flex items-center justify-between active:opacity-70"
+                              className="w-full px-4 py-2.5 flex items-center justify-between active:scale-[0.99]"
                               style={{ background: 'rgba(255,255,255,0.03)', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
                               <span className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.4)' }}>
                                 {showFutureSeasons ? 'Hide future seasons' : `View future seasons (${futureEntries.length})`}
@@ -877,7 +877,7 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
       >
         <div
           className="animate-slide-up rounded-t-2xl flex flex-col overflow-hidden"
-          style={{ background: '#0d0f1a', height: '92dvh', position: 'relative' }}
+          style={{ background: 'var(--bg)', height: '92dvh', position: 'relative' }}
           {...swipeBack}
         >
 
@@ -898,7 +898,7 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
                     </span>
                   )}
                   {flow.trend && (
-                    <span className="text-xs font-bold" style={{ color: flow.trend === 'rising' ? '#ef4444' : flow.trend === 'falling' ? '#60a5fa' : '#22c55e' }}>
+                    <span className="text-xs font-bold" style={{ color: flow.trend === 'rising' ? '#ef4444' : flow.trend === 'falling' ? '#60a5fa' : '#6ab04c' }}>
                       {flow.trend === 'rising' ? '↑' : flow.trend === 'falling' ? '↓' : '→'}
                     </span>
                   )}
@@ -1135,7 +1135,7 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
                   return (
                     <button key={name}
                       onClick={() => sp ? setSelectedFish(sp) : undefined}
-                      className="flex flex-col items-center rounded-xl overflow-hidden transition-all active:scale-95"
+                      className="flex flex-col items-center rounded-xl overflow-hidden transition-all active:scale-[0.99]"
                       style={{
                         background: 'rgba(255,255,255,0.05)',
                         border: '1.5px solid rgba(242,101,34,0.4)',
@@ -1209,7 +1209,7 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
                 position: 'absolute', inset: 0,
                 transform: cardOpen ? 'translateY(0)' : 'translateY(100%)',
                 transition: 'transform 0.28s ease',
-                background: '#0d0f1a',
+                background: 'var(--bg)',
                 overflow: 'hidden',
               }}
               onTouchStart={e => { e.stopPropagation(); setTouchStartX(e.touches[0].clientX) }}
