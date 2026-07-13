@@ -427,8 +427,8 @@ function SolunarTimeline({ date }: { date: Date }) {
         <div className="fixed inset-0 z-50 flex flex-col justify-end" style={{ background: 'rgba(0,0,0,0.6)' }}
           onClick={() => setOpen(false)}>
           <div onClick={e => e.stopPropagation()}
-            className="w-full px-5 pt-5 pb-8"
-            style={{ background: 'var(--bg)', borderTop: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px 12px 0 0', maxHeight: '85vh', overflowY: 'auto' }}>
+            className="w-full px-5 pt-5"
+            style={{ background: 'var(--bg)', borderTop: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px 12px 0 0', maxHeight: '85vh', overflowY: 'auto', paddingBottom: 'calc(80px + env(safe-area-inset-bottom))' }}>
 
             {/* Handle */}
             <div className="flex justify-center mb-4">
