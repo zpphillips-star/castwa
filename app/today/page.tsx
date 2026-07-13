@@ -401,18 +401,22 @@ function SolunarTimeline({ date }: { date: Date }) {
 
   return (
     <>
-      {/* ── Tappable row ── */}
+      {/* ── Banner row ── */}
       <button
         onClick={() => setOpen(true)}
-        className="w-full px-4 py-4 flex items-center justify-between"
+        className="w-full text-left rounded-xl mb-5 transition-all active:scale-[0.99] flex items-center gap-3 px-4 py-3"
         style={{
-          background: activeWindow ? activeWindow.color : 'var(--surface)',
-          border: 'none',
-          borderRadius: 16,
+          background: activeWindow ? activeWindow.color : 'rgba(255,255,255,0.04)',
+          border: `1px solid ${activeWindow ? 'transparent' : 'rgba(255,255,255,0.07)'}`,
           cursor: 'pointer',
         }}>
-        <div className="text-sm font-semibold text-left" style={{ color: activeWindow ? '#ffffff' : 'var(--text-muted)' }}>{statusText}</div>
-        <span className="text-base font-light" style={{ color: activeWindow ? '#ffffff' : 'var(--text-muted)', opacity: 0.8 }}>›</span>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-bold text-white leading-tight">Best Bite Times</p>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className="text-sm font-semibold" style={{ color: activeWindow ? '#fff' : statusColor }}>{statusText}</span>
+          <span className="text-base font-light" style={{ color: activeWindow ? '#ffffff' : 'var(--text-faint)', opacity: 0.8 }}>›</span>
+        </div>
       </button>
 
       {/* ── Bottom sheet modal ── */}
@@ -649,17 +653,8 @@ export default function TodayPage() {
           <span className="text-base font-light flex-shrink-0" style={{ color: totalAlertCount > 0 ? '#ef4444' : 'var(--text-faint)' }}>›</span>
         </button>
 
-        {/* ── BEST BITE TIMES — featured ── */}
-        <div className="mb-8 rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'var(--surface)' }}>
-          {/* Card header */}
-          <div className="px-4 pt-4 pb-3">
-            <p className="text-base font-black text-white leading-tight">Best Bite Times</p>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--text-faint)' }}>When fish are most active today — tap to see all windows</p>
-          </div>
-          <div className="px-2 pb-2">
-            <SolunarTimeline date={today} />
-          </div>
-        </div>
+        {/* ── BEST BITE TIMES — featured banner ── */}
+        <SolunarTimeline date={today} />
 
         {/* ── MY WATERS ── */}
         <div className="pt-8 mb-10">
