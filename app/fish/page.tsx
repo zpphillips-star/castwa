@@ -162,7 +162,7 @@ export default function FishPage() {
                 className="overflow-hidden text-left transition-all active:scale-95 rounded-xl relative"
                 style={{
                   background: 'var(--surface)',
-                  border: `1.5px solid ${selectedFish?.id === fish.id ? '#6ab04c' : inSeason ? 'rgba(106,176,76,0.45)' : 'var(--border)'}`,
+                  border: `1.5px solid ${selectedFish?.id === fish.id ? '#6ab04c' : inSeason ? 'rgba(106,176,76,0.55)' : 'rgba(255,255,255,0.07)'}`,
                   boxShadow: selectedFish?.id === fish.id ? '0 0 0 3px rgba(106,176,76,0.25)' : 'none',
                 }}
               >
@@ -192,16 +192,12 @@ export default function FishPage() {
                     }}
                   />
                 </div>
-                {/* Name bar — green if in season */}
-                <div className="px-3 py-2.5"
-                  style={{ background: inSeason ? '#22c55e' : 'transparent' }}>
+                {/* Name bar */}
+                <div className="px-3 py-2.5" style={{ background: 'transparent' }}>
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-sm font-semibold leading-tight" style={{ color: '#ffffff' }}>{fish.name}</p>
                     {inSeason && (
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded flex-shrink-0"
-                        style={{ background: 'rgba(0,0,0,0.2)', color: '#ffffff' }}>
-                        OPEN
-                      </span>
+                      <span className="text-[10px] flex-shrink-0" style={{ color: '#4ade80' }}>●</span>
                     )}
                   </div>
                 </div>
