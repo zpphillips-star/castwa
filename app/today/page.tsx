@@ -406,20 +406,18 @@ function SolunarTimeline({ date }: { date: Date }) {
         onClick={() => setOpen(true)}
         className="w-full mb-5 px-4 py-4 flex items-center justify-between"
         style={{
-          background: activeWindow
-            ? activeWindow.color
-            : 'rgba(34,197,94,0.18)',
-          border: activeWindow ? 'none' : '1px solid rgba(34,197,94,0.25)',
+          background: activeWindow ? activeWindow.color : nextWindow ? nextWindow.color : '#22c55e',
+          border: 'none',
           borderRadius: 6,
           cursor: 'pointer',
         }}>
         <div className="flex items-center gap-2">
           <div>
             <div className="text-sm font-black text-left" style={{ color: '#ffffff' }}>Best Bite Times</div>
-            <div className="text-[11px] font-semibold text-left mt-0.5" style={{ color: 'rgba(255,255,255,0.75)' }}>{statusText}</div>
+            <div className="text-[11px] font-semibold text-left mt-0.5" style={{ color: 'rgba(255,255,255,0.85)' }}>{statusText}</div>
           </div>
         </div>
-        <span className="text-base font-light" style={{ color: '#ffffff', opacity: activeWindow ? 0.8 : 0.4 }}>›</span>
+        <span className="text-base font-light" style={{ color: '#ffffff', opacity: 0.8 }}>›</span>
       </button>
 
       {/* ── Bottom sheet modal ── */}
