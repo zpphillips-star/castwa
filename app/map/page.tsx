@@ -70,9 +70,10 @@ function NearMeCard({
       onClick={onTap}
       className="w-full text-left transition-all active:opacity-70"
       style={{
-        padding: '16px 20px',
-        borderBottom: isLast ? 'none' : '1px solid rgba(255,255,255,0.06)',
+        padding: '16px 4px',
+        borderBottom: isLast ? 'none' : '1px solid rgba(255,255,255,0.07)',
         display: 'block',
+        background: 'transparent',
       }}
     >
       {/* Top row: name left, CFS right */}
@@ -322,7 +323,7 @@ export default function NearMePage() {
                   <div style={{ fontSize: '14px' }}>No waters found with this filter.</div>
                 </div>
               ) : (
-                <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <div>
                   {filtered.map(({ water, distMiles, openSpecies }, idx) => (
                     <NearMeCard
                       key={water.id}
