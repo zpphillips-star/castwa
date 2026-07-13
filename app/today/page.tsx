@@ -666,7 +666,7 @@ export default function TodayPage() {
           {/* Section label */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
             <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
-            <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-primary, #e5e7eb)', whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#6b7280', whiteSpace: 'nowrap' }}>
               My Waters{starredWaters.length > 0 ? ` · ${starredWaters.length}` : ''}
             </span>
             <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
@@ -777,7 +777,7 @@ export default function TodayPage() {
         <div className="mb-10" style={{ paddingTop: "20px" }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
             <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
-            <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-primary, #e5e7eb)', whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#6b7280', whiteSpace: 'nowrap' }}>
               My Fish{starredFish.length > 0 ? ` · ${starredFish.length}` : ''}
             </span>
             <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
@@ -903,7 +903,7 @@ export default function TodayPage() {
           <div className="mb-10" style={{ paddingTop: "20px" }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
               <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
-              <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-primary, #e5e7eb)', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#6b7280', whiteSpace: 'nowrap' }}>
                 Opening Soon · {openingSoon.length}
               </span>
               <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
