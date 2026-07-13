@@ -71,7 +71,7 @@ function NearMeCard({
       className="w-full text-left transition-all active:opacity-70"
       style={{
         padding: '16px 4px',
-        borderBottom: isLast ? 'none' : '1px solid rgba(255,255,255,0.14)',
+        borderBottom: isLast ? 'none' : '1px solid rgba(255,255,255,0.22)',
         display: 'block',
         background: 'transparent',
       }}
