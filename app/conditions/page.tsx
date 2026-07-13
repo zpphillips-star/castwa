@@ -487,7 +487,7 @@ export default function WatersPage() {
       </header>
 
       {/* ── Pinned: Most Active + Map ── */}
-      <div className="flex-shrink-0 max-w-lg mx-auto w-full px-4 pt-3"
+      <div className="flex-shrink-0 max-w-lg mx-auto w-full px-4 pt-4"
         style={{ background: 'var(--bg)' }}>
 
         {/* Most Active Right Now */}
@@ -510,7 +510,7 @@ export default function WatersPage() {
                   <button
                     key={water.id}
                     onClick={() => openWater(water)}
-                    className="rounded-2xl text-left transition-all active:scale-[0.97] flex flex-col"
+                    className="rounded-2xl text-left transition-all active:scale-[0.99] flex flex-col"
                     style={{
                       background: 'var(--surface)',
                       border: `1px solid var(--border)`,
@@ -559,7 +559,7 @@ export default function WatersPage() {
           {selectedCell && (
             <button
               onClick={() => setSelectedCell(null)}
-              className="w-full text-center text-xs font-semibold py-1.5 mt-1 rounded-lg active:opacity-70"
+              className="w-full text-center text-xs font-semibold py-1.5 mt-1 rounded-lg active:scale-[0.99]"
               style={{ color: '#f26522', background: 'rgba(242,101,34,0.08)' }}>
               ✕ Clear region filter
             </button>
@@ -620,7 +620,7 @@ export default function WatersPage() {
           </div>
         )}
 
-        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-4">
+        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-2">
           {([
             { key: 'all',    label: 'All Waters' },
             { key: 'river',  label: 'Rivers' },
@@ -630,11 +630,14 @@ export default function WatersPage() {
             <button
               key={f.key}
               onClick={() => setActiveFilter(f.key)}
-              className="flex-shrink-0 px-6 py-3 rounded-xl text-base font-bold transition-all active:scale-[0.99]"
+              className="flex-shrink-0 font-semibold transition-all active:scale-[0.99] rounded-full"
               style={{
+                padding: '7px 16px',
+                fontSize: '13px',
                 background: activeFilter === f.key ? 'var(--accent)' : 'var(--surface)',
                 color: activeFilter === f.key ? '#fff' : 'var(--text-muted)',
-                border: `2px solid ${activeFilter === f.key ? 'var(--accent)' : 'var(--border)'}`,
+                border: `1.5px solid ${activeFilter === f.key ? 'var(--accent)' : 'var(--border)'}`,
+                whiteSpace: 'nowrap',
               }}
             >
               {f.label}
@@ -660,7 +663,7 @@ export default function WatersPage() {
                 const flow = flowData[water.id]
                 const palette = flow ? FLOW_PALETTE[flow.status] : null
                 const trendIcon = flow?.trend === 'rising' ? '↑' : flow?.trend === 'falling' ? '↓' : flow?.trend === 'stable' ? '→' : null
-                const trendColor = flow?.trend === 'rising' ? '#ef4444' : flow?.trend === 'falling' ? '#60a5fa' : '#22c55e'
+                const trendColor = flow?.trend === 'rising' ? '#ef4444' : flow?.trend === 'falling' ? '#60a5fa' : '#6ab04c'
 
                 // Open species count for this water
                 const openRegs = REGULATIONS.filter(r => r.waterBodyId === water.id && isOpenOn(r, today))

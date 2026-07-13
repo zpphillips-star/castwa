@@ -68,7 +68,7 @@ function MonthBlock({
                 height: 52,
                 background: isSelected ? '#f26522' : isToday ? 'rgba(242,101,34,0.12)' : 'var(--surface)',
                 border: `1px solid ${isSelected ? '#f26522' : isToday ? 'rgba(242,101,34,0.5)' : 'var(--border)'}`,
-                borderRadius: 6,
+                borderRadius: 10,
                 opacity: isPast ? 0.3 : 1,
               }}
             >
@@ -141,7 +141,7 @@ export default function CalendarPage() {
           onClick={e => { if (e.target === e.currentTarget) setSelectedDate(null) }}
         >
           <div className="animate-slide-up flex flex-col overflow-hidden"
-            style={{ background: '#0d0f1a', borderRadius: '8px 8px 0 0', maxHeight: '80dvh' }}>
+            style={{ background: '#0d0f1a', borderRadius: '20px 20px 0 0', maxHeight: '80dvh' }}>
 
             {/* Handle */}
             <div className="flex-shrink-0 pt-3 pb-2 px-5">
@@ -178,7 +178,7 @@ export default function CalendarPage() {
                   <p className="text-xs mt-1" style={{ color: 'var(--text-faint)' }}>Try tapping another date</p>
                 </div>
               ) : (
-                <div className="rounded-lg overflow-hidden"
+                <div className="rounded-2xl overflow-hidden"
                   style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
                   {openSpecies.map((fish, i) => {
                     const regs = REGULATIONS.filter(r => r.speciesId === fish.id && isOpenOn(r, selectedDate))
@@ -201,7 +201,7 @@ export default function CalendarPage() {
                       >
                         {/* Photo */}
                         <div className="flex-shrink-0 overflow-hidden"
-                          style={{ width: 56, height: 56, background: '#0b0d14', borderRadius: 6 }}>
+                          style={{ width: 56, height: 56, background: '#0b0d14', borderRadius: 10 }}>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={fish.photo} alt={fish.name}
                             style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 6 }} />

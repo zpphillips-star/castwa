@@ -253,6 +253,7 @@ export default function NearMePage() {
         display: 'flex',
         gap: '8px',
         padding: '10px 16px',
+        paddingBottom: '12px',
         overflowX: 'auto',
         flexShrink: 0,
         WebkitOverflowScrolling: 'touch',
@@ -261,16 +262,16 @@ export default function NearMePage() {
           <button
             key={c.key}
             onClick={() => setFilterType(c.key)}
+            className="flex-shrink-0 font-semibold transition-all active:scale-[0.99] rounded-full"
             style={{
               whiteSpace: 'nowrap',
-              padding: '5px 14px',
-              borderRadius: '20px',
-              fontSize: '12px',
+              padding: '7px 16px',
+              fontSize: '13px',
               fontWeight: 700,
-              border: 'none',
               cursor: 'pointer',
-              background: filterType === c.key ? '#6ab04c' : 'var(--surface)',
+              background: filterType === c.key ? 'var(--accent)' : 'var(--surface)',
               color: filterType === c.key ? '#fff' : 'var(--text-muted)',
+              border: `1.5px solid ${filterType === c.key ? 'var(--accent)' : 'var(--border)'}`,
             }}
           >
             {c.label}

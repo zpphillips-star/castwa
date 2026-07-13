@@ -177,7 +177,7 @@ export default function FishPage() {
               <button
                 key={fish.id}
                 onClick={() => setSelectedFish(fish)}
-                className="overflow-hidden text-left transition-all active:scale-[0.99] rounded-xl relative"
+                className="overflow-hidden text-left transition-all active:scale-[0.99] rounded-2xl relative"
                 style={{
                   background: 'var(--surface)',
                   border: `1px solid ${selectedFish?.id === fish.id ? '#6ab04c' : 'rgba(255,255,255,0.08)'}`,
