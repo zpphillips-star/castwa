@@ -658,19 +658,15 @@ export default function TodayPage() {
         <SolunarTimeline date={today} />
 
         {/* ── MY WATERS ── */}
-        <div className="mb-12" style={{ marginTop: '32px' }}>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <h2 className="text-base font-black text-white tracking-tight">My Waters</h2>
-              {starredWaters.length > 0 && (
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
-                  style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-muted)' }}>
-                  {starredWaters.length}
-                </span>
-              )}
-            </div>
+        <div className="mb-10" style={{ marginTop: '36px' }}>
+          {/* Section label */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+            <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+              My Waters{starredWaters.length > 0 ? ` · ${starredWaters.length}` : ''}
+            </span>
+            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
             {starredWaters.length === 0 && hydrated && (
-              <span className="text-xs" style={{ color: 'var(--text-faint)' }}>tap ☆ to add</span>
+              <span style={{ fontSize: '11px', color: 'var(--text-faint)', whiteSpace: 'nowrap' }}>tap ☆ to star</span>
             )}
           </div>
 
@@ -692,8 +688,8 @@ export default function TodayPage() {
               <span className="text-sm" style={{ color: 'var(--text-faint)' }}>›</span>
             </button>
           ) : (
-            <div className="flex flex-col gap-3">
-              {starredWaters.map(water => {
+            <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              {starredWaters.map((water, wi) => {
                 const firstWord = water.name.toLowerCase().split(' ')[0]
                 const gauge = gauges.find(g => g.name.toLowerCase().includes(firstWord))
                 const hasGauge = !!gauge && gauge.cfs !== null
@@ -708,65 +704,63 @@ export default function TodayPage() {
                   <button
                     key={water.id}
                     onClick={() => setSelectedWater(water.name)}
-                    className="w-full text-left rounded-2xl overflow-hidden transition-all active:scale-[0.99]"
+                    className="w-full text-left transition-all active:opacity-70"
                     style={{
-                      background: 'var(--surface)',
-                      border: '1px solid rgba(255,255,255,0.08)',
+                      padding: '16px 20px',
+                      borderBottom: wi < starredWaters.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                      display: 'block',
                     }}
                   >
-                    <div className="px-5 py-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--text-faint)' }}>
-                            {water.region} · {water.type}
-                          </p>
-                          <p className="text-xl font-black text-white leading-tight">{water.name}</p>
-                          {openHere.length > 0 ? (
-                            <div className="flex items-center gap-1.5 mt-2.5 flex-wrap">
-                              <span className="text-[10px] font-bold uppercase tracking-wide mr-0.5" style={{ color: 'var(--text-faint)' }}>Open now:</span>
-                              {openHere.map(name => (
-                                <span key={name} className="text-[11px] font-semibold px-2 py-0.5 rounded-full"
-                                  style={{ background: 'rgba(106,176,76,0.15)', color: '#6ab04c' }}>
-                                  {name.replace(' Salmon', '').replace(' Trout', '')}
-                                </span>
-                              ))}
-                            </div>
-                          ) : (
-                            <p className="text-sm mt-2" style={{ color: 'var(--text-faint)' }}>No species open today</p>
-                          )}
-                          {(() => {
-                            const w = weatherData[water.id]
-                            if (!w) return null
-                            return (
-                              <p className="text-xs mt-2" style={{ color: 'var(--text-faint)' }}>
-                                {Math.round(w.temp)}°F · {Math.round(w.wind)} mph wind{w.precip > 20 ? ` · ${w.precip}% rain` : ''}
-                              </p>
-                            )
-                          })()}
-                        </div>
-                        {hasGauge && cfg && gauge && (
-                          <div className="flex-shrink-0 text-right">
-                            <p className="text-3xl font-black leading-none" style={{ color: cfg.color }}>
-                              {gauge.cfs?.toLocaleString() ?? '—'}
-                            </p>
-                            <p className="text-[10px] font-semibold uppercase mt-1" style={{ color: 'var(--text-faint)' }}>
-                              cfs {gauge.trend ? TREND_ARROW[gauge.trend] : ''}
-                            </p>
-                            <span className="inline-block mt-1.5 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wide"
-                              style={{ background: cfg.bg, color: cfg.color }}>
-                              {cfg.label}
-                            </span>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--text-faint)' }}>
+                          {water.region} · {water.type}
+                        </p>
+                        <p className="text-xl font-black text-white leading-tight">{water.name}</p>
+                        {openHere.length > 0 ? (
+                          <div className="flex items-center gap-1.5 mt-2.5 flex-wrap">
+                            <span className="text-[10px] font-bold uppercase tracking-wide mr-0.5" style={{ color: 'var(--text-faint)' }}>Open now:</span>
+                            {openHere.map(name => (
+                              <span key={name} className="text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                                style={{ background: 'rgba(106,176,76,0.15)', color: '#6ab04c' }}>
+                                {name.replace(' Salmon', '').replace(' Trout', '')}
+                              </span>
+                            ))}
                           </div>
+                        ) : (
+                          <p className="text-sm mt-2" style={{ color: 'var(--text-faint)' }}>No species open today</p>
                         )}
+                        {(() => {
+                          const w = weatherData[water.id]
+                          if (!w) return null
+                          return (
+                            <p className="text-xs mt-2" style={{ color: 'var(--text-faint)' }}>
+                              {Math.round(w.temp)}°F · {Math.round(w.wind)} mph wind{w.precip > 20 ? ` · ${w.precip}% rain` : ''}
+                            </p>
+                          )
+                        })()}
                       </div>
-                      {/* Notes row — full width below the flex row */}
-                      {hasGauge && cfg && gauge && gauge.status !== 'loading' && (
-                        <div className="mt-2 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                          <span className="text-[10px] font-bold uppercase tracking-wide mr-2" style={{ color: 'var(--text-faint)' }}>Note</span>
-                          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{getCfsDescription(gauge.status)}</span>
+                      {hasGauge && cfg && gauge && (
+                        <div className="flex-shrink-0 text-right">
+                          <p className="text-3xl font-black leading-none" style={{ color: cfg.color }}>
+                            {gauge.cfs?.toLocaleString() ?? '—'}
+                          </p>
+                          <p className="text-[10px] font-semibold uppercase mt-1" style={{ color: 'var(--text-faint)' }}>
+                            cfs {gauge.trend ? TREND_ARROW[gauge.trend] : ''}
+                          </p>
+                          <span className="inline-block mt-1.5 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wide"
+                            style={{ background: cfg.bg, color: cfg.color }}>
+                            {cfg.label}
+                          </span>
                         </div>
                       )}
                     </div>
+                    {hasGauge && cfg && gauge && gauge.status !== 'loading' && (
+                      <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                        <span className="text-[10px] font-bold uppercase tracking-wide mr-2" style={{ color: 'var(--text-faint)' }}>Note</span>
+                        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{getCfsDescription(gauge.status)}</span>
+                      </div>
+                    )}
                   </button>
                 )
               })}
@@ -775,19 +769,14 @@ export default function TodayPage() {
         </div>
 
         {/* ── MY FISH ── */}
-        <div className="mb-12">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <h2 className="text-base font-black text-white tracking-tight">My Fish</h2>
-              {starredFish.length > 0 && (
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
-                  style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-muted)' }}>
-                  {starredFish.length}
-                </span>
-              )}
-            </div>
+        <div className="mb-10">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+            <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+              My Fish{starredFish.length > 0 ? ` · ${starredFish.length}` : ''}
+            </span>
+            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
             {starredFish.length === 0 && hydrated && (
-              <span className="text-xs" style={{ color: 'var(--text-faint)' }}>tap ☆ to add</span>
+              <span style={{ fontSize: '11px', color: 'var(--text-faint)', whiteSpace: 'nowrap' }}>tap ☆ to star</span>
             )}
           </div>
 
@@ -905,19 +894,13 @@ export default function TodayPage() {
 
         {/* ── OPENING SOON — next 14 days ── */}
         {openingSoon.length > 0 && (
-          <div className="mb-12">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <h2 className="text-base font-black text-white tracking-tight">Opening Soon</h2>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
-                  style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-muted)' }}>
-                  {openingSoon.length}
-                </span>
-              </div>
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
-                style={{ background: 'rgba(99,179,237,0.12)', color: '#63b3ed', border: '1px solid rgba(99,179,237,0.25)' }}>
-                Next 14 days
+          <div className="mb-10">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+              <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                Opening Soon · {openingSoon.length}
               </span>
+              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+              <span style={{ fontSize: '11px', fontWeight: 700, color: '#63b3ed', whiteSpace: 'nowrap' }}>next 14 days</span>
             </div>
             <div className="rounded-2xl overflow-hidden"
               style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}>
