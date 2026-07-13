@@ -657,14 +657,11 @@ export default function TodayPage() {
         {/* ── SOLUNAR BITE TIMES ── */}
         <SolunarTimeline date={today} />
 
-        {/* ── separator ── */}
-        <div className="mb-8" style={{ height: 1, background: 'rgba(255,255,255,0.05)' }} />
-
         {/* ── MY WATERS ── */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-3">
+        <div className="mb-12" style={{ marginTop: '32px' }}>
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <h2 className="text-sm font-black text-white">My Waters</h2>
+              <h2 className="text-base font-black text-white tracking-tight">My Waters</h2>
               {starredWaters.length > 0 && (
                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
                   style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-muted)' }}>
@@ -777,14 +774,11 @@ export default function TodayPage() {
           )}
         </div>
 
-        {/* ── separator ── */}
-        <div className="mb-8" style={{ height: 1, background: 'rgba(255,255,255,0.05)' }} />
-
         {/* ── MY FISH ── */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-3">
+        <div className="mb-12">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <h2 className="text-sm font-black text-white">My Fish</h2>
+              <h2 className="text-base font-black text-white tracking-tight">My Fish</h2>
               {starredFish.length > 0 && (
                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
                   style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-muted)' }}>
@@ -909,15 +903,12 @@ export default function TodayPage() {
           )}
         </div>
 
-        {/* ── separator ── */}
-        {openingSoon.length > 0 && <div className="mb-8" style={{ height: 1, background: 'rgba(255,255,255,0.05)' }} />}
-
         {/* ── OPENING SOON — next 14 days ── */}
         {openingSoon.length > 0 && (
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-3">
+          <div className="mb-12">
+            <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <h2 className="text-sm font-black text-white">Opening Soon</h2>
+                <h2 className="text-base font-black text-white tracking-tight">Opening Soon</h2>
                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
                   style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-muted)' }}>
                   {openingSoon.length}
