@@ -34,31 +34,25 @@ function formatCfs(cfs: number): string {
   return cfs >= 10000 ? `${(cfs / 1000).toFixed(0)}k` : cfs.toLocaleString()
 }
 
-// ── Water type icons ──────────────────────────────────────────────────────────
-const TYPE_ICON: Record<string, string> = {
-  river: '🌊',
-  stream: '🌊',
-  lake: '🏞️',
-  sound: '⚓',
-  bay: '⚓',
-}
-
-// ── Near Me card ──────────────────────────────────────────────────────────────
+// ── Water type labels ─────────────────────────────────────────────────────────
+// ── Near Me card (list-row style, no emojis) ─────────────────────────────────
 function NearMeCard({
   water,
   distMiles,
   openSpecies,
   flowData,
   onTap,
+  isFirst,
+  isLast,
 }: {
   water: WaterBody
   distMiles: number
   openSpecies: string[]
   flowData: FlowData | null
   onTap: () => void
+  isFirst: boolean
+  isLast: boolean
 }) {
-  const icon = TYPE_ICON[water.type] ?? '📍'
-  const hasOpen = openSpecies.length > 0
   const dist = distMiles < 10
     ? `${distMiles.toFixed(1)} mi`
     : `${Math.round(distMiles)} mi`
@@ -66,91 +60,85 @@ function NearMeCard({
   return (
     <button
       onClick={onTap}
-      className="w-full text-left"
+      className="w-full text-left transition-all active:opacity-70"
       style={{
-        background: 'var(--surface)',
-        border: '1px solid var(--border)',
-        borderRadius: '14px',
         padding: '14px 16px',
-        marginBottom: '10px',
         display: 'flex',
-        flexDirection: 'column',
-        gap: '8px',
+        alignItems: 'center',
+        gap: '12px',
+        borderBottom: isLast ? 'none' : '1px solid rgba(255,255,255,0.06)',
+        borderRadius: isFirst && isLast ? '16px' : isFirst ? '16px 16px 0 0' : isLast ? '0 0 16px 16px' : '0',
       }}
     >
-      {/* Top row: icon + name + distance */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
-          <span style={{ fontSize: '18px', flexShrink: 0 }}>{icon}</span>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{water.name}</div>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '1px' }}>
-              {water.region} · {water.type}
-            </div>
+      {/* Left: name + meta */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontWeight: 700, fontSize: '15px', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {water.name}
+        </div>
+        <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
+          {water.region} · {water.type}
+        </div>
+        {openSpecies.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '6px' }}>
+            {openSpecies.slice(0, 4).map(sp => (
+              <span key={sp} style={{
+                background: '#22c55e',
+                color: '#fff',
+                borderRadius: '10px',
+                padding: '1px 7px',
+                fontSize: '10px',
+                fontWeight: 700,
+              }}>
+                {sp.replace(' Salmon', '').replace(' Trout', '')}
+              </span>
+            ))}
+            {openSpecies.length > 4 && (
+              <span style={{
+                background: 'rgba(255,255,255,0.08)',
+                color: 'var(--text-muted)',
+                borderRadius: '10px',
+                padding: '1px 7px',
+                fontSize: '10px',
+              }}>
+                +{openSpecies.length - 4}
+              </span>
+            )}
           </div>
-        </div>
-        {/* Distance badge */}
-        <div style={{
-          background: 'rgba(255,255,255,0.07)',
-          borderRadius: '20px',
-          padding: '3px 10px',
-          fontSize: '12px',
-          fontWeight: 700,
-          color: 'var(--text-muted)',
-          whiteSpace: 'nowrap',
-          marginLeft: '10px',
-          flexShrink: 0,
-        }}>
-          {dist}
-        </div>
+        )}
+        {openSpecies.length === 0 && (
+          <div style={{ fontSize: '11px', color: 'var(--text-faint)', marginTop: '3px' }}>No species open today</div>
+        )}
       </div>
 
-      {/* Open species pills */}
-      {hasOpen ? (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-          {openSpecies.slice(0, 5).map(sp => (
-            <span key={sp} style={{
-              background: '#22c55e',
-              color: '#fff',
-              borderRadius: '10px',
-              padding: '2px 8px',
-              fontSize: '11px',
-              fontWeight: 600,
+      {/* Right: CFS + distance */}
+      <div style={{ flexShrink: 0, textAlign: 'right' }}>
+        {flowData && flowData.cfs !== null ? (
+          <>
+            <div style={{ fontSize: '20px', fontWeight: 900, lineHeight: 1, color: FLOW_COLORS[flowData.status] }}>
+              {formatCfs(flowData.cfs)}
+            </div>
+            <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-faint)', marginTop: '2px', textTransform: 'uppercase' }}>
+              cfs
+            </div>
+            <div style={{
+              fontSize: '9px', fontWeight: 800, textTransform: 'uppercase',
+              background: FLOW_COLORS[flowData.status] + '22',
+              color: FLOW_COLORS[flowData.status],
+              borderRadius: '6px', padding: '1px 5px', marginTop: '3px',
+              letterSpacing: '0.05em',
             }}>
-              {sp}
-            </span>
-          ))}
-          {openSpecies.length > 5 && (
-            <span style={{
-              background: 'rgba(255,255,255,0.1)',
-              color: 'var(--text-muted)',
-              borderRadius: '10px',
-              padding: '2px 8px',
-              fontSize: '11px',
-            }}>
-              +{openSpecies.length - 5} more
-            </span>
-          )}
-        </div>
-      ) : (
-        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>No species open today</div>
-      )}
+              {flowData.status}
+            </div>
+          </>
+        ) : (
+          <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-faint)' }}>{dist}</div>
+        )}
+        {flowData && flowData.cfs !== null && (
+          <div style={{ fontSize: '10px', color: 'var(--text-faint)', marginTop: '4px' }}>{dist}</div>
+        )}
+      </div>
 
-      {/* Flow row (rivers only) */}
-      {flowData && flowData.cfs !== null && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{
-            background: FLOW_COLORS[flowData.status],
-            color: '#fff',
-            borderRadius: '6px',
-            padding: '2px 8px',
-            fontSize: '11px',
-            fontWeight: 700,
-          }}>
-            {formatCfs(flowData.cfs)} CFS · {flowData.status.toUpperCase()}
-          </span>
-        </div>
-      )}
+      <span style={{ color: 'var(--text-faint)', fontSize: '14px', flexShrink: 0 }}>›</span>
     </button>
   )
 }
@@ -240,11 +228,11 @@ export default function NearMePage() {
   }, [])
 
   const chips: { key: typeof filterType; label: string }[] = [
-    { key: 'open', label: '🐟 Open Now' },
+    { key: 'open', label: 'Open Now' },
     { key: 'all', label: 'All Waters' },
-    { key: 'river', label: '🌊 Rivers' },
-    { key: 'lake', label: '🏞️ Lakes' },
-    { key: 'marine', label: '⚓ Marine' },
+    { key: 'river', label: 'Rivers' },
+    { key: 'lake', label: 'Lakes' },
+    { key: 'marine', label: 'Marine' },
   ]
 
   return (
@@ -328,16 +316,20 @@ export default function NearMePage() {
                   <div style={{ fontSize: '14px' }}>No waters found with this filter.</div>
                 </div>
               ) : (
-                filtered.map(({ water, distMiles, openSpecies }) => (
-                  <NearMeCard
-                    key={water.id}
-                    water={water}
-                    distMiles={distMiles}
-                    openSpecies={openSpecies}
-                    flowData={flowMap[water.id] ?? null}
-                    onTap={() => openWater(water)}
-                  />
-                ))
+                <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  {filtered.map(({ water, distMiles, openSpecies }, idx) => (
+                    <NearMeCard
+                      key={water.id}
+                      water={water}
+                      distMiles={distMiles}
+                      openSpecies={openSpecies}
+                      flowData={flowMap[water.id] ?? null}
+                      onTap={() => openWater(water)}
+                      isFirst={idx === 0}
+                      isLast={idx === filtered.length - 1}
+                    />
+                  ))}
+                </div>
               )}
             </>
           )}

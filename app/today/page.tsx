@@ -714,7 +714,7 @@ export default function TodayPage() {
                     className="w-full text-left rounded-2xl overflow-hidden transition-all active:scale-[0.99]"
                     style={{
                       background: 'var(--surface)',
-                      border: `1px solid ${hasGauge && cfg ? cfg.color + '50' : 'rgba(255,255,255,0.08)'}`,
+                      border: '1px solid rgba(255,255,255,0.08)',
                     }}
                   >
                     <div className="px-5 py-4">
