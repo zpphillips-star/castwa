@@ -194,12 +194,12 @@ export default function FishPage() {
                 </div>
                 {/* Name bar — green if in season */}
                 <div className="px-3 py-2.5"
-                  style={{ background: inSeason ? 'rgba(106,176,76,0.18)' : 'transparent' }}>
+                  style={{ background: inSeason ? '#22c55e' : 'transparent' }}>
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-semibold text-white leading-tight">{fish.name}</p>
+                    <p className="text-sm font-semibold leading-tight" style={{ color: inSeason ? '#000000' : '#ffffff' }}>{fish.name}</p>
                     {inSeason && (
                       <span className="text-[9px] font-bold px-1.5 py-0.5 rounded flex-shrink-0"
-                        style={{ background: 'rgba(106,176,76,0.25)', color: '#6ab04c' }}>
+                        style={{ background: 'rgba(0,0,0,0.2)', color: '#000000' }}>
                         OPEN
                       </span>
                     )}
