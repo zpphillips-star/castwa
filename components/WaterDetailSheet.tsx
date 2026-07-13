@@ -325,7 +325,7 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
 
       {/* ── Map (fixed height, not scrollable) ── */}
       {isLakeType ? (
-        <div className="flex-shrink-0" style={{ height: '200px' }}>
+        <div className="flex-shrink-0" data-no-swipe-back="true" style={{ height: '200px' }}>
           <LakeMapInner
             waterName={waterName}
             lat={water.lat}
@@ -334,7 +334,7 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
           />
         </div>
       ) : segments.length > 0 ? (
-        <div className="flex-shrink-0" style={{ height: '200px' }}>
+        <div className="flex-shrink-0" data-no-swipe-back="true" style={{ height: '200px' }}>
           <RiverDetailMapInner
             segments={segments}
             selectedIdx={segHighlighted ? selectedSegIdx : -1}

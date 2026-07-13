@@ -343,8 +343,25 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
   }
 
   const touchStartX = useRef<number | null>(null)
+  function isInsideMapOrNoSwipe(target: EventTarget | null): boolean {
+    let node = target as HTMLElement | null
+    while (node && node !== document.body) {
+      if (
+        node.classList?.contains('leaflet-container') ||
+        node.classList?.contains('leaflet-map-pane') ||
+        node.getAttribute?.('data-no-swipe-back') === 'true'
+      ) return true
+      node = node.parentElement
+    }
+    return false
+  }
   function handleTouchStart(e: React.TouchEvent) {
     e.stopPropagation()
+    // Don't arm tab-swipe if touch starts inside a map or no-swipe element
+    if (isInsideMapOrNoSwipe(e.touches[0].target)) {
+      touchStartX.current = null
+      return
+    }
     touchStartX.current = e.touches[0].clientX
   }
   function handleTouchEnd(e: React.TouchEvent) {
@@ -460,7 +477,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
           {activeTab === 'regs' && (
             <div className="flex flex-col min-h-0 flex-1">
               {/* ── WA State map — stays put while list scrolls ── */}
-              <div className="flex-shrink-0" style={{ height: '38vh', position: 'relative' }}>
+              <div className="flex-shrink-0" data-no-swipe-back="true" style={{ height: '38vh', position: 'relative' }}>
                 <WAMapDynamic
                   fishSegments={fishSegments}
                   onSegmentClick={(seg: FishSegment) => {

@@ -936,7 +936,7 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
           </div>
 
           {/* ── Map — tap to close card if open ── */}
-          <div style={{ height: 200, flexShrink: 0 }}
+          <div data-no-swipe-back="true" style={{ height: 200, flexShrink: 0 }}
             onClick={() => { if (cardOpen) closeCard() }}>
             <RiverDetailMapInner
               segments={segments}
