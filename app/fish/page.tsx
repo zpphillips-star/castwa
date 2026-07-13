@@ -193,13 +193,11 @@ export default function FishPage() {
                   />
                 </div>
                 {/* Name bar */}
-                <div className="px-3 py-2.5" style={{ background: 'transparent' }}>
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-semibold leading-tight" style={{ color: '#ffffff' }}>{fish.name}</p>
-                    {inSeason && (
-                      <span className="text-[10px] flex-shrink-0" style={{ color: '#4ade80' }}>●</span>
-                    )}
-                  </div>
+                <div className="px-3 py-2.5 text-center">
+                  <p className="text-sm font-semibold leading-tight text-white">{fish.name}</p>
+                  <p className="text-[10px] font-semibold mt-1" style={{ color: inSeason ? '#4ade80' : 'var(--text-faint)' }}>
+                    {inSeason ? 'In Season' : 'Closed'}
+                  </p>
                 </div>
               </button>
             )
