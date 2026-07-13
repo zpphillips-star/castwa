@@ -414,11 +414,11 @@ function SolunarTimeline({ date }: { date: Date }) {
         <div className="flex items-center gap-2">
           {!activeWindow && <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />}
           <div>
-            <div className="text-sm font-black text-left" style={{ color: activeWindow ? '#000' : 'white' }}>Best Bite Times</div>
-            <div className="text-[11px] font-semibold text-left mt-0.5" style={{ color: activeWindow ? 'rgba(0,0,0,0.6)' : 'var(--text-faint)' }}>{statusText}</div>
+            <div className="text-sm font-black text-left" style={{ color: 'white' }}>Best Bite Times</div>
+            <div className="text-[11px] font-semibold text-left mt-0.5" style={{ color: activeWindow ? 'rgba(255,255,255,0.7)' : 'var(--text-faint)' }}>{statusText}</div>
           </div>
         </div>
-        <span className="text-base font-light" style={{ color: activeWindow ? 'rgba(0,0,0,0.4)' : 'var(--text-faint)' }}>›</span>
+        <span className="text-base font-light" style={{ color: activeWindow ? 'rgba(255,255,255,0.5)' : 'var(--text-faint)' }}>›</span>
       </button>
 
       {/* ── Bottom sheet modal ── */}
@@ -719,7 +719,6 @@ export default function TodayPage() {
                       border: `1px solid ${hasGauge && cfg ? cfg.color + '50' : 'rgba(255,255,255,0.08)'}`,
                     }}
                   >
-                    {hasGauge && cfg && <div style={{ height: 3, background: cfg.color }} />}
                     <div className="px-5 py-4">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
