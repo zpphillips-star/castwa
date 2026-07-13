@@ -404,12 +404,14 @@ function SolunarTimeline({ date }: { date: Date }) {
       {/* ── Banner row ── */}
       <button
         onClick={() => setOpen(true)}
-        className="w-full text-left rounded-xl mb-5 transition-all active:scale-[0.99] flex items-center gap-4 px-6"
+        className="w-full text-left rounded-xl mb-5 transition-all active:scale-[0.99] flex items-center gap-4"
         style={{
           background: activeWindow ? activeWindow.color : 'rgba(255,255,255,0.04)',
           border: `1px solid ${activeWindow ? 'transparent' : 'rgba(255,255,255,0.07)'}`,
           cursor: 'pointer',
           minHeight: 56,
+          paddingLeft: 24,
+          paddingRight: 24,
         }}>
         <div className="flex-1 min-w-0">
           <p className="text-base font-bold text-white">Best Bite Times</p>
@@ -636,11 +638,13 @@ export default function TodayPage() {
         {/* ── EMERGENCY RULES — compact inline banner ── */}
         <button
           onClick={() => setShowAlertsSheet(true)}
-          className="w-full text-left rounded-xl mb-2 transition-all active:scale-[0.99] flex items-center gap-4 px-6"
+          className="w-full text-left rounded-xl mb-2 transition-all active:scale-[0.99] flex items-center gap-4"
           style={{
             background: totalAlertCount > 0 ? 'rgba(239,68,68,0.10)' : 'rgba(255,255,255,0.04)',
             border: `1px solid ${totalAlertCount > 0 ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.07)'}`,
             minHeight: 56,
+            paddingLeft: 24,
+            paddingRight: 24,
           }}
         >
           <div className="flex-1 min-w-0">
