@@ -404,19 +404,14 @@ function SolunarTimeline({ date }: { date: Date }) {
       {/* ── Tappable row ── */}
       <button
         onClick={() => setOpen(true)}
-        className="w-full mb-5 px-4 py-4 flex items-center justify-between"
+        className="w-full px-4 py-4 flex items-center justify-between"
         style={{
           background: activeWindow ? activeWindow.color : 'var(--surface)',
           border: 'none',
-          borderRadius: 6,
+          borderRadius: 16,
           cursor: 'pointer',
         }}>
-        <div className="flex items-center gap-2">
-          <div>
-            <div className="text-sm font-black text-left" style={{ color: activeWindow ? '#ffffff' : 'var(--text)' }}>Best Bite Times</div>
-            <div className="text-[11px] font-semibold text-left mt-0.5" style={{ color: activeWindow ? 'rgba(255,255,255,0.85)' : 'var(--text-muted)' }}>{statusText}</div>
-          </div>
-        </div>
+        <div className="text-sm font-semibold text-left" style={{ color: activeWindow ? '#ffffff' : 'var(--text-muted)' }}>{statusText}</div>
         <span className="text-base font-light" style={{ color: activeWindow ? '#ffffff' : 'var(--text-muted)', opacity: 0.8 }}>›</span>
       </button>
 
@@ -654,11 +649,19 @@ export default function TodayPage() {
           <span className="text-base font-light flex-shrink-0" style={{ color: totalAlertCount > 0 ? '#ef4444' : 'var(--text-faint)' }}>›</span>
         </button>
 
-        {/* ── SOLUNAR BITE TIMES ── */}
-        <SolunarTimeline date={today} />
+        {/* ── BEST BITE TIMES ── */}
+        <div className="mb-8">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+            <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+              Best Bite Times
+            </span>
+            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+          </div>
+          <SolunarTimeline date={today} />
+        </div>
 
         {/* ── MY WATERS ── */}
-        <div className="mb-10" style={{ marginTop: '36px' }}>
+        <div className="mb-10">
           {/* Section label */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
             <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
