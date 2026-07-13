@@ -630,7 +630,7 @@ export default function TodayPage() {
       <header className="glass-header sticky top-0 z-30 px-4">
         <div className="max-w-lg mx-auto py-3 flex items-center justify-between">
           <h1 className="text-lg font-bold text-white">Today</h1>
-          <p className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>{dateStr}</p>
+          <p className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.45)' }}>{dateStr}</p>
         </div>
       </header>
 
