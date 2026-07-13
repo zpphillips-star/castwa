@@ -348,9 +348,8 @@ function fmtHour(h: number): string {
 function SolunarTimeline({ date }: { date: Date }) {
   const { major, minor } = getSolunarPeriods(date)
   const nowHour = date.getHours() + date.getMinutes() / 60
-  const [selected, setSelected] = useState<{ label: string; time: string; type: 'major' | 'minor' } | null>(null)
+  const [open, setOpen] = useState(false)
 
-  // Convert center+halfWidth to left% and width% on the 24h bar, handling midnight wrap
   const pct = (h: number) => `${(((h % 24) + 24) % 24 / 24 * 100).toFixed(2)}%`
   const wid = (h: number) => `${(h / 24 * 100).toFixed(2)}%`
 
@@ -360,104 +359,138 @@ function SolunarTimeline({ date }: { date: Date }) {
     return `${fmtHour(s)} – ${fmtHour(e)}`
   }
 
+  // Find the next upcoming window
+  const allWindows = [
+    ...major.map(c => ({ center: c, half: 1, type: 'Optimal' as const, color: '#6ab04c' })),
+    ...minor.map(c => ({ center: c, half: 0.5, type: 'Good' as const, color: '#f26522' })),
+  ].sort((a, b) => {
+    const distA = (((a.center - nowHour) % 24) + 24) % 24
+    const distB = (((b.center - nowHour) % 24) + 24) % 24
+    return distA - distB
+  })
+
+  const next = allWindows[0]
+  const nextLabel = next
+    ? `Next: ${next.type} ${fmtRange(next.center, next.half)}`
+    : 'Tap for today\'s windows'
+
+  const dayLabel = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+
   return (
-    <div className="mb-5 px-4 py-4"
-      style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6 }}>
-
-      {/* Header */}
-      <div className="flex items-center gap-2 mb-3">
-        <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />
-        <h2 className="text-sm font-black text-white">Best Bite Times</h2>
-        <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>· all species · tap to see times</span>
-      </div>
-
-      {/* Midnight-to-midnight timeline */}
-      <div className="relative w-full" style={{ height: 32 }}>
-        {/* Dark track */}
-        <div className="absolute inset-0" style={{ background: '#070910', borderRadius: 4 }} />
-
-        {/* Minor periods — orange, 1h wide */}
-        {minor.map((center, i) => (
-          <button
-            key={`mn-${i}`}
-            onClick={() => setSelected(s => s?.label === `mn${i}` ? null : { label: `mn${i}`, time: fmtRange(center, 0.5), type: 'minor' })}
-            className="absolute transition-opacity active:opacity-60"
-            style={{
-              left: pct(center - 0.5), width: wid(1),
-              top: 5, bottom: 5,
-              background: '#f26522',
-              borderRadius: 3, opacity: 0.8,
-              cursor: 'pointer',
-            }}
-          />
-        ))}
-
-        {/* Major periods — green, 2h wide */}
-        {major.map((center, i) => (
-          <button
-            key={`mj-${i}`}
-            onClick={() => setSelected(s => s?.label === `mj${i}` ? null : { label: `mj${i}`, time: fmtRange(center, 1), type: 'major' })}
-            className="absolute transition-opacity active:opacity-60"
-            style={{
-              left: pct(center - 1), width: wid(2),
-              top: 2, bottom: 2,
-              background: '#6ab04c',
-              borderRadius: 3,
-              cursor: 'pointer',
-            }}
-          />
-        ))}
-
-        {/* Current time — white line */}
-        <div className="absolute pointer-events-none" style={{
-          left: pct(nowHour), top: 0, bottom: 0, width: 2,
-          background: 'rgba(255,255,255,0.7)',
-          borderRadius: 1,
-        }} />
-
-        {/* Time labels: 12  6  12  6  12 */}
-        {[0, 6, 12, 18, 24].map(h => (
-          <div key={h} className="absolute pointer-events-none"
-            style={{ left: h === 24 ? '100%' : pct(h), bottom: -16, transform: 'translateX(-50%)' }}>
-            <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>
-              {h === 0 || h === 24 ? '12' : h === 6 || h === 18 ? '6' : '12'}
-            </span>
+    <>
+      {/* ── Tappable row ── */}
+      <button
+        onClick={() => setOpen(true)}
+        className="w-full mb-5 px-4 py-3 flex items-center justify-between"
+        style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6, cursor: 'pointer' }}>
+        <div className="flex items-center gap-2">
+          <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />
+          <div>
+            <div className="text-sm font-black text-white text-left">Best Bite Times</div>
+            <div className="text-[11px] text-left mt-0.5" style={{ color: 'var(--text-faint)' }}>{nextLabel}</div>
           </div>
-        ))}
-      </div>
-
-      {/* Spacer for time labels below bar */}
-      <div style={{ height: 18 }} />
-
-      {/* Legend */}
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-1.5">
-          <div style={{ width: 10, height: 10, background: '#6ab04c', borderRadius: 2 }} />
-          <span className="text-[11px]" style={{ color: 'var(--text-faint)' }}>Optimal</span>
         </div>
-        <div className="flex items-center gap-1.5">
-          <div style={{ width: 10, height: 10, background: '#f26522', borderRadius: 2, opacity: 0.8 }} />
-          <span className="text-[11px]" style={{ color: 'var(--text-faint)' }}>Good</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div style={{ width: 2, height: 10, background: 'rgba(255,255,255,0.5)', borderRadius: 1 }} />
-          <span className="text-[11px]" style={{ color: 'var(--text-faint)' }}>Now</span>
-        </div>
-      </div>
+        <span className="text-base font-light" style={{ color: 'var(--text-faint)' }}>›</span>
+      </button>
 
-      {/* Tap detail */}
-      {selected && (
-        <div className="mt-3 px-3 py-2 flex items-center justify-between"
-          style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.08)' }}>
-          <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>
-            {selected.type === 'major' ? 'Optimal bite window' : 'Good bite window'}
-          </span>
-          <span className="text-xs font-black" style={{ color: selected.type === 'major' ? '#6ab04c' : '#f26522' }}>
-            {selected.time}
-          </span>
+      {/* ── Bottom sheet modal ── */}
+      {open && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-end" style={{ background: 'rgba(0,0,0,0.6)' }}
+          onClick={() => setOpen(false)}>
+          <div onClick={e => e.stopPropagation()}
+            className="w-full px-5 pt-5 pb-8"
+            style={{ background: 'var(--bg)', borderTop: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px 12px 0 0', maxHeight: '85vh', overflowY: 'auto' }}>
+
+            {/* Handle */}
+            <div className="flex justify-center mb-4">
+              <div style={{ width: 36, height: 4, background: 'rgba(255,255,255,0.2)', borderRadius: 2 }} />
+            </div>
+
+            {/* Title */}
+            <div className="flex items-center justify-between mb-1">
+              <h2 className="text-lg font-black text-white">Best Bite Times</h2>
+              <button onClick={() => setOpen(false)} style={{ color: 'var(--text-faint)', fontSize: 20, lineHeight: 1 }}>×</button>
+            </div>
+            <p className="text-xs mb-5" style={{ color: 'var(--text-faint)' }}>{dayLabel} · All species · Based on moon position</p>
+
+            {/* Timeline */}
+            <div className="relative w-full mb-1" style={{ height: 36 }}>
+              <div className="absolute inset-0" style={{ background: '#070910', borderRadius: 6 }} />
+
+              {/* Minor — orange */}
+              {minor.map((center, i) => (
+                <div key={`mn-${i}`} className="absolute"
+                  style={{ left: pct(center - 0.5), width: wid(1), top: 6, bottom: 6, background: '#f26522', borderRadius: 3, opacity: 0.85 }} />
+              ))}
+
+              {/* Major — green */}
+              {major.map((center, i) => (
+                <div key={`mj-${i}`} className="absolute"
+                  style={{ left: pct(center - 1), width: wid(2), top: 3, bottom: 3, background: '#6ab04c', borderRadius: 3 }} />
+              ))}
+
+              {/* Current time */}
+              <div className="absolute pointer-events-none"
+                style={{ left: pct(nowHour), top: 0, bottom: 0, width: 2, background: 'rgba(255,255,255,0.75)', borderRadius: 1 }} />
+
+              {/* Time labels */}
+              {[0, 6, 12, 18, 24].map(h => (
+                <div key={h} className="absolute pointer-events-none"
+                  style={{ left: h === 24 ? '100%' : pct(h), bottom: -16, transform: 'translateX(-50%)' }}>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>
+                    {h === 0 || h === 24 ? '12' : h === 6 || h === 18 ? '6' : '12'}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div style={{ height: 22 }} />
+
+            {/* Legend row */}
+            <div className="flex items-center gap-5 mb-6">
+              <div className="flex items-center gap-1.5">
+                <div style={{ width: 10, height: 10, background: '#6ab04c', borderRadius: 2 }} />
+                <span className="text-xs" style={{ color: 'var(--text-faint)' }}>Optimal</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div style={{ width: 10, height: 10, background: '#f26522', borderRadius: 2, opacity: 0.85 }} />
+                <span className="text-xs" style={{ color: 'var(--text-faint)' }}>Good</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div style={{ width: 2, height: 10, background: 'rgba(255,255,255,0.5)', borderRadius: 1 }} />
+                <span className="text-xs" style={{ color: 'var(--text-faint)' }}>Now</span>
+              </div>
+            </div>
+
+            {/* Window list */}
+            <div className="flex flex-col gap-3">
+              {[
+                ...major.map(c => ({ center: c, half: 1, type: 'Optimal' as const, color: '#6ab04c', desc: 'Moon directly overhead or underfoot — peak feeding activity' })),
+                ...minor.map(c => ({ center: c, half: 0.5, type: 'Good' as const, color: '#f26522', desc: 'Moonrise or moonset — elevated feeding activity' })),
+              ]
+                .sort((a, b) => (((a.center) % 24 + 24) % 24) - (((b.center) % 24 + 24) % 24))
+                .map((w, i) => (
+                  <div key={i} className="flex items-start gap-3 px-4 py-3"
+                    style={{ background: 'var(--surface)', borderRadius: 6, border: `1px solid ${w.color}30` }}>
+                    <div style={{ width: 4, borderRadius: 2, background: w.color, alignSelf: 'stretch', flexShrink: 0 }} />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-bold text-white">{w.type}</span>
+                        <span className="text-sm font-black" style={{ color: w.color }}>{fmtRange(w.center, w.half)}</span>
+                      </div>
+                      <span className="text-[11px]" style={{ color: 'var(--text-faint)' }}>{w.desc}</span>
+                    </div>
+                  </div>
+                ))}
+            </div>
+
+            {/* Footnote */}
+            <p className="text-[10px] text-center mt-5" style={{ color: 'var(--text-faint)' }}>
+              Solunar theory — fish are most active when the moon is overhead, underfoot, rising, or setting.
+            </p>
+          </div>
         </div>
       )}
-    </div>
+    </>
   )
 }
 
