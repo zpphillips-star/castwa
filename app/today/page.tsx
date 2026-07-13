@@ -759,8 +759,8 @@ export default function TodayPage() {
                       )}
                     </div>
                     {hasGauge && cfg && gauge && gauge.status !== 'loading' && (
-                      <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                        <span className="text-[10px] font-bold uppercase tracking-wide mr-2" style={{ color: 'var(--text-faint)' }}>Note</span>
+                      <div className="mt-3 pt-3 flex items-baseline gap-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                        <span className="text-[10px] font-bold uppercase tracking-wide flex-shrink-0" style={{ color: 'var(--text-faint)' }}>Note</span>
                         <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{getCfsDescription(gauge.status)}</span>
                       </div>
                     )}
