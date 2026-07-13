@@ -661,6 +661,7 @@ export default function TodayPage() {
         <div className="mb-10" style={{ paddingTop: "20px" }}>
           {/* Section label */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
             <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-primary, #e5e7eb)', whiteSpace: 'nowrap' }}>
               My Waters{starredWaters.length > 0 ? ` · ${starredWaters.length}` : ''}
             </span>
@@ -771,6 +772,7 @@ export default function TodayPage() {
         {/* ── MY FISH ── */}
         <div className="mb-10" style={{ paddingTop: "20px" }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
             <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-primary, #e5e7eb)', whiteSpace: 'nowrap' }}>
               My Fish{starredFish.length > 0 ? ` · ${starredFish.length}` : ''}
             </span>
@@ -896,11 +898,11 @@ export default function TodayPage() {
         {openingSoon.length > 0 && (
           <div className="mb-10" style={{ paddingTop: "20px" }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
               <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-primary, #e5e7eb)', whiteSpace: 'nowrap' }}>
                 Opening Soon · {openingSoon.length}
               </span>
               <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
-              <span style={{ fontSize: '11px', fontWeight: 700, color: '#63b3ed', whiteSpace: 'nowrap' }}>next 14 days</span>
             </div>
             <div className="rounded-2xl overflow-hidden"
               style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}>
