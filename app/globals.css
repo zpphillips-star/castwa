@@ -27,7 +27,7 @@
   --accent-bright-green: #6ab04c;   /* open/active indicator green */
   --accent-dim:   rgba(242,101,34,0.14);
   --text:         #f5f0e8;          /* warm off-white, easier on eyes outdoors */
-  --text-muted:   #ffffff;              /* white */
+  --text-muted:   rgba(255,255,255,0.75);   /* soft white */
   --text-faint:   #6b7280;          /* muted gray — timestamps, hints, disabled */
   --live:         #ef4444;
   --open:         #6ab04c;          /* fish-able / open indicator */
