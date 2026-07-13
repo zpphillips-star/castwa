@@ -516,7 +516,6 @@ export default function WatersPage() {
                     style={{
                       background: 'var(--surface)',
                       border: `1px solid var(--border)`,
-                      borderTop: `3px solid ${palette?.color ?? '#6ab04c'}`,
                       overflow: 'hidden',
                     }}
                   >
@@ -680,7 +679,6 @@ export default function WatersPage() {
                       background: 'var(--surface)',
                       border: 'none',
                       borderBottom: idx < section.waters.length - 1 ? '1px solid var(--border)' : 'none',
-                      borderLeft: `4px solid ${palette?.color ?? section.borderColor}`,
                       borderRadius: 0,
                       padding: '14px 16px',
                       cursor: 'pointer',

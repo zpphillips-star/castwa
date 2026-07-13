@@ -408,15 +408,15 @@ function SolunarTimeline({ date }: { date: Date }) {
         style={{
           background: activeWindow
             ? activeWindow.color
-            : 'var(--surface)',
-          border: '1px solid rgba(255,255,255,0.08)',
+            : 'rgba(34,197,94,0.18)',
+          border: activeWindow ? 'none' : '1px solid rgba(34,197,94,0.25)',
           borderRadius: 6,
           cursor: 'pointer',
         }}>
         <div className="flex items-center gap-2">
           <div>
             <div className="text-sm font-black text-left" style={{ color: '#ffffff' }}>Best Bite Times</div>
-            <div className="text-[11px] font-semibold text-left mt-0.5" style={{ color: activeWindow ? 'rgba(255,255,255,0.85)' : 'var(--text-faint)' }}>{statusText}</div>
+            <div className="text-[11px] font-semibold text-left mt-0.5" style={{ color: 'rgba(255,255,255,0.75)' }}>{statusText}</div>
           </div>
         </div>
         <span className="text-base font-light" style={{ color: '#ffffff', opacity: activeWindow ? 0.8 : 0.4 }}>›</span>
