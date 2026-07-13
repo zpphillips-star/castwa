@@ -359,20 +359,43 @@ function SolunarTimeline({ date }: { date: Date }) {
     return `${fmtHour(s)} – ${fmtHour(e)}`
   }
 
-  // Find the next upcoming window
   const allWindows = [
     ...major.map(c => ({ center: c, half: 1, type: 'Optimal' as const, color: '#6ab04c' })),
     ...minor.map(c => ({ center: c, half: 0.5, type: 'Good' as const, color: '#f26522' })),
-  ].sort((a, b) => {
-    const distA = (((a.center - nowHour) % 24) + 24) % 24
-    const distB = (((b.center - nowHour) % 24) + 24) % 24
-    return distA - distB
+  ]
+
+  // Is now inside a window?
+  const activeWindow = allWindows.find(w => {
+    const s = ((w.center - w.half) % 24 + 24) % 24
+    const e = ((w.center + w.half) % 24 + 24) % 24
+    if (s < e) return nowHour >= s && nowHour < e
+    return nowHour >= s || nowHour < e // wraps midnight
   })
 
-  const next = allWindows[0]
-  const nextLabel = next
-    ? `Next: ${next.type} ${fmtRange(next.center, next.half)}`
-    : 'Tap for today\'s windows'
+  // Next upcoming window (by soonest start)
+  const nextWindow = allWindows
+    .map(w => {
+      const s = ((w.center - w.half) % 24 + 24) % 24
+      const dist = ((s - nowHour) % 24 + 24) % 24
+      return { ...w, startHour: s, dist }
+    })
+    .filter(w => w.dist > 0)
+    .sort((a, b) => a.dist - b.dist)[0]
+
+  // Status line for the row
+  let statusText: string
+  let statusColor: string
+  if (activeWindow) {
+    const endHour = ((activeWindow.center + activeWindow.half) % 24 + 24) % 24
+    statusText = `${activeWindow.type} until ${fmtHour(endHour)}`
+    statusColor = activeWindow.color
+  } else if (nextWindow) {
+    statusText = `Next ${nextWindow.type.toLowerCase()} at ${fmtHour(nextWindow.startHour)}`
+    statusColor = 'var(--text-faint)'
+  } else {
+    statusText = 'Tap to see today\'s windows'
+    statusColor = 'var(--text-faint)'
+  }
 
   const dayLabel = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 
@@ -382,12 +405,12 @@ function SolunarTimeline({ date }: { date: Date }) {
       <button
         onClick={() => setOpen(true)}
         className="w-full mb-5 px-4 py-3 flex items-center justify-between"
-        style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6, cursor: 'pointer' }}>
+        style={{ background: 'var(--surface)', border: `1px solid ${activeWindow ? activeWindow.color + '50' : 'rgba(255,255,255,0.08)'}`, borderRadius: 6, cursor: 'pointer' }}>
         <div className="flex items-center gap-2">
-          <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />
+          <div style={{ width: 3, height: 18, background: activeWindow ? activeWindow.color : 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />
           <div>
             <div className="text-sm font-black text-white text-left">Best Bite Times</div>
-            <div className="text-[11px] text-left mt-0.5" style={{ color: 'var(--text-faint)' }}>{nextLabel}</div>
+            <div className="text-[11px] font-semibold text-left mt-0.5" style={{ color: statusColor }}>{statusText}</div>
           </div>
         </div>
         <span className="text-base font-light" style={{ color: 'var(--text-faint)' }}>›</span>
