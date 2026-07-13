@@ -405,15 +405,20 @@ function SolunarTimeline({ date }: { date: Date }) {
       <button
         onClick={() => setOpen(true)}
         className="w-full mb-5 px-4 py-3 flex items-center justify-between"
-        style={{ background: 'var(--surface)', border: `1px solid ${activeWindow ? activeWindow.color + '50' : 'rgba(255,255,255,0.08)'}`, borderRadius: 6, cursor: 'pointer' }}>
+        style={{
+          background: activeWindow ? activeWindow.color : 'var(--surface)',
+          border: `1px solid ${activeWindow ? activeWindow.color : 'rgba(255,255,255,0.08)'}`,
+          borderRadius: 6,
+          cursor: 'pointer',
+        }}>
         <div className="flex items-center gap-2">
-          <div style={{ width: 3, height: 18, background: activeWindow ? activeWindow.color : 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />
+          {!activeWindow && <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />}
           <div>
-            <div className="text-sm font-black text-white text-left">Best Bite Times</div>
-            <div className="text-[11px] font-semibold text-left mt-0.5" style={{ color: statusColor }}>{statusText}</div>
+            <div className="text-sm font-black text-left" style={{ color: activeWindow ? '#000' : 'white' }}>Best Bite Times</div>
+            <div className="text-[11px] font-semibold text-left mt-0.5" style={{ color: activeWindow ? 'rgba(0,0,0,0.6)' : 'var(--text-faint)' }}>{statusText}</div>
           </div>
         </div>
-        <span className="text-base font-light" style={{ color: 'var(--text-faint)' }}>›</span>
+        <span className="text-base font-light" style={{ color: activeWindow ? 'rgba(0,0,0,0.4)' : 'var(--text-faint)' }}>›</span>
       </button>
 
       {/* ── Bottom sheet modal ── */}
