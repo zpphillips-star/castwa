@@ -28,9 +28,16 @@ for (const reg of REGULATIONS) {
   }
 }
 
-function isInSeasonToday(speciesId: string): boolean {
+function getSeasonStatus(speciesId: string): 'open' | 'restricted' | 'closed' {
   const today = new Date()
-  return REGULATIONS.filter(r => r.speciesId === speciesId).some(r => isOpenOn(r, today))
+  const openRegs = REGULATIONS.filter(r => r.speciesId === speciesId && isOpenOn(r, today))
+  if (openRegs.length === 0) return 'closed'
+  const hasRestriction = openRegs.some(r => r.hatcheryOnly || r.gearRestriction)
+  return hasRestriction ? 'restricted' : 'open'
+}
+
+function isInSeasonToday(speciesId: string): boolean {
+  return getSeasonStatus(speciesId) !== 'closed'
 }
 
 export default function FishPage() {
@@ -153,8 +160,21 @@ export default function FishPage() {
         {/* Fish grid */}
         <div className="grid grid-cols-3 gap-4">
           {sortedFiltered.map(fish => {
-            const inSeason = isInSeasonToday(fish.id)
+            const status = getSeasonStatus(fish.id)
+            const inSeason = status !== 'closed'
             const isFav = isFishStarred(fish.id)
+            const borderColor = selectedFish?.id === fish.id
+              ? '#6ab04c'
+              : status === 'open'
+              ? 'rgba(106,176,76,0.55)'
+              : status === 'restricted'
+              ? 'rgba(249,115,22,0.55)'
+              : 'rgba(255,255,255,0.07)'
+            const shadowColor = selectedFish?.id === fish.id
+              ? 'rgba(106,176,76,0.25)'
+              : status === 'restricted'
+              ? 'rgba(249,115,22,0.15)'
+              : 'transparent'
             return (
               <button
                 key={fish.id}
@@ -162,8 +182,8 @@ export default function FishPage() {
                 className="overflow-hidden text-left transition-all active:scale-95 rounded-xl relative"
                 style={{
                   background: 'var(--surface)',
-                  border: `1.5px solid ${selectedFish?.id === fish.id ? '#6ab04c' : inSeason ? 'rgba(106,176,76,0.55)' : 'rgba(255,255,255,0.07)'}`,
-                  boxShadow: selectedFish?.id === fish.id ? '0 0 0 3px rgba(106,176,76,0.25)' : 'none',
+                  border: `1.5px solid ${borderColor}`,
+                  boxShadow: `0 0 0 3px ${shadowColor}`,
                 }}
               >
                 {/* Star icon — top-right corner */}
@@ -195,8 +215,10 @@ export default function FishPage() {
                 {/* Name bar */}
                 <div className="px-3 py-2.5 text-center">
                   <p className="text-sm font-semibold leading-tight text-white">{fish.name}</p>
-                  <p className="text-[10px] font-semibold mt-1" style={{ color: inSeason ? '#4ade80' : 'var(--text-faint)' }}>
-                    {inSeason ? 'In Season' : 'Closed'}
+                  <p className="text-[10px] font-semibold mt-1" style={{
+                    color: status === 'open' ? '#4ade80' : status === 'restricted' ? '#f97316' : 'var(--text-faint)'
+                  }}>
+                    {status === 'open' ? 'In Season' : status === 'restricted' ? 'w/ Restrictions' : 'Closed'}
                   </p>
                 </div>
               </button>

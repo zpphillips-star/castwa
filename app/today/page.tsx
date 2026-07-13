@@ -661,7 +661,7 @@ export default function TodayPage() {
         </div>
 
         {/* ── MY WATERS ── */}
-        <div className="mb-10">
+        <div className="pt-6 mb-10">
           {/* Section label */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
             <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
@@ -772,7 +772,7 @@ export default function TodayPage() {
         </div>
 
         {/* ── MY FISH ── */}
-        <div className="mb-10">
+        <div className="pt-6 mb-10">
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
             <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
               My Fish{starredFish.length > 0 ? ` · ${starredFish.length}` : ''}
@@ -897,7 +897,7 @@ export default function TodayPage() {
 
         {/* ── OPENING SOON — next 14 days ── */}
         {openingSoon.length > 0 && (
-          <div className="mb-10">
+          <div className="pt-6 mb-10">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
               <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
                 Opening Soon · {openingSoon.length}

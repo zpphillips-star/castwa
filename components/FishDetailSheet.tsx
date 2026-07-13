@@ -516,15 +516,18 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                       .map(({ reg, water }) => {
                         const isEmerg = hasEmergencyOnWater(water.id)
                         const isOpen  = isOpenOn(reg, today)
+                        const isRestricted = isOpen && !isEmerg && (reg.hatcheryOnly || !!reg.gearRestriction)
                         const days    = !isOpen ? daysUntilOpen(reg.seasonStart) : null
                         const soon    = days !== null && days <= 30
 
-                        const borderColor = isEmerg ? '#f97316' : isOpen ? '#6ab04c' : '#374151'
-                        const bgColor     = isEmerg ? 'rgba(249,115,22,0.08)' : isOpen ? 'rgba(106,176,76,0.08)' : 'transparent'
+                        const borderColor = isEmerg ? '#f97316' : isRestricted ? '#f97316' : isOpen ? '#6ab04c' : '#374151'
+                        const bgColor     = isEmerg ? 'rgba(249,115,22,0.08)' : isRestricted ? 'rgba(249,115,22,0.06)' : isOpen ? 'rgba(106,176,76,0.08)' : 'transparent'
                         const opacity     = (!isOpen && !isEmerg) ? 0.6 : 1
 
                         const badge = isEmerg
                           ? { text: '🚨 EMERGENCY RULE', color: '#f97316', bg: 'rgba(249,115,22,0.18)' }
+                          : isRestricted
+                            ? { text: '⚠ OPEN · RESTRICTED', color: '#f97316', bg: 'rgba(249,115,22,0.18)' }
                           : isOpen
                             ? { text: '● OPEN',   color: '#6ab04c', bg: 'rgba(106,176,76,0.18)' }
                             : { text: '○ CLOSED', color: '#6b7280', bg: 'rgba(107,114,128,0.18)' }
