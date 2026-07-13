@@ -657,7 +657,7 @@ export default function TodayPage() {
         <SolunarTimeline date={today} />
 
         {/* ── MY WATERS ── */}
-        <div className="pt-8 mb-10">
+        <div className="mb-10" style={{ paddingTop: "36px" }}>
           {/* Section label */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
             <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-primary, #e5e7eb)', whiteSpace: 'nowrap' }}>
@@ -768,7 +768,7 @@ export default function TodayPage() {
         </div>
 
         {/* ── MY FISH ── */}
-        <div className="pt-8 mb-10">
+        <div className="mb-10" style={{ paddingTop: "36px" }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
             <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-primary, #e5e7eb)', whiteSpace: 'nowrap' }}>
               My Fish{starredFish.length > 0 ? ` · ${starredFish.length}` : ''}
@@ -893,7 +893,7 @@ export default function TodayPage() {
 
         {/* ── OPENING SOON — next 14 days ── */}
         {openingSoon.length > 0 && (
-          <div className="pt-8 mb-10">
+          <div className="mb-10" style={{ paddingTop: "36px" }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
               <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-primary, #e5e7eb)', whiteSpace: 'nowrap' }}>
                 Opening Soon · {openingSoon.length}
