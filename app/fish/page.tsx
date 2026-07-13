@@ -13,7 +13,7 @@ const FILTERS: { key: FilterKey; label: string; desc: string }[] = [
   { key: 'lake',      label: 'Lakes',   desc: 'Bass · Panfish · Walleye' },
   { key: 'salt',      label: 'Salt',    desc: 'Rockfish · Lingcod · Halibut' },
   { key: 'shellfish', label: 'Shell',   desc: 'Crab · Clams · Shrimp' },
-  { key: 'starred',   label: '⭐ Saved',   desc: 'Your starred species' },
+  { key: 'starred',   label: 'Saved',   desc: 'Your starred species' },
 ]
 
 // Build a map of speciesId → water body names for search
@@ -76,7 +76,7 @@ export default function FishPage() {
   // const activeDesc = FILTERS.find(f => f.key === activeFilter)!.desc
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg)', paddingBottom: '80px' }}>
+    <div className="min-h-screen" style={{ background: 'var(--bg)', paddingBottom: '100px' }}>
       {/* Header */}
       <header className="glass-header sticky top-0 z-30 px-4 pt-safe">
         <div className="max-w-lg mx-auto py-3">
@@ -146,15 +146,12 @@ export default function FishPage() {
         </div>
 
         {/* Section header above fish grid */}
-        <div className="flex items-center gap-2 mb-3">
-          <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />
-          <h2 className="text-sm font-black text-white">
-            {activeFilter === 'starred' ? 'Saved Fish' : activeFilter === 'all' ? 'All Species' : activeFilter === 'river' ? 'River Fish' : activeFilter === 'lake' ? 'Lake Fish' : activeFilter === 'salt' ? 'Saltwater Fish' : 'Shellfish'}
-          </h2>
-          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
-            style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-muted)' }}>
-            {sortedFiltered.length}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', marginTop: '4px' }}>
+          <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
+          <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#6b7280', whiteSpace: 'nowrap' }}>
+            {activeFilter === 'starred' ? 'Saved Fish' : activeFilter === 'all' ? 'All Species' : activeFilter === 'river' ? 'River Fish' : activeFilter === 'lake' ? 'Lake Fish' : activeFilter === 'salt' ? 'Saltwater Fish' : 'Shellfish'} · {sortedFiltered.length}
           </span>
+          <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
         </div>
 
         {/* Fish grid */}
@@ -163,27 +160,14 @@ export default function FishPage() {
             const status = getSeasonStatus(fish.id)
             const inSeason = status !== 'closed'
             const isFav = isFishStarred(fish.id)
-            const borderColor = selectedFish?.id === fish.id
-              ? '#6ab04c'
-              : status === 'open'
-              ? 'rgba(106,176,76,0.55)'
-              : status === 'restricted'
-              ? 'rgba(249,115,22,0.55)'
-              : 'rgba(255,255,255,0.07)'
-            const shadowColor = selectedFish?.id === fish.id
-              ? 'rgba(106,176,76,0.25)'
-              : status === 'restricted'
-              ? 'rgba(249,115,22,0.15)'
-              : 'transparent'
             return (
               <button
                 key={fish.id}
                 onClick={() => setSelectedFish(fish)}
-                className="overflow-hidden text-left transition-all active:scale-95 rounded-xl relative"
+                className="overflow-hidden text-left transition-all active:scale-[0.99] rounded-xl relative"
                 style={{
                   background: 'var(--surface)',
-                  border: `1.5px solid ${borderColor}`,
-                  boxShadow: `0 0 0 3px ${shadowColor}`,
+                  border: `1px solid ${selectedFish?.id === fish.id ? '#6ab04c' : 'rgba(255,255,255,0.08)'}`,
                 }}
               >
                 {/* Star icon — top-right corner */}
@@ -216,7 +200,7 @@ export default function FishPage() {
                 <div className="px-3 py-2.5 text-center">
                   <p className="text-sm font-semibold leading-tight text-white">{fish.name}</p>
                   <p className="text-[10px] font-semibold mt-1" style={{
-                    color: status === 'open' ? '#4ade80' : status === 'restricted' ? '#f97316' : 'var(--text-faint)'
+                    color: status === 'open' ? '#6ab04c' : status === 'restricted' ? '#f97316' : 'var(--text-faint)'
                   }}>
                     {status === 'open' ? 'In Season' : status === 'restricted' ? 'w/ Restrictions' : 'Closed'}
                   </p>
