@@ -71,7 +71,7 @@ function NearMeCard({
       className="w-full text-left transition-all active:opacity-70"
       style={{
         padding: '16px 4px',
-        borderBottom: isLast ? 'none' : '1px solid rgba(255,255,255,0.07)',
+        borderBottom: isLast ? 'none' : '1px solid rgba(255,255,255,0.14)',
         display: 'block',
         background: 'transparent',
       }}
@@ -138,11 +138,11 @@ function NearMeCard({
         )}
       </div>
 
-      {/* Note bar */}
+      {/* Note — inline, no separator */}
       {hasFlow && flowData!.status !== 'loading' && flowData!.status !== 'error' && (
-        <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+        <div style={{ marginTop: '8px', display: 'flex', alignItems: 'baseline', gap: '6px' }}>
           <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-faint)', flexShrink: 0 }}>Note</span>
-          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{getCfsDescription(flowData!.status)}</span>
+          <span style={{ fontSize: '12px', color: 'var(--text-faint)' }}>{getCfsDescription(flowData!.status)}</span>
         </div>
       )}
     </button>
