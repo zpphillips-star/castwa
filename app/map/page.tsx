@@ -23,7 +23,7 @@ type FlowStatus = 'ideal' | 'low' | 'high' | 'loading' | 'error'
 type FlowData = { cfs: number | null; status: FlowStatus; trend: 'rising' | 'falling' | 'stable' | null; fetchedAt: string }
 
 const FLOW_COLORS: Record<FlowStatus, string> = {
-  ideal: '#22c55e',
+  ideal: '#6ab04c',
   low: '#f97316',
   high: '#ef4444',
   loading: '#6b7280',
@@ -42,16 +42,12 @@ function NearMeCard({
   openSpecies,
   flowData,
   onTap,
-  isFirst,
-  isLast,
 }: {
   water: WaterBody
   distMiles: number
   openSpecies: string[]
   flowData: FlowData | null
   onTap: () => void
-  isFirst: boolean
-  isLast: boolean
 }) {
   const dist = distMiles < 10
     ? `${distMiles.toFixed(1)} mi`
@@ -62,12 +58,13 @@ function NearMeCard({
       onClick={onTap}
       className="w-full text-left transition-all active:scale-[0.99]"
       style={{
-        padding: '14px 16px',
+        padding: '16px',
         display: 'flex',
         alignItems: 'center',
         gap: '12px',
-        borderBottom: isLast ? 'none' : '1px solid rgba(255,255,255,0.06)',
-        borderRadius: isFirst && isLast ? '16px' : isFirst ? '16px 16px 0 0' : isLast ? '0 0 16px 16px' : '0',
+        background: 'var(--surface)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: '16px',
       }}
     >
       {/* Left: name + meta */}
@@ -316,8 +313,8 @@ export default function NearMePage() {
                   <div style={{ fontSize: '14px' }}>No waters found with this filter.</div>
                 </div>
               ) : (
-                <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  {filtered.map(({ water, distMiles, openSpecies }, idx) => (
+                <div className="flex flex-col gap-3">
+                  {filtered.map(({ water, distMiles, openSpecies }) => (
                     <NearMeCard
                       key={water.id}
                       water={water}
@@ -325,8 +322,6 @@ export default function NearMePage() {
                       openSpecies={openSpecies}
                       flowData={flowMap[water.id] ?? null}
                       onTap={() => openWater(water)}
-                      isFirst={idx === 0}
-                      isLast={idx === filtered.length - 1}
                     />
                   ))}
                 </div>

@@ -569,7 +569,7 @@ export default function WatersPage() {
 
       {/* ── Scrollable: filter chips + water list ── */}
       <div className="flex-1 overflow-y-auto no-scrollbar" style={{ paddingBottom: '100px' }}>
-      <div className="max-w-lg mx-auto px-4 pt-1">
+      <div className="max-w-lg mx-auto px-4 pt-4">
         {/* ── NEAR YOU ── */}
         {!locationRequested ? (
           <div className="mb-4">
@@ -596,14 +596,15 @@ export default function WatersPage() {
             <div className="flex flex-col gap-2">
               {nearbyWaters.map(({ water, distMiles, openCount }) => (
                 <button key={water.id} onClick={() => openWater(water)}
-                  className="flex items-center justify-between px-4 py-3 text-left transition-all active:opacity-75"
-                  style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6 }}>
-                  <div>
-                    <p className="text-sm font-bold text-white">{water.name}</p>
+                  className="flex items-center justify-between px-4 text-left transition-all active:scale-[0.99]"
+                  style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '14px 16px' }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p className="text-sm font-bold text-white truncate">{water.name}</p>
                     <p className="text-xs mt-0.5" style={{ color: 'var(--text-faint)' }}>{openCount} species open</p>
                   </div>
-                  <div className="text-right flex-shrink-0 ml-3">
+                  <div className="flex items-center gap-2 flex-shrink-0 ml-3">
                     <p className="text-sm font-bold" style={{ color: '#f26522' }}>{distMiles < 10 ? distMiles.toFixed(1) : Math.round(distMiles)} mi</p>
+                    <span style={{ color: 'var(--text-faint)', fontSize: '14px' }}>›</span>
                   </div>
                 </button>
               ))}
