@@ -649,17 +649,6 @@ export default function TodayPage() {
           <span className="text-base font-light flex-shrink-0" style={{ color: totalAlertCount > 0 ? '#ef4444' : 'var(--text-faint)' }}>›</span>
         </button>
 
-        {/* ── BEST BITE TIMES ── */}
-        <div className="mb-8">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-            <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
-              Best Bite Times
-            </span>
-            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
-          </div>
-          <SolunarTimeline date={today} />
-        </div>
-
         {/* ── MY WATERS ── */}
         <div className="mb-10">
           {/* Section label */}
@@ -893,6 +882,17 @@ export default function TodayPage() {
               })}
             </div>
           )}
+        </div>
+
+        {/* ── BEST BITE TIMES ── */}
+        <div className="mb-8">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+            <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+              Best Bite Times
+            </span>
+            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+          </div>
+          <SolunarTimeline date={today} />
         </div>
 
         {/* ── OPENING SOON — next 14 days ── */}
