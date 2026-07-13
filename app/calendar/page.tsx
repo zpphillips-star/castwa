@@ -63,7 +63,7 @@ function MonthBlock({
               key={day}
               onClick={() => onSelectDate(date)}
               disabled={isPast}
-              className="relative flex flex-col items-center justify-center transition-all active:scale-95"
+              className="relative flex flex-col items-center justify-center transition-all active:scale-[0.99]"
               style={{
                 height: 52,
                 background: isSelected ? '#f26522' : isToday ? 'rgba(242,101,34,0.12)' : 'var(--surface)',
@@ -193,7 +193,7 @@ export default function CalendarPage() {
                       <button
                         key={fish.id}
                         onClick={() => setSelectedFish(fish)}
-                        className="w-full flex items-center gap-4 px-4 py-4 text-left transition-all active:opacity-75"
+                        className="w-full flex items-center gap-4 px-4 py-4 text-left transition-all active:scale-[0.99]"
                         style={{
                           borderBottom: i < openSpecies.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
                           background: 'var(--surface)',

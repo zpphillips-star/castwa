@@ -60,7 +60,7 @@ function NearMeCard({
   return (
     <button
       onClick={onTap}
-      className="w-full text-left transition-all active:opacity-70"
+      className="w-full text-left transition-all active:scale-[0.99]"
       style={{
         padding: '14px 16px',
         display: 'flex',
@@ -82,7 +82,7 @@ function NearMeCard({
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '6px' }}>
             {openSpecies.slice(0, 4).map(sp => (
               <span key={sp} style={{
-                background: '#22c55e',
+                background: '#6ab04c',
                 color: '#fff',
                 borderRadius: '10px',
                 padding: '1px 7px',
@@ -236,7 +236,7 @@ export default function NearMePage() {
   ]
 
   return (
-    <div className="flex flex-col" style={{ height: '100dvh', background: 'var(--bg)', paddingBottom: '80px' }}>
+    <div className="flex flex-col" style={{ height: '100dvh', background: 'var(--bg)', paddingBottom: '100px' }}>
       {/* Header */}
       <header className="glass-header px-4 flex-shrink-0">
         <div className="max-w-lg mx-auto py-3">
@@ -272,7 +272,7 @@ export default function NearMePage() {
               fontWeight: 700,
               border: 'none',
               cursor: 'pointer',
-              background: filterType === c.key ? '#22c55e' : 'var(--surface)',
+              background: filterType === c.key ? '#6ab04c' : 'var(--surface)',
               color: filterType === c.key ? '#fff' : 'var(--text-muted)',
             }}
           >

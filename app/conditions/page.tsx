@@ -493,12 +493,10 @@ export default function WatersPage() {
         {/* Most Active Right Now */}
         {featuredWaters.length > 0 && (
           <div className="mb-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />
-                <h2 className="text-sm font-black text-white">Most Active Right Now</h2>
-              </div>
-              <span className="text-xs" style={{ color: 'var(--text-faint)' }}>Top waters today</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+              <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6b7280', whiteSpace: 'nowrap' }}>Most Active Right Now</span>
+              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               {featuredWaters.map(({ water, openCount }) => {
@@ -590,12 +588,10 @@ export default function WatersPage() {
           </div>
         ) : nearbyWaters.length > 0 ? (
           <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />
-                <h2 className="text-sm font-black text-white">Near You</h2>
-              </div>
-              <span className="text-xs" style={{ color: 'var(--text-faint)' }}>open today</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+              <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6b7280', whiteSpace: 'nowrap' }}>Near You · Open Today</span>
+              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
             </div>
             <div className="flex flex-col gap-2">
               {nearbyWaters.map(({ water, distMiles, openCount }) => (
@@ -633,7 +629,7 @@ export default function WatersPage() {
             <button
               key={f.key}
               onClick={() => setActiveFilter(f.key)}
-              className="flex-shrink-0 px-6 py-3 rounded-xl text-base font-bold transition-all active:scale-95"
+              className="flex-shrink-0 px-6 py-3 rounded-xl text-base font-bold transition-all active:scale-[0.99]"
               style={{
                 background: activeFilter === f.key ? 'var(--accent)' : 'var(--surface)',
                 color: activeFilter === f.key ? '#fff' : 'var(--text-muted)',
@@ -648,13 +644,12 @@ export default function WatersPage() {
         {/* ── Water sections ── */}
         {visibleSections.map(section => (
           <div key={section.label} className="mb-8">
-            <div className="flex items-center gap-2 mb-3">
-              <div style={{ width: 3, height: 18, background: 'var(--accent)', borderRadius: 2, flexShrink: 0 }} />
-              <h2 className="text-sm font-black text-white">{section.label}</h2>
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
-                style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-muted)' }}>
-                {section.waters.length}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+              <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6b7280', whiteSpace: 'nowrap' }}>
+                {section.label} · {section.waters.length}
               </span>
+              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
             </div>
 
             {/* Water rows */}
