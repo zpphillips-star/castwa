@@ -404,18 +404,19 @@ function SolunarTimeline({ date }: { date: Date }) {
       {/* ── Banner row ── */}
       <button
         onClick={() => setOpen(true)}
-        className="w-full text-left rounded-xl mb-5 transition-all active:scale-[0.99] flex items-center gap-3 px-4 py-3"
+        className="w-full text-left rounded-xl mb-5 transition-all active:scale-[0.99] flex items-center gap-4 px-5"
         style={{
           background: activeWindow ? activeWindow.color : 'rgba(255,255,255,0.04)',
           border: `1px solid ${activeWindow ? 'transparent' : 'rgba(255,255,255,0.07)'}`,
           cursor: 'pointer',
+          minHeight: 56,
         }}>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-white leading-tight">Best Bite Times</p>
+          <p className="text-base font-bold text-white">Best Bite Times</p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <span className="text-sm font-semibold" style={{ color: activeWindow ? '#fff' : statusColor }}>{statusText}</span>
-          <span className="text-base font-light" style={{ color: activeWindow ? '#ffffff' : 'var(--text-faint)', opacity: 0.8 }}>›</span>
+          <span className="text-lg font-light" style={{ color: activeWindow ? '#ffffff' : 'var(--text-faint)', opacity: 0.8 }}>›</span>
         </div>
       </button>
 
@@ -635,20 +636,21 @@ export default function TodayPage() {
         {/* ── EMERGENCY RULES — compact inline banner ── */}
         <button
           onClick={() => setShowAlertsSheet(true)}
-          className="w-full text-left rounded-xl mb-3 transition-all active:scale-[0.99] flex items-center gap-3 px-4 py-3"
+          className="w-full text-left rounded-xl mb-2 transition-all active:scale-[0.99] flex items-center gap-4 px-5"
           style={{
             background: totalAlertCount > 0 ? 'rgba(239,68,68,0.10)' : 'rgba(255,255,255,0.04)',
             border: `1px solid ${totalAlertCount > 0 ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.07)'}`,
+            minHeight: 56,
           }}
         >
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-white leading-tight">Emergency Rules</p>
+            <p className="text-base font-bold text-white">Emergency Rules</p>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <span className="text-sm font-semibold" style={{ color: totalAlertCount > 0 ? '#fca5a5' : 'var(--text-muted)' }}>
               {alertsLoading ? 'Checking…' : totalAlertCount > 0 ? `${totalAlertCount} active` : 'All clear'}
             </span>
-            <span className="text-base font-light" style={{ color: totalAlertCount > 0 ? '#ef4444' : 'var(--text-faint)', opacity: 0.8 }}>›</span>
+            <span className="text-lg font-light" style={{ color: totalAlertCount > 0 ? '#ef4444' : 'var(--text-faint)', opacity: 0.8 }}>›</span>
           </div>
         </button>
 
@@ -656,7 +658,7 @@ export default function TodayPage() {
         <SolunarTimeline date={today} />
 
         {/* ── MY WATERS ── */}
-        <div className="mb-10" style={{ paddingTop: "36px" }}>
+        <div className="mb-10" style={{ paddingTop: "20px" }}>
           {/* Section label */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
             <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-primary, #e5e7eb)', whiteSpace: 'nowrap' }}>
@@ -767,7 +769,7 @@ export default function TodayPage() {
         </div>
 
         {/* ── MY FISH ── */}
-        <div className="mb-10" style={{ paddingTop: "36px" }}>
+        <div className="mb-10" style={{ paddingTop: "20px" }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
             <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-primary, #e5e7eb)', whiteSpace: 'nowrap' }}>
               My Fish{starredFish.length > 0 ? ` · ${starredFish.length}` : ''}
@@ -892,7 +894,7 @@ export default function TodayPage() {
 
         {/* ── OPENING SOON — next 14 days ── */}
         {openingSoon.length > 0 && (
-          <div className="mb-10" style={{ paddingTop: "36px" }}>
+          <div className="mb-10" style={{ paddingTop: "20px" }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
               <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-primary, #e5e7eb)', whiteSpace: 'nowrap' }}>
                 Opening Soon · {openingSoon.length}
@@ -1207,3 +1209,4 @@ export default function TodayPage() {
     </div>
   )
 }
+
