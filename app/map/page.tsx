@@ -1,37 +1,366 @@
 'use client'
-import dynamic from 'next/dynamic'
+import { useState, useEffect, useCallback } from 'react'
 import BottomNav from '@/components/BottomNav'
+import WaterDetailSheet from '@/components/WaterDetailSheet'
+import RiverDetailSheet from '@/components/RiverDetailSheet'
+import { WATER_BODIES, REGULATIONS, SPECIES, isOpenOn } from '@/lib/fishing-data'
+import type { WaterBody } from '@/lib/fishing-data'
+import { GAUGED_RIVERS, findRiverEntry } from '@/lib/river-lookup'
+import type { RiverEntry } from '@/lib/river-lookup'
 
-const MapWithFishSelector = dynamic(() => import('@/components/MapWithFishSelector'), {
-  ssr: false,
-  loading: () => (
-    <div className="flex-1 flex items-center justify-center" style={{ color: 'var(--text-muted)' }}>
-      Loading map...
-    </div>
-  ),
-})
+// ── Haversine ────────────────────────────────────────────────────────────────
+function distanceMiles(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 3958.8
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLng = (lng2 - lng1) * Math.PI / 180
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2
+  return R * 2 * Math.asin(Math.sqrt(a))
+}
 
-export default function MapPage() {
+// ── Flow data ─────────────────────────────────────────────────────────────────
+type FlowStatus = 'ideal' | 'low' | 'high' | 'loading' | 'error'
+type FlowData = { cfs: number | null; status: FlowStatus; trend: 'rising' | 'falling' | 'stable' | null; fetchedAt: string }
+
+const FLOW_COLORS: Record<FlowStatus, string> = {
+  ideal: '#22c55e',
+  low: '#f97316',
+  high: '#ef4444',
+  loading: '#6b7280',
+  error: '#6b7280',
+}
+
+function formatCfs(cfs: number): string {
+  return cfs >= 10000 ? `${(cfs / 1000).toFixed(0)}k` : cfs.toLocaleString()
+}
+
+// ── Water type icons ──────────────────────────────────────────────────────────
+const TYPE_ICON: Record<string, string> = {
+  river: '🌊',
+  stream: '🌊',
+  lake: '🏞️',
+  sound: '⚓',
+  bay: '⚓',
+}
+
+// ── Near Me card ──────────────────────────────────────────────────────────────
+function NearMeCard({
+  water,
+  distMiles,
+  openSpecies,
+  flowData,
+  onTap,
+}: {
+  water: WaterBody
+  distMiles: number
+  openSpecies: string[]
+  flowData: FlowData | null
+  onTap: () => void
+}) {
+  const icon = TYPE_ICON[water.type] ?? '📍'
+  const hasOpen = openSpecies.length > 0
+  const dist = distMiles < 10
+    ? `${distMiles.toFixed(1)} mi`
+    : `${Math.round(distMiles)} mi`
+
   return (
-    <div className="flex flex-col" style={{ height: '100dvh', background: 'var(--bg)', paddingBottom: '80px' }}>
-      <header className="glass-header px-4 flex-shrink-0">
-        <div className="max-w-lg mx-auto py-3 flex items-center justify-between">
-          <div>
-            <h1 className="text-lg font-bold text-white">Open Now</h1>
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Where to fish in WA today</p>
-          </div>
-          <div className="flex items-center gap-3 text-[11px] font-semibold" style={{ color: 'var(--text-muted)' }}>
-            <span className="flex items-center gap-1"><span style={{ color: '#4ade80' }}>●</span> Open</span>
-            <span className="flex items-center gap-1"><span style={{ color: '#ef4444' }}>●</span> Closed</span>
-            <span className="flex items-center gap-1"><span style={{ color: '#6b7280' }}>●</span> No season</span>
+    <button
+      onClick={onTap}
+      className="w-full text-left"
+      style={{
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        borderRadius: '14px',
+        padding: '14px 16px',
+        marginBottom: '10px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+      }}
+    >
+      {/* Top row: icon + name + distance */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+          <span style={{ fontSize: '18px', flexShrink: 0 }}>{icon}</span>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{water.name}</div>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '1px' }}>
+              {water.region} · {water.type}
+            </div>
           </div>
         </div>
-      </header>
-      <div className="flex-1 relative">
-        <MapWithFishSelector />
+        {/* Distance badge */}
+        <div style={{
+          background: 'rgba(255,255,255,0.07)',
+          borderRadius: '20px',
+          padding: '3px 10px',
+          fontSize: '12px',
+          fontWeight: 700,
+          color: 'var(--text-muted)',
+          whiteSpace: 'nowrap',
+          marginLeft: '10px',
+          flexShrink: 0,
+        }}>
+          {dist}
+        </div>
       </div>
+
+      {/* Open species pills */}
+      {hasOpen ? (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+          {openSpecies.slice(0, 5).map(sp => (
+            <span key={sp} style={{
+              background: '#22c55e',
+              color: '#fff',
+              borderRadius: '10px',
+              padding: '2px 8px',
+              fontSize: '11px',
+              fontWeight: 600,
+            }}>
+              {sp}
+            </span>
+          ))}
+          {openSpecies.length > 5 && (
+            <span style={{
+              background: 'rgba(255,255,255,0.1)',
+              color: 'var(--text-muted)',
+              borderRadius: '10px',
+              padding: '2px 8px',
+              fontSize: '11px',
+            }}>
+              +{openSpecies.length - 5} more
+            </span>
+          )}
+        </div>
+      ) : (
+        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>No species open today</div>
+      )}
+
+      {/* Flow row (rivers only) */}
+      {flowData && flowData.cfs !== null && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{
+            background: FLOW_COLORS[flowData.status],
+            color: '#fff',
+            borderRadius: '6px',
+            padding: '2px 8px',
+            fontSize: '11px',
+            fontWeight: 700,
+          }}>
+            {formatCfs(flowData.cfs)} CFS · {flowData.status.toUpperCase()}
+          </span>
+        </div>
+      )}
+    </button>
+  )
+}
+
+// ── Main page ─────────────────────────────────────────────────────────────────
+export default function NearMePage() {
+  const today = new Date()
+  const [userLoc, setUserLoc] = useState<{ lat: number; lng: number } | null>(null)
+  const [locState, setLocState] = useState<'idle' | 'loading' | 'granted' | 'denied'>('idle')
+  const [flowMap, setFlowMap] = useState<Record<string, FlowData>>({})
+  const [selectedRiver, setSelectedRiver] = useState<RiverEntry | null>(null)
+  const [selectedWaterName, setSelectedWaterName] = useState<string | null>(null)
+  const [filterType, setFilterType] = useState<'all' | 'open' | 'river' | 'lake' | 'marine'>('open')
+
+  // Auto-request location on mount
+  useEffect(() => {
+    setLocState('loading')
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        setUserLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+        setLocState('granted')
+      },
+      () => setLocState('denied'),
+      { timeout: 8000 }
+    )
+  }, [])
+
+  // Fetch USGS flow data
+  useEffect(() => {
+    async function fetchFlows() {
+      const ids = GAUGED_RIVERS.map(r => r.usgsId).join(',')
+      try {
+        const url = `https://waterservices.usgs.gov/nwis/iv/?format=json&sites=${ids}&parameterCd=00060&period=PT2H&siteStatus=active`
+        const res = await fetch(url, { cache: 'no-store' })
+        if (!res.ok) return
+        const data = await res.json()
+        const series = data?.value?.timeSeries ?? []
+        const map: Record<string, FlowData> = {}
+        for (const river of GAUGED_RIVERS) {
+          const ts = series.find((s: { sourceInfo: { siteCode: { value: string }[] } }) =>
+            s.sourceInfo?.siteCode?.[0]?.value === river.usgsId
+          )
+          const raw = ts?.values?.[0]?.value
+          const last = Array.isArray(raw) ? raw[raw.length - 1] : null
+          const cfs = last ? parseFloat(last.value) : null
+          if (cfs !== null && !isNaN(cfs)) {
+            const status: FlowStatus = cfs >= river.idealCfs.min && cfs <= river.idealCfs.max
+              ? 'ideal' : cfs < river.idealCfs.min ? 'low' : 'high'
+            map[river.id] = { cfs, status, trend: null, fetchedAt: new Date().toISOString() }
+          }
+        }
+        setFlowMap(map)
+      } catch { /* silent */ }
+    }
+    fetchFlows()
+  }, [])
+
+  // Build nearby waters list
+  const nearbyWaters = userLoc
+    ? WATER_BODIES
+        .map(w => {
+          const distMiles = distanceMiles(userLoc.lat, userLoc.lng, w.lat, w.lng)
+          const openRegs = REGULATIONS.filter(r => r.waterBodyId === w.id && isOpenOn(r, today))
+          const openSpecies = Array.from(new Set(openRegs.map(r => {
+            const sp = SPECIES.find(s => s.id === r.speciesId)
+            return sp?.name ?? r.speciesId
+          })))
+          return { water: w, distMiles, openSpecies }
+        })
+        .filter(x => x.distMiles <= 50)
+        .sort((a, b) => a.distMiles - b.distMiles)
+    : []
+
+  // Apply filter chip
+  const filtered = nearbyWaters.filter(x => {
+    if (filterType === 'open') return x.openSpecies.length > 0
+    if (filterType === 'river') return x.water.type === 'river' || x.water.type === 'stream'
+    if (filterType === 'lake') return x.water.type === 'lake'
+    if (filterType === 'marine') return x.water.type === 'sound' || x.water.type === 'bay'
+    return true
+  })
+
+  const openWater = useCallback((water: WaterBody) => {
+    const river = findRiverEntry(water)
+    if (river) setSelectedRiver(river)
+    else setSelectedWaterName(water.name)
+  }, [])
+
+  const chips: { key: typeof filterType; label: string }[] = [
+    { key: 'open', label: '🐟 Open Now' },
+    { key: 'all', label: 'All Waters' },
+    { key: 'river', label: '🌊 Rivers' },
+    { key: 'lake', label: '🏞️ Lakes' },
+    { key: 'marine', label: '⚓ Marine' },
+  ]
+
+  return (
+    <div className="flex flex-col" style={{ height: '100dvh', background: 'var(--bg)', paddingBottom: '80px' }}>
+      {/* Header */}
+      <header className="glass-header px-4 flex-shrink-0">
+        <div className="max-w-lg mx-auto py-3">
+          <h1 className="text-lg font-bold text-white">Near Me</h1>
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+            {locState === 'granted' && userLoc
+              ? `${filtered.length} water${filtered.length !== 1 ? 's' : ''} within 50 miles`
+              : locState === 'loading' ? 'Finding your location…'
+              : locState === 'denied' ? 'Location access denied'
+              : 'Getting location…'}
+          </p>
+        </div>
+      </header>
+
+      {/* Filter chips */}
+      <div style={{
+        display: 'flex',
+        gap: '8px',
+        padding: '10px 16px',
+        overflowX: 'auto',
+        flexShrink: 0,
+        WebkitOverflowScrolling: 'touch',
+      }}>
+        {chips.map(c => (
+          <button
+            key={c.key}
+            onClick={() => setFilterType(c.key)}
+            style={{
+              whiteSpace: 'nowrap',
+              padding: '5px 14px',
+              borderRadius: '20px',
+              fontSize: '12px',
+              fontWeight: 700,
+              border: 'none',
+              cursor: 'pointer',
+              background: filterType === c.key ? '#22c55e' : 'var(--surface)',
+              color: filterType === c.key ? '#fff' : 'var(--text-muted)',
+            }}
+          >
+            {c.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Body */}
+      <div className="flex-1 overflow-y-auto" style={{ padding: '0 16px 16px' }}>
+        <div className="max-w-lg mx-auto">
+
+          {/* Location loading */}
+          {locState === 'loading' && (
+            <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>
+              <div style={{ fontSize: '32px', marginBottom: '12px' }}>📍</div>
+              <div style={{ fontSize: '14px' }}>Finding your location…</div>
+            </div>
+          )}
+
+          {/* Location denied */}
+          {locState === 'denied' && (
+            <div style={{
+              textAlign: 'center', padding: '60px 16px',
+              color: 'var(--text-muted)',
+            }}>
+              <div style={{ fontSize: '40px', marginBottom: '12px' }}>🚫</div>
+              <div style={{ fontWeight: 700, color: 'var(--text)', marginBottom: '8px' }}>Location access needed</div>
+              <div style={{ fontSize: '13px', lineHeight: '1.5' }}>
+                Enable location in your browser settings to see nearby waters.
+              </div>
+            </div>
+          )}
+
+          {/* Results */}
+          {locState === 'granted' && (
+            <>
+              {filtered.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>
+                  <div style={{ fontSize: '32px', marginBottom: '12px' }}>🎣</div>
+                  <div style={{ fontSize: '14px' }}>No waters found with this filter.</div>
+                </div>
+              ) : (
+                filtered.map(({ water, distMiles, openSpecies }) => (
+                  <NearMeCard
+                    key={water.id}
+                    water={water}
+                    distMiles={distMiles}
+                    openSpecies={openSpecies}
+                    flowData={flowMap[water.id] ?? null}
+                    onTap={() => openWater(water)}
+                  />
+                ))
+              )}
+            </>
+          )}
+
+        </div>
+      </div>
+
+      {/* Detail sheets */}
+      {selectedRiver && (
+        <RiverDetailSheet
+          river={selectedRiver}
+          flow={flowMap[selectedRiver.id] ?? { cfs: null, status: 'loading' as FlowStatus, trend: null, fetchedAt: '' }}
+          onClose={() => setSelectedRiver(null)}
+        />
+      )}
+      {selectedWaterName && (
+        <WaterDetailSheet
+          waterName={selectedWaterName}
+          onClose={() => setSelectedWaterName(null)}
+        />
+      )}
+
       <BottomNav />
     </div>
   )
 }
-

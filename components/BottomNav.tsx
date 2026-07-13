@@ -30,10 +30,11 @@ const leftTabs = [
 const rightTabs = [
   {
     href: '/map',
-    label: 'Map',
+    label: 'Near Me',
     icon: (active: boolean) => (
       <svg className={`w-6 h-6 transition-colors`} style={{ color: active ? '#f26522' : '#6b7280' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6-10l6 3m0 10l5.447-2.724A1 1 0 0021 16.382V5.618a1 1 0 00-1.447-.894L15 7m0 13V7"/>
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+        <circle cx="12" cy="9" r="2.5" strokeWidth={2}/>
       </svg>
     )
   },
