@@ -650,10 +650,11 @@ export default function TodayPage() {
         </button>
 
         {/* ── BEST BITE TIMES — featured ── */}
-        <div className="mb-8 rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'var(--surface)' }}>
-          <div className="px-4 pt-4 pb-2 flex items-center justify-between">
-            <span style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--text-faint)' }}>Best Bite Times</span>
-            <span style={{ fontSize: '10px', color: 'var(--text-faint)' }}>Moon · All species</span>
+        <div className="mb-8 rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'var(--surface)' }}>
+          {/* Card header */}
+          <div className="px-4 pt-4 pb-3">
+            <p className="text-base font-black text-white leading-tight">Best Bite Times</p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-faint)' }}>When fish are most active today — tap to see all windows</p>
           </div>
           <div className="px-2 pb-2">
             <SolunarTimeline date={today} />
@@ -661,13 +662,13 @@ export default function TodayPage() {
         </div>
 
         {/* ── MY WATERS ── */}
-        <div className="pt-6 mb-10">
+        <div className="pt-8 mb-10">
           {/* Section label */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
-            <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-primary, #e5e7eb)', whiteSpace: 'nowrap' }}>
               My Waters{starredWaters.length > 0 ? ` · ${starredWaters.length}` : ''}
             </span>
-            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
             {starredWaters.length === 0 && hydrated && (
               <span style={{ fontSize: '11px', color: 'var(--text-faint)', whiteSpace: 'nowrap' }}>tap ☆ to star</span>
             )}
@@ -772,12 +773,12 @@ export default function TodayPage() {
         </div>
 
         {/* ── MY FISH ── */}
-        <div className="pt-6 mb-10">
+        <div className="pt-8 mb-10">
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
-            <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-primary, #e5e7eb)', whiteSpace: 'nowrap' }}>
               My Fish{starredFish.length > 0 ? ` · ${starredFish.length}` : ''}
             </span>
-            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
             {starredFish.length === 0 && hydrated && (
               <span style={{ fontSize: '11px', color: 'var(--text-faint)', whiteSpace: 'nowrap' }}>tap ☆ to star</span>
             )}
@@ -897,12 +898,12 @@ export default function TodayPage() {
 
         {/* ── OPENING SOON — next 14 days ── */}
         {openingSoon.length > 0 && (
-          <div className="pt-6 mb-10">
+          <div className="pt-8 mb-10">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
-              <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-primary, #e5e7eb)', whiteSpace: 'nowrap' }}>
                 Opening Soon · {openingSoon.length}
               </span>
-              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
               <span style={{ fontSize: '11px', fontWeight: 700, color: '#63b3ed', whiteSpace: 'nowrap' }}>next 14 days</span>
             </div>
             <div className="rounded-2xl overflow-hidden"
