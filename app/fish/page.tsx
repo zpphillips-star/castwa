@@ -303,64 +303,6 @@ export default function FishPage() {
             Regs verified July 2026
           </span>
         </p>
-
-        {/* ── Search bar ── */}
-        <div className="relative mb-6">
-          <svg
-            className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
-            style={{ color: 'var(--text-faint)', width: 18, height: 18 }}
-            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
-          >
-            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-          </svg>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Search fish, category, or water…"
-            className="w-full rounded-2xl text-sm outline-none"
-            style={{
-              paddingTop: 14, paddingBottom: 14, paddingLeft: 44,
-              paddingRight: searchQuery ? 40 : 16,
-              background: 'var(--surface)',
-              border: '1.5px solid rgba(255,255,255,0.12)',
-              color: '#fff', fontSize: '15px',
-            }}
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
-              style={{ background: 'rgba(255,255,255,0.12)', color: 'var(--text-faint)' }}
-            >
-              ×
-            </button>
-          )}
-        </div>
-
-        {/* Habitat filter pills */}
-        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-1">
-          {FILTERS.map(f => {
-            const active = activeFilter === f.key
-            return (
-              <button
-                key={f.key}
-                onClick={() => setActiveFilter(f.key)}
-                className="flex-shrink-0 font-semibold transition-all active:scale-[0.99] rounded-full"
-                style={{
-                  padding: '7px 16px', fontSize: '13px',
-                  background: active ? 'var(--accent)' : 'var(--surface)',
-                  color: active ? '#fff' : 'var(--text-muted)',
-                  border: `1.5px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
-                  boxShadow: active ? '0 2px 10px rgba(255,120,0,0.25)' : 'none',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {f.label}
-              </button>
-            )
-          })}
-        </div>
       </div>
 
       {/* ══════════════════════════════════════════════════════════════
@@ -403,6 +345,64 @@ export default function FishPage() {
             </>
           )}
 
+          {/* ── Search + Filter — below hero ── */}
+          <div className="max-w-lg mx-auto px-4 pb-2">
+            <div className="relative mb-4">
+              <svg
+                className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
+                style={{ color: 'var(--text-faint)', width: 18, height: 18 }}
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
+              >
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+              </svg>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Search fish, category, or water…"
+                className="w-full rounded-2xl text-sm outline-none"
+                style={{
+                  paddingTop: 14, paddingBottom: 14, paddingLeft: 44,
+                  paddingRight: searchQuery ? 40 : 16,
+                  background: 'var(--surface)',
+                  border: '1.5px solid rgba(255,255,255,0.12)',
+                  color: '#fff', fontSize: '15px',
+                }}
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+                  style={{ background: 'rgba(255,255,255,0.12)', color: 'var(--text-faint)' }}
+                >
+                  ×
+                </button>
+              )}
+            </div>
+            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+              {FILTERS.map(f => {
+                const active = activeFilter === f.key
+                return (
+                  <button
+                    key={f.key}
+                    onClick={() => setActiveFilter(f.key)}
+                    className="flex-shrink-0 font-semibold transition-all active:scale-[0.99] rounded-full"
+                    style={{
+                      padding: '7px 16px', fontSize: '13px',
+                      background: active ? 'var(--accent)' : 'var(--surface)',
+                      color: active ? '#fff' : 'var(--text-muted)',
+                      border: `1.5px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+                      boxShadow: active ? '0 2px 10px rgba(255,120,0,0.25)' : 'none',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {f.label}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
           {/* Category lanes */}
           {categoryLanes.map(({ cat, species }) => (
             <div key={cat}>
@@ -433,6 +433,62 @@ export default function FishPage() {
             SEARCH / FILTER MODE: 3-column grid (unchanged)
         ══════════════════════════════════════════════════════════════ */
         <div className="max-w-lg mx-auto px-4">
+          {/* Search bar + filter pills — persistent in search/filter mode */}
+          <div className="relative mb-4 mt-2">
+            <svg
+              className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
+              style={{ color: 'var(--text-faint)', width: 18, height: 18 }}
+              fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
+            >
+              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+            </svg>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search fish, category, or water…"
+              className="w-full rounded-2xl text-sm outline-none"
+              style={{
+                paddingTop: 14, paddingBottom: 14, paddingLeft: 44,
+                paddingRight: searchQuery ? 40 : 16,
+                background: 'var(--surface)',
+                border: '1.5px solid rgba(255,255,255,0.12)',
+                color: '#fff', fontSize: '15px',
+              }}
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+                style={{ background: 'rgba(255,255,255,0.12)', color: 'var(--text-faint)' }}
+              >
+                ×
+              </button>
+            )}
+          </div>
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-1">
+            {FILTERS.map(f => {
+              const active = activeFilter === f.key
+              return (
+                <button
+                  key={f.key}
+                  onClick={() => setActiveFilter(f.key)}
+                  className="flex-shrink-0 font-semibold transition-all active:scale-[0.99] rounded-full"
+                  style={{
+                    padding: '7px 16px', fontSize: '13px',
+                    background: active ? 'var(--accent)' : 'var(--surface)',
+                    color: active ? '#fff' : 'var(--text-muted)',
+                    border: `1.5px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+                    boxShadow: active ? '0 2px 10px rgba(255,120,0,0.25)' : 'none',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {f.label}
+                </button>
+              )
+            })}
+          </div>
+
           {/* Section header */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', marginTop: '12px' }}>
             <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
