@@ -347,7 +347,29 @@ export default function FishPage() {
 
           {/* ── Search + Filter — below hero ── */}
           <div className="max-w-lg mx-auto px-4 pb-2">
-            <div className="relative mb-4">
+            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+              {FILTERS.map(f => {
+                const active = activeFilter === f.key
+                return (
+                  <button
+                    key={f.key}
+                    onClick={() => setActiveFilter(f.key)}
+                    className="flex-shrink-0 font-semibold transition-all active:scale-[0.99] rounded-full"
+                    style={{
+                      padding: '7px 16px', fontSize: '13px',
+                      background: active ? 'var(--accent)' : 'var(--surface)',
+                      color: active ? '#fff' : 'var(--text-muted)',
+                      border: `1.5px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+                      boxShadow: active ? '0 2px 10px rgba(255,120,0,0.25)' : 'none',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {f.label}
+                  </button>
+                )
+              })}
+            </div>
+            <div className="relative mt-3">
               <svg
                 className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
                 style={{ color: 'var(--text-faint)', width: 18, height: 18 }}
@@ -378,28 +400,6 @@ export default function FishPage() {
                   ×
                 </button>
               )}
-            </div>
-            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-              {FILTERS.map(f => {
-                const active = activeFilter === f.key
-                return (
-                  <button
-                    key={f.key}
-                    onClick={() => setActiveFilter(f.key)}
-                    className="flex-shrink-0 font-semibold transition-all active:scale-[0.99] rounded-full"
-                    style={{
-                      padding: '7px 16px', fontSize: '13px',
-                      background: active ? 'var(--accent)' : 'var(--surface)',
-                      color: active ? '#fff' : 'var(--text-muted)',
-                      border: `1.5px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
-                      boxShadow: active ? '0 2px 10px rgba(255,120,0,0.25)' : 'none',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {f.label}
-                  </button>
-                )
-              })}
             </div>
           </div>
 
@@ -434,7 +434,29 @@ export default function FishPage() {
         ══════════════════════════════════════════════════════════════ */
         <div className="max-w-lg mx-auto px-4">
           {/* Search bar + filter pills — persistent in search/filter mode */}
-          <div className="relative mb-4 mt-2">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 mt-2">
+            {FILTERS.map(f => {
+              const active = activeFilter === f.key
+              return (
+                <button
+                  key={f.key}
+                  onClick={() => setActiveFilter(f.key)}
+                  className="flex-shrink-0 font-semibold transition-all active:scale-[0.99] rounded-full"
+                  style={{
+                    padding: '7px 16px', fontSize: '13px',
+                    background: active ? 'var(--accent)' : 'var(--surface)',
+                    color: active ? '#fff' : 'var(--text-muted)',
+                    border: `1.5px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+                    boxShadow: active ? '0 2px 10px rgba(255,120,0,0.25)' : 'none',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {f.label}
+                </button>
+              )
+            })}
+          </div>
+          <div className="relative mt-3 mb-1">
             <svg
               className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
               style={{ color: 'var(--text-faint)', width: 18, height: 18 }}
@@ -465,28 +487,6 @@ export default function FishPage() {
                 ×
               </button>
             )}
-          </div>
-          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-1">
-            {FILTERS.map(f => {
-              const active = activeFilter === f.key
-              return (
-                <button
-                  key={f.key}
-                  onClick={() => setActiveFilter(f.key)}
-                  className="flex-shrink-0 font-semibold transition-all active:scale-[0.99] rounded-full"
-                  style={{
-                    padding: '7px 16px', fontSize: '13px',
-                    background: active ? 'var(--accent)' : 'var(--surface)',
-                    color: active ? '#fff' : 'var(--text-muted)',
-                    border: `1.5px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
-                    boxShadow: active ? '0 2px 10px rgba(255,120,0,0.25)' : 'none',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {f.label}
-                </button>
-              )
-            })}
           </div>
 
           {/* Section header */}
