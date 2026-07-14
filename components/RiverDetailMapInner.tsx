@@ -56,7 +56,7 @@ export default function RiverDetailMapInner({ segments, selectedIdx, onSegmentCl
   if (allCoords.length === 0) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',
-        height: '100%', background: '#08080f', color: '#6b7280', fontSize: 14 }}>
+        height: '100%', background: '#b8d8ea', color: '#6b7280', fontSize: 14 }}>
         No map data available
       </div>
     )
@@ -73,12 +73,12 @@ export default function RiverDetailMapInner({ segments, selectedIdx, onSegmentCl
   return (
     <MapContainer
       {...mapProps}
-      style={{ height: '100%', width: '100%', background: '#08080f' }}
+      style={{ height: '100%', width: '100%', background: '#b8d8ea' }}
       zoomControl={false}
       attributionControl={false}
     >
       <TileLayer
-        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; OpenStreetMap &copy; CARTO'
       />
 
