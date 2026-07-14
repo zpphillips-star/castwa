@@ -74,6 +74,15 @@ function fmtDate(mmdd: string): string {
   return `${MNAMES[m - 1]} ${d}`
 }
 
+function getSeasonLabel(startMmdd: string, fishName: string): string {
+  const month = parseInt(startMmdd.split('-')[0], 10)
+  const period =
+    month === 12 || month <= 2 ? 'Winter' :
+    month >= 3  && month <= 5  ? 'Spring' :
+    month >= 6  && month <= 8  ? 'Summer' : 'Fall'
+  return `${period} ${fishName}`
+}
+
 function parseGoogleMapsCoord(url: string): [number, number] | null {
   const m = url.match(/[?&]q=([\d.-]+),([\d.-]+)/)
   if (m) return [parseFloat(m[1]), parseFloat(m[2])]
@@ -415,198 +424,214 @@ export default function FishWaterSheet({
 
           {/* ═══ REGULATIONS TAB ═══ */}
           {activeTab === 'regulations' && (
-            <div className="h-full overflow-y-auto no-scrollbar">
+            <div className="h-full overflow-y-auto no-scrollbar px-4 pt-4 pb-24">
 
-              {/* Emergency rule block */}
-              {(emergencyRules.length > 0 || noteEmergency) && (
+              {/* 1. Emergency rule tile */}
+              {hasEmergency && (
                 <div
-                  className="px-4 pt-4"
+                  className="rounded-2xl mb-4 p-4"
+                  style={{
+                    background: 'rgba(242,101,34,0.06)',
+                    border: '1px solid rgba(242,101,34,0.2)',
+                    borderLeft: '3px solid #f26522',
+                  }}
                 >
+                  <p className="text-[10px] uppercase font-bold mb-2 tracking-widest" style={{ color: '#f26522' }}>
+                    Emergency Rule
+                  </p>
                   {emergencyRules.map((er, i) => (
                     <div
                       key={i}
-                      className="mb-3 pl-3"
-                      style={{ borderLeft: '3px solid #f26522' }}
+                      className={i > 0 ? 'mt-3 pt-3' : ''}
+                      style={i > 0 ? { borderTop: '1px solid rgba(242,101,34,0.15)' } : {}}
                     >
-                      <p className="text-[10px] uppercase font-bold mb-1" style={{ color: '#f26522' }}>
-                        EMERGENCY RULE
-                      </p>
-                      <p className="text-[11px] leading-snug mb-1" style={{ color: 'rgba(242,101,34,0.9)' }}>
+                      <p className="text-sm leading-snug mb-1" style={{ color: 'rgba(242,101,34,0.9)' }}>
                         {er.section} — {er.rule.effective}
                       </p>
+                      {er.rule.overrides.map((o, j) => (
+                        <p key={j} className="text-xs leading-snug" style={{ color: 'rgba(242,101,34,0.75)' }}>
+                          {o.dates}{o.status ? ` — ${o.status}` : ''}{o.notes ? `: ${o.notes}` : ''}
+                        </p>
+                      ))}
                       {er.rule.url && (
                         <a
                           href={er.rule.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-[10px] underline"
+                          className="text-[10px] underline mt-1 inline-block"
                           style={{ color: '#f26522' }}
                         >
-                          View official rule ↗
+                          View official rule
                         </a>
                       )}
                     </div>
                   ))}
                   {noteEmergency?.notes && !emergencyRules.length && (
-                    <div
-                      className="mb-3 pl-3"
-                      style={{ borderLeft: '3px solid #f26522' }}
-                    >
-                      <p className="text-[10px] uppercase font-bold mb-1" style={{ color: '#f26522' }}>
-                        EMERGENCY RULE
-                      </p>
-                      <p className="text-[11px] leading-snug" style={{ color: 'rgba(242,101,34,0.9)' }}>
-                        {noteEmergency.notes}
-                      </p>
-                    </div>
+                    <p className="text-sm leading-snug" style={{ color: 'rgba(242,101,34,0.9)' }}>
+                      {noteEmergency.notes}
+                    </p>
                   )}
                 </div>
               )}
 
-              {/* Inline map */}
-              {isLakeType ? (
-                <div
-                  className="mx-4 mt-3"
-                  data-no-swipe-back="true"
-                  style={{ height: 180, borderRadius: 8, overflow: 'hidden', marginBottom: 16 }}
-                >
-                  <LakeMapInner
-                    waterName={water.name}
-                    lat={water.lat}
-                    lng={water.lng}
-                    fillColor={anyOpen ? '#6ab04c' : '#e74c3c'}
-                  />
+              {/* 2. Season tiles — side-by-side for 2, stacked for 3+ */}
+              {regs.length === 0 ? (
+                <div className="py-8 text-center">
+                  <p className="text-sm mb-3" style={{ color: 'var(--text-faint)' }}>No regulation on file</p>
+                  <a
+                    href="https://wdfw.wa.gov/fishing/regulations"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm underline"
+                    style={{ color: '#f26522' }}
+                  >
+                    Check WDFW regulations
+                  </a>
                 </div>
-              ) : segments.length > 0 ? (
+              ) : (
                 <div
-                  className="mx-4 mt-3"
-                  data-no-swipe-back="true"
-                  style={{ height: 180, borderRadius: 8, overflow: 'hidden', marginBottom: 16 }}
+                  className="mb-4"
+                  style={{
+                    display: 'flex',
+                    flexDirection: regs.length === 2 ? 'row' : 'column',
+                    gap: 12,
+                  }}
                 >
-                  <RiverDetailMapInner
-                    segments={segments}
-                    selectedIdx={-1}
-                    onSegmentClick={() => {}}
-                  />
-                </div>
-              ) : null}
-
-              {/* Regulation rows */}
-              <div className="px-4 pb-6">
-                {regs.length === 0 ? (
-                  <div className="py-4 text-center">
-                    <p className="text-sm" style={{ color: 'var(--text-faint)' }}>
-                      No regulation on file —{' '}
-                      <a
-                        href="https://wdfw.wa.gov/fishing/regulations"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="underline"
-                        style={{ color: '#f26522' }}
-                      >
-                        check WDFW
-                      </a>
-                    </p>
-                  </div>
-                ) : (
-                  regs.map(reg => {
+                  {regs.map((reg, idx) => {
                     const isOpen = isOpenOn(reg, today)
-                    const hasNoteEmerg = reg.notes && /emergency/i.test(reg.notes)
+                    const hasNoteEmerg = !!(reg.notes && /emergency/i.test(reg.notes))
+                    const statusColor = hasNoteEmerg ? '#f26522' : isOpen ? '#6ab04c' : '#6b7280'
+                    const statusText  = hasNoteEmerg ? 'EMERGENCY' : isOpen ? 'OPEN' : 'CLOSED'
+                    const statusDot   = hasNoteEmerg ? '⚑' : isOpen ? '●' : '○'
+                    const tileLabel   = regs.length > 1
+                      ? getSeasonLabel(reg.seasonStart, fish.name)
+                      : getSeasonLabel(reg.seasonStart, fish.name)
                     return (
-                      <div key={reg.id} className="mb-4">
-                        {/* Season row */}
-                        <div
-                          className="flex items-baseline justify-between py-2.5"
-                          style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+                      <div
+                        key={reg.id}
+                        className="rounded-2xl p-4"
+                        style={{
+                          background: 'rgba(255,255,255,0.05)',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          flex: regs.length === 2 ? '1 1 0' : undefined,
+                          minWidth: 0,
+                        }}
+                      >
+                        {/* Tile label */}
+                        <p
+                          className="text-[10px] uppercase font-bold mb-2 tracking-widest truncate"
+                          style={{ color: 'var(--text-faint)' }}
                         >
-                          <span className="text-[10px] uppercase font-bold" style={{ color: 'var(--text-faint)' }}>SEASON</span>
-                          <span className="text-sm text-white text-right" style={{ maxWidth: '60%' }}>
+                          {tileLabel}
+                        </p>
+
+                        {/* Date row + status pill */}
+                        <div className="flex items-center flex-wrap gap-x-2 gap-y-1 mb-3">
+                          <span className="text-sm font-bold text-white">
                             {fmtDate(reg.seasonStart)} – {fmtDate(reg.seasonEnd)}
-                            {' '}
-                            <span className="text-[11px] font-bold" style={{ color: isOpen ? '#6ab04c' : '#6b7280' }}>
-                              {isOpen ? '● OPEN' : '○ CLOSED'}
-                            </span>
+                          </span>
+                          <span
+                            className="text-[11px] font-bold ml-auto"
+                            style={{ color: statusColor }}
+                          >
+                            {statusDot} {statusText}
                           </span>
                         </div>
 
-                        {/* Limit row */}
-                        {reg.dailyLimit != null && (
-                          <div
-                            className="flex items-baseline justify-between py-2.5"
-                            style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
-                          >
-                            <span className="text-[10px] uppercase font-bold" style={{ color: 'var(--text-faint)' }}>DAILY LIMIT</span>
-                            <span className="text-sm text-white text-right" style={{ maxWidth: '60%' }}>{reg.dailyLimit}/day</span>
-                          </div>
-                        )}
+                        {/* Divider */}
+                        <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', marginBottom: 10 }} />
 
-                        {/* Size row */}
-                        {reg.minSize != null && (
-                          <div
-                            className="flex items-baseline justify-between py-2.5"
-                            style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
-                          >
-                            <span className="text-[10px] uppercase font-bold" style={{ color: 'var(--text-faint)' }}>MIN SIZE</span>
-                            <span className="text-sm text-white text-right" style={{ maxWidth: '60%' }}>{reg.minSize}&quot;</span>
-                          </div>
-                        )}
+                        {/* Detail rows */}
+                        <div className="flex flex-col gap-2">
+                          {reg.dailyLimit != null && (
+                            <div className="flex items-baseline justify-between gap-2">
+                              <span className="text-[10px] uppercase font-bold flex-shrink-0" style={{ color: 'var(--text-faint)' }}>Limit</span>
+                              <span className="text-sm text-white text-right">{reg.dailyLimit}/day</span>
+                            </div>
+                          )}
+                          {reg.minSize != null && (
+                            <div className="flex items-baseline justify-between gap-2">
+                              <span className="text-[10px] uppercase font-bold flex-shrink-0" style={{ color: 'var(--text-faint)' }}>Min size</span>
+                              <span className="text-sm text-white text-right">{reg.minSize}&quot;</span>
+                            </div>
+                          )}
+                          {reg.hatcheryOnly && (
+                            <div className="flex items-baseline justify-between gap-2">
+                              <span className="text-[10px] uppercase font-bold flex-shrink-0" style={{ color: 'var(--text-faint)' }}>Type</span>
+                              <span className="text-sm font-semibold text-right" style={{ color: '#fbbf24' }}>Hatchery only</span>
+                            </div>
+                          )}
+                          {reg.gearRestriction && (
+                            <div className="flex items-baseline justify-between gap-2">
+                              <span className="text-[10px] uppercase font-bold flex-shrink-0" style={{ color: 'var(--text-faint)' }}>Gear</span>
+                              <span className="text-sm text-white text-right" style={{ maxWidth: '65%' }}>{reg.gearRestriction}</span>
+                            </div>
+                          )}
+                        </div>
 
-                        {/* Hatchery row */}
-                        {reg.hatcheryOnly && (
-                          <div
-                            className="flex items-baseline justify-between py-2.5"
-                            style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
-                          >
-                            <span className="text-[10px] uppercase font-bold" style={{ color: 'var(--text-faint)' }}>TYPE</span>
-                            <span className="text-sm text-right font-semibold" style={{ color: '#fbbf24', maxWidth: '60%' }}>
-                              Hatchery only (clipped adipose fin)
-                            </span>
-                          </div>
-                        )}
-
-                        {/* Gear row */}
-                        {reg.gearRestriction && (
-                          <div
-                            className="flex items-baseline justify-between py-2.5"
-                            style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
-                          >
-                            <span className="text-[10px] uppercase font-bold" style={{ color: 'var(--text-faint)' }}>GEAR</span>
-                            <span className="text-sm text-white text-right" style={{ maxWidth: '60%' }}>{reg.gearRestriction}</span>
-                          </div>
-                        )}
-
-                        {/* Notes row */}
+                        {/* Notes */}
                         {reg.notes && (
-                          <div className="py-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                            <p
-                              className="text-[11px] leading-snug"
-                              style={{ color: hasNoteEmerg ? '#f26522' : 'var(--text-faint)' }}
-                            >
-                              {reg.notes}
-                            </p>
-                          </div>
+                          <p
+                            className="text-xs leading-snug mt-3"
+                            style={{ color: hasNoteEmerg ? '#f26522' : 'rgba(255,255,255,0.5)' }}
+                          >
+                            {reg.notes}
+                          </p>
                         )}
                       </div>
                     )
-                  })
-                )}
+                  })}
+                </div>
+              )}
 
-                {/* WDFW link */}
-                <a
-                  href="https://wdfw.wa.gov/fishing/regulations"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between w-full px-5 py-3.5 rounded-2xl no-underline active:scale-[0.99] mt-6 mb-24"
-                  style={{
-                    background: 'rgba(242,101,34,0.12)',
-                    border: '1px solid rgba(242,101,34,0.3)',
-                    textDecoration: 'none',
-                  }}
-                >
-                  <span className="text-sm font-bold" style={{ color: '#f26522' }}>Verify on WDFW →</span>
-                  <span className="text-xs" style={{ color: 'var(--text-faint)' }}>wdfw.wa.gov</span>
-                </a>
-              </div>
+              {/* 3. Location map tile — compact, at bottom */}
+              {(isLakeType || segments.length > 0) && (
+                <>
+                  <div className="flex items-center gap-2 mb-3 mt-2">
+                    <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+                    <span className="text-[10px] uppercase font-bold tracking-widest" style={{ color: 'var(--text-faint)' }}>
+                      Location
+                    </span>
+                    <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+                  </div>
+                  <div
+                    className="rounded-2xl overflow-hidden mb-4"
+                    data-no-swipe-back="true"
+                    style={{ height: 140 }}
+                  >
+                    {isLakeType ? (
+                      <LakeMapInner
+                        waterName={water.name}
+                        lat={water.lat}
+                        lng={water.lng}
+                        fillColor={anyOpen ? '#6ab04c' : '#e74c3c'}
+                      />
+                    ) : (
+                      <RiverDetailMapInner
+                        segments={segments}
+                        selectedIdx={-1}
+                        onSegmentClick={() => {}}
+                      />
+                    )}
+                  </div>
+                </>
+              )}
+
+              {/* WDFW link */}
+              <a
+                href="https://wdfw.wa.gov/fishing/regulations"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between w-full px-5 py-3.5 rounded-2xl active:scale-[0.99]"
+                style={{
+                  background: 'rgba(242,101,34,0.12)',
+                  border: '1px solid rgba(242,101,34,0.3)',
+                  textDecoration: 'none',
+                }}
+              >
+                <span className="text-sm font-bold" style={{ color: '#f26522' }}>Verify on WDFW</span>
+                <span className="text-xs" style={{ color: 'var(--text-faint)' }}>wdfw.wa.gov</span>
+              </a>
             </div>
           )}
 
@@ -616,158 +641,196 @@ export default function FishWaterSheet({
               {!gear ? (
                 <p className="text-sm" style={{ color: 'var(--text-faint)' }}>No gear data on file yet.</p>
               ) : (
-                <>
-                  {/* Rod & Line */}
-                  <div className="mb-5">
-                    <p className="text-[10px] uppercase font-bold mb-2" style={{ color: 'var(--text-faint)' }}>ROD &amp; LINE</p>
-                    <p className="text-sm text-white leading-snug">{gear.rodSetup}</p>
+                <div className="flex flex-col gap-3">
+
+                  {/* Rod & Line tile */}
+                  <div
+                    className="rounded-2xl p-4"
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+                  >
+                    <p className="text-[10px] uppercase font-bold mb-3 tracking-widest" style={{ color: 'var(--text-faint)' }}>Rod &amp; Line</p>
+                    <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>{gear.rodSetup}</p>
                   </div>
 
-                  {/* Lures */}
+                  {/* Lures tile */}
                   {gear.lures.filter(i => !i.name.toLowerCase().includes('not applicable')).length > 0 && (
-                    <div className="mb-5">
-                      <p className="text-[10px] uppercase font-bold mb-2" style={{ color: 'var(--text-faint)' }}>LURES</p>
-                      <div className="overflow-x-auto no-scrollbar">
-                        <div className="flex gap-2 pb-1" style={{ width: 'max-content' }}>
-                          {gear.lures.filter(i => !i.name.toLowerCase().includes('not applicable')).map((item, i) => (
-                            <a
-                              key={i}
-                              href={item.amazonUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex flex-col items-center active:scale-[0.99]"
-                              style={{ textDecoration: 'none', flexShrink: 0 }}
-                            >
-                              <span
-                                className="text-[11px] font-medium px-3 py-1.5 rounded-full whitespace-nowrap"
-                                style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.75)' }}
-                              >
-                                {item.name.replace(/ fishing$/, '').replace(/\s+\(.*?\)$/, '')}
-                              </span>
-                              <span className="text-[9px] mt-0.5" style={{ color: '#f26522' }}>Amazon ↗</span>
-                            </a>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Bait */}
-                  {gear.bait.filter(i => !i.name.toLowerCase().includes('not applicable')).length > 0 && (
-                    <div className="mb-5">
-                      <p className="text-[10px] uppercase font-bold mb-2" style={{ color: 'var(--text-faint)' }}>BAIT</p>
-                      <div className="overflow-x-auto no-scrollbar">
-                        <div className="flex gap-2 pb-1" style={{ width: 'max-content' }}>
-                          {gear.bait.filter(i => !i.name.toLowerCase().includes('not applicable')).map((item, i) => (
-                            <a
-                              key={i}
-                              href={item.amazonUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex flex-col items-center active:scale-[0.99]"
-                              style={{ textDecoration: 'none', flexShrink: 0 }}
-                            >
-                              <span
-                                className="text-[11px] font-medium px-3 py-1.5 rounded-full whitespace-nowrap"
-                                style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.75)' }}
-                              >
-                                {item.name.replace(/ fishing$/, '').replace(/\s+\(.*?\)$/, '')}
-                              </span>
-                              <span className="text-[9px] mt-0.5" style={{ color: '#6ab04c' }}>Amazon ↗</span>
-                            </a>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Technique */}
-                  {gear.technique.length > 0 && (
-                    <div className="mb-5">
-                      <p className="text-[10px] uppercase font-bold mb-2" style={{ color: 'var(--text-faint)' }}>TECHNIQUE</p>
-                      {gear.technique.map((t, i) => (
-                        <div
-                          key={i}
-                          className="flex gap-3 py-2.5"
-                          style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
-                        >
-                          <span
-                            className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black mt-0.5"
-                            style={{ background: 'rgba(242,101,34,0.2)', color: 'var(--accent)', flexShrink: 0 }}
+                    <div
+                      className="rounded-2xl p-4"
+                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+                    >
+                      <p className="text-[10px] uppercase font-bold mb-3 tracking-widest" style={{ color: 'var(--text-faint)' }}>Lures</p>
+                      <div className="flex flex-wrap gap-2">
+                        {gear.lures.filter(i => !i.name.toLowerCase().includes('not applicable')).map((item, i) => (
+                          <a
+                            key={i}
+                            href={item.amazonUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="active:scale-[0.99]"
+                            style={{ textDecoration: 'none' }}
                           >
-                            {i + 1}
-                          </span>
-                          <p className="text-sm leading-snug" style={{ color: 'var(--text-muted)' }}>{t}</p>
-                        </div>
-                      ))}
+                            <span
+                              className="text-xs font-medium px-3 py-1 rounded-full inline-block"
+                              style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.85)' }}
+                            >
+                              {item.name.replace(/ fishing$/, '').replace(/\s+\(.*?\)$/, '')}
+                            </span>
+                          </a>
+                        ))}
+                      </div>
                     </div>
                   )}
-                </>
+
+                  {/* Bait tile */}
+                  {gear.bait.filter(i => !i.name.toLowerCase().includes('not applicable')).length > 0 && (
+                    <div
+                      className="rounded-2xl p-4"
+                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+                    >
+                      <p className="text-[10px] uppercase font-bold mb-3 tracking-widest" style={{ color: 'var(--text-faint)' }}>Bait</p>
+                      <div className="flex flex-wrap gap-2">
+                        {gear.bait.filter(i => !i.name.toLowerCase().includes('not applicable')).map((item, i) => (
+                          <a
+                            key={i}
+                            href={item.amazonUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="active:scale-[0.99]"
+                            style={{ textDecoration: 'none' }}
+                          >
+                            <span
+                              className="text-xs font-medium px-3 py-1 rounded-full inline-block"
+                              style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.85)' }}
+                            >
+                              {item.name.replace(/ fishing$/, '').replace(/\s+\(.*?\)$/, '')}
+                            </span>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Technique tile */}
+                  {gear.technique.length > 0 && (
+                    <div
+                      className="rounded-2xl p-4"
+                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+                    >
+                      <p className="text-[10px] uppercase font-bold mb-3 tracking-widest" style={{ color: 'var(--text-faint)' }}>Technique</p>
+                      <div className="flex flex-col">
+                        {gear.technique.map((t, i) => (
+                          <div
+                            key={i}
+                            className="flex gap-3 py-2.5"
+                            style={{ borderBottom: i < gear.technique.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}
+                          >
+                            <span
+                              className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black"
+                              style={{ background: 'rgba(242,101,34,0.2)', color: 'var(--accent)', marginTop: 1 }}
+                            >
+                              {i + 1}
+                            </span>
+                            <p className="text-sm leading-snug" style={{ color: 'rgba(255,255,255,0.75)' }}>{t}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                </div>
               )}
             </div>
           )}
 
           {/* ═══ TIPS TAB ═══ */}
           {activeTab === 'tips' && (
-            <div className="h-full overflow-y-auto no-scrollbar px-4 pt-4">
+            <div className="h-full overflow-y-auto no-scrollbar px-4 pt-4 pb-24">
               {guide ? (
-                <>
-                  {/* Best Time */}
+                <div className="flex flex-col gap-3">
+
+                  {/* Best Time tile */}
                   <div
-                    className="mb-4 pl-3"
-                    style={{ borderLeft: '2px solid rgba(242,101,34,0.4)' }}
+                    className="rounded-2xl p-4"
+                    style={{
+                      background: 'rgba(242,101,34,0.06)',
+                      border: '1px solid rgba(242,101,34,0.15)',
+                      borderLeft: '3px solid #f26522',
+                    }}
                   >
-                    <p className="text-[10px] uppercase font-bold mb-1" style={{ color: '#f26522' }}>BEST TIME</p>
-                    <p className="text-sm text-white leading-snug">{guide.bestTime}</p>
+                    <p className="text-[10px] uppercase font-bold mb-2 tracking-widest" style={{ color: '#f26522' }}>Best Time</p>
+                    <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>{guide.bestTime}</p>
                   </div>
 
-                  {/* Pro Tips */}
-                  {guide.proTips.map((tip, i) => (
+                  {/* Pro Tips tile */}
+                  {guide.proTips.length > 0 && (
                     <div
-                      key={i}
-                      className="flex gap-3 py-2.5"
-                      style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+                      className="rounded-2xl p-4"
+                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
                     >
-                      <span style={{ color: '#f59e0b', flexShrink: 0, marginTop: 2 }}>★</span>
-                      <p className="text-sm leading-snug" style={{ color: 'rgba(255,255,255,0.75)' }}>{tip}</p>
-                    </div>
-                  ))}
-
-                  {/* Technique */}
-                  {guide.technique.length > 0 && (
-                    <div className="mt-4">
-                      <p className="text-[10px] uppercase font-bold mb-2" style={{ color: 'var(--text-faint)' }}>TECHNIQUE</p>
-                      {guide.technique.map((tip, i) => (
-                        <div key={i} className="flex items-start gap-2 py-2">
-                          <span style={{ color: '#6ab04c', flexShrink: 0, marginTop: 2 }}>●</span>
-                          <span className="text-sm text-white leading-snug">{tip}</span>
+                      <p className="text-[10px] uppercase font-bold mb-3 tracking-widest" style={{ color: 'var(--text-faint)' }}>Tips</p>
+                      {guide.proTips.map((tip, i) => (
+                        <div
+                          key={i}
+                          className="py-2.5"
+                          style={{ borderBottom: i < guide.proTips.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}
+                        >
+                          <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.75)' }}>{tip}</p>
                         </div>
                       ))}
                     </div>
                   )}
-                </>
+
+                  {/* Technique tile */}
+                  {guide.technique.length > 0 && (
+                    <div
+                      className="rounded-2xl p-4"
+                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+                    >
+                      <p className="text-[10px] uppercase font-bold mb-3 tracking-widest" style={{ color: 'var(--text-faint)' }}>Technique</p>
+                      {guide.technique.map((tip, i) => (
+                        <div
+                          key={i}
+                          className="flex items-start gap-2 py-2"
+                          style={{ borderBottom: i < guide.technique.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}
+                        >
+                          <span
+                            className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black"
+                            style={{ background: 'rgba(106,176,76,0.2)', color: '#6ab04c', marginTop: 1 }}
+                          >
+                            {i + 1}
+                          </span>
+                          <span className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>{tip}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                </div>
               ) : tips ? (
-                <>
+                <div
+                  className="rounded-2xl p-4"
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+                >
+                  <p className="text-[10px] uppercase font-bold mb-3 tracking-widest" style={{ color: 'var(--text-faint)' }}>How to Catch</p>
                   {tips.howToCatch.map((tip, i) => (
                     <div
                       key={i}
                       className="flex gap-3 py-2.5"
-                      style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+                      style={{ borderBottom: i < tips.howToCatch.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}
                     >
                       <span
-                        className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black mt-0.5"
-                        style={{ background: 'rgba(242,101,34,0.2)', color: 'var(--accent)', flexShrink: 0 }}
+                        className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black"
+                        style={{ background: 'rgba(242,101,34,0.2)', color: 'var(--accent)', marginTop: 1 }}
                       >
                         {i + 1}
                       </span>
                       <p className="text-sm leading-snug" style={{ color: 'var(--text-muted)' }}>{tip}</p>
                     </div>
                   ))}
-                </>
+                </div>
               ) : (
                 <p className="text-sm" style={{ color: 'var(--text-faint)' }}>No tips on file yet.</p>
               )}
-              <div className="pb-24" />
             </div>
           )}
 
