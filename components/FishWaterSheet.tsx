@@ -41,7 +41,7 @@ const RiverDetailMapInner = dynamic(() => import('./RiverDetailMapInner'), {
   loading: () => (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      height: '100%', background: '#08080f', color: '#6b7280', fontSize: 14,
+      height: '100%', background: 'var(--bg)', color: '#6b7280', fontSize: 14,
     }}>
       Loading map…
     </div>
@@ -53,7 +53,7 @@ const LakeMapInner = dynamic(() => import('./LakeMapInner'), {
   loading: () => (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      height: '100%', background: '#b8d8ea', color: '#374151', fontSize: 14,
+      height: '100%', background: 'var(--bg)', color: '#6b7280', fontSize: 14,
     }}>
       Loading map…
     </div>
@@ -335,8 +335,8 @@ export default function FishWaterSheet({
   // ── Status colors ─────────────────────────────────────────────────────────
 
   const statusColor  = hasEmergency ? '#f26522' : anyOpen ? '#6ab04c' : '#6b7280'
-  const statusBg     = hasEmergency ? 'rgba(249,115,22,0.12)' : anyOpen ? 'rgba(106,176,76,0.12)' : 'rgba(55,65,81,0.4)'
-  const statusBorder = hasEmergency ? 'rgba(249,115,22,0.4)'  : anyOpen ? 'rgba(106,176,76,0.4)'  : 'rgba(55,65,81,0.6)'
+  const statusBg     = hasEmergency ? 'rgba(242,101,34,0.12)' : anyOpen ? 'rgba(106,176,76,0.12)' : 'rgba(55,65,81,0.4)'
+  const statusBorder = hasEmergency ? 'rgba(242,101,34,0.4)'  : anyOpen ? 'rgba(106,176,76,0.4)'  : 'rgba(55,65,81,0.6)'
   const statusLabel  = hasEmergency ? '! EMERGENCY RULE' : anyOpen ? '● OPEN' : '○ CLOSED'
 
   return (
@@ -383,7 +383,7 @@ export default function FishWaterSheet({
             alt={fish.name}
             style={{
               width: 36, height: 36, objectFit: 'contain',
-              borderRadius: 6, background: '#0b0d14', flexShrink: 0,
+              borderRadius: 6, background: 'var(--surface)', flexShrink: 0,
             }}
           />
         </div>
@@ -443,14 +443,14 @@ export default function FishWaterSheet({
               <div
                 key={i}
                 className="px-4 py-2.5 flex items-start gap-2"
-                style={{ background: 'rgba(239,68,68,0.12)', borderBottom: '1.5px solid rgba(239,68,68,0.3)' }}
+                style={{ background: 'rgba(242,101,34,0.12)', borderBottom: '1.5px solid rgba(242,101,34,0.3)' }}
               >
                 <span className="text-base flex-shrink-0 mt-0.5">🚨</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: '#ef4444' }}>
+                  <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: '#f26522' }}>
                     Emergency Rule — {er.section}
                   </p>
-                  <p className="text-[11px] leading-snug mt-0.5" style={{ color: '#fca5a5' }}>
+                  <p className="text-[11px] leading-snug mt-0.5" style={{ color: 'rgba(242,101,34,0.8)' }}>
                     {er.rule.effective}
                   </p>
                   <a
@@ -458,7 +458,7 @@ export default function FishWaterSheet({
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[10px] underline"
-                    style={{ color: '#ef4444' }}
+                    style={{ color: '#f26522' }}
                   >
                     View official rule ↗
                   </a>
@@ -496,7 +496,7 @@ export default function FishWaterSheet({
               waterName={water.name}
               lat={water.lat}
               lng={water.lng}
-              fillColor={anyOpen ? '#4ade80' : '#ef4444'}
+              fillColor={anyOpen ? '#6ab04c' : '#e74c3c'}
             />
           </div>
         ) : segments.length > 0 ? (
@@ -530,7 +530,7 @@ export default function FishWaterSheet({
                 </a>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {regs.map(reg => {
                   const isOpen = isOpenOn(reg, today)
                   const hasNoteEmerg = reg.notes && /emergency/i.test(reg.notes)
@@ -600,7 +600,7 @@ export default function FishWaterSheet({
 
           {/* ── Gear ── */}
           {gear && (
-            <div className="px-4 pb-4">
+            <div className="px-4 pt-8 pb-4">
               <SectionDivider label="Gear & Setup" />
 
               {/* Rod setup */}
@@ -659,7 +659,7 @@ export default function FishWaterSheet({
 
           {/* ── Tips ── */}
           {(guide || tips) && (
-            <div className="px-4 pb-4">
+            <div className="px-4 pt-8 pb-4">
               <SectionDivider label="Tips" />
 
               {guide ? (
@@ -688,7 +688,7 @@ export default function FishWaterSheet({
                       <ul className="space-y-1.5">
                         {guide.technique.map((tip, i) => (
                           <li key={i} className="flex items-start gap-2">
-                            <span style={{ color: '#63b3ed', flexShrink: 0, marginTop: 2 }}>●</span>
+                            <span style={{ color: 'var(--text-muted)', flexShrink: 0, marginTop: 2 }}>●</span>
                             <span className="text-sm text-white leading-snug">{tip}</span>
                           </li>
                         ))}
@@ -722,7 +722,7 @@ export default function FishWaterSheet({
           )}
 
           {/* ── WDFW verify link ── */}
-          <div className="px-4 pb-8">
+          <div className="px-4 pt-6 pb-24">
             <a
               href="https://wdfw.wa.gov/fishing/regulations"
               target="_blank"
