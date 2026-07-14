@@ -306,7 +306,7 @@ export default function FishWaterSheet({
 
   return (
     <div
-      className="fixed inset-0 flex flex-col justify-end"
+      className="fixed inset-0 flex flex-col justify-end animate-backdrop"
       style={{ zIndex, background: 'rgba(0,0,0,0.85)' }}
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >

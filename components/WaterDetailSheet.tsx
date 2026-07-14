@@ -604,7 +604,7 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
   return (
     <>
       <div
-        className="fixed inset-0 flex flex-col justify-end"
+        className="fixed inset-0 flex flex-col justify-end animate-backdrop"
         style={{ zIndex, background: 'rgba(0,0,0,0.75)' }}
         onClick={e => { if (e.target === e.currentTarget) onClose() }}
       >

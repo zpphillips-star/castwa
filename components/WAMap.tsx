@@ -25,6 +25,8 @@ interface WAMapProps {
   onSegmentClick?: (segment: FishSegment) => void
   onOpenRiver?: (riverId: string) => void
   zoomToSkagit?: number
+  /** Fires when any lake / water-body marker is tapped (passes WATER_BODIES id) */
+  onWaterClick?: (waterId: string) => void
 }
 
 // --- MAP CONTROLLER ---
@@ -318,11 +320,13 @@ function WAMapContents({
   onOpenRiver,
   fishSegments,
   onSegmentClick,
+  onWaterClick,
 }: {
   today: Date
   onOpenRiver?: (riverId: string) => void
   fishSegments?: FishSegment[]
   onSegmentClick?: (segment: FishSegment) => void
+  onWaterClick?: (waterId: string) => void
 }){
   // Track zoom for zoom-gated unregulated rivers
   const [zoom, setZoom] = useState(7)
@@ -509,6 +513,7 @@ function WAMapContents({
                 color: strokeColor,
                 weight: 1,
               }}
+              eventHandlers={fishingId && onWaterClick ? { click: () => onWaterClick(fishingId) } : undefined}
             >
               <Popup>
                 <div style={{ background: '#111118', color: '#fff', borderRadius: 8, padding: '8px 12px', minWidth: 160 }}>

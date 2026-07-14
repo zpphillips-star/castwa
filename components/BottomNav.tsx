@@ -56,11 +56,29 @@ const NavTab = ({ href, label, icon }: { href: string; label: string; icon: (a: 
   const pathname = usePathname()
   const active = pathname === href || pathname.startsWith(href + '/')
   return (
-    <Link href={href} className="flex-1 flex flex-col items-center justify-center py-3 gap-1 h-full">
-      {icon(active)}
-      <span className="text-[10px] font-semibold transition-colors" style={{ color: active ? '#f26522' : '#6b7280' }}>
-        {label}
-      </span>
+    <Link
+      href={href}
+      className="flex-1 flex flex-col items-center justify-center py-3 h-full transition-transform active:scale-[0.97]"
+    >
+      {/* Active indicator dot */}
+      <div style={{ height: 7, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 2 }}>
+        {active && (
+          <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#6ab04c' }} />
+        )}
+      </div>
+      {/* Icon + label — scale up when active */}
+      <div
+        style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+          transform: active ? 'scale(1.08)' : 'scale(1)',
+          transition: 'transform 0.18s ease',
+        }}
+      >
+        {icon(active)}
+        <span className="text-[10px] font-semibold transition-colors" style={{ color: active ? '#6ab04c' : '#6b7280' }}>
+          {label}
+        </span>
+      </div>
     </Link>
   )
 }
@@ -84,7 +102,7 @@ export default function BottomNav() {
 
         {/* Center Today button — raised, prominent, World Cup style */}
         <div className="flex-1 flex flex-col items-center justify-end pb-2 relative">
-          <Link href="/today" className="flex flex-col items-center gap-1 -mt-6">
+          <Link href="/today" className="flex flex-col items-center gap-1 -mt-6 transition-transform active:scale-[0.97]">
             <div
               className="w-16 h-16 rounded-2xl flex items-center justify-center transition-transform active:scale-95 overflow-hidden"
               style={{
@@ -104,7 +122,7 @@ export default function BottomNav() {
                 style={{ objectFit: 'contain', width: '80%', height: '80%' }}
               />
             </div>
-            <span className="text-[10px] font-semibold transition-colors" style={{ color: todayActive ? '#f26522' : '#6b7280' }}>
+            <span className="text-[10px] font-semibold transition-colors" style={{ color: todayActive ? '#6ab04c' : '#6b7280' }}>
               Today
             </span>
           </Link>

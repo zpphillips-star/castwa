@@ -153,14 +153,14 @@ export default function RiverConditionsSheet({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-[70]"
+        className="fixed inset-0 z-[70] animate-backdrop"
         style={{ background: 'rgba(0,0,0,0.75)' }}
         onClick={onClose}
       />
 
       {/* Sheet */}
       <div
-        className="fixed bottom-0 left-0 right-0 z-[71] flex flex-col"
+        className="fixed bottom-0 left-0 right-0 z-[71] flex flex-col animate-slide-up"
         style={{
           background: 'var(--bg)',
           borderTopLeftRadius: 20,

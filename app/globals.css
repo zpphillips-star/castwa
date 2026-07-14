@@ -55,10 +55,18 @@ body { font-family: var(--font-geist-sans), system-ui, sans-serif; }
 }
 
 @keyframes slide-up {
-  from { transform: translateY(100%); opacity: 0.6; }
-  to   { transform: translateY(0);    opacity: 1; }
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
 }
-.animate-slide-up { animation: slide-up 0.26s cubic-bezier(0.32,0.72,0,1) both; }
+/* Spring-physics overshoot (cubic-bezier approximates a spring with slight bounce) */
+.animate-slide-up { animation: slide-up 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+@keyframes backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+/* Smooth backdrop fade — attach to the overlay wrapper div */
+.animate-backdrop { animation: backdrop-in 0.28s ease both; }
 
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(4px); }

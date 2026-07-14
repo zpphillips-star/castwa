@@ -871,7 +871,7 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
   return (
     <>
       <div
-        className="fixed inset-0 flex flex-col justify-end"
+        className="fixed inset-0 flex flex-col justify-end animate-backdrop"
         style={{ zIndex, background: 'rgba(0,0,0,0.75)' }}
         onClick={e => { if (e.target === e.currentTarget) onClose() }}
       >
@@ -1208,7 +1208,7 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
               style={{
                 position: 'absolute', inset: 0,
                 transform: cardOpen ? 'translateY(0)' : 'translateY(100%)',
-                transition: 'transform 0.28s ease',
+                transition: 'transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1)',
                 background: 'var(--bg)',
                 overflow: 'hidden',
               }}
