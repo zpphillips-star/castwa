@@ -606,6 +606,7 @@ function WAMapContents({
                 color: strokeColor,
                 weight: 2,
               }}
+              eventHandlers={onWaterClick ? { click: () => onWaterClick(wb.id) } : undefined}
             >
               <Popup>
                 <div style={{ background: '#111118', color: '#fff', borderRadius: 8, padding: '8px 12px', minWidth: 160 }}>
@@ -621,7 +622,7 @@ function WAMapContents({
   )
 }
 
-export default function WAMap({ selectedFish, fishSegments, onSegmentClick, onOpenRiver, zoomToSkagit = 0 }: WAMapProps = {}) {
+export default function WAMap({ selectedFish, fishSegments, onSegmentClick, onOpenRiver, zoomToSkagit = 0, onWaterClick }: WAMapProps = {}) {
   const today = new Date()
 
   return (
@@ -636,7 +637,7 @@ export default function WAMap({ selectedFish, fishSegments, onSegmentClick, onOp
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
       />
       <MapController zoomToSkagit={zoomToSkagit} />
-      <WAMapContents today={today} onOpenRiver={onOpenRiver} fishSegments={fishSegments} onSegmentClick={onSegmentClick} />
+      <WAMapContents today={today} onOpenRiver={onOpenRiver} fishSegments={fishSegments} onSegmentClick={onSegmentClick} onWaterClick={onWaterClick} />
     </MapContainer>
   )
 }

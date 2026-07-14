@@ -1,10 +1,13 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
+import dynamic from 'next/dynamic'
 import BottomNav from '@/components/BottomNav'
 import WaterDetailSheet from '@/components/WaterDetailSheet'
 import RiverDetailSheet from '@/components/RiverDetailSheet'
-import { WATER_BODIES, REGULATIONS, isOpenOn } from '@/lib/fishing-data'
+import { WATER_BODIES, REGULATIONS, SPECIES, isOpenOn } from '@/lib/fishing-data'
 import type { WaterBody } from '@/lib/fishing-data'
+
+const WAMapDynamic = dynamic(() => import('@/components/WAMap'), { ssr: false })
 
 // ─── Canonical river list — single source of truth ───────────────────────────
 // Imported from lib/river-lookup; never duplicate here.
@@ -44,270 +47,13 @@ const FLOW_PALETTE: Record<FlowStatus, { color: string; label: string }> = {
   error:   { color: '#6b7280', label: 'N/A'      },
 }
 
-// ─── WA Grid Map ──────────────────────────────────────────────────────────────
-// 4 columns × 2 rows covering WA state bounds
-const LAT_ROWS = [49.0, 47.25, 45.5]      // row 0 = North (47.25–49.0), row 1 = South (45.5–47.25)
-const LNG_COLS = [-124.7, -122.78, -120.86, -118.94, -116.9]  // col 0..3
 
-function getGridCell(lat: number, lng: number): [number, number] | null {
-  if (lat < LAT_ROWS[2] || lat > LAT_ROWS[0]) return null
-  if (lng < LNG_COLS[0] || lng > LNG_COLS[4]) return null
-  const row = lat >= LAT_ROWS[1] ? 0 : 1
-  let col = -1
-  for (let i = 0; i < 4; i++) {
-    if (lng >= LNG_COLS[i] && lng <= LNG_COLS[i + 1]) { col = i; break }
-  }
-  if (col < 0) return null
-  return [row, col]
-}
 
-// Static count of water bodies per cell (computed once at module load)
-const CELL_COUNTS: Record<string, number> = (() => {
-  const c: Record<string, number> = {}
-  for (const w of WATER_BODIES) {
-    const cell = getGridCell(w.lat, w.lng)
-    if (cell) {
-      const key = `${cell[0]}-${cell[1]}`
-      c[key] = (c[key] || 0) + 1
-    }
-  }
-  return c
-})()
 
-// Ultra-detail WA state outline — geographic bounds mapped to 600×380 viewBox
-// x = (lng + 124.73) * 76.83  |  y = (49.00 - lat) * 109.83
-// ~155 waypoints computed from real geographic coordinates, clockwise from NE corner.
-// Idaho border → Snake River (NW loop then SW to Columbia) → Columbia River
-// (Pasco → gorge → Portland area → Longview → coast) → Pacific coast
-// (Long Beach Peninsula → Willapa Bay → Grays Harbor → Olympic coast → Cape Flattery)
-// → Strait of Juan de Fuca → Port Townsend → Puget Sound west (Kitsap)
-// → Olympia → Puget Sound east (Tacoma/Seattle/Everett)
-// → Anacortes/Bellingham/Blaine → Z closes along 49th parallel
-const WA_PATH =
-  'M 591,0 ' +
 
-  // ── Idaho (east) border south to Clarkston ──
-  'L 591,283 ' +
 
-  // ── Snake River: loops NW (Almota/Lyons Ferry), then swings SW to Columbia ──
-  'L 563,272 L 539,264 L 521,266 L 501,268 L 480,268 ' +
-  'L 468,283 L 460,296 L 454,304 L 438,304 ' +
 
-  // ── Columbia River from Pasco to Pacific (detailed southern border) ──
-  'L 434,307 ' +                  // Kennewick
-  'L 425,305 L 418,311 ' +        // Wallula/McNary area
-  'L 404,340 L 397,353 ' +        // river swings south (Umatilla area)
-  'L 383,360 L 374,369 ' +        // John Day Dam N side / Blalock
-  'L 364,372 L 351,371 L 335,371 L 318,371 ' +
-  'L 307,369 L 291,369 L 276,369 ' +
-  'L 264,366 L 248,365 ' +        // White Salmon
-  'L 234,361 L 218,368 ' +        // Hood River WA side
-  'L 200,373 L 187,375 L 168,375 ' + // Camas / Washougal
-  'L 158,371 ' +                  // Vancouver WA
-  'L 151,358 L 147,348 L 143,330 ' + // river bends NW (Longview)
-  'L 141,315 L 136,309 ' +        // Kelso / Longview
-  'L 115,296 L 106,309 ' +        // Cathlamet
-  'L 90,305 L 78,289 ' +          // Skamokawa
-  'L 65,302 L 54,303 L 51,304 ' + // Columbia mouth / Cape Disappointment
 
-  // ── Pacific Coast going north (full detail) ──
-  'L 51,290 ' +                   // just north of Cape Disappointment
-  'L 51,276 ' +                   // Long Beach Peninsula mid (nearly straight spit)
-  'L 51,259 ' +                   // Long Beach Peninsula north
-  'L 51,248 ' +                   // approaching Willapa Bay entrance
-  'L 52,231 ' +                   // Leadbetter Pt (north end of Long Beach Peninsula)
-  'L 46,224 ' +                   // north of Willapa Bay entrance
-  'L 46,216 ' +                   // Grayland
-  'L 43,206 ' +                   // Westport
-  'L 41,197 ' +                   // Point Brown (north Grays Harbor)
-  'L 37,181 L 33,177 ' +
-  'L 29,172 ' +                   // Moclips
-  'L 28,168 L 29,162 ' +
-  'L 26,157 ' +                   // Kalaloch
-  'L 22,151 ' +
-  'L 18,142 ' +                   // Hoh River mouth
-  'L 16,136 ' +
-  'L 13,131 ' +                   // Ruby Beach
-  'L 10,126 ' +
-  'L 8,121 ' +                    // La Push
-  'L 7,118 L 6,112 L 3,105 ' +
-  'L 2,98 L 3,92 L 3,83 ' +       // coast north of La Push
-  'L 1,70 ' +                     // Cape Flattery (NW tip of WA)
-
-  // ── Strait of Juan de Fuca east (north Olympic Peninsula coast) ──
-  'L 8,70 ' +                     // Neah Bay
-  'L 25,81 ' +                    // Makah area
-  'L 36,83 ' +                    // Clallam Bay
-  'L 51,90 ' +                    // Pillar Point
-  'L 62,92 ' +                    // Freshwater Bay
-  'L 75,91 L 82,91 ' +            // Joyce
-  'L 94,95 ' +
-  'L 99,98 ' +                    // Port Angeles
-  'L 112,100 L 121,102 ' +        // Sequim
-  'L 130,103 L 135,101 L 142,102 ' +
-  'L 151,97 ' +                   // Port Townsend / Admiralty Inlet entrance
-
-  // ── Puget Sound WEST side: south through Admiralty Inlet → Kitsap ──
-  'L 147,106 L 143,115 ' +        // Admiralty Inlet west
-  'L 142,122 ' +
-  'L 140,129 ' +                  // Hood Canal entrance
-  'L 139,138 L 139,147 ' +        // Kitsap north
-  'L 138,156 L 137,165 L 136,176 ' +
-  'L 137,189 ' +                  // Bremerton area
-  'L 141,198 L 139,206 ' +        // Port Orchard
-  'L 143,210 L 143,219 ' +        // entering South Sound
-  'L 141,222 L 142,227 L 143,232 ' +
-  'L 143,239 ' +                  // Olympia — southernmost point of Puget Sound
-
-  // ── Puget Sound EAST side: north through Tacoma → Seattle → Everett ──
-  'L 146,237 L 151,232 ' +        // east shore of south Sound
-  'L 162,222 L 167,208 ' +        // Nisqually / DuPont area
-  'L 170,188 L 176,191 ' +        // Tacoma Narrows
-  'L 169,177 ' +                  // Tacoma
-  'L 181,167 L 181,157 ' +        // Renton
-  'L 188,145 L 184,138 ' +        // Seattle
-  'L 182,129 L 181,124 L 180,119 ' + // N Seattle
-  'L 182,115 ' +                  // Edmonds
-  'L 185,111 L 192,108 ' +        // Mukilteo
-  'L 193,103 ' +                  // Everett
-  'L 188,98 L 187,94 ' +          // Possession Sound
-  'L 178,88 ' +                   // around Whidbey / Saratoga Passage
-  'L 169,68 ' +                   // Deception Pass / Fidalgo Island
-  'L 163,59 ' +                   // Anacortes
-  'L 157,52 ' +                   // Guemes Channel
-  'L 151,41 ' +                   // Bellingham south
-  'L 152,31 L 162,22 ' +          // Bellingham
-  'L 170,13 L 173,8 L 174,0 ' +   // Blaine / US-Canada land border
-
-  // Z closes straight across top (49th parallel) back to NE corner
-  'Z'
-
-// Cell grid: 4 cols × 2 rows over the 600×380 viewBox
-const COL_W = 150   // 600 / 4
-const ROW_H = 190   // 380 / 2
-
-function WaGridMap({
-  selected,
-  onSelect,
-}: {
-  selected: [number, number] | null
-  onSelect: (cell: [number, number] | null) => void
-}) {
-  return (
-    <div style={{ borderRadius: '12px', overflow: 'hidden' }}>
-      <svg
-        viewBox="0 0 600 380"
-        className="w-full"
-        style={{ display: 'block' }}
-      >
-        <defs>
-          {/* Clip everything to the WA state outline */}
-          <clipPath id="wa-clip">
-            <path d={WA_PATH} />
-          </clipPath>
-        </defs>
-
-        {/* ── State fill (ocean/background behind the shape) ── */}
-        <rect width="600" height="380" fill="var(--bg, #0d1117)" />
-
-        {/* ── WA state shape ── */}
-        <path
-          d={WA_PATH}
-          fill="#1a2035"
-          stroke="rgba(255,255,255,0.18)"
-          strokeWidth="1.5"
-        />
-
-        {/* ── Grid + selections clipped to WA outline ── */}
-        <g clipPath="url(#wa-clip)">
-
-          {/* Selection highlight rects */}
-          {[0, 1].flatMap(row =>
-            [0, 1, 2, 3].map(col => {
-              const isSelected = selected !== null && selected[0] === row && selected[1] === col
-              if (!isSelected) return null
-              return (
-                <rect
-                  key={`sel-${row}-${col}`}
-                  x={col * COL_W}
-                  y={row * ROW_H}
-                  width={COL_W}
-                  height={ROW_H}
-                  fill="rgba(242,101,34,0.25)"
-                  stroke="#f26522"
-                  strokeWidth="1.5"
-                />
-              )
-            })
-          )}
-
-          {/* Grid lines */}
-          <line x1="150" y1="0" x2="150" y2="380" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="4,4" />
-          <line x1="300" y1="0" x2="300" y2="380" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="4,4" />
-          <line x1="450" y1="0" x2="450" y2="380" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="4,4" />
-          <line x1="0" y1="190" x2="600" y2="190" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="4,4" />
-
-        </g>
-
-        {/* ── Water-count badges — NOT clipped, always visible ── */}
-        {[0, 1].flatMap(row =>
-          [0, 1, 2, 3].map(col => {
-            const key = `${row}-${col}`
-            const count = CELL_COUNTS[key] ?? 0
-            const isSelected = selected !== null && selected[0] === row && selected[1] === col
-            const cx = col * COL_W + COL_W / 2
-            const cy = row * ROW_H + ROW_H / 2
-            if (count === 0) return null
-            return (
-              <g key={`lbl-${row}-${col}`}>
-                {/* dark pill so number pops against any background */}
-                <rect
-                  x={cx - 15}
-                  y={cy - 13}
-                  width={30}
-                  height={26}
-                  rx={13}
-                  fill={isSelected ? 'rgba(242,101,34,0.85)' : 'rgba(0,0,0,0.6)'}
-                />
-                <text
-                  x={cx}
-                  y={cy + 1}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  fontSize="15"
-                  fontWeight="800"
-                  fill="#fff"
-                  style={{ userSelect: 'none' }}
-                >
-                  {count}
-                </text>
-              </g>
-            )
-          })
-        )}
-
-        {/* ── Hit-test rects (invisible, on top, not clipped) ── */}
-        {[0, 1].flatMap(row =>
-          [0, 1, 2, 3].map(col => {
-            const isSelected = selected !== null && selected[0] === row && selected[1] === col
-            return (
-              <rect
-                key={`hit-${row}-${col}`}
-                x={col * COL_W}
-                y={row * ROW_H}
-                width={COL_W}
-                height={ROW_H}
-                fill="transparent"
-                style={{ cursor: 'pointer' }}
-                onClick={() => onSelect(isSelected ? null : [row, col])}
-              />
-            )
-          })
-        )}
-      </svg>
-    </div>
-  )
-}
 
 // ─── Section helpers ──────────────────────────────────────────────────────────
 type WaterSection = {
@@ -339,163 +85,8 @@ function buildSections(today: Date): WaterSection[] {
   ].filter(s => s.waters.length > 0)
 }
 
-// ─── Region label from grid cell ─────────────────────────────────────────────
-const REGION_LABELS: string[][] = [
-  ['Northwest WA', 'North Central WA', 'Northeast WA', 'Far Northeast WA'],
-  ['Southwest WA', 'South Central WA', 'Southeast WA', 'Far Southeast WA'],
-]
-function getRegionLabel(row: number, col: number): string {
-  return REGION_LABELS[row]?.[col] ?? 'WA Region'
-}
-
-// ─── Region bottom sheet ──────────────────────────────────────────────────────
-function RegionSheet({
-  cell,
-  today,
-  flowData,
-  onOpenWater,
-  onClose,
-}: {
-  cell: [number, number]
-  today: Date
-  flowData: Record<string, FlowData>
-  onOpenWater: (water: WaterBody) => void
-  onClose: () => void
-}) {
-  const [visible, setVisible] = useState(false)
-  useEffect(() => {
-    const raf = requestAnimationFrame(() => setVisible(true))
-    return () => cancelAnimationFrame(raf)
-  }, [])
-
-  const [row, col] = cell
-  const label = getRegionLabel(row, col)
-
-  const cellWaters = WATER_BODIES.filter(w => {
-    const c = getGridCell(w.lat, w.lng)
-    return c !== null && c[0] === row && c[1] === col
-  })
-
-  const groups = [
-    { label: 'Rivers & Streams', waters: cellWaters.filter(w => w.type === 'river' || w.type === 'stream') },
-    { label: 'Lakes & Reservoirs', waters: cellWaters.filter(w => w.type === 'lake') },
-    { label: 'Marine, Sound & Bay', waters: cellWaters.filter(w => w.type === 'sound' || w.type === 'bay') },
-  ].filter(g => g.waters.length > 0)
-
-  return (
-    <>
-      {/* Backdrop */}
-      <div
-        onClick={onClose}
-        style={{
-          position: 'fixed', inset: 0, zIndex: 50,
-          background: 'rgba(0,0,0,0.6)',
-        }}
-      />
-      {/* Sheet */}
-      <div
-        style={{
-          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 51,
-          background: 'var(--bg)',
-          borderRadius: '24px 24px 0 0',
-          maxHeight: '70vh',
-          display: 'flex',
-          flexDirection: 'column',
-          transform: visible ? 'translateY(0)' : 'translateY(100%)',
-          transition: 'transform 300ms ease-out',
-        }}
-      >
-        {/* Handle bar */}
-        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '12px', paddingBottom: '4px' }}>
-          <div style={{ width: '36px', height: '4px', borderRadius: '2px', background: 'rgba(255,255,255,0.2)' }} />
-        </div>
-
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 20px 12px' }}>
-          <div>
-            <p style={{ fontSize: '17px', fontWeight: 800, color: '#fff', margin: 0 }}>{label}</p>
-            <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px', marginBottom: 0 }}>{cellWaters.length} waters</p>
-          </div>
-          <button
-            onClick={onClose}
-            style={{
-              width: '32px', height: '32px', borderRadius: '50%',
-              background: 'rgba(255,255,255,0.1)', border: 'none',
-              color: '#fff', fontSize: '16px', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >✕</button>
-        </div>
-
-        {/* Body */}
-        <div style={{ overflowY: 'auto', flex: 1, padding: '0 16px 32px' }}>
-          {cellWaters.length === 0 ? (
-            <p style={{ textAlign: 'center', color: 'var(--text-faint)', padding: '32px 0', fontSize: '14px' }}>
-              No waters in this area
-            </p>
-          ) : groups.map(group => (
-            <div key={group.label} style={{ marginBottom: '24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
-                <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6b7280', whiteSpace: 'nowrap' }}>
-                  {group.label} · {group.waters.length}
-                </span>
-                <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
-              </div>
-              <div style={{ borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border)' }}>
-                {group.waters.map((water, idx) => {
-                  const isGauged = GAUGED_IDS.has(water.id)
-                  const flow = flowData[water.id]
-                  const palette = flow ? FLOW_PALETTE[flow.status] : null
-                  const openCount = new Set(
-                    REGULATIONS.filter(r => r.waterBodyId === water.id && isOpenOn(r, today)).map(r => r.speciesId)
-                  ).size
-                  return (
-                    <button
-                      key={water.id}
-                      onClick={() => onOpenWater(water)}
-                      style={{
-                        width: '100%', textAlign: 'left',
-                        background: 'var(--surface)', border: 'none',
-                        borderBottom: idx < group.waters.length - 1 ? '1px solid var(--border)' : 'none',
-                        padding: '14px 16px', cursor: 'pointer',
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-                        <div style={{ minWidth: 0, flex: 1 }}>
-                          <p style={{ fontSize: '15px', fontWeight: 700, color: '#fff', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{water.name}</p>
-                          {openCount > 0 && (
-                            <p style={{ fontSize: '12px', fontWeight: 700, color: '#6ab04c', marginTop: '2px', marginBottom: 0 }}>{openCount} open</p>
-                          )}
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                          {isGauged && flow && flow.cfs !== null && palette ? (
-                            <>
-                              <span style={{ fontSize: '17px', fontWeight: 900, color: palette.color, fontVariantNumeric: 'tabular-nums' }}>
-                                {formatCfs(flow.cfs)}
-                                <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--text-faint)', marginLeft: '2px' }}>cfs</span>
-                              </span>
-                              <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '9999px', background: `${palette.color}1a`, color: palette.color }}>
-                                {palette.label}
-                              </span>
-                            </>
-                          ) : (
-                            <span style={{ color: 'var(--text-faint)', fontSize: '14px' }}>›</span>
-                          )}
-                        </div>
-                      </div>
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </>
-  )
-}
+// Preferred rivers for "Best Bet Today" ranking
+const PREFERRED_RIVER_IDS = new Set(['skagit', 'snoqualmie', 'skykomish', 'snohomish'])
 
 export default function WatersPage() {
   const today = new Date()
@@ -506,8 +97,6 @@ export default function WatersPage() {
   const [selectedRiver, setSelectedRiver] = useState<RiverEntry | null>(null)
   const [selectedWaterName, setSelectedWaterName] = useState<string | null>(null)
   const [activeFilter, setActiveFilter] = useState<'all' | 'river' | 'lake' | 'marine'>('all')
-  const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null)
-  const [regionSheetCell, setRegionSheetCell] = useState<[number, number] | null>(null)
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [locationRequested, setLocationRequested] = useState(false)
   const [locationDenied, setLocationDenied] = useState(false)
@@ -544,6 +133,48 @@ export default function WatersPage() {
       setSelectedWaterName(water.name)
     }
   }, [])
+
+  // ── Map click handler — unified for rivers + water bodies ─────────────────
+  const handleMapOpen = useCallback((waterId: string) => {
+    const wb = WATER_BODIES.find(w => w.id === waterId)
+    if (wb) openWater(wb)
+  }, [openWater])
+
+  // ── Best Bet Today — highest-value fishable water right now ───────────────
+  const bestBetWater = (() => {
+    const candidates = [...WATER_BODIES]
+      .map(w => {
+        const openSpeciesIds = [...new Set(
+          REGULATIONS.filter(r => r.waterBodyId === w.id && isOpenOn(r, today)).map(r => r.speciesId)
+        )]
+        const flow = flowData[w.id]
+        const hasIdealFlow = flow?.status === 'ideal'
+        const isFlood = flow?.status === 'high'
+        const isPreferred = PREFERRED_RIVER_IDS.has(w.id)
+        return { water: w, openSpeciesIds, hasIdealFlow, isFlood, isPreferred }
+      })
+      .filter(x => x.openSpeciesIds.length > 0 && !x.isFlood)
+      .sort((a, b) => {
+        if (a.isPreferred !== b.isPreferred) return a.isPreferred ? -1 : 1
+        if (a.hasIdealFlow !== b.hasIdealFlow) return a.hasIdealFlow ? -1 : 1
+        return b.openSpeciesIds.length - a.openSpeciesIds.length
+      })
+    return candidates[0] ?? null
+  })()
+
+  // ── Species pills helper ──────────────────────────────────────────────────
+  function getOpenSpeciesPills(waterId: string, max = 3): { pills: string[]; extra: number } {
+    const openIds = [...new Set(
+      REGULATIONS.filter(r => r.waterBodyId === waterId && isOpenOn(r, today)).map(r => r.speciesId)
+    )]
+    const names = openIds.map(id => {
+      const sp = SPECIES.find(s => s.id === id)
+      // Shorten long names for pills
+      const n = sp?.name ?? id
+      return n.replace(' Salmon', '').replace(' Trout', '').replace('Mountain ', '')
+    })
+    return { pills: names.slice(0, max), extra: Math.max(0, names.length - max) }
+  }
 
   const allSections = buildSections(today)
 
@@ -627,9 +258,85 @@ export default function WatersPage() {
         </div>
       </header>
 
-      {/* ── Pinned: Most Active + Map ── */}
+      {/* ── Pinned: Best Bet + Most Active + Map ── */}
       <div className="flex-shrink-0 max-w-lg mx-auto w-full px-4 pt-4"
         style={{ background: 'var(--bg)' }}>
+
+        {/* ── Best Bet Today ── */}
+        {bestBetWater && (
+          <button
+            onClick={() => openWater(bestBetWater.water)}
+            className="w-full text-left mb-4"
+            style={{
+              borderRadius: 20,
+              overflow: 'hidden',
+              border: '1.5px solid #f2652255',
+              boxShadow: '0 6px 28px #f265220f',
+              background: 'var(--surface)',
+              display: 'block',
+              cursor: 'pointer',
+            }}
+          >
+            {/* Orange accent bar */}
+            <div style={{ height: 3, background: '#f26522' }} />
+            <div style={{ padding: '14px 16px 0' }}>
+              {/* Badge row */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <span style={{
+                  fontSize: 9, fontWeight: 900, letterSpacing: '0.1em',
+                  textTransform: 'uppercase', color: '#fff',
+                  background: '#f26522', borderRadius: 6, padding: '3px 8px',
+                }}>Best Bet Today</span>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+                  {bestBetWater.water.type === 'lake' ? 'LAKE' : bestBetWater.water.type === 'sound' || bestBetWater.water.type === 'bay' ? 'MARINE' : 'RIVER'}
+                </span>
+              </div>
+              {/* Name */}
+              <p style={{ fontSize: 22, fontWeight: 900, color: '#fff', lineHeight: 1.1, margin: '0 0 6px' }}>
+                {bestBetWater.water.name}
+              </p>
+              {/* Species pills */}
+              {(() => { const { pills, extra } = getOpenSpeciesPills(bestBetWater.water.id); return (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 12 }}>
+                  {pills.map(pill => (
+                    <span key={pill} style={{
+                      fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 9999,
+                      background: '#6ab04c22', color: '#6ab04c', border: '1px solid #6ab04c44',
+                    }}>{pill}</span>
+                  ))}
+                  {extra > 0 && (
+                    <span style={{
+                      fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 9999,
+                      background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)',
+                    }}>+{extra}</span>
+                  )}
+                </div>
+              )})()}
+            </div>
+            {/* Footer with flow data */}
+            {(() => {
+              const flow = flowData[bestBetWater.water.id]
+              const palette = flow ? FLOW_PALETTE[flow.status] : null
+              const isGauged = GAUGED_IDS.has(bestBetWater.water.id)
+              if (isGauged && flow && flow.cfs !== null && palette) {
+                return (
+                  <div style={{ padding: '10px 16px 14px', borderTop: '1px solid var(--border)', background: `${palette.color}0d`, display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                    <span style={{ fontSize: 20, fontWeight: 900, color: palette.color, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>{formatCfs(flow.cfs)}</span>
+                    <span style={{ fontSize: 10, color: 'var(--text-faint)' }}>cfs</span>
+                    <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 800, padding: '2px 8px', borderRadius: 9999, background: `${palette.color}22`, color: palette.color }}>{palette.label}</span>
+                    <span style={{ marginLeft: 'auto', fontSize: 12, color: 'var(--text-faint)' }}>{bestBetWater.water.region} ›</span>
+                  </div>
+                )
+              }
+              return (
+                <div style={{ padding: '10px 16px 14px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: 11, color: 'var(--text-faint)' }}>{bestBetWater.water.region}</span>
+                  <span style={{ color: 'var(--text-faint)', fontSize: 14 }}>›</span>
+                </div>
+              )
+            })()}
+          </button>
+        )}
 
         {/* Most Active Right Now */}
         {featuredWaters.length > 0 && (
@@ -657,12 +364,13 @@ export default function WatersPage() {
                 const waterTypeLabel = water.type === 'lake' ? 'LAKE'
                   : water.type === 'sound' || water.type === 'bay' ? 'MARINE'
                   : 'RIVER'
+                const { pills: speciesPills, extra: speciesExtra } = getOpenSpeciesPills(water.id)
                 return (
                   <button
                     key={water.id}
                     onClick={() => openWater(water)}
                     style={{
-                      width: 158,
+                      width: 162,
                       flexShrink: 0,
                       borderRadius: 20,
                       overflow: 'hidden',
@@ -680,22 +388,34 @@ export default function WatersPage() {
                     <div style={{ height: 3, background: accentColor, flexShrink: 0 }} />
 
                     {/* Card body */}
-                    <div style={{ flex: 1, padding: '14px 14px 10px' }}>
-                      <p style={{ fontSize: 9, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-faint)', marginBottom: 6, margin: '0 0 6px' }}>
+                    <div style={{ flex: 1, padding: '12px 12px 8px' }}>
+                      <p style={{ fontSize: 9, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-faint)', margin: '0 0 4px' }}>
                         {waterTypeLabel}
                       </p>
-                      <p style={{ fontSize: 16, fontWeight: 900, color: '#fff', lineHeight: 1.15, marginBottom: 4, margin: '0 0 4px' }}>
+                      <p style={{ fontSize: 15, fontWeight: 900, color: '#fff', lineHeight: 1.15, margin: '0 0 6px' }}>
                         {water.name}
                       </p>
-                      <p style={{ fontSize: 11, color: 'var(--text-faint)', margin: 0 }}>
-                        {water.region}
-                      </p>
+                      {/* Species pills */}
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                        {speciesPills.map(pill => (
+                          <span key={pill} style={{
+                            fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 9999,
+                            background: `${accentColor}18`, color: accentColor,
+                          }}>{pill}</span>
+                        ))}
+                        {speciesExtra > 0 && (
+                          <span style={{
+                            fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 9999,
+                            background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)',
+                          }}>+{speciesExtra}</span>
+                        )}
+                      </div>
                     </div>
 
                     {/* Card footer */}
                     {isGauged && flow && flow.cfs !== null && palette ? (
-                      <div style={{ padding: '10px 14px 13px', borderTop: '1px solid var(--border)', background: `${accentColor}0d`, display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                        <span style={{ fontSize: 22, fontWeight: 900, color: accentColor, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+                      <div style={{ padding: '8px 12px 11px', borderTop: '1px solid var(--border)', background: `${accentColor}0d`, display: 'flex', alignItems: 'baseline', gap: 5 }}>
+                        <span style={{ fontSize: 20, fontWeight: 900, color: accentColor, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
                           {formatCfs(flow.cfs)}
                         </span>
                         <span style={{ fontSize: 10, color: 'var(--text-faint)' }}>cfs</span>
@@ -704,7 +424,7 @@ export default function WatersPage() {
                         </span>
                       </div>
                     ) : (
-                      <div style={{ padding: '10px 14px 13px', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ padding: '8px 12px 11px', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <span style={{ fontSize: 11, fontWeight: 700, color: '#6ab04c' }}>{openCount} open</span>
                         <span style={{ color: 'var(--text-faint)', fontSize: 13 }}>›</span>
                       </div>
@@ -716,15 +436,12 @@ export default function WatersPage() {
           </div>
         )}
 
-        {/* WA Map — cushioned card */}
-        <div className="rounded-2xl mb-3"
-          style={{ background: 'var(--surface)', border: '1px solid var(--border)', padding: '10px 10px 6px' }}>
-          <WaGridMap
-            selected={selectedCell}
-            onSelect={(cell) => {
-              setSelectedCell(cell)
-              setRegionSheetCell(cell)
-            }}
+        {/* Real Leaflet map — replaces SVG WaGridMap */}
+        <div className="rounded-2xl mb-3 overflow-hidden"
+          style={{ height: 260, border: '1px solid var(--border)' }}>
+          <WAMapDynamic
+            onOpenRiver={handleMapOpen}
+            onWaterClick={handleMapOpen}
           />
         </div>
       </div>
@@ -906,22 +623,6 @@ export default function WatersPage() {
       </div>{/* end max-w-lg */}
       </div>{/* end scrollable */}
 
-      {regionSheetCell && (
-        <RegionSheet
-          cell={regionSheetCell}
-          today={today}
-          flowData={flowData}
-          onOpenWater={(water) => {
-            openWater(water)
-            setRegionSheetCell(null)
-            setSelectedCell(null)
-          }}
-          onClose={() => {
-            setRegionSheetCell(null)
-            setSelectedCell(null)
-          }}
-        />
-      )}
       {selectedWaterName && (
         <WaterDetailSheet
           waterName={selectedWaterName}
