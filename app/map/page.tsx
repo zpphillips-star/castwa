@@ -138,11 +138,11 @@ function NearMeCard({
         )}
       </div>
 
-      {/* Note — inline, no separator */}
+      {/* Note — matches Today page structure */}
       {hasFlow && flowData!.status !== 'loading' && flowData!.status !== 'error' && (
-        <div style={{ marginTop: '8px', display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-          <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-faint)', flexShrink: 0 }}>Note</span>
-          <span style={{ fontSize: '12px', color: 'var(--text-faint)' }}>{getCfsDescription(flowData!.status)}</span>
+        <div className="mt-3 pt-3 flex items-baseline gap-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <span className="text-[10px] font-bold uppercase tracking-wide flex-shrink-0" style={{ color: 'var(--text-faint)' }}>Note</span>
+          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{getCfsDescription(flowData!.status)}</span>
         </div>
       )}
     </button>
