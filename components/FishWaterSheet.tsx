@@ -7,7 +7,9 @@
  *   - Fish page  → fish → water list → water tap  (siblingWaters provided)
  *   - Waters page → water → fish list → fish tap  (siblingFish provided)
  *
- * If siblings are provided, left/right nav arrows (+ swipe) cycle through them.
+ * Tabs: REGULATIONS | GEAR | TIPS
+ * Horizontal swipe on tab content to switch tabs.
+ * Swipe right on REGULATIONS → onClose().
  */
 
 import { useState, useMemo, useRef } from 'react'
@@ -23,7 +25,6 @@ import type { MapSegment, SegmentStatus } from './RiverDetailMapInner'
 import { GEAR } from '@/lib/gear-data'
 import { FISH_TIPS } from './RiverDetailSheet'
 import { CATCH_GUIDES } from '@/lib/catch-guides'
-import { useSwipeBack } from '@/hooks/useSwipeBack'
 import {
   SKAGIT_COORDS,
   SAUK_COORDS,
@@ -60,6 +61,11 @@ const LakeMapInner = dynamic(() => import('./LakeMapInner'), {
   ),
 })
 
+// ── Types ─────────────────────────────────────────────────────────────────────
+type Tab = 'regulations' | 'gear' | 'tips'
+const TAB_ORDER: Tab[] = ['regulations', 'gear', 'tips']
+const TAB_LABELS: Record<Tab, string> = { regulations: 'REGULATIONS', gear: 'GEAR', tips: 'TIPS' }
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function fmtDate(mmdd: string): string {
@@ -95,9 +101,7 @@ function buildSkagitSegmentsForSpecies(speciesId: string): MapSegment[] {
     } else {
       coords = [[48.42, -121.75], [48.5, -121.5]]
     }
-
     let status: SegmentStatus = 'closed'
-
     if (section.emergencyRule) {
       const activeOverride = section.emergencyRule.overrides.find(o =>
         o.status === 'OPEN' || o.status === 'CLOSED'
@@ -107,14 +111,12 @@ function buildSkagitSegmentsForSpecies(speciesId: string): MapSegment[] {
         return { idx, coords, status, label: section.name }
       }
     }
-
     const matchingSeason = section.seasons.find(s =>
       nameAliases.some(alias => s.species.toLowerCase().includes(alias.toLowerCase()))
     )
     if (matchingSeason) {
       status = matchingSeason.closed ? 'closed' : 'open'
     }
-
     return { idx, coords, status, label: section.name }
   })
 }
@@ -147,77 +149,17 @@ function getRiverCoords(riverId: string): [number, number][] {
   return []
 }
 
-function getGearEmoji(name: string): string {
-  const n = name.toLowerCase()
-  if (n.includes('spinner') || n.includes('rooster tail') || n.includes('vibrax') || n.includes('wedding ring')) return '🌀'
-  if (n.includes('spoon') || n.includes('kastmaster') || n.includes('krocodile') || n.includes('cyclone') || n.includes('dardevle')) return '🥄'
-  if (n.includes('frog') || n.includes('topwater') || n.includes('popper')) return '🐸'
-  if (n.includes('plug') || n.includes('kwikfish') || n.includes('rapala') || n.includes('crankbait')) return '🎣'
-  if (n.includes('fly') || n.includes('nymph') || n.includes('streamer') || n.includes('caddis') || n.includes('bugger') || n.includes('hoochie') || n.includes('dodger')) return '🦋'
-  if (n.includes('jig') || n.includes('curly tail') || n.includes('ned rig') || n.includes('drop shot') || n.includes('spin-n-glo') || n.includes('jigging')) return '🪝'
-  if (n.includes('corky') || n.includes('yarn') || n.includes('egg') || n.includes('roe')) return '🟠'
-  if (n.includes('powerbait') || n.includes('dough') || n.includes('worm') || n.includes('crawler')) return '🪱'
-  if (n.includes('shrimp') || n.includes('prawn')) return '🦐'
-  if (n.includes('herring') || n.includes('anchovy') || n.includes('smelt') || n.includes('cut plug')) return '🐡'
-  if (n.includes('crayfish') || n.includes('crab')) return '🦀'
-  if (n.includes('squid')) return '🦑'
-  if (n.includes('clam') || n.includes('mussel')) return '🐚'
-  if (n.includes('pot') || n.includes('ring net') || n.includes('clam gun')) return '🧺'
-  return '🎣'
-}
-
-// ── Gear mini-grid ────────────────────────────────────────────────────────────
-
-function GearMiniGrid({ items, accent }: { items: { name: string; amazonUrl: string }[]; accent: string }) {
-  const visible = items.filter(i => !i.name.toLowerCase().includes('not applicable'))
-  if (visible.length === 0) return null
-  return (
-    <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-      {visible.map((item, i) => (
-        <a
-          key={i}
-          href={item.amazonUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex flex-col items-center gap-1 py-2.5 px-1 rounded-xl active:scale-[0.99] text-center"
-          style={{ background: 'var(--bg)', border: '1px solid var(--border)', textDecoration: 'none' }}
-        >
-          <span style={{ fontSize: 22, lineHeight: 1 }}>{getGearEmoji(item.name)}</span>
-          <span className="text-[9px] leading-tight font-medium"
-            style={{
-              color: 'var(--text-muted)',
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-            }}>
-            {item.name.replace(/ fishing$/, '').replace(/\s+\(.*?\)$/, '')}
-          </span>
-          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded mt-0.5"
-            style={{ background: `${accent}20`, color: accent }}>
-            Amazon ↗
-          </span>
-        </a>
-      ))}
-    </div>
-  )
-}
-
-// ── Section divider ───────────────────────────────────────────────────────────
-
-function SectionDivider({ label }: { label: string }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-      <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.1)' }} />
-      <span style={{
-        fontSize: 10, fontWeight: 800, letterSpacing: '0.08em',
-        textTransform: 'uppercase', color: '#6b7280', whiteSpace: 'nowrap',
-      }}>
-        {label}
-      </span>
-      <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.1)' }} />
-    </div>
-  )
+function isInsideMapOrNoSwipe(target: EventTarget | null): boolean {
+  let node = target as HTMLElement | null
+  while (node && node !== document.body) {
+    if (
+      node.classList?.contains('leaflet-container') ||
+      node.classList?.contains('leaflet-map-pane') ||
+      node.getAttribute?.('data-no-swipe-back') === 'true'
+    ) return true
+    node = node.parentElement
+  }
+  return false
 }
 
 // ── Props ─────────────────────────────────────────────────────────────────────
@@ -231,7 +173,7 @@ export interface FishWaterSheetProps {
   /** "from-water" mode: navigate between these fish (same water) */
   siblingFish?: Species[]
   /** Index of the current fish or water in the sibling list */
-  initialIndex?: number
+  initialSiblingIndex?: number
   zIndex?: number
 }
 
@@ -243,17 +185,16 @@ export default function FishWaterSheet({
   onClose,
   siblingWaters,
   siblingFish,
-  initialIndex = 0,
+  initialSiblingIndex = 0,
   zIndex = 80,
 }: FishWaterSheetProps) {
   const today = new Date()
-
-  // Navigation state
-  const [currentIdx, setCurrentIdx] = useState(initialIndex)
+  const [activeTab, setActiveTab] = useState<Tab>('regulations')
+  const [currentIdx, setCurrentIdx] = useState(initialSiblingIndex)
 
   // Determine mode and resolve current fish + water
   const mode = siblingWaters ? 'from-fish' : siblingFish ? 'from-water' : 'solo'
-  const fish: Species   = mode === 'from-water' && siblingFish ? (siblingFish[currentIdx] ?? initialFish) : initialFish
+  const fish: Species    = mode === 'from-water' && siblingFish ? (siblingFish[currentIdx] ?? initialFish) : initialFish
   const water: WaterBody = mode === 'from-fish' && siblingWaters ? (siblingWaters[currentIdx] ?? initialWater) : initialWater
 
   const siblings: (WaterBody | Species)[] =
@@ -263,24 +204,6 @@ export default function FishWaterSheet({
   const canPrev = currentIdx > 0
   const canNext = currentIdx < siblings.length - 1
 
-  // Horizontal swipe on the header to navigate siblings
-  const touchStartX = useRef<number | null>(null)
-  function onHeaderTouchStart(e: React.TouchEvent) {
-    touchStartX.current = e.touches[0].clientX
-  }
-  function onHeaderTouchEnd(e: React.TouchEvent) {
-    if (touchStartX.current === null) return
-    const dx = e.changedTouches[0].clientX - touchStartX.current
-    touchStartX.current = null
-    if (Math.abs(dx) < 60) return
-    if (dx < 0 && canNext) setCurrentIdx(i => i + 1)
-    else if (dx > 0 && canPrev) setCurrentIdx(i => i - 1)
-    else if (dx > 0 && !canPrev) onClose()
-  }
-
-  // Swipe-back gesture for closing
-  const swipeBack = useSwipeBack(onClose)
-
   // ── Data ──────────────────────────────────────────────────────────────────
 
   const regs = useMemo(
@@ -288,10 +211,10 @@ export default function FishWaterSheet({
     [fish.id, water.id]
   )
 
-  const anyOpen    = regs.some(r => isOpenOn(r, today))
-  const isSkagit   = water.id === 'skagit'
+  const anyOpen  = regs.some(r => isOpenOn(r, today))
+  const isSkagit = water.id === 'skagit'
 
-  // Emergency rules (Skagit only for now — reg.notes emergency is handled in the reg card)
+  // Emergency rules (Skagit only, plus notes-based emergency)
   const emergencyRules = useMemo(() => {
     if (!isSkagit) return []
     return SKAGIT_SECTIONS
@@ -306,13 +229,10 @@ export default function FishWaterSheet({
       .map(s => ({ section: s.name, rule: s.emergencyRule! }))
   }, [isSkagit, fish.id])
 
-  // Also check reg notes for any "emergency" mention
   const noteEmergency = regs.find(r => r.notes && /emergency/i.test(r.notes))
-
   const hasEmergency = emergencyRules.length > 0 || !!noteEmergency
 
-  // ── Map segments ──────────────────────────────────────────────────────────
-
+  // Map segments
   const segments = useMemo<MapSegment[]>(() => {
     if (isSkagit) return buildSkagitSegmentsForSpecies(fish.id)
     if (water.type === 'river' || water.type === 'stream') {
@@ -326,18 +246,54 @@ export default function FishWaterSheet({
 
   const isLakeType = !isSkagit && segments.length === 0
 
-  // ── Gear + tips ───────────────────────────────────────────────────────────
-
+  // Gear + tips
   const gear  = GEAR[fish.id]
   const tips  = FISH_TIPS[fish.id]
   const guide = CATCH_GUIDES.find(g => g.speciesId === fish.id) ?? null
 
-  // ── Status colors ─────────────────────────────────────────────────────────
+  // Status info
+  const statusColor = hasEmergency ? '#f26522' : anyOpen ? '#6ab04c' : '#6b7280'
+  const statusLabel = hasEmergency ? '⚑ EMERGENCY RULE' : anyOpen ? '● OPEN' : '○ CLOSED'
+  const firstReg = regs[0]
 
-  const statusColor  = hasEmergency ? '#f26522' : anyOpen ? '#6ab04c' : '#6b7280'
-  const statusBg     = hasEmergency ? 'rgba(242,101,34,0.12)' : anyOpen ? 'rgba(106,176,76,0.12)' : 'rgba(55,65,81,0.4)'
-  const statusBorder = hasEmergency ? 'rgba(242,101,34,0.4)'  : anyOpen ? 'rgba(106,176,76,0.4)'  : 'rgba(55,65,81,0.6)'
-  const statusLabel  = hasEmergency ? '! EMERGENCY RULE' : anyOpen ? '● OPEN' : '○ CLOSED'
+  // ── Header swipe for sibling navigation ──────────────────────────────────
+
+  const headerTouchX = useRef<number | null>(null)
+  function onHeaderTouchStart(e: React.TouchEvent) {
+    headerTouchX.current = e.touches[0].clientX
+  }
+  function onHeaderTouchEnd(e: React.TouchEvent) {
+    if (headerTouchX.current === null) return
+    const dx = e.changedTouches[0].clientX - headerTouchX.current
+    headerTouchX.current = null
+    if (Math.abs(dx) < 60) return
+    if (dx < 0 && canNext) setCurrentIdx(i => i + 1)
+    else if (dx > 0 && canPrev) setCurrentIdx(i => i - 1)
+    else if (dx > 0 && !canPrev) onClose()
+  }
+
+  // ── Tab content swipe ─────────────────────────────────────────────────────
+
+  const tabTouchX = useRef<number | null>(null)
+  function onTabTouchStart(e: React.TouchEvent) {
+    if (isInsideMapOrNoSwipe(e.touches[0].target)) {
+      tabTouchX.current = null
+      return
+    }
+    tabTouchX.current = e.touches[0].clientX
+  }
+  function onTabTouchEnd(e: React.TouchEvent) {
+    if (tabTouchX.current === null) return
+    const dx = e.changedTouches[0].clientX - tabTouchX.current
+    tabTouchX.current = null
+    if (Math.abs(dx) < 50) return
+    const idx = TAB_ORDER.indexOf(activeTab)
+    if (dx < 0 && idx < TAB_ORDER.length - 1) setActiveTab(TAB_ORDER[idx + 1])
+    else if (dx > 0 && idx > 0) setActiveTab(TAB_ORDER[idx - 1])
+    else if (dx > 0 && idx === 0) onClose()
+  }
+
+  // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
     <div
@@ -348,21 +304,20 @@ export default function FishWaterSheet({
       <div
         className="animate-slide-up rounded-t-2xl flex flex-col overflow-hidden"
         style={{ background: 'var(--bg)', height: '95dvh' }}
-        {...swipeBack}
       >
 
-        {/* ── Header ── */}
+        {/* ── Fixed header ── */}
         <div
-          className="flex-shrink-0 flex items-center gap-3 px-4 py-3"
-          style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}
+          className="flex-shrink-0 flex items-center gap-2 px-4 py-3"
+          style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', background: 'var(--bg)' }}
           onTouchStart={onHeaderTouchStart}
           onTouchEnd={onHeaderTouchEnd}
         >
-          {/* Close / back */}
+          {/* Back */}
           <button
             onClick={onClose}
-            className="flex items-center gap-1.5 text-sm font-semibold active:scale-[0.99] flex-shrink-0"
-            style={{ color: 'var(--accent)' }}
+            className="flex items-center gap-1 text-sm font-semibold flex-shrink-0 active:scale-[0.99]"
+            style={{ color: 'var(--text-faint)' }}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/>
@@ -370,374 +325,451 @@ export default function FishWaterSheet({
             Back
           </button>
 
-          {/* Centre title */}
-          <div className="flex-1 min-w-0 text-center px-1">
-            <p className="text-sm font-black text-white leading-tight truncate">{fish.name}</p>
-            <p className="text-[11px] font-medium truncate" style={{ color: 'var(--text-faint)' }}>{water.name}</p>
+          {/* Center title */}
+          <div className="flex-1 min-w-0 text-center px-1 truncate">
+            <span className="text-sm font-bold text-white">{fish.name}</span>
+            <span className="text-sm" style={{ color: 'var(--text-faint)' }}> on </span>
+            <span className="text-sm font-bold text-white">{water.name}</span>
           </div>
 
-          {/* Fish thumbnail */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={fish.photo}
-            alt={fish.name}
-            style={{
-              width: 36, height: 36, objectFit: 'contain',
-              borderRadius: 6, background: 'var(--surface)', flexShrink: 0,
-            }}
-          />
-        </div>
-
-        {/* ── Sibling navigation bar ── */}
-        {siblings.length > 1 && (
-          <div
-            className="flex-shrink-0 flex items-center justify-between px-4 py-2"
-            style={{ background: 'var(--surface)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
-          >
-            <button
-              onClick={() => setCurrentIdx(i => Math.max(0, i - 1))}
-              disabled={!canPrev}
-              className="flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-lg active:scale-[0.99]"
-              style={{
-                background: canPrev ? 'rgba(255,255,255,0.08)' : 'transparent',
-                color: canPrev ? 'var(--text-muted)' : 'var(--text-faint)',
-                border: canPrev ? '1px solid rgba(255,255,255,0.12)' : '1px solid transparent',
-                opacity: canPrev ? 1 : 0.3,
-              }}
-            >
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7"/>
-              </svg>
-              {mode === 'from-fish' ? 'Prev water' : 'Prev fish'}
-            </button>
-
-            <span className="text-[11px] font-semibold" style={{ color: 'var(--text-faint)' }}>
-              {mode === 'from-fish'
-                ? `Water ${currentIdx + 1} of ${siblings.length}`
-                : `Fish ${currentIdx + 1} of ${siblings.length}`}
-            </span>
-
-            <button
-              onClick={() => setCurrentIdx(i => Math.min(siblings.length - 1, i + 1))}
-              disabled={!canNext}
-              className="flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-lg active:scale-[0.99]"
-              style={{
-                background: canNext ? 'rgba(255,255,255,0.08)' : 'transparent',
-                color: canNext ? 'var(--text-muted)' : 'var(--text-faint)',
-                border: canNext ? '1px solid rgba(255,255,255,0.12)' : '1px solid transparent',
-                opacity: canNext ? 1 : 0.3,
-              }}
-            >
-              {mode === 'from-fish' ? 'Next water' : 'Next fish'}
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7"/>
-              </svg>
-            </button>
-          </div>
-        )}
-
-        {/* ── Emergency banner (Skagit sections) ── */}
-        {emergencyRules.length > 0 && (
-          <div className="flex-shrink-0">
-            {emergencyRules.slice(0, 2).map((er, i) => (
-              <div
-                key={i}
-                className="px-4 py-2.5 flex items-start gap-2"
-                style={{ background: 'rgba(242,101,34,0.12)', borderBottom: '1.5px solid rgba(242,101,34,0.3)' }}
+          {/* Sibling nav */}
+          {siblings.length > 1 && (
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <button
+                onClick={() => canPrev ? setCurrentIdx(i => i - 1) : onClose()}
+                className="text-[13px] px-1 active:scale-[0.99]"
+                style={{ color: 'var(--text-faint)' }}
               >
-                <span className="text-base flex-shrink-0 mt-0.5">🚨</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: '#f26522' }}>
-                    Emergency Rule — {er.section}
-                  </p>
-                  <p className="text-[11px] leading-snug mt-0.5" style={{ color: 'rgba(242,101,34,0.8)' }}>
-                    {er.rule.effective}
-                  </p>
-                  <a
-                    href={er.rule.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[10px] underline"
-                    style={{ color: '#f26522' }}
-                  >
-                    View official rule ↗
-                  </a>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* ── Status banner ── */}
-        <div
-          className="flex-shrink-0 px-4 py-2.5"
-          style={{ background: statusBg, borderBottom: `2px solid ${statusBorder}` }}
-        >
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-sm font-black" style={{ color: statusColor }}>{statusLabel}</span>
-            {regs.length > 0 && (
-              <span className="text-[11px] font-medium" style={{ color: 'var(--text-faint)' }}>
-                {fmtDate(regs[0].seasonStart)} – {fmtDate(regs[0].seasonEnd)}
+                ‹
+              </button>
+              <span className="text-[11px]" style={{ color: 'var(--text-faint)' }}>
+                {currentIdx + 1}/{siblings.length}
               </span>
-            )}
-            {regs[0]?.hatcheryOnly && (
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
-                style={{ background: 'rgba(251,191,36,0.15)', color: '#fbbf24' }}>
-                🏷 Hatchery only
-              </span>
-            )}
-          </div>
+              <button
+                onClick={() => canNext && setCurrentIdx(i => i + 1)}
+                className="text-[13px] px-1 active:scale-[0.99]"
+                style={{ color: canNext ? 'var(--text-faint)' : 'transparent' }}
+              >
+                ›
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* ── Map (fixed height, not scrollable) ── */}
-        {isLakeType ? (
-          <div className="flex-shrink-0" data-no-swipe-back="true" style={{ height: '180px' }}>
-            <LakeMapInner
-              waterName={water.name}
-              lat={water.lat}
-              lng={water.lng}
-              fillColor={anyOpen ? '#6ab04c' : '#e74c3c'}
-            />
-          </div>
-        ) : segments.length > 0 ? (
-          <div className="flex-shrink-0" data-no-swipe-back="true" style={{ height: '180px' }}>
-            <RiverDetailMapInner
-              segments={segments}
-              selectedIdx={-1}
-              onSegmentClick={() => {}}
-            />
-          </div>
-        ) : null}
+        {/* ── Fixed status bar ── */}
+        <div
+          className="flex-shrink-0 flex items-center gap-2 px-4 py-2"
+          style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}
+        >
+          <span className="text-sm font-bold" style={{ color: statusColor }}>{statusLabel}</span>
+          {firstReg && (
+            <span className="text-[11px]" style={{ color: 'var(--text-faint)' }}>
+              · {fmtDate(firstReg.seasonStart)}–{fmtDate(firstReg.seasonEnd)}
+            </span>
+          )}
+          {firstReg?.hatcheryOnly && (
+            <span className="text-[11px] font-bold" style={{ color: '#fbbf24' }}>
+              · Hatchery Only
+            </span>
+          )}
+        </div>
 
-        {/* ── Scrollable content ── */}
-        <div className="flex-1 overflow-y-auto no-scrollbar">
+        {/* ── Fixed tab bar ── */}
+        <div
+          className="flex-shrink-0 flex"
+          style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}
+        >
+          {TAB_ORDER.map(tab => {
+            const active = activeTab === tab
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className="flex-1 py-2.5 text-center active:scale-[0.99]"
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color: active ? '#ffffff' : 'var(--text-faint)',
+                  borderBottom: active ? '3px solid #f26522' : '3px solid transparent',
+                  borderTop: 'none',
+                  borderLeft: 'none',
+                  borderRight: 'none',
+                  background: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                {TAB_LABELS[tab]}
+              </button>
+            )
+          })}
+        </div>
 
-          {/* ── Regulations ── */}
-          <div className="px-4 pt-4 pb-3">
-            <SectionDivider label="Regulations" />
+        {/* ── Scrollable tab content ── */}
+        <div
+          className="flex-1 overflow-hidden"
+          onTouchStart={onTabTouchStart}
+          onTouchEnd={onTabTouchEnd}
+        >
 
-            {regs.length === 0 ? (
-              <div className="rounded-2xl p-4 text-center" style={{ border: '1px solid var(--border)' }}>
-                <p className="text-sm font-semibold text-white mb-1">No specific regulation on file</p>
+          {/* ═══ REGULATIONS TAB ═══ */}
+          {activeTab === 'regulations' && (
+            <div className="h-full overflow-y-auto no-scrollbar">
+
+              {/* Emergency rule block */}
+              {(emergencyRules.length > 0 || noteEmergency) && (
+                <div
+                  className="px-4 pt-4"
+                >
+                  {emergencyRules.map((er, i) => (
+                    <div
+                      key={i}
+                      className="mb-3 pl-3"
+                      style={{ borderLeft: '3px solid #f26522' }}
+                    >
+                      <p className="text-[10px] uppercase font-bold mb-1" style={{ color: '#f26522' }}>
+                        EMERGENCY RULE
+                      </p>
+                      <p className="text-[11px] leading-snug mb-1" style={{ color: 'rgba(242,101,34,0.9)' }}>
+                        {er.section} — {er.rule.effective}
+                      </p>
+                      {er.rule.url && (
+                        <a
+                          href={er.rule.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[10px] underline"
+                          style={{ color: '#f26522' }}
+                        >
+                          View official rule ↗
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                  {noteEmergency?.notes && !emergencyRules.length && (
+                    <div
+                      className="mb-3 pl-3"
+                      style={{ borderLeft: '3px solid #f26522' }}
+                    >
+                      <p className="text-[10px] uppercase font-bold mb-1" style={{ color: '#f26522' }}>
+                        EMERGENCY RULE
+                      </p>
+                      <p className="text-[11px] leading-snug" style={{ color: 'rgba(242,101,34,0.9)' }}>
+                        {noteEmergency.notes}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Inline map */}
+              {isLakeType ? (
+                <div
+                  className="mx-4 mt-3"
+                  data-no-swipe-back="true"
+                  style={{ height: 180, borderRadius: 8, overflow: 'hidden', marginBottom: 16 }}
+                >
+                  <LakeMapInner
+                    waterName={water.name}
+                    lat={water.lat}
+                    lng={water.lng}
+                    fillColor={anyOpen ? '#6ab04c' : '#e74c3c'}
+                  />
+                </div>
+              ) : segments.length > 0 ? (
+                <div
+                  className="mx-4 mt-3"
+                  data-no-swipe-back="true"
+                  style={{ height: 180, borderRadius: 8, overflow: 'hidden', marginBottom: 16 }}
+                >
+                  <RiverDetailMapInner
+                    segments={segments}
+                    selectedIdx={-1}
+                    onSegmentClick={() => {}}
+                  />
+                </div>
+              ) : null}
+
+              {/* Regulation rows */}
+              <div className="px-4 pb-6">
+                {regs.length === 0 ? (
+                  <div className="py-4 text-center">
+                    <p className="text-sm" style={{ color: 'var(--text-faint)' }}>
+                      No regulation on file —{' '}
+                      <a
+                        href="https://wdfw.wa.gov/fishing/regulations"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline"
+                        style={{ color: '#f26522' }}
+                      >
+                        check WDFW
+                      </a>
+                    </p>
+                  </div>
+                ) : (
+                  regs.map(reg => {
+                    const isOpen = isOpenOn(reg, today)
+                    const hasNoteEmerg = reg.notes && /emergency/i.test(reg.notes)
+                    return (
+                      <div key={reg.id} className="mb-4">
+                        {/* Season row */}
+                        <div
+                          className="flex items-baseline justify-between py-2.5"
+                          style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+                        >
+                          <span className="text-[10px] uppercase font-bold" style={{ color: 'var(--text-faint)' }}>SEASON</span>
+                          <span className="text-sm text-white text-right" style={{ maxWidth: '60%' }}>
+                            {fmtDate(reg.seasonStart)} – {fmtDate(reg.seasonEnd)}
+                            {' '}
+                            <span className="text-[11px] font-bold" style={{ color: isOpen ? '#6ab04c' : '#6b7280' }}>
+                              {isOpen ? '● OPEN' : '○ CLOSED'}
+                            </span>
+                          </span>
+                        </div>
+
+                        {/* Limit row */}
+                        {reg.dailyLimit != null && (
+                          <div
+                            className="flex items-baseline justify-between py-2.5"
+                            style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+                          >
+                            <span className="text-[10px] uppercase font-bold" style={{ color: 'var(--text-faint)' }}>DAILY LIMIT</span>
+                            <span className="text-sm text-white text-right" style={{ maxWidth: '60%' }}>{reg.dailyLimit}/day</span>
+                          </div>
+                        )}
+
+                        {/* Size row */}
+                        {reg.minSize != null && (
+                          <div
+                            className="flex items-baseline justify-between py-2.5"
+                            style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+                          >
+                            <span className="text-[10px] uppercase font-bold" style={{ color: 'var(--text-faint)' }}>MIN SIZE</span>
+                            <span className="text-sm text-white text-right" style={{ maxWidth: '60%' }}>{reg.minSize}&quot;</span>
+                          </div>
+                        )}
+
+                        {/* Hatchery row */}
+                        {reg.hatcheryOnly && (
+                          <div
+                            className="flex items-baseline justify-between py-2.5"
+                            style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+                          >
+                            <span className="text-[10px] uppercase font-bold" style={{ color: 'var(--text-faint)' }}>TYPE</span>
+                            <span className="text-sm text-right font-semibold" style={{ color: '#fbbf24', maxWidth: '60%' }}>
+                              Hatchery only (clipped adipose fin)
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Gear row */}
+                        {reg.gearRestriction && (
+                          <div
+                            className="flex items-baseline justify-between py-2.5"
+                            style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+                          >
+                            <span className="text-[10px] uppercase font-bold" style={{ color: 'var(--text-faint)' }}>GEAR</span>
+                            <span className="text-sm text-white text-right" style={{ maxWidth: '60%' }}>{reg.gearRestriction}</span>
+                          </div>
+                        )}
+
+                        {/* Notes row */}
+                        {reg.notes && (
+                          <div className="py-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                            <p
+                              className="text-[11px] leading-snug"
+                              style={{ color: hasNoteEmerg ? '#f26522' : 'var(--text-faint)' }}
+                            >
+                              {reg.notes}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })
+                )}
+
+                {/* WDFW link */}
                 <a
                   href="https://wdfw.wa.gov/fishing/regulations"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs underline"
-                  style={{ color: '#f26522' }}
+                  className="flex items-center justify-between w-full px-5 py-3.5 rounded-2xl no-underline active:scale-[0.99] mt-6 mb-24"
+                  style={{
+                    background: 'rgba(242,101,34,0.12)',
+                    border: '1px solid rgba(242,101,34,0.3)',
+                    textDecoration: 'none',
+                  }}
                 >
-                  Check WDFW directly →
+                  <span className="text-sm font-bold" style={{ color: '#f26522' }}>Verify on WDFW →</span>
+                  <span className="text-xs" style={{ color: 'var(--text-faint)' }}>wdfw.wa.gov</span>
                 </a>
               </div>
-            ) : (
-              <div className="space-y-3">
-                {regs.map(reg => {
-                  const isOpen = isOpenOn(reg, today)
-                  const hasNoteEmerg = reg.notes && /emergency/i.test(reg.notes)
-                  return (
-                    <div
-                      key={reg.id}
-                      className="rounded-2xl px-4 py-3"
-                      style={{
-                        background: hasNoteEmerg ? 'rgba(249,115,22,0.08)' : isOpen ? 'rgba(106,176,76,0.08)' : 'rgba(255,255,255,0.04)',
-                        border: `1px solid ${hasNoteEmerg ? 'rgba(249,115,22,0.3)' : isOpen ? 'rgba(106,176,76,0.25)' : 'var(--border)'}`,
-                        borderLeft: `3px solid ${hasNoteEmerg ? '#f26522' : isOpen ? '#6ab04c' : '#374151'}`,
-                      }}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <span
-                          className="text-xs font-black px-2 py-0.5 rounded"
-                          style={{
-                            background: hasNoteEmerg ? 'rgba(249,115,22,0.18)' : isOpen ? 'rgba(106,176,76,0.18)' : 'rgba(107,114,128,0.18)',
-                            color: hasNoteEmerg ? '#f26522' : isOpen ? '#6ab04c' : '#9ca3af',
-                          }}
-                        >
-                          {hasNoteEmerg ? '! EMERGENCY' : isOpen ? '● OPEN' : '○ CLOSED'}
-                        </span>
-                        <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>
-                          {fmtDate(reg.seasonStart)} – {fmtDate(reg.seasonEnd)}
-                        </span>
-                      </div>
+            </div>
+          )}
 
-                      {/* Key stats grid */}
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
-                        {reg.dailyLimit != null && (
-                          <div>
-                            <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)' }}>Daily Limit</p>
-                            <p className="text-sm font-bold text-white">{reg.dailyLimit}<span className="text-xs font-normal" style={{ color: 'var(--text-faint)' }}>/day</span></p>
-                          </div>
-                        )}
-                        {reg.minSize != null && (
-                          <div>
-                            <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)' }}>Min Size</p>
-                            <p className="text-sm font-bold text-white">{reg.minSize}&quot;</p>
-                          </div>
-                        )}
-                        {reg.hatcheryOnly && (
-                          <div className="col-span-2 mt-0.5">
-                            <p className="text-xs font-semibold" style={{ color: '#fbbf24' }}>
-                              🏷 Hatchery fish only (clipped adipose fin required)
-                            </p>
-                          </div>
-                        )}
-                        {reg.gearRestriction && (
-                          <div className="col-span-2 mt-0.5">
-                            <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)' }}>Gear Rules</p>
-                            <p className="text-sm font-bold text-white">{reg.gearRestriction}</p>
-                          </div>
-                        )}
-                      </div>
-
-                      {reg.notes && (
-                        <p className="text-xs mt-2 leading-snug" style={{ color: '#fdba74' }}>{reg.notes}</p>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* ── Gear ── */}
-          {gear && (
-            <div className="px-4 pt-8 pb-4">
-              <SectionDivider label="Gear & Setup" />
-
-              {/* Rod setup */}
-              <div
-                className="rounded-2xl px-4 py-3 mb-3"
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)' }}
-              >
-                <p className="text-[10px] font-bold uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-faint)' }}>Rod & Line</p>
-                <p className="text-sm text-white leading-snug">{gear.rodSetup}</p>
-              </div>
-
-              {/* Lures */}
-              {gear.lures.length > 0 && (
-                <div className="mb-3">
-                  <p className="text-[10px] font-bold uppercase tracking-wide mb-2" style={{ color: 'var(--text-faint)' }}>Lures</p>
-                  <GearMiniGrid items={gear.lures} accent="#f26522" />
-                </div>
-              )}
-
-              {/* Bait */}
-              {gear.bait.length > 0 && (
-                <div className="mb-3">
-                  <p className="text-[10px] font-bold uppercase tracking-wide mb-2" style={{ color: 'var(--text-faint)' }}>Bait</p>
-                  <GearMiniGrid items={gear.bait} accent="#6ab04c" />
-                </div>
-              )}
-
-              {/* Technique */}
-              {gear.technique.length > 0 && (
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wide mb-2" style={{ color: 'var(--text-faint)' }}>Technique</p>
-                  <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
-                    {gear.technique.map((t, i) => (
-                      <div
-                        key={i}
-                        className="flex gap-3 px-4 py-3"
-                        style={{
-                          background: 'var(--surface)',
-                          borderBottom: i < gear.technique.length - 1 ? '1px solid var(--border)' : 'none',
-                        }}
-                      >
-                        <span
-                          className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black mt-0.5"
-                          style={{ background: 'rgba(242,101,34,0.2)', color: 'var(--accent)' }}
-                        >
-                          {i + 1}
-                        </span>
-                        <p className="text-sm leading-snug" style={{ color: 'var(--text-muted)' }}>{t}</p>
-                      </div>
-                    ))}
+          {/* ═══ GEAR TAB ═══ */}
+          {activeTab === 'gear' && (
+            <div className="h-full overflow-y-auto no-scrollbar px-4 pt-4 pb-24">
+              {!gear ? (
+                <p className="text-sm" style={{ color: 'var(--text-faint)' }}>No gear data on file yet.</p>
+              ) : (
+                <>
+                  {/* Rod & Line */}
+                  <div className="mb-5">
+                    <p className="text-[10px] uppercase font-bold mb-2" style={{ color: 'var(--text-faint)' }}>ROD &amp; LINE</p>
+                    <p className="text-sm text-white leading-snug">{gear.rodSetup}</p>
                   </div>
-                </div>
+
+                  {/* Lures */}
+                  {gear.lures.filter(i => !i.name.toLowerCase().includes('not applicable')).length > 0 && (
+                    <div className="mb-5">
+                      <p className="text-[10px] uppercase font-bold mb-2" style={{ color: 'var(--text-faint)' }}>LURES</p>
+                      <div className="overflow-x-auto no-scrollbar">
+                        <div className="flex gap-2 pb-1" style={{ width: 'max-content' }}>
+                          {gear.lures.filter(i => !i.name.toLowerCase().includes('not applicable')).map((item, i) => (
+                            <a
+                              key={i}
+                              href={item.amazonUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex flex-col items-center active:scale-[0.99]"
+                              style={{ textDecoration: 'none', flexShrink: 0 }}
+                            >
+                              <span
+                                className="text-[11px] font-medium px-3 py-1.5 rounded-full whitespace-nowrap"
+                                style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.75)' }}
+                              >
+                                {item.name.replace(/ fishing$/, '').replace(/\s+\(.*?\)$/, '')}
+                              </span>
+                              <span className="text-[9px] mt-0.5" style={{ color: '#f26522' }}>Amazon ↗</span>
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Bait */}
+                  {gear.bait.filter(i => !i.name.toLowerCase().includes('not applicable')).length > 0 && (
+                    <div className="mb-5">
+                      <p className="text-[10px] uppercase font-bold mb-2" style={{ color: 'var(--text-faint)' }}>BAIT</p>
+                      <div className="overflow-x-auto no-scrollbar">
+                        <div className="flex gap-2 pb-1" style={{ width: 'max-content' }}>
+                          {gear.bait.filter(i => !i.name.toLowerCase().includes('not applicable')).map((item, i) => (
+                            <a
+                              key={i}
+                              href={item.amazonUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex flex-col items-center active:scale-[0.99]"
+                              style={{ textDecoration: 'none', flexShrink: 0 }}
+                            >
+                              <span
+                                className="text-[11px] font-medium px-3 py-1.5 rounded-full whitespace-nowrap"
+                                style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.75)' }}
+                              >
+                                {item.name.replace(/ fishing$/, '').replace(/\s+\(.*?\)$/, '')}
+                              </span>
+                              <span className="text-[9px] mt-0.5" style={{ color: '#6ab04c' }}>Amazon ↗</span>
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Technique */}
+                  {gear.technique.length > 0 && (
+                    <div className="mb-5">
+                      <p className="text-[10px] uppercase font-bold mb-2" style={{ color: 'var(--text-faint)' }}>TECHNIQUE</p>
+                      {gear.technique.map((t, i) => (
+                        <div
+                          key={i}
+                          className="flex gap-3 py-2.5"
+                          style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+                        >
+                          <span
+                            className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black mt-0.5"
+                            style={{ background: 'rgba(242,101,34,0.2)', color: 'var(--accent)', flexShrink: 0 }}
+                          >
+                            {i + 1}
+                          </span>
+                          <p className="text-sm leading-snug" style={{ color: 'var(--text-muted)' }}>{t}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}
 
-          {/* ── Tips ── */}
-          {(guide || tips) && (
-            <div className="px-4 pt-8 pb-4">
-              <SectionDivider label="Tips" />
-
+          {/* ═══ TIPS TAB ═══ */}
+          {activeTab === 'tips' && (
+            <div className="h-full overflow-y-auto no-scrollbar px-4 pt-4">
               {guide ? (
                 <>
-                  {/* Best time */}
+                  {/* Best Time */}
                   <div
-                    className="rounded-2xl px-4 py-3 mb-3"
-                    style={{ background: 'rgba(242,101,34,0.08)', border: '1px solid rgba(242,101,34,0.2)' }}
+                    className="mb-4 pl-3"
+                    style={{ borderLeft: '2px solid rgba(242,101,34,0.4)' }}
                   >
-                    <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color: '#f26522' }}>Best Time</p>
+                    <p className="text-[10px] uppercase font-bold mb-1" style={{ color: '#f26522' }}>BEST TIME</p>
                     <p className="text-sm text-white leading-snug">{guide.bestTime}</p>
                   </div>
 
-                  {/* Pro tips */}
+                  {/* Pro Tips */}
                   {guide.proTips.map((tip, i) => (
-                    <div key={i} className="flex gap-3 mb-2">
+                    <div
+                      key={i}
+                      className="flex gap-3 py-2.5"
+                      style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+                    >
                       <span style={{ color: '#f59e0b', flexShrink: 0, marginTop: 2 }}>★</span>
-                      <p className="text-sm leading-snug" style={{ color: 'var(--text-muted)' }}>{tip}</p>
+                      <p className="text-sm leading-snug" style={{ color: 'rgba(255,255,255,0.75)' }}>{tip}</p>
                     </div>
                   ))}
 
                   {/* Technique */}
                   {guide.technique.length > 0 && (
-                    <div className="mt-2">
-                      <p className="text-[10px] font-bold uppercase tracking-wide mb-2" style={{ color: 'var(--text-faint)' }}>Technique</p>
-                      <ul className="space-y-1.5">
-                        {guide.technique.map((tip, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <span style={{ color: 'var(--text-muted)', flexShrink: 0, marginTop: 2 }}>●</span>
-                            <span className="text-sm text-white leading-snug">{tip}</span>
-                          </li>
-                        ))}
-                      </ul>
+                    <div className="mt-4">
+                      <p className="text-[10px] uppercase font-bold mb-2" style={{ color: 'var(--text-faint)' }}>TECHNIQUE</p>
+                      {guide.technique.map((tip, i) => (
+                        <div key={i} className="flex items-start gap-2 py-2">
+                          <span style={{ color: '#6ab04c', flexShrink: 0, marginTop: 2 }}>●</span>
+                          <span className="text-sm text-white leading-snug">{tip}</span>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </>
               ) : tips ? (
-                <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+                <>
                   {tips.howToCatch.map((tip, i) => (
                     <div
                       key={i}
-                      className="flex gap-3 px-4 py-3"
-                      style={{
-                        background: 'var(--surface)',
-                        borderBottom: i < tips.howToCatch.length - 1 ? '1px solid var(--border)' : 'none',
-                      }}
+                      className="flex gap-3 py-2.5"
+                      style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
                     >
                       <span
                         className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black mt-0.5"
-                        style={{ background: 'rgba(242,101,34,0.2)', color: 'var(--accent)' }}
+                        style={{ background: 'rgba(242,101,34,0.2)', color: 'var(--accent)', flexShrink: 0 }}
                       >
                         {i + 1}
                       </span>
                       <p className="text-sm leading-snug" style={{ color: 'var(--text-muted)' }}>{tip}</p>
                     </div>
                   ))}
-                </div>
-              ) : null}
+                </>
+              ) : (
+                <p className="text-sm" style={{ color: 'var(--text-faint)' }}>No tips on file yet.</p>
+              )}
+              <div className="pb-24" />
             </div>
           )}
-
-          {/* ── WDFW verify link ── */}
-          <div className="px-4 pt-6 pb-24">
-            <a
-              href="https://wdfw.wa.gov/fishing/regulations"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between w-full px-5 py-3.5 rounded-2xl no-underline active:scale-[0.99]"
-              style={{
-                background: 'rgba(242,101,34,0.12)',
-                border: '1px solid rgba(242,101,34,0.3)',
-                textDecoration: 'none',
-              }}
-            >
-              <span className="text-sm font-bold" style={{ color: '#f26522' }}>Verify on WDFW →</span>
-              <span className="text-xs" style={{ color: 'var(--text-faint)' }}>wdfw.wa.gov</span>
-            </a>
-          </div>
 
         </div>
       </div>

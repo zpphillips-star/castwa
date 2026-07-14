@@ -671,7 +671,7 @@ export default function TodayPage() {
             </span>
             <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
             {starredWaters.length === 0 && hydrated && (
-              <span style={{ fontSize: '11px', color: 'var(--text-faint)', whiteSpace: 'nowrap' }}>tap ☆ to star</span>
+              <span style={{ fontSize: '11px', color: 'var(--text-faint)', whiteSpace: 'nowrap' }}>tap the star to save</span>
             )}
           </div>
 
@@ -687,7 +687,7 @@ export default function TodayPage() {
               <div className="text-left flex-1 min-w-0">
                 <p className="text-sm font-bold text-white leading-tight">Star your go-to waters</p>
                 <p className="text-xs mt-0.5 leading-snug" style={{ color: 'var(--text-muted)' }}>
-                  Open any river or lake and tap ☆ — conditions show up here every day
+                  Open any river or lake and tap the star — conditions show up here every day
                 </p>
               </div>
               <span className="text-sm" style={{ color: 'var(--text-faint)' }}>›</span>
@@ -782,7 +782,7 @@ export default function TodayPage() {
             </span>
             <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
             {starredFish.length === 0 && hydrated && (
-              <span style={{ fontSize: '11px', color: 'var(--text-faint)', whiteSpace: 'nowrap' }}>tap ☆ to star</span>
+              <span style={{ fontSize: '11px', color: 'var(--text-faint)', whiteSpace: 'nowrap' }}>tap the star to save</span>
             )}
           </div>
 
@@ -809,7 +809,7 @@ export default function TodayPage() {
               <div className="text-left flex-1 min-w-0">
                 <p className="text-sm font-bold text-white leading-tight">Star your target fish</p>
                 <p className="text-xs mt-0.5 leading-snug" style={{ color: 'var(--text-muted)' }}>
-                  Open any fish and tap ☆ — regulations show up here every day
+                  Open any fish and tap the star — regulations show up here every day
                 </p>
               </div>
               <span className="text-sm" style={{ color: 'var(--text-faint)' }}>›</span>

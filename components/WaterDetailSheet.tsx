@@ -183,8 +183,8 @@ function SectionStatusChip({ status }: { status: SegmentStatus }) {
   const cfg = {
     open:       { label: '● OPEN',       color: '#4ade80', bg: 'rgba(74,222,128,0.12)'  },
     closed:     { label: '○ CLOSED',     color: '#ef4444', bg: 'rgba(239,68,68,0.12)'  },
-    emergency:  { label: '🚨 EMERG.',    color: '#f97316', bg: 'rgba(249,115,22,0.12)' },
-    restricted: { label: '⚠️ RESTR.',    color: '#fbbf24', bg: 'rgba(251,191,36,0.12)' },
+    emergency:  { label: 'EMERG.',    color: '#f97316', bg: 'rgba(249,115,22,0.12)' },
+    restricted: { label: 'RESTR.',    color: '#fbbf24', bg: 'rgba(251,191,36,0.12)' },
     neutral:    { label: '● WATERWAY',   color: '#60a5fa', bg: 'rgba(96,165,250,0.12)'  },
   }[status]
   return (
@@ -306,7 +306,6 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
           {emergencyRules.slice(0, 1).map((er, i) => (
             <div key={i} className="px-4 py-2.5 flex items-start gap-2"
               style={{ background: 'rgba(239,68,68,0.12)', borderBottom: '1.5px solid rgba(239,68,68,0.3)' }}>
-              <span className="text-base flex-shrink-0 mt-0.5">🚨</span>
               <div className="flex-1 min-w-0">
                 <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: '#ef4444' }}>
                   Emergency Rule Active — {er.section}
@@ -353,7 +352,7 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
               const selected = segHighlighted && selectedSegIdx === i
               const statusCfg: Record<string, { color: string; label: string }> = {
                 open:      { color: '#4ade80', label: '● OPEN'      },
-                emergency: { color: '#f97316', label: '⚠ EMERGENCY' },
+                emergency: { color: '#f97316', label: 'EMERGENCY' },
                 closed:    { color: '#ef4444', label: '○ CLOSED'    },
               }
               const cfg = statusCfg[seg.status] ?? statusCfg.closed
@@ -449,7 +448,7 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
                     )}
                     {reg.hatcheryOnly && (
                       <p className="text-xs mt-1 font-semibold" style={{ color: '#fbbf24' }}>
-                        🏷 Hatchery fish only (clipped adipose fin)
+                        Hatchery fish only (clipped adipose fin)
                       </p>
                     )}
                     {reg.gearRestriction && (
@@ -651,9 +650,11 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                   onClick={() => toggleWaterStar(water.id)}
                   className="w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-90"
                   style={{ background: 'rgba(255,255,255,0.08)' }}>
-                  <span style={{ fontSize: '15px', lineHeight: 1 }}>
-                    {isWaterStarred(water.id) ? '⭐' : '☆'}
-                  </span>
+                  {isWaterStarred(water.id) ? (
+                    <svg className="w-4 h-4" fill="#f59e0b" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5} style={{ color: 'rgba(255,255,255,0.6)' }}><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.563.563 0 00-.182-.557l-4.204-3.602a.562.562 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.499z"/></svg>
+                  )}
                 </button>
               )}
               <button onClick={onClose}
@@ -747,7 +748,7 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                      <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>What&apos;s Open Today</p>
                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded"
                        style={{ background: 'rgba(106,176,76,0.1)', color: '#6ab04c', border: '1px solid rgba(106,176,76,0.2)' }}>
-                       ✓ Verified {REGS_VERIFIED_DATE}
+                       Verified {REGS_VERIFIED_DATE}
                      </span>
                    </div>
                   <div className="px-4 py-3 rounded-xl"
@@ -762,7 +763,7 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                      <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>What&apos;s Open Today</p>
                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded"
                        style={{ background: 'rgba(106,176,76,0.1)', color: '#6ab04c', border: '1px solid rgba(106,176,76,0.2)' }}>
-                       ✓ Verified {REGS_VERIFIED_DATE}
+                       Verified {REGS_VERIFIED_DATE}
                      </span>
                    </div>
                   <div className="rounded-2xl overflow-hidden"
@@ -903,11 +904,11 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
 
       {/* Fish tapped in the fish grid → open FishWaterSheet (targeted fish+water detail) */}
       {fishWaterCombo && (
-        <FishWaterSheet
+      <FishWaterSheet
           fish={fishWaterCombo.fish}
           water={fishWaterCombo.water}
           siblingFish={fishWaterCombo.siblingFish}
-          initialIndex={fishWaterCombo.index}
+          initialSiblingIndex={fishWaterCombo.index}
           onClose={() => setFishWaterCombo(null)}
           zIndex={(zIndex ?? 50) + 40}
         />

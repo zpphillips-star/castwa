@@ -173,7 +173,6 @@ export default function CalendarPage() {
             <div className="overflow-y-auto flex-1 px-4 py-3">
               {openSpecies.length === 0 ? (
                 <div className="py-8 text-center">
-                  <p className="text-3xl mb-2">🎣</p>
                   <p className="text-sm font-semibold text-white">Nothing open this day</p>
                   <p className="text-xs mt-1" style={{ color: 'var(--text-faint)' }}>Try tapping another date</p>
                 </div>
