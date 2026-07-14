@@ -133,7 +133,7 @@ function NearMeCard({
           </div>
         ) : (
           <div style={{ flexShrink: 0, textAlign: 'right' }}>
-            <p style={{ fontSize: '13px', fontWeight: 700, color: '#f26522' }}>{dist}</p>
+            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-faint)' }}>{dist}</p>
           </div>
         )}
       </div>
