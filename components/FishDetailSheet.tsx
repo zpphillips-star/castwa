@@ -13,6 +13,7 @@ import type { RiverSectionStatus } from './RiverSectionMapInner'
 import RiverConditionsSheet, { RiverMapConfig } from './RiverConditionsSheet'
 import { SKAGIT_COORDS, SAUK_COORDS, NOOKSACK_COORDS, STILLAGUAMISH_COORDS } from '@/lib/river-coords-generated'
 import WaterDetailSheet from './WaterDetailSheet'
+import FishWaterSheet from './FishWaterSheet'
 import { RiverEntry, findRiverEntry } from '@/lib/river-lookup'
 import { useSelectedFishSegments } from '@/lib/use-fish-map-segments'
 import type { FishSegment } from '@/lib/use-fish-map-segments'
@@ -272,6 +273,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
   const [selectedWaterForConditions, setSelectedWaterForConditions] = useState<GaugeConfig | null>(null)
   const [selectedFullWater, setSelectedFullWater] = useState<string | null>(null)
   const [selectedRiverFromFish, setSelectedRiverFromFish] = useState<RiverEntry | null>(null)
+  const [fishWaterCombo, setFishWaterCombo] = useState<{ water: WaterBody; index: number; siblings: WaterBody[] } | null>(null)
   const fishSegments = useSelectedFishSegments(species.id)
   const regs    = REGULATIONS.filter(r => r.speciesId === species.id)
   const waters  = regs.map(r => WATER_BODIES.find(w => w.id === r.waterBodyId)!).filter(Boolean)
@@ -553,12 +555,18 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                           <button
                             key={reg.id}
                             onClick={() => {
-                              const riverEntry = findRiverEntry(water)
-                              if (riverEntry) {
-                                setSelectedRiverFromFish(riverEntry)
-                              } else {
-                                setSelectedFullWater(water.name)
-                              }
+                              const sortedSibs = [...regs]
+                                .map(r => ({ reg: r, wb: WATER_BODIES.find(w => w.id === r.waterBodyId) }))
+                                .filter((x) => !!x.wb)
+                                .sort((a, b) => {
+                                  const aE = hasEmergencyOnWater(a.wb!.id) ? 0 : isOpenOn(a.reg, today) ? 1 : 2
+                                  const bE = hasEmergencyOnWater(b.wb!.id) ? 0 : isOpenOn(b.reg, today) ? 1 : 2
+                                  if (aE !== bE) return aE - bE
+                                  return a.wb!.name.localeCompare(b.wb!.name)
+                                })
+                                .map(x => x.wb as WaterBody)
+                              const sibIdx = sortedSibs.findIndex(w => w.id === water.id)
+                              setFishWaterCombo({ water, index: Math.max(0, sibIdx), siblings: sortedSibs })
                             }}
                             className="flex items-center w-full text-left rounded-lg overflow-hidden transition-colors active:scale-[0.99]"
                             style={{
@@ -937,6 +945,18 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
         flow={{ cfs: null, status: 'loading', trend: null, fetchedAt: '' }}
         onClose={() => setSelectedRiverFromFish(null)}
         zIndex={zIndex + 40}
+      />
+    )}
+
+    {/* ── FishWaterSheet — fish+water detail (from water tap in waters list) ── */}
+    {fishWaterCombo && (
+      <FishWaterSheet
+        fish={species}
+        water={fishWaterCombo.water}
+        siblingWaters={fishWaterCombo.siblings}
+        initialIndex={fishWaterCombo.index}
+        onClose={() => setFishWaterCombo(null)}
+        zIndex={zIndex + 50}
       />
     )}
 

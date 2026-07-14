@@ -16,6 +16,7 @@ import { sliceRiverBetween } from '@/lib/river-regulation-segments'
 import type { MapSegment, SegmentStatus } from './RiverDetailMapInner'
 import { FISH_TIPS } from './RiverDetailSheet'
 import FishDetailSheet from './FishDetailSheet'
+import FishWaterSheet from './FishWaterSheet'
 import { useSwipeBack } from '@/hooks/useSwipeBack'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -517,6 +518,7 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
   )
   // Fish tapped in the fish grid → open FishDetailSheet (consistent across all surfaces)
   const [selectedFishForSheet, setSelectedFishForSheet] = useState<Species | null>(null)
+  const [fishWaterCombo, setFishWaterCombo] = useState<{ fish: Species; water: WaterBody; index: number; siblingFish: Species[] } | null>(null)
   const [selectedSectionIdx, setSelectedSectionIdx] = useState(0)
   const [sectionHighlighted, setSectionHighlighted] = useState(false)
   const [flow, setFlow]                         = useState<FlowData>({ cfs: null, status: 'loading', trend: null, fetchedAt: '' })
@@ -832,7 +834,11 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                     return (
                       <button
                         key={reg.id}
-                        onClick={() => setSelectedFishForSheet(sp)}
+                        onClick={() => {
+                          const sibs = speciesRegs.map(x => x.species)
+                          const idx = sibs.findIndex(s => s.id === sp.id)
+                          if (water) setFishWaterCombo({ fish: sp, water, index: Math.max(0, idx), siblingFish: sibs })
+                        }}
                         className="flex flex-col items-center rounded-xl overflow-hidden transition-all active:scale-[0.99]"
                         style={{
                           background: 'rgba(255,255,255,0.05)',
@@ -894,6 +900,18 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
 
         </div>
       </div>
+
+      {/* Fish tapped in the fish grid → open FishWaterSheet (targeted fish+water detail) */}
+      {fishWaterCombo && (
+        <FishWaterSheet
+          fish={fishWaterCombo.fish}
+          water={fishWaterCombo.water}
+          siblingFish={fishWaterCombo.siblingFish}
+          initialIndex={fishWaterCombo.index}
+          onClose={() => setFishWaterCombo(null)}
+          zIndex={(zIndex ?? 50) + 40}
+        />
+      )}
 
       {/* Fish tapped in the fish grid → open FishDetailSheet (navigation parity with all other surfaces) */}
       {selectedFishForSheet && (
