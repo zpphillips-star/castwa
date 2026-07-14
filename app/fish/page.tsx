@@ -118,13 +118,15 @@ function HeroCard({
         border: '1px solid rgba(255,255,255,0.08)',
       }}
     >
-      {/* Cover photo */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={fish.photo}
-        alt={fish.name}
-        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-      />
+      {/* Photo area */}
+      <div style={{ width: '100%', height: '100%', background: 'rgb(11,13,20)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={fish.photo}
+          alt={fish.name}
+          style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '10px 8px 44px' }}
+        />
+      </div>
       {/* Bottom gradient overlay */}
       <div style={{
         position: 'absolute', bottom: 0, left: 0, right: 0, height: 90,
