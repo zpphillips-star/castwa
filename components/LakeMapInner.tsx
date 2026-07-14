@@ -88,14 +88,14 @@ export default function LakeMapInner({ waterName, lat, lng, fillColor = '#3b82f6
     <MapContainer
       center={[lat, lng]}
       zoom={10}
-      style={{ height: '100%', width: '100%', background: '#b8d8ea' }}
+      style={{ height: '100%', width: '100%', background: '#08080f' }}
       zoomControl={false}
       attributionControl={false}
     >
-      {/* OSM tiles — show lake shape naturally even if Nominatim fails */}
+      {/* CARTO dark tiles — matches all other maps in the app */}
       <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
       />
 
       {geojson && (
