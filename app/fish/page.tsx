@@ -95,7 +95,7 @@ function SectionDivider({ label }: { label: string }) {
   )
 }
 
-// ── Hero card (140×190, cover photo) ────────────────────────────────────────
+// ── Hero card (168×224, featured look) ──────────────────────────────────────
 function HeroCard({
   fish,
   status,
@@ -109,51 +109,62 @@ function HeroCard({
   onSelect: () => void
   onToggleStar: (e: React.MouseEvent) => void
 }) {
+  const accentColor = status === 'open' ? '#6ab04c' : '#f26522'
   return (
     <button
       onClick={onSelect}
+      className="transition-all active:scale-[0.98]"
       style={{
-        width: 140, height: 190, flexShrink: 0,
-        borderRadius: 16, overflow: 'hidden', position: 'relative',
-        border: '1px solid rgba(255,255,255,0.08)',
+        width: 168, height: 224, flexShrink: 0,
+        borderRadius: 20, overflow: 'hidden', position: 'relative',
+        border: `1.5px solid ${accentColor}55`,
+        boxShadow: `0 4px 24px ${accentColor}22`,
+        background: 'rgb(11,13,20)',
       }}
     >
+      {/* Accent top bar */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: accentColor, zIndex: 2 }} />
+
       {/* Photo area */}
-      <div style={{ width: '100%', height: '100%', background: 'rgb(11,13,20)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={fish.photo}
           alt={fish.name}
-          style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '10px 8px 44px' }}
+          style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '20px 12px 56px' }}
         />
       </div>
+
       {/* Bottom gradient overlay */}
       <div style={{
-        position: 'absolute', bottom: 0, left: 0, right: 0, height: 90,
-        background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)',
+        position: 'absolute', bottom: 0, left: 0, right: 0, height: 100,
+        background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.5) 55%, transparent 100%)',
         pointerEvents: 'none',
       }} />
-      {/* Fish name */}
-      <div style={{
-        position: 'absolute', bottom: 0, left: 0, right: 0,
-        padding: '0 12px 12px',
-        fontSize: 13, fontWeight: 800, color: '#fff', lineHeight: 1.2,
-        textAlign: 'left',
-      }}>
-        {fish.name}
+
+      {/* Name + category */}
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0 13px 13px' }}>
+        <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: accentColor, marginBottom: 3 }}>
+          {fish.category}
+        </p>
+        <p style={{ fontSize: 15, fontWeight: 900, color: '#fff', lineHeight: 1.15 }}>
+          {fish.name}
+        </p>
       </div>
+
       {/* PEAK badge */}
       <div style={{
-        position: 'absolute', top: 8, right: 8,
-        background: status === 'open' ? 'rgba(106,176,76,0.9)' : 'rgba(242,101,34,0.9)',
+        position: 'absolute', top: 12, right: 10, zIndex: 3,
+        background: accentColor,
         color: '#fff',
-        fontSize: 9, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.06em',
-        padding: '3px 7px', borderRadius: 20,
+        fontSize: 9, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em',
+        padding: '4px 8px', borderRadius: 20,
       }}>
         PEAK
       </div>
+
       {/* Star button */}
-      <div style={{ position: 'absolute', top: 8, left: 8 }}>
+      <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 3 }}>
         <StarButton isFav={isFav} onToggle={onToggleStar} size="sm" />
       </div>
     </button>
@@ -361,10 +372,19 @@ export default function FishPage() {
           {/* What's Running Now hero */}
           {heroFish.length > 0 && (
             <>
-              <SectionDivider label="What's Running Now" />
+              {/* Featured section header — orange, not gray */}
+              <div style={{ padding: '16px 16px 12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: 3, height: 18, borderRadius: 2, background: '#f26522', flexShrink: 0 }} />
+                <span style={{ fontSize: '13px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#f26522' }}>
+                  What&apos;s Running Now
+                </span>
+                <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-faint)' }}>
+                  · {heroFish.length} species at peak
+                </span>
+              </div>
               <div
                 className="no-scrollbar"
-                style={{ overflowX: 'auto', display: 'flex', gap: 12, padding: '0 16px 4px', WebkitOverflowScrolling: 'touch' }}
+                style={{ overflowX: 'auto', display: 'flex', gap: 12, padding: '0 16px 16px', WebkitOverflowScrolling: 'touch' }}
               >
                 {heroFish.map(fish => {
                   const status = getSeasonStatus(fish.id) as 'open' | 'restricted'
