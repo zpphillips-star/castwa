@@ -5,6 +5,7 @@ import WaterDetailSheet from '@/components/WaterDetailSheet'
 import RiverDetailSheet from '@/components/RiverDetailSheet'
 import { WATER_BODIES, REGULATIONS, isOpenOn } from '@/lib/fishing-data'
 import type { WaterBody } from '@/lib/fishing-data'
+import { WATER_PATHS } from '@/lib/water-paths'
 
 // ─── Canonical river list — single source of truth ───────────────────────────
 // Imported from lib/river-lookup; never duplicate here.
@@ -189,12 +190,19 @@ const ROW_H = 190   // 380 / 2
 function WaGridMap({
   selected,
   onSelect,
-  waters,
 }: {
   selected: [number, number] | null
   onSelect: (cell: [number, number] | null) => void
-  waters: WaterBody[]
 }) {
+  // Convert [lat, lng] to SVG x,y string
+  function toSvgPoints(coords: [number, number][]): string {
+    return coords.map(([lat, lng]) => {
+      const x = ((lng + 124.73) * 76.83).toFixed(1)
+      const y = ((49.00 - lat) * 109.83).toFixed(1)
+      return `${x},${y}`
+    }).join(' ')
+  }
+
   return (
     <div style={{ borderRadius: '12px', overflow: 'hidden' }}>
       <svg
@@ -223,28 +231,41 @@ function WaGridMap({
         {/* ── Grid + selections clipped to WA outline ── */}
         <g clipPath="url(#wa-clip)">
 
-          {/* ── Water body dots (below selections, above base fill) ── */}
-          {waters.map(w => {
-            const cx = (w.lng + 124.73) * 76.83
-            const cy = (49.00 - w.lat) * 109.83
-            const isRiver = w.type === 'river' || w.type === 'stream'
-            const isMarine = w.type === 'sound' || w.type === 'bay'
-            const color = isRiver ? '#60a5fa' : isMarine ? '#22d3ee' : '#34d399'
-            const r = isRiver ? 3 : 3.5
-            const cell = getGridCell(w.lat, w.lng)
+          {/* ── Real waterway shapes (rivers, lakes, marine) ── */}
+          {WATER_PATHS.map(w => {
+            const pts = toSvgPoints(w.coords)
+            if (w.type === 'river') {
+              return (
+                <polyline
+                  key={w.id}
+                  points={pts}
+                  fill="none"
+                  stroke="rgba(96,165,250,0.6)"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )
+            }
+            if (w.type === 'lake') {
+              return (
+                <polygon
+                  key={w.id}
+                  points={pts}
+                  fill="rgba(52,211,153,0.2)"
+                  stroke="rgba(52,211,153,0.5)"
+                  strokeWidth="1"
+                />
+              )
+            }
+            // marine
             return (
-              <circle
+              <polygon
                 key={w.id}
-                cx={cx}
-                cy={cy}
-                r={r}
-                fill={color}
-                opacity={0.7}
-                style={{ cursor: 'pointer' }}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  if (cell) onSelect(cell)
-                }}
+                points={pts}
+                fill="rgba(34,211,238,0.15)"
+                stroke="rgba(34,211,238,0.45)"
+                strokeWidth="1"
               />
             )
           })}
@@ -730,7 +751,6 @@ export default function WatersPage() {
               setSelectedCell(cell)
               setRegionSheetCell(cell)
             }}
-            waters={WATER_BODIES}
           />
         </div>
       </div>
