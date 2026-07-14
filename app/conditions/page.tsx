@@ -189,9 +189,11 @@ const ROW_H = 190   // 380 / 2
 function WaGridMap({
   selected,
   onSelect,
+  waters,
 }: {
   selected: [number, number] | null
   onSelect: (cell: [number, number] | null) => void
+  waters: WaterBody[]
 }) {
   return (
     <div style={{ borderRadius: '12px', overflow: 'hidden' }}>
@@ -220,6 +222,32 @@ function WaGridMap({
 
         {/* ── Grid + selections clipped to WA outline ── */}
         <g clipPath="url(#wa-clip)">
+
+          {/* ── Water body dots (below selections, above base fill) ── */}
+          {waters.map(w => {
+            const cx = (w.lng + 124.73) * 76.83
+            const cy = (49.00 - w.lat) * 109.83
+            const isRiver = w.type === 'river' || w.type === 'stream'
+            const isMarine = w.type === 'sound' || w.type === 'bay'
+            const color = isRiver ? '#60a5fa' : isMarine ? '#22d3ee' : '#34d399'
+            const r = isRiver ? 3 : 3.5
+            const cell = getGridCell(w.lat, w.lng)
+            return (
+              <circle
+                key={w.id}
+                cx={cx}
+                cy={cy}
+                r={r}
+                fill={color}
+                opacity={0.7}
+                style={{ cursor: 'pointer' }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (cell) onSelect(cell)
+                }}
+              />
+            )
+          })}
 
           {/* Selection highlight rects */}
           {[0, 1].flatMap(row =>
@@ -339,6 +367,164 @@ function buildSections(today: Date): WaterSection[] {
   ].filter(s => s.waters.length > 0)
 }
 
+// ─── Region label from grid cell ─────────────────────────────────────────────
+const REGION_LABELS: string[][] = [
+  ['Northwest WA', 'North Central WA', 'Northeast WA', 'Far Northeast WA'],
+  ['Southwest WA', 'South Central WA', 'Southeast WA', 'Far Southeast WA'],
+]
+function getRegionLabel(row: number, col: number): string {
+  return REGION_LABELS[row]?.[col] ?? 'WA Region'
+}
+
+// ─── Region bottom sheet ──────────────────────────────────────────────────────
+function RegionSheet({
+  cell,
+  today,
+  flowData,
+  onOpenWater,
+  onClose,
+}: {
+  cell: [number, number]
+  today: Date
+  flowData: Record<string, FlowData>
+  onOpenWater: (water: WaterBody) => void
+  onClose: () => void
+}) {
+  const [visible, setVisible] = useState(false)
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setVisible(true))
+    return () => cancelAnimationFrame(raf)
+  }, [])
+
+  const [row, col] = cell
+  const label = getRegionLabel(row, col)
+
+  const cellWaters = WATER_BODIES.filter(w => {
+    const c = getGridCell(w.lat, w.lng)
+    return c !== null && c[0] === row && c[1] === col
+  })
+
+  const groups = [
+    { label: 'Rivers & Streams', waters: cellWaters.filter(w => w.type === 'river' || w.type === 'stream') },
+    { label: 'Lakes & Reservoirs', waters: cellWaters.filter(w => w.type === 'lake') },
+    { label: 'Marine, Sound & Bay', waters: cellWaters.filter(w => w.type === 'sound' || w.type === 'bay') },
+  ].filter(g => g.waters.length > 0)
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        style={{
+          position: 'fixed', inset: 0, zIndex: 50,
+          background: 'rgba(0,0,0,0.6)',
+        }}
+      />
+      {/* Sheet */}
+      <div
+        style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 51,
+          background: 'var(--bg)',
+          borderRadius: '24px 24px 0 0',
+          maxHeight: '70vh',
+          display: 'flex',
+          flexDirection: 'column',
+          transform: visible ? 'translateY(0)' : 'translateY(100%)',
+          transition: 'transform 300ms ease-out',
+        }}
+      >
+        {/* Handle bar */}
+        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '12px', paddingBottom: '4px' }}>
+          <div style={{ width: '36px', height: '4px', borderRadius: '2px', background: 'rgba(255,255,255,0.2)' }} />
+        </div>
+
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 20px 12px' }}>
+          <div>
+            <p style={{ fontSize: '17px', fontWeight: 800, color: '#fff', margin: 0 }}>{label}</p>
+            <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px', marginBottom: 0 }}>{cellWaters.length} waters</p>
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              width: '32px', height: '32px', borderRadius: '50%',
+              background: 'rgba(255,255,255,0.1)', border: 'none',
+              color: '#fff', fontSize: '16px', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >✕</button>
+        </div>
+
+        {/* Body */}
+        <div style={{ overflowY: 'auto', flex: 1, padding: '0 16px 32px' }}>
+          {cellWaters.length === 0 ? (
+            <p style={{ textAlign: 'center', color: 'var(--text-faint)', padding: '32px 0', fontSize: '14px' }}>
+              No waters in this area
+            </p>
+          ) : groups.map(group => (
+            <div key={group.label} style={{ marginBottom: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+                <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6b7280', whiteSpace: 'nowrap' }}>
+                  {group.label} · {group.waters.length}
+                </span>
+                <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+              </div>
+              <div style={{ borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                {group.waters.map((water, idx) => {
+                  const isGauged = GAUGED_IDS.has(water.id)
+                  const flow = flowData[water.id]
+                  const palette = flow ? FLOW_PALETTE[flow.status] : null
+                  const openCount = new Set(
+                    REGULATIONS.filter(r => r.waterBodyId === water.id && isOpenOn(r, today)).map(r => r.speciesId)
+                  ).size
+                  return (
+                    <button
+                      key={water.id}
+                      onClick={() => onOpenWater(water)}
+                      style={{
+                        width: '100%', textAlign: 'left',
+                        background: 'var(--surface)', border: 'none',
+                        borderBottom: idx < group.waters.length - 1 ? '1px solid var(--border)' : 'none',
+                        padding: '14px 16px', cursor: 'pointer',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <p style={{ fontSize: '15px', fontWeight: 700, color: '#fff', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{water.name}</p>
+                          {openCount > 0 && (
+                            <p style={{ fontSize: '12px', fontWeight: 700, color: '#6ab04c', marginTop: '2px', marginBottom: 0 }}>{openCount} open</p>
+                          )}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                          {isGauged && flow && flow.cfs !== null && palette ? (
+                            <>
+                              <span style={{ fontSize: '17px', fontWeight: 900, color: palette.color, fontVariantNumeric: 'tabular-nums' }}>
+                                {formatCfs(flow.cfs)}
+                                <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--text-faint)', marginLeft: '2px' }}>cfs</span>
+                              </span>
+                              <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '9999px', background: `${palette.color}1a`, color: palette.color }}>
+                                {palette.label}
+                              </span>
+                            </>
+                          ) : (
+                            <span style={{ color: 'var(--text-faint)', fontSize: '14px' }}>›</span>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  )
+}
+
 export default function WatersPage() {
   const today = new Date()
   const [flowData, setFlowData] = useState<Record<string, FlowData>>({})
@@ -349,6 +535,7 @@ export default function WatersPage() {
   const [selectedWaterName, setSelectedWaterName] = useState<string | null>(null)
   const [activeFilter, setActiveFilter] = useState<'all' | 'river' | 'lake' | 'marine'>('all')
   const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null)
+  const [regionSheetCell, setRegionSheetCell] = useState<[number, number] | null>(null)
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [locationRequested, setLocationRequested] = useState(false)
   const [locationDenied, setLocationDenied] = useState(false)
@@ -388,26 +575,8 @@ export default function WatersPage() {
 
   const allSections = buildSections(today)
 
-  // Waters in the selected grid cell (null = show all)
-  const cellFilterIds: Set<string> | null = selectedCell
-    ? new Set(
-        WATER_BODIES
-          .filter(w => {
-            const c = getGridCell(w.lat, w.lng)
-            return c !== null && c[0] === selectedCell[0] && c[1] === selectedCell[1]
-          })
-          .map(w => w.id)
-      )
-    : null
-
-  // Filter sections: grid cell first, then type chip
+  // Filter sections: type chip only (region drill-down is now in the bottom sheet)
   const visibleSections = allSections
-    .map(section => ({
-      ...section,
-      waters: cellFilterIds
-        ? section.waters.filter(w => cellFilterIds.has(w.id))
-        : section.waters,
-    }))
     .filter(section => {
       if (section.waters.length === 0) return false
       if (activeFilter === 'all') return true
@@ -555,15 +724,14 @@ export default function WatersPage() {
         {/* WA Map — cushioned card */}
         <div className="rounded-2xl mb-3"
           style={{ background: 'var(--surface)', border: '1px solid var(--border)', padding: '10px 10px 6px' }}>
-          <WaGridMap selected={selectedCell} onSelect={setSelectedCell} />
-          {selectedCell && (
-            <button
-              onClick={() => setSelectedCell(null)}
-              className="w-full text-center text-xs font-semibold py-1.5 mt-1 rounded-lg active:scale-[0.99]"
-              style={{ color: '#f26522', background: 'rgba(242,101,34,0.08)' }}>
-              ✕ Clear region filter
-            </button>
-          )}
+          <WaGridMap
+            selected={selectedCell}
+            onSelect={(cell) => {
+              setSelectedCell(cell)
+              setRegionSheetCell(cell)
+            }}
+            waters={WATER_BODIES}
+          />
         </div>
       </div>
 
@@ -744,6 +912,22 @@ export default function WatersPage() {
       </div>{/* end max-w-lg */}
       </div>{/* end scrollable */}
 
+      {regionSheetCell && (
+        <RegionSheet
+          cell={regionSheetCell}
+          today={today}
+          flowData={flowData}
+          onOpenWater={(water) => {
+            openWater(water)
+            setRegionSheetCell(null)
+            setSelectedCell(null)
+          }}
+          onClose={() => {
+            setRegionSheetCell(null)
+            setSelectedCell(null)
+          }}
+        />
+      )}
       {selectedWaterName && (
         <WaterDetailSheet
           waterName={selectedWaterName}
