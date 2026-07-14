@@ -5,7 +5,6 @@ import WaterDetailSheet from '@/components/WaterDetailSheet'
 import RiverDetailSheet from '@/components/RiverDetailSheet'
 import { WATER_BODIES, REGULATIONS, isOpenOn } from '@/lib/fishing-data'
 import type { WaterBody } from '@/lib/fishing-data'
-import { WATER_PATHS } from '@/lib/water-paths'
 
 // ─── Canonical river list — single source of truth ───────────────────────────
 // Imported from lib/river-lookup; never duplicate here.
@@ -194,15 +193,6 @@ function WaGridMap({
   selected: [number, number] | null
   onSelect: (cell: [number, number] | null) => void
 }) {
-  // Convert [lat, lng] to SVG x,y string
-  function toSvgPoints(coords: [number, number][]): string {
-    return coords.map(([lat, lng]) => {
-      const x = ((lng + 124.73) * 76.83).toFixed(1)
-      const y = ((49.00 - lat) * 109.83).toFixed(1)
-      return `${x},${y}`
-    }).join(' ')
-  }
-
   return (
     <div style={{ borderRadius: '12px', overflow: 'hidden' }}>
       <svg
@@ -230,45 +220,6 @@ function WaGridMap({
 
         {/* ── Grid + selections clipped to WA outline ── */}
         <g clipPath="url(#wa-clip)">
-
-          {/* ── Real waterway shapes (rivers, lakes, marine) ── */}
-          {WATER_PATHS.map(w => {
-            const pts = toSvgPoints(w.coords)
-            if (w.type === 'river') {
-              return (
-                <polyline
-                  key={w.id}
-                  points={pts}
-                  fill="none"
-                  stroke="rgba(96,165,250,0.6)"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              )
-            }
-            if (w.type === 'lake') {
-              return (
-                <polygon
-                  key={w.id}
-                  points={pts}
-                  fill="rgba(52,211,153,0.2)"
-                  stroke="rgba(52,211,153,0.5)"
-                  strokeWidth="1"
-                />
-              )
-            }
-            // marine
-            return (
-              <polygon
-                key={w.id}
-                points={pts}
-                fill="rgba(34,211,238,0.15)"
-                stroke="rgba(34,211,238,0.45)"
-                strokeWidth="1"
-              />
-            )
-          })}
 
           {/* Selection highlight rects */}
           {[0, 1].flatMap(row =>
@@ -606,7 +557,7 @@ export default function WatersPage() {
       return section.label === 'Marine, Sound & Bay'
     })
 
-  // Top 4 featured waters — gauged rivers with open species first, then by open count
+  // Top 6 featured waters — gauged rivers with open species first, then by open count
   const featuredWaters = [...WATER_BODIES]
     .map(w => ({
       water: w,
@@ -622,7 +573,7 @@ export default function WatersPage() {
       if (!a.isGaugedRiver && b.isGaugedRiver) return 1
       return b.openCount - a.openCount
     })
-    .slice(0, 4)
+    .slice(0, 6)
 
   // Fetch all USGS gauges in one request
   useEffect(() => {
@@ -683,56 +634,79 @@ export default function WatersPage() {
         {/* Most Active Right Now */}
         {featuredWaters.length > 0 && (
           <div className="mb-4">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
-              <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6b7280', whiteSpace: 'nowrap' }}>Most Active Right Now</span>
-              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+            {/* Featured header */}
+            <div style={{ padding: '4px 0 12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: 3, height: 18, borderRadius: 2, background: '#f26522', flexShrink: 0 }} />
+              <span style={{ fontSize: '13px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#f26522' }}>
+                Most Active Right Now
+              </span>
+              <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-faint)' }}>
+                · {featuredWaters.length} waters
+              </span>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+
+            {/* Horizontal scroll row */}
+            <div className="no-scrollbar" style={{ overflowX: 'auto', display: 'flex', gap: 12, padding: '0 0 8px', WebkitOverflowScrolling: 'touch' }}>
               {featuredWaters.map(({ water, openCount }) => {
                 const isGauged = GAUGED_IDS.has(water.id)
                 const flow = flowData[water.id]
                 const palette = flow ? FLOW_PALETTE[flow.status] : null
-                const waterTypeLabel = water.type === 'lake' ? 'Lake'
-                  : water.type === 'sound' || water.type === 'bay' ? 'Marine'
-                  : 'River'
+                const accentColor = (isGauged && flow && palette)
+                  ? palette.color
+                  : '#6ab04c'
+                const waterTypeLabel = water.type === 'lake' ? 'LAKE'
+                  : water.type === 'sound' || water.type === 'bay' ? 'MARINE'
+                  : 'RIVER'
                 return (
                   <button
                     key={water.id}
                     onClick={() => openWater(water)}
-                    className="rounded-2xl text-left transition-all active:scale-[0.99] flex flex-col"
                     style={{
-                      background: 'var(--surface)',
-                      border: `1px solid var(--border)`,
+                      width: 158,
+                      flexShrink: 0,
+                      borderRadius: 20,
                       overflow: 'hidden',
+                      position: 'relative',
+                      border: `1.5px solid ${accentColor}55`,
+                      boxShadow: `0 4px 20px ${accentColor}1a`,
+                      background: 'var(--surface)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      textAlign: 'left',
+                      cursor: 'pointer',
                     }}
                   >
-                    <div className="px-4 pt-4 pb-3 flex-1">
-                      <div className="flex items-start justify-between mb-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded"
-                          style={{ background: 'var(--border)', color: 'var(--text-muted)' }}>
-                          {waterTypeLabel}
-                        </span>
-                        <span className="text-[10px] font-black px-2 py-0.5 rounded"
-                          style={{ background: 'rgba(106,176,76,0.15)', color: '#6ab04c' }}>
-                          {openCount} open
-                        </span>
-                      </div>
-                      <p className="text-base font-black text-white leading-tight mb-0.5">{water.name}</p>
-                      <p className="text-xs font-medium" style={{ color: 'var(--text-faint)' }}>{water.region}</p>
+                    {/* Top accent bar */}
+                    <div style={{ height: 3, background: accentColor, flexShrink: 0 }} />
+
+                    {/* Card body */}
+                    <div style={{ flex: 1, padding: '14px 14px 10px' }}>
+                      <p style={{ fontSize: 9, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-faint)', marginBottom: 6, margin: '0 0 6px' }}>
+                        {waterTypeLabel}
+                      </p>
+                      <p style={{ fontSize: 16, fontWeight: 900, color: '#fff', lineHeight: 1.15, marginBottom: 4, margin: '0 0 4px' }}>
+                        {water.name}
+                      </p>
+                      <p style={{ fontSize: 11, color: 'var(--text-faint)', margin: 0 }}>
+                        {water.region}
+                      </p>
                     </div>
+
+                    {/* Card footer */}
                     {isGauged && flow && flow.cfs !== null && palette ? (
-                      <div className="px-4 py-3 flex items-center gap-2"
-                        style={{ borderTop: '1px solid var(--border)', background: `${palette.color}0d` }}>
-                        <span className="text-lg font-black tabular-nums leading-none" style={{ color: palette.color }}>
+                      <div style={{ padding: '10px 14px 13px', borderTop: '1px solid var(--border)', background: `${accentColor}0d`, display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                        <span style={{ fontSize: 22, fontWeight: 900, color: accentColor, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
                           {formatCfs(flow.cfs)}
                         </span>
-                        <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>cfs</span>
-                        <span className="text-xs font-bold ml-auto" style={{ color: palette.color }}>{palette.label}</span>
+                        <span style={{ fontSize: 10, color: 'var(--text-faint)' }}>cfs</span>
+                        <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 800, color: accentColor }}>
+                          {palette.label}
+                        </span>
                       </div>
                     ) : (
-                      <div className="px-4 py-3" style={{ borderTop: '1px solid var(--border)' }}>
-                        <span className="text-xs" style={{ color: 'var(--text-faint)' }}>Tap for details</span>
+                      <div style={{ padding: '10px 14px 13px', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#6ab04c' }}>{openCount} open</span>
+                        <span style={{ color: 'var(--text-faint)', fontSize: 13 }}>›</span>
                       </div>
                     )}
                   </button>
