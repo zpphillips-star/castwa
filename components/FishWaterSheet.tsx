@@ -241,6 +241,29 @@ export default function FishWaterSheet({
   const noteEmergency = regs.find(r => r.notes && /emergency/i.test(r.notes))
   const hasEmergency = emergencyRules.length > 0 || !!noteEmergency
 
+  // When arriving from water→fish (second layer), only surface currently-active regulations.
+  // When arriving from fish→water (browsing waters), show all seasons.
+  const displayRegs = useMemo(() => {
+    if (mode !== 'from-water') return regs
+    const activeNow = regs.filter(r => isOpenOn(r, today))
+    // If any are active right now, show only those
+    if (activeNow.length > 0) return activeNow
+    // If there's an emergency rule, still show the base regs so context is visible
+    if (hasEmergency) return regs
+    // Nothing open — show nothing (we'll render a closed state instead)
+    return []
+  }, [regs, mode, hasEmergency]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Next opening for closed state (from-water mode when nothing is open)
+  const nextOpening = useMemo(() => {
+    if (mode !== 'from-water' || anyOpen || hasEmergency) return null
+    const future = regs
+      .map(r => r.seasonStart)
+      .filter(Boolean)
+      .sort()
+    return future[0] ?? null
+  }, [regs, mode, anyOpen, hasEmergency]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Map segments
   const segments = useMemo<MapSegment[]>(() => {
     if (isSkagit) return buildSkagitSegmentsForSpecies(fish.id)
@@ -263,7 +286,7 @@ export default function FishWaterSheet({
   // Status info
   const statusColor = hasEmergency ? '#f26522' : anyOpen ? '#6ab04c' : '#6b7280'
   const statusLabel = hasEmergency ? '⚑ EMERGENCY RULE' : anyOpen ? '● OPEN' : '○ CLOSED'
-  const firstReg = regs[0]
+  const firstReg = displayRegs[0] ?? regs[0]
 
   // ── Header swipe for sibling navigation ──────────────────────────────────
 
@@ -371,12 +394,13 @@ export default function FishWaterSheet({
           style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}
         >
           <span className="text-sm font-bold" style={{ color: statusColor }}>{statusLabel}</span>
-          {firstReg && (
+          {/* Only show date range when the reg is currently active (don't show future/past dates) */}
+          {firstReg && anyOpen && (
             <span className="text-[11px]" style={{ color: 'var(--text-faint)' }}>
               · {fmtDate(firstReg.seasonStart)}–{fmtDate(firstReg.seasonEnd)}
             </span>
           )}
-          {firstReg?.hatcheryOnly && (
+          {firstReg?.hatcheryOnly && anyOpen && (
             <span className="text-[11px] font-bold" style={{ color: '#fbbf24' }}>
               · Hatchery Only
             </span>
@@ -474,7 +498,9 @@ export default function FishWaterSheet({
                 </div>
               )}
 
-              {/* 2. Season tiles — side-by-side for 2, stacked for 3+ */}
+              {/* 2. Season tiles — side-by-side for 2, stacked for 3+
+                    In from-water mode: only currently-open seasons are shown.
+                    If nothing is open right now, show a closed state with next opening. */}
               {regs.length === 0 ? (
                 <div className="py-8 text-center">
                   <p className="text-sm mb-3" style={{ color: 'var(--text-faint)' }}>No regulation on file</p>
@@ -488,22 +514,47 @@ export default function FishWaterSheet({
                     Check WDFW regulations
                   </a>
                 </div>
+              ) : displayRegs.length === 0 && mode === 'from-water' ? (
+                /* Closed right now — from-water mode with no active seasons */
+                <div
+                  className="rounded-2xl p-5 mb-4 text-center"
+                  style={{
+                    background: 'rgba(107,114,128,0.08)',
+                    border: '1px solid rgba(107,114,128,0.2)',
+                  }}
+                >
+                  <p className="text-sm font-bold mb-1" style={{ color: '#6b7280' }}>○ CLOSED right now</p>
+                  {nextOpening && (
+                    <p className="text-xs" style={{ color: 'var(--text-faint)' }}>
+                      Season opens <span className="text-white font-semibold">{fmtDate(nextOpening)}</span>
+                    </p>
+                  )}
+                  <a
+                    href="https://wdfw.wa.gov/fishing/regulations"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] underline mt-3 inline-block"
+                    style={{ color: '#f26522' }}
+                  >
+                    Verify on WDFW
+                  </a>
+                </div>
               ) : (
                 <div
                   className="mb-4"
                   style={{
                     display: 'flex',
-                    flexDirection: regs.length === 2 ? 'row' : 'column',
+                    flexDirection: displayRegs.length === 2 ? 'row' : 'column',
                     gap: 12,
                   }}
                 >
-                  {regs.map((reg, idx) => {
+                  {displayRegs.map((reg, idx) => {
                     const isOpen = isOpenOn(reg, today)
                     const hasNoteEmerg = !!(reg.notes && /emergency/i.test(reg.notes))
                     const statusColor = hasNoteEmerg ? '#f26522' : isOpen ? '#6ab04c' : '#6b7280'
                     const statusText  = hasNoteEmerg ? 'EMERGENCY' : isOpen ? 'OPEN' : 'CLOSED'
                     const statusDot   = hasNoteEmerg ? '⚑' : isOpen ? '●' : '○'
-                    const tileLabel   = regs.length > 1
+                    const tileLabel   = displayRegs.length > 1
                       ? getSeasonLabel(reg.seasonStart, fish.name)
                       : getSeasonLabel(reg.seasonStart, fish.name)
                     return (
@@ -513,7 +564,7 @@ export default function FishWaterSheet({
                         style={{
                           background: 'rgba(255,255,255,0.05)',
                           border: '1px solid rgba(255,255,255,0.08)',
-                          flex: regs.length === 2 ? '1 1 0' : undefined,
+                          flex: displayRegs.length === 2 ? '1 1 0' : undefined,
                           minWidth: 0,
                         }}
                       >
