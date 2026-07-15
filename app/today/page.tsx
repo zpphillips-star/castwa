@@ -584,6 +584,20 @@ export default function TodayPage() {
 
   const { starredFishIds, starredWaterIds, hydrated } = useStarred()
 
+  // Reset all sheets when tapping active bottom nav tab
+  useEffect(() => {
+    const handler = () => {
+      setSelectedFish(null)
+      setSelectedRiver(null)
+      setSelectedRiverFlow(null)
+      setSelectedWater(null)
+      setShowOpenSheet(false)
+      setShowAlertsSheet(false)
+    }
+    window.addEventListener('castwa-nav-reset', handler)
+    return () => window.removeEventListener('castwa-nav-reset', handler)
+  }, [])
+
   const gauges = useRiverGauges()
   const weatherData = useWeather(starredWaterIds)
 

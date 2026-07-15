@@ -375,7 +375,9 @@ export default function FishWaterSheet({
     <div
       className="fixed inset-0 flex flex-col justify-end animate-backdrop"
       style={{ zIndex, background: 'rgba(0,0,0,0.85)' }}
-      onClick={e => { if (e.target === e.currentTarget) onClose() }}
+      onTouchStart={e => e.stopPropagation()}
+      onTouchEnd={e => e.stopPropagation()}
+      onClick={e => { e.stopPropagation(); if (e.target === e.currentTarget) onClose() }}
     >
       <div
         className="animate-slide-up rounded-t-2xl flex flex-col overflow-hidden"

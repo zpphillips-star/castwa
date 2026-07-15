@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import BottomNav from '@/components/BottomNav'
 import FishDetailSheet from '@/components/FishDetailSheet'
 import { SPECIES, Species, Habitat, REGULATIONS, WATER_BODIES, isOpenOn } from '@/lib/fishing-data'
@@ -233,6 +233,17 @@ export default function FishPage() {
   const [selectedFish, setSelectedFish] = useState<Species | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const { isFishStarred, toggleFish } = useStarred()
+
+  // Reset all sheets when tapping active bottom nav tab
+  useEffect(() => {
+    const handler = () => {
+      setSelectedFish(null)
+      setSearchQuery('')
+      setActiveFilter('all')
+    }
+    window.addEventListener('castwa-nav-reset', handler)
+    return () => window.removeEventListener('castwa-nav-reset', handler)
+  }, [])
 
   // Base habitat/starred filter
   const habitatFiltered = activeFilter === 'all'

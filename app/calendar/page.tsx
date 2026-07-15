@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import BottomNav from '@/components/BottomNav'
 import { getOpenSpeciesForDate, REGULATIONS, WATER_BODIES, isOpenOn, Species } from '@/lib/fishing-data'
 import FishDetailSheet from '@/components/FishDetailSheet'
@@ -92,6 +92,16 @@ export default function CalendarPage() {
   const now = new Date()
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [selectedFish, setSelectedFish] = useState<Species | null>(null)
+
+  // Reset all sheets when tapping active bottom nav tab
+  useEffect(() => {
+    const handler = () => {
+      setSelectedDate(null)
+      setSelectedFish(null)
+    }
+    window.addEventListener('castwa-nav-reset', handler)
+    return () => window.removeEventListener('castwa-nav-reset', handler)
+  }, [])
 
   const months = Array.from({ length: 12 }, (_, i) => {
     const d = new Date(now.getFullYear(), now.getMonth() + i, 1)

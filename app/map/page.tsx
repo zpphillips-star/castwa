@@ -159,6 +159,16 @@ export default function NearMePage() {
   const [selectedWaterName, setSelectedWaterName] = useState<string | null>(null)
   const [filterType, setFilterType] = useState<'all' | 'open' | 'river' | 'lake' | 'marine'>('open')
 
+  // Reset all sheets when tapping active bottom nav tab
+  useEffect(() => {
+    const handler = () => {
+      setSelectedRiver(null)
+      setSelectedWaterName(null)
+    }
+    window.addEventListener('castwa-nav-reset', handler)
+    return () => window.removeEventListener('castwa-nav-reset', handler)
+  }, [])
+
   // Auto-request location on mount
   useEffect(() => {
     setLocState('loading')

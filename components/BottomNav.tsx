@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import Image from 'next/image'
 
 // Order: Fish | Waters | [Today] | Map | Calendar
@@ -52,24 +52,36 @@ const rightTabs = [
   },
 ]
 
+function dispatchReset() {
+  window.dispatchEvent(new CustomEvent('castwa-nav-reset'))
+}
+
 const NavTab = ({ href, label, icon }: { href: string; label: string; icon: (a: boolean) => React.ReactNode }) => {
   const pathname = usePathname()
+  const router = useRouter()
   const active = pathname === href || pathname.startsWith(href + '/')
   return (
-    <Link
-      href={href}
+    <button
+      onClick={() => {
+        if (active) {
+          dispatchReset()
+        } else {
+          router.push(href)
+        }
+      }}
       className="flex-1 flex flex-col items-center justify-center gap-1 py-3 h-full"
     >
       {icon(active)}
       <span className="text-[10px] font-semibold" style={{ color: active ? '#f26522' : '#6b7280' }}>
         {label}
       </span>
-    </Link>
+    </button>
   )
 }
 
 export default function BottomNav() {
   const pathname = usePathname()
+  const router = useRouter()
   const todayActive = pathname === '/today' || pathname.startsWith('/today/')
 
   return (
@@ -85,9 +97,18 @@ export default function BottomNav() {
         {/* Left tabs */}
         {leftTabs.map(t => <NavTab key={t.href} {...t} />)}
 
-        {/* Center Today button — raised, prominent, World Cup style */}
+        {/* Center Today button — raised, prominent */}
         <div className="flex-1 flex flex-col items-center justify-end pb-2 relative">
-          <Link href="/today" className="flex flex-col items-center gap-1 -mt-6 transition-transform active:scale-[0.97]">
+          <button
+            onClick={() => {
+              if (todayActive) {
+                dispatchReset()
+              } else {
+                router.push('/today')
+              }
+            }}
+            className="flex flex-col items-center gap-1 -mt-6 transition-transform active:scale-[0.97]"
+          >
             <div
               className="w-16 h-16 rounded-2xl flex items-center justify-center transition-transform active:scale-95 overflow-hidden"
               style={{
@@ -110,7 +131,7 @@ export default function BottomNav() {
             <span className="text-[10px] font-semibold transition-colors" style={{ color: todayActive ? '#f26522' : '#6b7280' }}>
               Today
             </span>
-          </Link>
+          </button>
         </div>
 
         {/* Right tabs */}

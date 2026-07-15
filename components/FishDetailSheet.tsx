@@ -382,7 +382,9 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
   return (
     <>
     <div className="fixed inset-0 flex flex-col justify-end animate-backdrop"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+      onTouchStart={e => e.stopPropagation()}
+      onTouchEnd={e => e.stopPropagation()}
+      onClick={(e) => { e.stopPropagation(); if (e.target === e.currentTarget) onClose() }}
       style={{ background: 'rgba(0,0,0,0.8)', zIndex }}>
       <div className="animate-slide-up rounded-t-xl overflow-hidden flex flex-col"
         style={{ background: 'var(--surface)', height: '92vh' }}>

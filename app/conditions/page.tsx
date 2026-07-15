@@ -386,6 +386,17 @@ export default function WatersPage() {
   const [locationRequested, setLocationRequested] = useState(false)
   const [locationDenied, setLocationDenied] = useState(false)
 
+  // Reset all sheets when tapping active bottom nav tab
+  useEffect(() => {
+    const handler = () => {
+      setSelectedWaterName(null)
+      setSelectedCell(null)
+      setRegionSheetCell(null)
+    }
+    window.addEventListener('castwa-nav-reset', handler)
+    return () => window.removeEventListener('castwa-nav-reset', handler)
+  }, [])
+
   // ── Nearby waters (Near Me feature) ──────────────────────────────────────
   const nearbyWaters = userLocation
     ? WATER_BODIES
