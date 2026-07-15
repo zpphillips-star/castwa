@@ -60,6 +60,7 @@ const ALL_RIVERS: RiverEntry[] = [
   { id: 'stillaguamish', name: 'Stillaguamish River',  region: 'Northwest',   usgsId: '12167000', targetSpecies: ['Coho Salmon','Chinook Salmon','Steelhead'],              idealCfs: { min: 800,   max: 5000   } },
   { id: 'sauk',          name: 'Sauk River',           region: 'Northwest',   usgsId: '12186000', targetSpecies: ['Chinook Salmon','Steelhead'],                           idealCfs: { min: 500,   max: 3000   } },
   { id: 'skykomish',     name: 'Skykomish River',      region: 'Northwest',   usgsId: '12134500', targetSpecies: ['Coho Salmon','Chinook Salmon','Steelhead'],              idealCfs: { min: 1000,  max: 8000   } },
+  { id: 'snoqualmie',    name: 'Snoqualmie River',     region: 'Northwest',   usgsId: '12149000', targetSpecies: ['Coho Salmon','Steelhead','Chinook Salmon'],              idealCfs: { min: 400,   max: 4000   } },
   { id: 'columbia',      name: 'Columbia River',       region: 'Southeast',   usgsId: '14105700', targetSpecies: ['Chinook Salmon','Steelhead','Walleye','White Sturgeon'], idealCfs: { min: 80000, max: 250000 } },
   { id: 'snake',         name: 'Snake River',          region: 'Southeast',   usgsId: '13334300', targetSpecies: ['Steelhead','Chinook Salmon','Walleye'],                  idealCfs: { min: 10000, max: 80000  } },
   { id: 'yakima',        name: 'Yakima River',         region: 'Central',     usgsId: '12492800', targetSpecies: ['Rainbow Trout','Steelhead','Cutthroat Trout'],           idealCfs: { min: 800,   max: 5000   } },

@@ -2,12 +2,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import BottomNav from '@/components/BottomNav'
 import WaterDetailSheet from '@/components/WaterDetailSheet'
-import RiverDetailSheet from '@/components/RiverDetailSheet'
 import { WATER_BODIES, REGULATIONS, SPECIES, isOpenOn } from '@/lib/fishing-data'
 import type { WaterBody } from '@/lib/fishing-data'
 
 // ─── Canonical river list — single source of truth ───────────────────────────
-import { RiverEntry, GAUGED_RIVERS, findRiverEntry } from '@/lib/river-lookup'
+import { RiverEntry, GAUGED_RIVERS } from '@/lib/river-lookup'
 import { WATER_COORDS } from '@/lib/water-coords'
 
 // GAUGED_IDS: used to show flow-rate indicators only for gauged rivers
@@ -378,8 +377,7 @@ export default function WatersPage() {
   const [flowData, setFlowData] = useState<Record<string, FlowData>>({})
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  // Rivers → RiverDetailSheet (gold-standard view); everything else → WaterDetailSheet
-  const [selectedRiver, setSelectedRiver] = useState<RiverEntry | null>(null)
+  // All waters → WaterDetailSheet (consistent with Today page)
   const [selectedWaterName, setSelectedWaterName] = useState<string | null>(null)
   const [activeFilter, setActiveFilter] = useState<'all' | 'river' | 'lake' | 'marine'>('all')
   const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null)
@@ -413,12 +411,7 @@ export default function WatersPage() {
 
   // ── Single entry-point for all water-body taps ────────────────────────────
   const openWater = useCallback((water: WaterBody) => {
-    const river = findRiverEntry(water)
-    if (river) {
-      setSelectedRiver(river)
-    } else {
-      setSelectedWaterName(water.name)
-    }
+    setSelectedWaterName(water.name)
   }, [])
 
   // ── Map click handler — unified for rivers + water bodies ─────────────────
@@ -829,18 +822,6 @@ export default function WatersPage() {
         <WaterDetailSheet
           waterName={selectedWaterName}
           onClose={() => setSelectedWaterName(null)}
-        />
-      )}
-      {selectedRiver && (
-        <RiverDetailSheet
-          river={selectedRiver}
-          flow={{
-            cfs: flowData[selectedRiver.id]?.cfs ?? null,
-            status: flowData[selectedRiver.id]?.status ?? 'loading',
-            trend: flowData[selectedRiver.id]?.trend ?? null,
-            fetchedAt: lastUpdated ?? '',
-          }}
-          onClose={() => setSelectedRiver(null)}
         />
       )}
       <BottomNav />
