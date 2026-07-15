@@ -649,7 +649,6 @@ export default function FishWaterSheet({
                                 <div style={{
                                   background: cardStatus === 'emergency' ? 'rgba(242,101,34,0.06)' : 'rgba(255,255,255,0.05)',
                                   border: cardStatus === 'emergency' ? '1px solid rgba(242,101,34,0.18)' : '1px solid rgba(255,255,255,0.08)',
-                                  borderLeft: `3px solid ${cardColor}`,
                                   borderRadius: 16, padding: '14px 14px',
                                 }}>
                                   {/* Header — identical to non-Skagit */}
