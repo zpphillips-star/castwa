@@ -32,7 +32,7 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     type: 'OPEN',
     species: 'Sockeye Salmon',
     waterBody: 'Skagit River (Hwy 536 Bridge to Baker River)',
-    description: 'Sockeye salmon open Skagit River through Jul 31. Daily limit 4 sockeye, min 12". Night closure in effect. Release all salmon other than sockeye. ⚠️ Scheduled tribal closures (Jul 7–9 and Jul 13–15) have passed. Additional unannounced closures may still occur on short notice — always verify WDFW before fishing.',
+    description: 'Sockeye salmon open Skagit River through Jul 31. Daily limit 4 sockeye, min 12". Night closure in effect. Release all salmon other than sockeye. ⚠️ Tribal closures: Jul 7–9 and Jul 13–15, Gilligan Creek to Baker River (all species). Full reach resumes Jul 16. Additional unannounced closures may still occur on short notice — always verify WDFW before fishing.',
     activeFrom: '2026-07-01',
     activeTo: '2026-07-31',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/lower-skagit-river-fishing-updates-2026-07',
@@ -127,6 +127,36 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeFrom: '2026-07-02',
     activeTo: '2026-09-28',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/puget-sound-summer-crab-schedule-2026-06',
+  },
+  // ── SKYKOMISH RIVER — ALL SPECIES CLOSED THROUGH OCT 31 ─────────────────
+  // Source: WDFW ER (pub. Jun 2 2026). Closed to protect wild Chinook (very low forecast).
+  // All species, mouth to North/South Fork confluence. Overrides all pamphlet seasons incl.
+  // Wallace River Hatchery Chinook and Reiter Ponds steelhead. Effective immediately – Oct 31.
+  {
+    id: 'ea-skykomish-closed-2026',
+    type: 'CLOSED',
+    species: 'All species',
+    waterBody: 'Skykomish River (mouth to North/South Fork confluence)',
+    description: '🚨 Skykomish River CLOSED to all fishing through Oct 31, 2026 — protecting wild Chinook salmon (critically low forecast). Overrides all pamphlet seasons including Wallace River Hatchery Chinook and Reiter Ponds steelhead. Snohomish Basin-wide closure — verify tributary status before fishing any Snohomish Basin water.',
+    activeFrom: '2026-06-02',
+    activeTo: '2026-10-31',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/skykomish-river-fishing-will-not-open-until-nov-1-2026-06',
+  },
+  // ── BIOTOXIN (PSP) — HOOD CANAL & ADMIRALTY INLET BIVALVES CLOSED ────────
+  // Source: DOH news release Jun 12 2026 + WDFW closure announcement.
+  // PSP at lethal levels in Hood Canal near Union; high levels in surrounding areas.
+  // WDFW closed all public bivalve harvest in MA 9 (south of Foulweather Bluff–Olele Point)
+  // and all of MA 12 (Hood Canal, incl. Port Gamble Bay, Quilcene Bay, Dabob Bay, Mats Mats Bay).
+  // Closure until further notice. Shrimp and crab NOT affected.
+  {
+    id: 'ea-biotoxin-psp-ma9-ma12-2026',
+    type: 'CLOSED',
+    species: 'Clams, Mussels, Oysters, Scallops (all bivalves)',
+    waterBody: 'Marine Area 12 (Hood Canal) & MA 9 south (Admiralty Inlet, Foulweather Bluff to Olele Point)',
+    description: '🚨 ALL bivalve shellfish harvest CLOSED — PSP (paralytic shellfish poison) at LETHAL levels. Affected: Hood Canal (MA 12) including Port Gamble Bay, Quilcene Bay, Dabob Bay, and Mats Mats Bay; plus Admiralty Inlet (MA 9) south of Foulweather Bluff to Olele Point. Closure is until further notice. Shrimp and crab are NOT affected. PSP cannot be detected by sight, smell, or taste. Check DOH Shellfish Safety Map before any harvest: fortress.wa.gov/doh/biotoxin',
+    activeFrom: '2026-06-12',
+    activeTo: null,
+    wdfw_url: 'https://wdfw.wa.gov/newsroom/news-release/wdfw-closes-hood-canal-admiralty-inlet-shellfish-harvesting-effective-immediately-following-reports',
   },
   // ── PACIFIC HALIBUT — ALL WA PRIMARY SEASONS CLOSED (QUOTA) ─────────────
   // All WA halibut primary seasons closed due to IPHC quota being reached.

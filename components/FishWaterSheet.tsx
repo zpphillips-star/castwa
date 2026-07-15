@@ -497,57 +497,45 @@ export default function FishWaterSheet({
           ═══════════════════════════════════════════════════════════════ */}
           <div style={{ padding: '16px 16px 0' }}>
 
-            {/* Emergency rule tile */}
-            {hasEmergency && (
-              <div style={{
-                background: 'rgba(242,101,34,0.06)',
-                border: '1px solid rgba(242,101,34,0.22)',
-                borderLeft: '3px solid #f26522',
-                borderRadius: 16,
-                padding: '12px 14px',
-                marginBottom: 12,
-              }}>
+            {/* Skagit section-level emergency rules (shown inline as cards, not a separate tile) */}
+            {emergencyRules.length > 0 && emergencyRules.map((er, i) => (
+              <div
+                key={i}
+                style={{
+                  background: 'rgba(242,101,34,0.06)',
+                  border: '1px solid rgba(242,101,34,0.18)',
+                  borderLeft: '3px solid #f26522',
+                  borderRadius: 16,
+                  padding: '14px 14px',
+                  marginBottom: 10,
+                }}
+              >
                 <p style={{
                   fontSize: 10, textTransform: 'uppercase', fontWeight: 800,
-                  letterSpacing: '0.1em', color: '#f26522', marginBottom: 7,
+                  letterSpacing: '0.1em', color: '#f26522', marginBottom: 6,
                 }}>
                   Emergency Rule in Effect
                 </p>
-                {emergencyRules.map((er, i) => (
-                  <div
-                    key={i}
-                    style={i > 0 ? { marginTop: 10, paddingTop: 10, borderTop: '1px solid rgba(242,101,34,0.15)' } : {}}
-                  >
-                    <p style={{ fontSize: 13, color: 'rgba(242,101,34,0.92)', fontWeight: 600, marginBottom: 3 }}>
-                      {er.section} — {er.rule.effective}
-                    </p>
-                    {er.rule.overrides.map((o, j) => (
-                      <p key={j} style={{ fontSize: 12, color: 'rgba(242,101,34,0.72)', lineHeight: 1.4 }}>
-                        {o.dates}{o.status ? ` — ${o.status}` : ''}{o.notes ? `: ${o.notes}` : ''}
-                      </p>
-                    ))}
-                    {er.rule.url && (
-                      <a
-                        href={er.rule.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          fontSize: 11, color: '#f26522', textDecoration: 'underline',
-                          display: 'inline-block', marginTop: 5,
-                        }}
-                      >
-                        View official rule
-                      </a>
-                    )}
-                  </div>
-                ))}
-                {noteEmergency?.notes && !emergencyRules.length && (
-                  <p style={{ fontSize: 13, color: 'rgba(242,101,34,0.92)' }}>
-                    {noteEmergency.notes}
+                <p style={{ fontSize: 14, fontWeight: 700, color: 'rgba(242,101,34,0.92)', marginBottom: 4 }}>
+                  {er.section} — {er.rule.effective}
+                </p>
+                {er.rule.overrides.map((o, j) => (
+                  <p key={j} style={{ fontSize: 12, color: 'rgba(242,101,34,0.72)', lineHeight: 1.5 }}>
+                    {o.dates}{o.status ? ` — ${o.status}` : ''}{o.notes ? `: ${o.notes}` : ''}
                   </p>
+                ))}
+                {er.rule.url && (
+                  <a
+                    href={er.rule.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ fontSize: 11, color: '#f26522', textDecoration: 'underline', display: 'inline-block', marginTop: 5 }}
+                  >
+                    View official rule
+                  </a>
                 )}
               </div>
-            )}
+            ))}
 
             {/* No regulation on file */}
             {regs.length === 0 && (
@@ -618,23 +606,25 @@ export default function FishWaterSheet({
                     <div
                       key={reg.id}
                       style={{
-                        background: 'rgba(255,255,255,0.05)',
-                        border: '1px solid rgba(255,255,255,0.08)',
+                        background: regStatus === 'emergency' ? 'rgba(242,101,34,0.06)' : 'rgba(255,255,255,0.05)',
+                        border: regStatus === 'emergency' ? '1px solid rgba(242,101,34,0.18)' : '1px solid rgba(255,255,255,0.08)',
+                        borderLeft: regStatus === 'emergency' ? '3px solid #f26522' : '1px solid rgba(255,255,255,0.08)',
                         borderRadius: 16, padding: '14px 14px',
                         flex: displayRegs.length === 2 ? '1 1 0' : undefined,
                         minWidth: 0,
                       }}
                     >
-                      {/* Season label + status dot */}
+                      {/* Section title: Emergency Rule in Effect OR season label */}
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                         <p style={{
-                          fontSize: 10, textTransform: 'uppercase', fontWeight: 700,
-                          letterSpacing: '0.08em', color: 'var(--text-faint)',
+                          fontSize: 10, textTransform: 'uppercase', fontWeight: 800,
+                          letterSpacing: '0.08em',
+                          color: regStatus === 'emergency' ? '#f26522' : 'var(--text-faint)',
                         }}>
-                          {getSeasonLabel(reg.seasonStart, fish.name)}
+                          {regStatus === 'emergency' ? 'Emergency Rule in Effect' : getSeasonLabel(reg.seasonStart, fish.name)}
                         </p>
                         <span style={{ fontSize: 11, fontWeight: 700, color: regSColor }}>
-                          {regStatus === 'emergency' ? '⚑ EMERG' : regStatus === 'open' ? '● OPEN' : '○ CLOSED'}
+                          {regStatus === 'open' ? '● OPEN' : regStatus === 'emergency' ? '⚑ ACTIVE' : '○ CLOSED'}
                         </span>
                       </div>
 
