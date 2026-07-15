@@ -511,9 +511,10 @@ export default function WatersPage() {
         </div>
       </header>
 
-      {/* ── Pinned: Most Active + Map ── */}
-      <div className="flex-shrink-0 max-w-lg mx-auto w-full px-4 pt-4"
-        style={{ background: 'var(--bg)' }}>
+      {/* ── Single scrollable body: everything scrolls ── */}
+      <div className="flex-1 overflow-y-auto no-scrollbar" style={{ paddingBottom: '100px' }}>
+      <div className="max-w-lg mx-auto w-full px-4 pt-4">
+
         {/* Most Active Right Now */}
         {featuredWaters.length > 0 && (
           <div className="mb-4">
@@ -612,39 +613,57 @@ export default function WatersPage() {
           </div>
         )}
 
-        {/* WA Grid Map — 8 tappable regions */}
-        <div className="rounded-2xl mb-3"
-          style={{ background: 'var(--surface)', border: '1px solid var(--border)', padding: '10px 10px 6px' }}>
-          <WaGridMap
-            selected={selectedCell}
-            onSelect={(cell) => {
-              setSelectedCell(cell)
-              setRegionSheetCell(cell)
-            }}
-          />
-        </div>
-      </div>
-
-      {/* ── Scrollable: filter chips + water list ── */}
-      <div className="flex-1 overflow-y-auto no-scrollbar" style={{ paddingBottom: '100px' }}>
-      <div className="max-w-lg mx-auto px-4 pt-4">
-        {/* ── NEAR YOU ── */}
-        {!locationRequested ? (
-          <div className="mb-4">
+        {/* WA Grid Map + Near You tethered below */}
+        <div className="rounded-2xl mb-6"
+          style={{ background: 'var(--surface)', border: '1px solid var(--border)', overflow: 'hidden' }}>
+          {/* Map */}
+          <div style={{ padding: '10px 10px 0' }}>
+            <WaGridMap
+              selected={selectedCell}
+              onSelect={(cell) => {
+                setSelectedCell(cell)
+                setRegionSheetCell(cell)
+              }}
+            />
+          </div>
+          {/* Near You — tethered to map */}
+          {!locationRequested ? (
             <button
               onClick={requestLocation}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.99]"
-              style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)', color: 'var(--text-muted)' }}
+              className="w-full flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
+              style={{
+                padding: '14px 16px',
+                background: 'rgba(242,101,34,0.12)',
+                borderTop: '1px solid rgba(242,101,34,0.2)',
+                color: '#f26522',
+                fontSize: '14px',
+                fontWeight: 700,
+                letterSpacing: '0.01em',
+              }}
             >
-              <span>📍</span>
-              <span>Find waters near you</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                <circle cx="12" cy="9" r="2.5"/>
+              </svg>
+              <span>Find Waters Near You</span>
             </button>
-          </div>
-        ) : locationDenied ? (
-          <div className="mb-4 px-4 py-3 rounded-xl text-xs" style={{ color: 'var(--text-faint)', background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            Location access denied — enable in browser settings to use Near You
-          </div>
-        ) : nearbyWaters.length > 0 ? (
+          ) : locationDenied ? (
+            <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.06)', fontSize: '12px', color: 'var(--text-faint)', textAlign: 'center' }}>
+              Location access denied — enable in browser settings
+            </div>
+          ) : nearbyWaters.length === 0 && userLocation ? (
+            <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.06)', fontSize: '12px', color: 'var(--text-faint)', textAlign: 'center' }}>
+              No open waters found nearby today
+            </div>
+          ) : nearbyWaters.length === 0 ? (
+            <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(242,101,34,0.2)', fontSize: '12px', color: 'var(--text-faint)', textAlign: 'center' }}>
+              Getting your location…
+            </div>
+          ) : null}
+        </div>
+
+        {/* Near You results (shown outside card once we have results) */}
+        {locationRequested && !locationDenied && nearbyWaters.length > 0 && (
           <div className="mb-4">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
               <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
@@ -668,16 +687,9 @@ export default function WatersPage() {
               ))}
             </div>
           </div>
-        ) : userLocation ? (
-          <div className="mb-4 px-4 py-3 rounded-xl text-xs" style={{ color: 'var(--text-faint)', background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            No open waters found nearby today
-          </div>
-        ) : (
-          <div className="mb-4 px-4 py-3 rounded-xl text-xs" style={{ color: 'var(--text-faint)', background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            Getting your location…
-          </div>
         )}
 
+        {/* ── Filter chips ── */}
         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-2">
           {([
             { key: 'all',    label: 'All Waters' },
