@@ -690,7 +690,7 @@ export default function WatersPage() {
         )}
 
         {/* ── Filter chips ── */}
-        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-2">
+        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-2 mt-5">
           {([
             { key: 'all',    label: 'All Waters' },
             { key: 'river',  label: 'Rivers' },
