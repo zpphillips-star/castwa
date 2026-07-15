@@ -601,8 +601,10 @@ export const REGULATIONS: Regulation[] = [
 
   // ── SAMMAMISH RIVER ──────────────────────────────────────────────────────────
   // Flows from Lake Sammamish to Lake Washington through Redmond/Kenmore; urban corridor
-  { id: 'r263', speciesId: 'coho',       waterBodyId: 'sammamish-river', seasonStart: '10-01', seasonEnd: '11-15', dailyLimit: 2, minSize: 16, hatcheryOnly: true, gearRestriction: null, notes: 'Urban corridor — closed portions much of year; check section rules; see WDFW regulations' },
-  { id: 'r264', speciesId: 'cutthroat',  waterBodyId: 'sammamish-river', seasonStart: '01-01', seasonEnd: '12-31', dailyLimit: 2, minSize: 14, hatcheryOnly: false, gearRestriction: 'Catch and release only', notes: 'Sea-run cutthroat C&R; see WDFW regulations' },
+  { id: 'r263', speciesId: 'coho',       waterBodyId: 'sammamish-river', seasonStart: '10-01', seasonEnd: '11-15', dailyLimit: 2, minSize: 16, hatcheryOnly: true,  gearRestriction: null,                        notes: 'Urban corridor — closed portions much of year; check section rules; see WDFW regulations' },
+  { id: 'r264', speciesId: 'cutthroat',  waterBodyId: 'sammamish-river', seasonStart: '01-01', seasonEnd: '12-31', dailyLimit: 2, minSize: 14, hatcheryOnly: false, gearRestriction: 'Catch and release only',     notes: 'Sea-run cutthroat C&R; see WDFW regulations' },
+  { id: 'r264b', speciesId: 'steelhead', waterBodyId: 'sammamish-river', seasonStart: '01-01', seasonEnd: '04-30', dailyLimit: 0, minSize: null, hatcheryOnly: false, gearRestriction: 'Catch and release only',   notes: 'Winter steelhead present Jan–Apr; C&R only; wild fish ESA-protected — check WDFW before keeping any' },
+  { id: 'r264c', speciesId: 'rainbow',   waterBodyId: 'sammamish-river', seasonStart: '01-01', seasonEnd: '12-31', dailyLimit: 2, minSize: 12,  hatcheryOnly: false, gearRestriction: null,                        notes: 'Resident rainbow year-round; hatchery plants periodically; verify current stocking at WDFW' },
 
   // ── ISSAQUAH CREEK ───────────────────────────────────────────────────────────
   { id: 'r265', speciesId: 'coho',       waterBodyId: 'issaquah-creek', seasonStart: '10-01', seasonEnd: '11-15', dailyLimit: 2, minSize: 16, hatcheryOnly: true, gearRestriction: null, notes: 'Tributary of Lake Sammamish; check annual WDFW announcement; most of stream C&R only' },

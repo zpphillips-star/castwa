@@ -835,9 +835,10 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                       <button
                         key={reg.id}
                         onClick={() => {
+                          if (!water) return
                           const sibs = speciesRegs.map(x => x.species)
                           const idx = sibs.findIndex(s => s.id === sp.id)
-                          if (water) setFishWaterCombo({ fish: sp, water, index: Math.max(0, idx), siblingFish: sibs })
+                          setFishWaterCombo({ fish: sp, water, index: Math.max(0, idx), siblingFish: sibs })
                         }}
                         className="flex flex-col items-center rounded-xl overflow-hidden transition-all active:scale-[0.99]"
                         style={{
