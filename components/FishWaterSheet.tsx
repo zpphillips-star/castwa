@@ -82,7 +82,8 @@ function fmtDate(mmdd: string): string {
   return `${MNAMES[m - 1]} ${d}`
 }
 
-function getSeasonLabel(startMmdd: string, fishName: string): string {
+function getSeasonLabel(startMmdd: string | null, fishName: string): string {
+  if (!startMmdd) return `${fishName} Season`
   const month = parseInt(startMmdd.split('-')[0], 10)
   const period =
     month === 12 || month <= 2 ? 'Winter' :
@@ -209,18 +210,8 @@ export default function FishWaterSheet({
   const [activeTab, setActiveTab] = useState<Tab>('where')
   const [currentIdx, setCurrentIdx] = useState(initialSiblingIndex)
   const [mapExpanded, setMapExpanded] = useState(false)
-  // Skagit accordion: which section row is expanded (null = all collapsed)
-  const [expandedSection, setExpandedSection] = useState<number | null>(() => {
-    if (initialWater.id !== 'skagit') return null
-    const aliases = SPECIES_SEASON_NAMES[initialFish.id] ?? [initialFish.id]
-    const idx = SKAGIT_SECTIONS.findIndex(section => {
-      if (section.emergencyRule) return true
-      return section.seasons.some(s =>
-        !s.closed && aliases.some(a => s.species.toLowerCase().includes(a.toLowerCase()))
-      )
-    })
-    return idx >= 0 ? idx : null
-  })
+  // Skagit accordion: which section row is expanded (null = all collapsed, start closed)
+  const [expandedSection, setExpandedSection] = useState<number | null>(null)
 
   // Determine mode and resolve current fish + water
   const mode = siblingWaters ? 'from-fish' : siblingFish ? 'from-water' : 'solo'
@@ -567,183 +558,195 @@ export default function FishWaterSheet({
 
             {/* ── Skagit: accordion section list ─────────────────────────────── */}
             {isSkagit && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
-                {skagitSectionStatuses.map((s, i) => {
-                  const isExp = expandedSection === i
-                  const sc = s.status === 'emergency' ? '#f26522' : s.status === 'open' ? '#6ab04c' : '#6b7280'
-                  const dot = s.status === 'emergency' ? '⚑' : s.status === 'open' ? '●' : '○'
-                  const lbl = s.status === 'emergency' ? 'EMERGENCY' : s.status === 'open' ? 'OPEN' : 'CLOSED'
+              <div style={{ marginBottom: 12 }}>
+                {/* Section title */}
+                <p style={{
+                  fontSize: 10, textTransform: 'uppercase', fontWeight: 800,
+                  letterSpacing: '0.12em', color: 'var(--text-faint)',
+                  marginBottom: 10,
+                }}>
+                  Rules by River Section
+                </p>
 
-                  return (
-                    <div
-                      key={i}
-                      style={{
-                        borderRadius: 14,
-                        overflow: 'hidden',
-                        border: s.status === 'emergency'
-                          ? '1px solid rgba(242,101,34,0.25)'
-                          : s.status === 'open'
-                          ? '1px solid rgba(106,176,76,0.2)'
-                          : '1px solid rgba(255,255,255,0.08)',
-                        borderLeft: s.status === 'emergency' ? '3px solid #f26522' : undefined,
-                      }}
-                    >
-                      {/* ── Collapsed header row ── */}
-                      <button
-                        onClick={() => setExpandedSection(isExp ? null : i)}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {skagitSectionStatuses.map((s, i) => {
+                    const isExp = expandedSection === i
+                    const sc = s.status === 'emergency' ? '#f26522' : s.status === 'open' ? '#6ab04c' : '#6b7280'
+                    const lbl = s.status === 'emergency' ? '⚑ EMERGENCY' : s.status === 'open' ? '● OPEN' : '○ CLOSED'
+
+                    return (
+                      <div
+                        key={i}
                         style={{
-                          width: '100%',
-                          display: 'flex', alignItems: 'center', gap: 10,
-                          padding: '11px 14px',
+                          borderRadius: 16,
+                          overflow: 'hidden',
                           background: s.status === 'emergency'
                             ? 'rgba(242,101,34,0.06)'
                             : s.status === 'open'
                             ? 'rgba(106,176,76,0.05)'
-                            : 'rgba(255,255,255,0.03)',
-                          border: 'none', cursor: 'pointer', textAlign: 'left',
+                            : 'rgba(255,255,255,0.04)',
+                          border: s.status === 'emergency'
+                            ? '1px solid rgba(242,101,34,0.22)'
+                            : s.status === 'open'
+                            ? '1px solid rgba(106,176,76,0.18)'
+                            : '1px solid rgba(255,255,255,0.08)',
+                          borderLeft: `3px solid ${sc}`,
                         }}
                       >
-                        <span style={{ fontSize: 12, color: sc, flexShrink: 0 }}>{dot}</span>
-                        <span style={{ flex: 1, fontSize: 13, color: 'rgba(255,255,255,0.85)', fontWeight: 500, lineHeight: 1.3 }}>
-                          {s.name}
-                        </span>
-                        <span style={{ fontSize: 10, fontWeight: 700, color: sc, flexShrink: 0, marginRight: 6 }}>
-                          {lbl}
-                        </span>
-                        <span style={{
-                          fontSize: 12, color: 'var(--text-faint)', flexShrink: 0,
-                          display: 'inline-block',
-                          transform: isExp ? 'rotate(180deg)' : 'rotate(0deg)',
-                          transition: 'transform 0.2s ease',
-                        }}>
-                          ↓
-                        </span>
-                      </button>
+                        {/* ── Collapsed header row ── */}
+                        <button
+                          onClick={() => setExpandedSection(isExp ? null : i)}
+                          style={{
+                            width: '100%',
+                            display: 'flex', alignItems: 'center', gap: 10,
+                            padding: '13px 14px',
+                            background: 'transparent',
+                            border: 'none', cursor: 'pointer', textAlign: 'left',
+                          }}
+                        >
+                          <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.88)', lineHeight: 1.3 }}>
+                            {s.name}
+                          </span>
+                          <span style={{ fontSize: 11, fontWeight: 800, color: sc, flexShrink: 0 }}>
+                            {lbl}
+                          </span>
+                          <svg
+                            width="14" height="14" viewBox="0 0 24 24" fill="none"
+                            stroke={sc} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"
+                            style={{
+                              flexShrink: 0,
+                              transform: isExp ? 'rotate(180deg)' : 'rotate(0deg)',
+                              transition: 'transform 0.2s ease',
+                              opacity: 0.7,
+                            }}
+                          >
+                            <path d="M19 9l-7 7-7-7"/>
+                          </svg>
+                        </button>
 
-                      {/* ── Expanded body ── */}
-                      {isExp && (
-                        <div style={{
-                          padding: '12px 14px 14px',
-                          background: s.status === 'emergency'
-                            ? 'rgba(242,101,34,0.03)'
-                            : s.status === 'open'
-                            ? 'rgba(106,176,76,0.03)'
-                            : 'rgba(255,255,255,0.02)',
-                          borderTop: '1px solid rgba(255,255,255,0.07)',
-                        }}>
+                        {/* ── Expanded body — same card style as non-Skagit tiles ── */}
+                        {isExp && (
+                          <div style={{ padding: '0 14px 14px' }}>
 
-                          {/* Regular season card */}
-                          {s.season ? (
-                            <div style={{
-                              background: 'rgba(255,255,255,0.05)',
-                              border: '1px solid rgba(255,255,255,0.09)',
-                              borderRadius: 12, padding: '12px 13px',
-                              marginBottom: s.emergencyRule ? 10 : 0,
-                            }}>
-                              <div style={{
-                                display: 'flex', alignItems: 'center',
-                                justifyContent: 'space-between', marginBottom: 6,
-                              }}>
-                                <span style={{
-                                  fontSize: 9, textTransform: 'uppercase', fontWeight: 700,
-                                  letterSpacing: '0.08em', color: 'var(--text-faint)',
+                            {/* Season card */}
+                            {s.season ? (() => {
+                              const isSeasonOpen = !s.season.closed
+                              const hasEmerg = !!s.emergencyRule
+                              const cardStatus = hasEmerg ? 'emergency' : isSeasonOpen ? 'open' : 'closed'
+                              const cardColor = cardStatus === 'emergency' ? '#f26522' : cardStatus === 'open' ? '#6ab04c' : '#9ca3af'
+                              return (
+                                <div style={{
+                                  background: cardStatus === 'emergency' ? 'rgba(242,101,34,0.06)' : 'rgba(255,255,255,0.05)',
+                                  border: cardStatus === 'emergency' ? '1px solid rgba(242,101,34,0.18)' : '1px solid rgba(255,255,255,0.08)',
+                                  borderLeft: cardStatus === 'emergency' ? '3px solid #f26522' : '1px solid rgba(255,255,255,0.08)',
+                                  borderRadius: 16, padding: '14px 14px',
+                                  marginBottom: s.emergencyRule ? 10 : 0,
                                 }}>
-                                  Base Season
-                                </span>
-                                <span style={{
-                                  fontSize: 11, fontWeight: 700,
-                                  color: s.season.closed ? '#6b7280' : '#6ab04c',
-                                }}>
-                                  {s.season.closed ? '○ CLOSED' : '● OPEN'}
-                                </span>
-                              </div>
-                              <p style={{ fontSize: 15, fontWeight: 700, color: '#fff', marginBottom: 6 }}>
-                                {s.season.open}
-                              </p>
-                              {s.season.dailyLimit != null && (
-                                <div style={{ marginBottom: 4 }}>
-                                  <span style={{
-                                    fontSize: 9, textTransform: 'uppercase', fontWeight: 700,
-                                    letterSpacing: '0.08em', color: 'var(--text-faint)', marginRight: 6,
-                                  }}>
-                                    Daily Limit
-                                  </span>
-                                  <span style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>
-                                    {s.season.dailyLimit}
-                                  </span>
-                                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>/day</span>
+                                  {/* Header: label + status */}
+                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                                    <p style={{
+                                      fontSize: 10, textTransform: 'uppercase', fontWeight: 800,
+                                      letterSpacing: '0.08em',
+                                      color: cardStatus === 'emergency' ? '#f26522' : 'var(--text-faint)',
+                                    }}>
+                                      {cardStatus === 'emergency' ? 'Emergency Rule in Effect' : getSeasonLabel(null, fish.name)}
+                                    </p>
+                                    <span style={{ fontSize: 11, fontWeight: 700, color: cardColor }}>
+                                      {cardStatus === 'open' ? '● OPEN' : cardStatus === 'emergency' ? '⚑ ACTIVE' : '○ CLOSED'}
+                                    </span>
+                                  </div>
+
+                                  {/* Date range */}
+                                  <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 10 }}>
+                                    {s.season.open}
+                                  </p>
+
+                                  <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', marginBottom: 10 }} />
+
+                                  {/* Daily limit */}
+                                  {s.season.dailyLimit != null && (
+                                    <div>
+                                      <p style={{
+                                        fontSize: 9, textTransform: 'uppercase', fontWeight: 700,
+                                        letterSpacing: '0.08em', color: 'var(--text-faint)', marginBottom: 2,
+                                      }}>
+                                        Daily Limit
+                                      </p>
+                                      <p style={{ fontSize: 17, fontWeight: 800, color: '#fff', lineHeight: 1 }}>
+                                        {s.season.dailyLimit}<span style={{ fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,0.5)' }}>/day</span>
+                                      </p>
+                                    </div>
+                                  )}
+
+                                  {/* Notes */}
+                                  {s.season.notes && (
+                                    <p style={{
+                                      fontSize: 12, lineHeight: 1.5, marginTop: 8,
+                                      color: 'rgba(255,255,255,0.45)',
+                                    }}>
+                                      {s.season.notes}
+                                    </p>
+                                  )}
                                 </div>
-                              )}
-                              {s.season.notes && (
-                                <p style={{
-                                  fontSize: 12, color: 'rgba(255,255,255,0.5)',
-                                  lineHeight: 1.5, marginTop: 4,
-                                }}>
-                                  {s.season.notes}
-                                </p>
-                              )}
-                            </div>
-                          ) : (
-                            <p style={{
-                              fontSize: 12, color: 'var(--text-faint)',
-                              marginBottom: s.emergencyRule ? 10 : 0,
-                            }}>
-                              No base season on file for this species in this section.
-                            </p>
-                          )}
+                              )
+                            })() : (
+                              <p style={{ fontSize: 12, color: 'var(--text-faint)', marginBottom: s.emergencyRule ? 10 : 0 }}>
+                                No base season on file for this species in this section.
+                              </p>
+                            )}
 
-                          {/* Emergency Rule card */}
-                          {s.emergencyRule && (
-                            <div style={{
-                              background: 'rgba(242,101,34,0.06)',
-                              border: '1px solid rgba(242,101,34,0.18)',
-                              borderLeft: '3px solid #f26522',
-                              borderRadius: 12, padding: '12px 13px',
-                              marginTop: s.season ? 10 : 0,
-                            }}>
-                              <p style={{
-                                fontSize: 10, textTransform: 'uppercase', fontWeight: 800,
-                                letterSpacing: '0.1em', color: '#f26522', marginBottom: 4,
+                            {/* Emergency Rule card */}
+                            {s.emergencyRule && (
+                              <div style={{
+                                background: 'rgba(242,101,34,0.06)',
+                                border: '1px solid rgba(242,101,34,0.18)',
+                                borderLeft: '3px solid #f26522',
+                                borderRadius: 16, padding: '14px 14px',
                               }}>
-                                Emergency Rule in Effect
-                              </p>
-                              <p style={{
-                                fontSize: 12, fontWeight: 600,
-                                color: 'rgba(242,101,34,0.85)', marginBottom: 8,
-                              }}>
-                                {s.emergencyRule.effective}
-                              </p>
-                              {s.emergencyRule.overrides.map((o, j) => (
-                                <p key={j} style={{
-                                  fontSize: 12, color: 'rgba(242,101,34,0.72)',
-                                  lineHeight: 1.5, marginBottom: 3,
-                                }}>
-                                  <span style={{ fontWeight: 600 }}>{o.dates}</span>
-                                  {o.status ? ` — ${o.status}` : ''}
-                                  {o.notes ? `: ${o.notes}` : ''}
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                                  <p style={{
+                                    fontSize: 10, textTransform: 'uppercase', fontWeight: 800,
+                                    letterSpacing: '0.08em', color: '#f26522',
+                                  }}>
+                                    Emergency Rule in Effect
+                                  </p>
+                                  <span style={{ fontSize: 11, fontWeight: 700, color: '#f26522' }}>⚑ ACTIVE</span>
+                                </div>
+                                <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 10 }}>
+                                  {s.emergencyRule.effective}
                                 </p>
-                              ))}
-                              {s.emergencyRule.url && (
-                                <a
-                                  href={s.emergencyRule.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  style={{
-                                    fontSize: 11, color: '#f26522',
-                                    textDecoration: 'underline',
-                                    display: 'inline-block', marginTop: 6,
-                                  }}
-                                >
-                                  View official rule →
-                                </a>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
+                                <div style={{ height: 1, background: 'rgba(242,101,34,0.18)', marginBottom: 10 }} />
+                                {s.emergencyRule.overrides.map((o, j) => (
+                                  <p key={j} style={{
+                                    fontSize: 13, color: 'rgba(242,101,34,0.82)',
+                                    lineHeight: 1.55, marginBottom: 4,
+                                  }}>
+                                    <span style={{ fontWeight: 700 }}>{o.dates}</span>
+                                    {o.status ? ` — ${o.status}` : ''}
+                                    {o.notes ? `: ${o.notes}` : ''}
+                                  </p>
+                                ))}
+                                {s.emergencyRule.url && (
+                                  <a
+                                    href={s.emergencyRule.url}
+                                    target="_blank" rel="noopener noreferrer"
+                                    style={{
+                                      fontSize: 12, color: '#f26522',
+                                      textDecoration: 'underline',
+                                      display: 'inline-block', marginTop: 8,
+                                    }}
+                                  >
+                                    View official rule →
+                                  </a>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
             )}
 
