@@ -520,6 +520,7 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
   const [selectedSectionIdx, setSelectedSectionIdx] = useState(0)
   const [sectionHighlighted, setSectionHighlighted] = useState(false)
   const [flow, setFlow]                         = useState<FlowData>({ cfs: null, status: 'loading', trend: null, fetchedAt: '' })
+  const [allFishExpanded, setAllFishExpanded]   = useState(false)
 
   // Swipe right = pop innermost state: if species selected → clear it, else → close sheet
   const handleBack = useCallback(() => {
@@ -768,8 +769,15 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                   <div className="rounded-2xl overflow-hidden"
                     style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}>
                     {openItems.map(({ reg, species: sp }, i) => (
-                      <div key={reg.id}
-                        className="flex items-center gap-4 px-4 py-3.5"
+                      <button
+                        key={reg.id}
+                        onClick={() => {
+                          if (!water) return
+                          const sibs = speciesRegs.map(x => x.species)
+                          const idx = sibs.findIndex(s => s.id === sp.id)
+                          setFishWaterCombo({ fish: sp, water, index: Math.max(0, idx), siblingFish: sibs })
+                        }}
+                        className="w-full flex items-center gap-4 px-4 py-3.5 text-left transition-all active:bg-white/5"
                         style={{ borderBottom: i < openItems.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
                         <div className="flex-shrink-0 rounded-lg overflow-hidden"
                           style={{ width: 48, height: 48, background: '#0b0d14' }}>
@@ -806,79 +814,92 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                             )}
                           </div>
                         </div>
-                      </div>
+                        <svg className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.25)' }}
+                          fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
                     ))}
                   </div>
                 </div>
               )
             })()}
 
-            {/* ── Fish Grid ── */}
-            <div className="px-4 pt-4 pb-4">
+            {/* ── All Fish (collapsible rows) ── */}
+            {speciesRegs.length > 0 && (() => {
+              const closedItems = speciesRegs.filter(({ reg }) => !isOpenOn(reg, today))
+              if (closedItems.length === 0) return null
+              return (
+                <div className="px-4 pt-2 pb-4">
+                  {/* Collapse toggle */}
+                  <button
+                    onClick={() => setAllFishExpanded(v => !v)}
+                    className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl transition-all active:scale-[0.99]"
+                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+                  >
+                    <span className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>
+                      {allFishExpanded ? 'All Fish on this Water' : `All Fish — ${closedItems.length} more (closed)`}
+                    </span>
+                    <svg
+                      className="w-4 h-4 transition-transform"
+                      style={{ color: 'var(--text-faint)', transform: allFishExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                      fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
 
-              {speciesRegs.length === 0 ? (
-                <div className="rounded-xl p-4 text-center" style={{ border: '1px solid var(--border)' }}>
-                  <p className="text-sm font-semibold text-white mb-1">No regulation data on file</p>
-                  <a href="https://wdfw.wa.gov/fishing/regulations" target="_blank" rel="noopener noreferrer"
-                    className="text-xs underline" style={{ color: '#f26522' }}>
-                    Check WDFW directly →
-                  </a>
-                </div>
-              ) : (
-                <div className="grid grid-cols-3 gap-2.5">
-                  {speciesRegs.map(({ reg, species: sp }) => {
-                    const isOpen = isOpenOn(reg, today)
-                    const isTarget = riverEntry?.targetSpecies.some(n =>
-                      n === sp.name || sp.name.includes(n) || n.includes(sp.name.split(' ')[0])
-                    )
-                    return (
-                      <button
-                        key={reg.id}
-                        onClick={() => {
-                          if (!water) return
-                          const sibs = speciesRegs.map(x => x.species)
-                          const idx = sibs.findIndex(s => s.id === sp.id)
-                          setFishWaterCombo({ fish: sp, water, index: Math.max(0, idx), siblingFish: sibs })
-                        }}
-                        className="flex flex-col items-center rounded-xl overflow-hidden transition-all active:scale-[0.99]"
-                        style={{
-                          background: 'rgba(255,255,255,0.05)',
-                          border: isTarget
-                            ? '1.5px solid rgba(242,101,34,0.4)'
-                            : '1.5px solid rgba(255,255,255,0.10)',
-                        }}
-                      >
-                        <div className="w-full aspect-square relative" style={{ background: '#0a0c14' }}>
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={sp.photo} alt={sp.name}
-                            className="w-full h-full object-contain"
-                            style={{ opacity: isOpen ? 1 : 0.45 }} />
-                          {/* Target badge */}
-                          {isTarget && (
-                            <div className="absolute top-1 left-1 px-1 py-0.5 rounded text-[9px] font-black"
-                              style={{ background: 'rgba(242,101,34,0.85)', color: 'white' }}>
-                              ★
-                            </div>
-                          )}
-                          {/* Open/Closed badge */}
-                          <div className="absolute top-1 right-1 px-1 py-0.5 rounded text-[9px] font-bold"
-                            style={{
-                              background: isOpen ? 'rgba(74,222,128,0.9)' : 'rgba(239,68,68,0.85)',
-                              color: isOpen ? '#0d1a0d' : 'white',
-                            }}>
-                            {isOpen ? 'OPEN' : 'CLOSED'}
+                  {/* Expanded rows */}
+                  {allFishExpanded && (
+                    <div className="rounded-2xl overflow-hidden mt-2"
+                      style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      {closedItems.map(({ reg, species: sp }, i) => (
+                        <button
+                          key={reg.id}
+                          onClick={() => {
+                            if (!water) return
+                            const sibs = speciesRegs.map(x => x.species)
+                            const idx = sibs.findIndex(s => s.id === sp.id)
+                            setFishWaterCombo({ fish: sp, water, index: Math.max(0, idx), siblingFish: sibs })
+                          }}
+                          className="w-full flex items-center gap-4 px-4 py-3.5 text-left transition-all active:bg-white/5"
+                          style={{ borderBottom: i < closedItems.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}
+                        >
+                          <div className="flex-shrink-0 rounded-lg overflow-hidden"
+                            style={{ width: 48, height: 48, background: '#0b0d14' }}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={sp.photo} alt={sp.name}
+                              style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 6, opacity: 0.5 }} />
                           </div>
-                        </div>
-                        <p className="w-full text-center text-[10px] font-semibold px-1 py-1.5 leading-tight"
-                          style={{ color: isOpen ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.45)' }}>
-                          {sp.name}
-                        </p>
-                      </button>
-                    )
-                  })}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <p className="text-sm font-bold leading-tight" style={{ color: 'rgba(255,255,255,0.55)' }}>{sp.name}</p>
+                              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded"
+                                style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171' }}>CLOSED</span>
+                            </div>
+                            <div className="flex gap-3 flex-wrap">
+                              {reg.seasonStart && (
+                                <span className="text-[11px]" style={{ color: 'var(--text-faint)' }}>
+                                  Opens {reg.seasonStart.replace('-', '/')}
+                                </span>
+                              )}
+                              {reg.dailyLimit != null && (
+                                <span className="text-[11px]" style={{ color: 'var(--text-faint)' }}>
+                                  Limit {reg.dailyLimit}/day
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <svg className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.2)' }}
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              )
+            })()}
 
           </div>
 

@@ -369,7 +369,7 @@ export default function FishPage() {
                 )
               })}
             </div>
-            <div className="relative mt-3">
+            <div className="relative mt-5">
               <svg
                 className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
                 style={{ color: 'var(--text-faint)', width: 18, height: 18 }}
@@ -456,7 +456,7 @@ export default function FishPage() {
               )
             })}
           </div>
-          <div className="relative mt-3 mb-1">
+          <div className="relative mt-4 mb-1">
             <svg
               className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
               style={{ color: 'var(--text-faint)', width: 18, height: 18 }}
