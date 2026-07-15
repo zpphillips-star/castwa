@@ -128,6 +128,22 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeTo: '2026-09-28',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/puget-sound-summer-crab-schedule-2026-06',
   },
+  // ── PACIFIC HALIBUT — ALL WA PRIMARY SEASONS CLOSED (QUOTA) ─────────────
+  // All WA halibut primary seasons closed due to IPHC quota being reached.
+  // Puget Sound (MA 5–10): closed Jun 30. North Coast (MA 3–4): closed Jun 28.
+  // South Coast (MA 2): closed Jun 30. Columbia River: closed ~Jun 28.
+  // Remaining quota exists in all areas; Aug/Sep reopenings are possible when
+  // IPHC announces additional days — monitor wdfw.wa.gov for updates.
+  {
+    id: 'ea-halibut-quota-closed-2026',
+    type: 'CLOSED',
+    species: 'Pacific Halibut',
+    waterBody: 'All WA Marine Areas (MA 2, 3–4, 5–10) & Columbia River',
+    description: '🚨 All WA Pacific Halibut primary seasons are CLOSED — area quotas reached. Puget Sound (MA 5–10): closed Jun 30. North Coast (MA 3–4): closed Jun 28. South Coast (MA 2): closed Jun 30. Columbia River: closed ~Jun 28. Remaining quota exists in all areas; August/September reopenings are possible once IPHC announces additional days. Check wdfw.wa.gov for reopening announcements before fishing.',
+    activeFrom: '2026-06-28',
+    activeTo: '2026-09-30',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/basics/halibut',
+  },
 ]
 
 /**
