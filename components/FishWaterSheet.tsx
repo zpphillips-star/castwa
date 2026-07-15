@@ -637,31 +637,28 @@ export default function FishWaterSheet({
                         {isExp && (
                           <div style={{ padding: '0 14px 14px' }}>
 
-                            {/* Season card */}
+                            {/* Season card — always shows base season, never styled as emergency */}
                             {s.season ? (() => {
                               const isSeasonOpen = !s.season.closed
-                              const hasEmerg = !!s.emergencyRule
-                              const cardStatus = hasEmerg ? 'emergency' : isSeasonOpen ? 'open' : 'closed'
-                              const cardColor = cardStatus === 'emergency' ? '#f26522' : cardStatus === 'open' ? '#6ab04c' : '#9ca3af'
+                              const cardColor = isSeasonOpen ? '#6ab04c' : '#9ca3af'
                               return (
                                 <div style={{
-                                  background: cardStatus === 'emergency' ? 'rgba(242,101,34,0.06)' : 'rgba(255,255,255,0.05)',
-                                  border: cardStatus === 'emergency' ? '1px solid rgba(242,101,34,0.18)' : '1px solid rgba(255,255,255,0.08)',
-                                  borderLeft: cardStatus === 'emergency' ? '3px solid #f26522' : '1px solid rgba(255,255,255,0.08)',
+                                  background: 'rgba(255,255,255,0.05)',
+                                  border: '1px solid rgba(255,255,255,0.08)',
+                                  borderLeft: `3px solid ${cardColor}`,
                                   borderRadius: 16, padding: '14px 14px',
                                   marginBottom: s.emergencyRule ? 10 : 0,
                                 }}>
-                                  {/* Header: label + status */}
+                                  {/* Header: season label + open/closed */}
                                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                                     <p style={{
                                       fontSize: 10, textTransform: 'uppercase', fontWeight: 800,
-                                      letterSpacing: '0.08em',
-                                      color: cardStatus === 'emergency' ? '#f26522' : 'var(--text-faint)',
+                                      letterSpacing: '0.08em', color: 'var(--text-faint)',
                                     }}>
-                                      {cardStatus === 'emergency' ? 'Emergency Rule in Effect' : getSeasonLabel(null, fish.name)}
+                                      {getSeasonLabel(null, fish.name)}
                                     </p>
                                     <span style={{ fontSize: 11, fontWeight: 700, color: cardColor }}>
-                                      {cardStatus === 'open' ? '● OPEN' : cardStatus === 'emergency' ? '⚑ ACTIVE' : '○ CLOSED'}
+                                      {isSeasonOpen ? '● OPEN' : '○ CLOSED'}
                                     </span>
                                   </div>
 
