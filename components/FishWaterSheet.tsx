@@ -209,6 +209,18 @@ export default function FishWaterSheet({
   const [activeTab, setActiveTab] = useState<Tab>('where')
   const [currentIdx, setCurrentIdx] = useState(initialSiblingIndex)
   const [mapExpanded, setMapExpanded] = useState(false)
+  // Skagit accordion: which section row is expanded (null = all collapsed)
+  const [expandedSection, setExpandedSection] = useState<number | null>(() => {
+    if (initialWater.id !== 'skagit') return null
+    const aliases = SPECIES_SEASON_NAMES[initialFish.id] ?? [initialFish.id]
+    const idx = SKAGIT_SECTIONS.findIndex(section => {
+      if (section.emergencyRule) return true
+      return section.seasons.some(s =>
+        !s.closed && aliases.some(a => s.species.toLowerCase().includes(a.toLowerCase()))
+      )
+    })
+    return idx >= 0 ? idx : null
+  })
 
   // Determine mode and resolve current fish + water
   const mode = siblingWaters ? 'from-fish' : siblingFish ? 'from-water' : 'solo'
@@ -282,7 +294,7 @@ export default function FishWaterSheet({
 
   const isLakeType = !isSkagit && segments.length === 0
 
-  // Skagit section status list for WHERE tab
+  // Skagit section status list — enriched with season + emergencyRule for accordion
   const skagitSectionStatuses = useMemo(() => {
     if (!isSkagit) return []
     const nameAliases = SPECIES_SEASON_NAMES[fish.id] ?? [fish.id]
@@ -294,13 +306,18 @@ export default function FishWaterSheet({
         )
         if (active) st = 'emergency'
       }
-      if (st !== 'emergency') {
-        const match = section.seasons.find(s =>
-          nameAliases.some(alias => s.species.toLowerCase().includes(alias.toLowerCase()))
-        )
-        if (match) st = match.closed ? 'closed' : 'open'
+      const matchingSeason = section.seasons.find(s =>
+        nameAliases.some(alias => s.species.toLowerCase().includes(alias.toLowerCase()))
+      )
+      if (st !== 'emergency' && matchingSeason) {
+        st = matchingSeason.closed ? 'closed' : 'open'
       }
-      return { name: section.name, status: st }
+      return {
+        name: section.name,
+        status: st,
+        season: matchingSeason ?? null,
+        emergencyRule: section.emergencyRule,
+      }
     })
   }, [isSkagit, fish.id])
 
@@ -498,48 +515,9 @@ export default function FishWaterSheet({
           ═══════════════════════════════════════════════════════════════ */}
           <div style={{ padding: '16px 16px 0' }}>
 
-            {/* Skagit section-level emergency rules (shown inline as cards, not a separate tile) */}
-            {emergencyRules.length > 0 && emergencyRules.map((er, i) => (
-              <div
-                key={i}
-                style={{
-                  background: 'rgba(242,101,34,0.06)',
-                  border: '1px solid rgba(242,101,34,0.18)',
-                  borderLeft: '3px solid #f26522',
-                  borderRadius: 16,
-                  padding: '14px 14px',
-                  marginBottom: 10,
-                }}
-              >
-                <p style={{
-                  fontSize: 10, textTransform: 'uppercase', fontWeight: 800,
-                  letterSpacing: '0.1em', color: '#f26522', marginBottom: 6,
-                }}>
-                  Emergency Rule in Effect
-                </p>
-                <p style={{ fontSize: 14, fontWeight: 700, color: 'rgba(242,101,34,0.92)', marginBottom: 4 }}>
-                  {er.section} — {er.rule.effective}
-                </p>
-                {er.rule.overrides.map((o, j) => (
-                  <p key={j} style={{ fontSize: 12, color: 'rgba(242,101,34,0.72)', lineHeight: 1.5 }}>
-                    {o.dates}{o.status ? ` — ${o.status}` : ''}{o.notes ? `: ${o.notes}` : ''}
-                  </p>
-                ))}
-                {er.rule.url && (
-                  <a
-                    href={er.rule.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ fontSize: 11, color: '#f26522', textDecoration: 'underline', display: 'inline-block', marginTop: 5 }}
-                  >
-                    View official rule
-                  </a>
-                )}
-              </div>
-            ))}
-
+            {/* Skagit uses the accordion below — suppress flat banners for it */}
             {/* No regulation on file */}
-            {regs.length === 0 && (
+            {!isSkagit && regs.length === 0 && (
               <div style={{
                 background: 'rgba(255,255,255,0.04)',
                 border: '1px solid rgba(255,255,255,0.08)',
@@ -559,7 +537,7 @@ export default function FishWaterSheet({
             )}
 
             {/* CLOSED right now — from-water mode with no active seasons */}
-            {displayRegs.length === 0 && regs.length > 0 && (
+            {!isSkagit && displayRegs.length === 0 && regs.length > 0 && (
               <div style={{
                 background: 'rgba(107,114,128,0.07)',
                 border: '1px solid rgba(107,114,128,0.2)',
@@ -587,8 +565,190 @@ export default function FishWaterSheet({
               </div>
             )}
 
-            {/* Regulation season tiles */}
-            {displayRegs.length > 0 && (
+            {/* ── Skagit: accordion section list ─────────────────────────────── */}
+            {isSkagit && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
+                {skagitSectionStatuses.map((s, i) => {
+                  const isExp = expandedSection === i
+                  const sc = s.status === 'emergency' ? '#f26522' : s.status === 'open' ? '#6ab04c' : '#6b7280'
+                  const dot = s.status === 'emergency' ? '⚑' : s.status === 'open' ? '●' : '○'
+                  const lbl = s.status === 'emergency' ? 'EMERGENCY' : s.status === 'open' ? 'OPEN' : 'CLOSED'
+
+                  return (
+                    <div
+                      key={i}
+                      style={{
+                        borderRadius: 14,
+                        overflow: 'hidden',
+                        border: s.status === 'emergency'
+                          ? '1px solid rgba(242,101,34,0.25)'
+                          : s.status === 'open'
+                          ? '1px solid rgba(106,176,76,0.2)'
+                          : '1px solid rgba(255,255,255,0.08)',
+                        borderLeft: s.status === 'emergency' ? '3px solid #f26522' : undefined,
+                      }}
+                    >
+                      {/* ── Collapsed header row ── */}
+                      <button
+                        onClick={() => setExpandedSection(isExp ? null : i)}
+                        style={{
+                          width: '100%',
+                          display: 'flex', alignItems: 'center', gap: 10,
+                          padding: '11px 14px',
+                          background: s.status === 'emergency'
+                            ? 'rgba(242,101,34,0.06)'
+                            : s.status === 'open'
+                            ? 'rgba(106,176,76,0.05)'
+                            : 'rgba(255,255,255,0.03)',
+                          border: 'none', cursor: 'pointer', textAlign: 'left',
+                        }}
+                      >
+                        <span style={{ fontSize: 12, color: sc, flexShrink: 0 }}>{dot}</span>
+                        <span style={{ flex: 1, fontSize: 13, color: 'rgba(255,255,255,0.85)', fontWeight: 500, lineHeight: 1.3 }}>
+                          {s.name}
+                        </span>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: sc, flexShrink: 0, marginRight: 6 }}>
+                          {lbl}
+                        </span>
+                        <span style={{
+                          fontSize: 12, color: 'var(--text-faint)', flexShrink: 0,
+                          display: 'inline-block',
+                          transform: isExp ? 'rotate(180deg)' : 'rotate(0deg)',
+                          transition: 'transform 0.2s ease',
+                        }}>
+                          ↓
+                        </span>
+                      </button>
+
+                      {/* ── Expanded body ── */}
+                      {isExp && (
+                        <div style={{
+                          padding: '12px 14px 14px',
+                          background: s.status === 'emergency'
+                            ? 'rgba(242,101,34,0.03)'
+                            : s.status === 'open'
+                            ? 'rgba(106,176,76,0.03)'
+                            : 'rgba(255,255,255,0.02)',
+                          borderTop: '1px solid rgba(255,255,255,0.07)',
+                        }}>
+
+                          {/* Regular season card */}
+                          {s.season ? (
+                            <div style={{
+                              background: 'rgba(255,255,255,0.05)',
+                              border: '1px solid rgba(255,255,255,0.09)',
+                              borderRadius: 12, padding: '12px 13px',
+                              marginBottom: s.emergencyRule ? 10 : 0,
+                            }}>
+                              <div style={{
+                                display: 'flex', alignItems: 'center',
+                                justifyContent: 'space-between', marginBottom: 6,
+                              }}>
+                                <span style={{
+                                  fontSize: 9, textTransform: 'uppercase', fontWeight: 700,
+                                  letterSpacing: '0.08em', color: 'var(--text-faint)',
+                                }}>
+                                  Base Season
+                                </span>
+                                <span style={{
+                                  fontSize: 11, fontWeight: 700,
+                                  color: s.season.closed ? '#6b7280' : '#6ab04c',
+                                }}>
+                                  {s.season.closed ? '○ CLOSED' : '● OPEN'}
+                                </span>
+                              </div>
+                              <p style={{ fontSize: 15, fontWeight: 700, color: '#fff', marginBottom: 6 }}>
+                                {s.season.open}
+                              </p>
+                              {s.season.dailyLimit != null && (
+                                <div style={{ marginBottom: 4 }}>
+                                  <span style={{
+                                    fontSize: 9, textTransform: 'uppercase', fontWeight: 700,
+                                    letterSpacing: '0.08em', color: 'var(--text-faint)', marginRight: 6,
+                                  }}>
+                                    Daily Limit
+                                  </span>
+                                  <span style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>
+                                    {s.season.dailyLimit}
+                                  </span>
+                                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>/day</span>
+                                </div>
+                              )}
+                              {s.season.notes && (
+                                <p style={{
+                                  fontSize: 12, color: 'rgba(255,255,255,0.5)',
+                                  lineHeight: 1.5, marginTop: 4,
+                                }}>
+                                  {s.season.notes}
+                                </p>
+                              )}
+                            </div>
+                          ) : (
+                            <p style={{
+                              fontSize: 12, color: 'var(--text-faint)',
+                              marginBottom: s.emergencyRule ? 10 : 0,
+                            }}>
+                              No base season on file for this species in this section.
+                            </p>
+                          )}
+
+                          {/* Emergency Rule card */}
+                          {s.emergencyRule && (
+                            <div style={{
+                              background: 'rgba(242,101,34,0.06)',
+                              border: '1px solid rgba(242,101,34,0.18)',
+                              borderLeft: '3px solid #f26522',
+                              borderRadius: 12, padding: '12px 13px',
+                              marginTop: s.season ? 10 : 0,
+                            }}>
+                              <p style={{
+                                fontSize: 10, textTransform: 'uppercase', fontWeight: 800,
+                                letterSpacing: '0.1em', color: '#f26522', marginBottom: 4,
+                              }}>
+                                Emergency Rule in Effect
+                              </p>
+                              <p style={{
+                                fontSize: 12, fontWeight: 600,
+                                color: 'rgba(242,101,34,0.85)', marginBottom: 8,
+                              }}>
+                                {s.emergencyRule.effective}
+                              </p>
+                              {s.emergencyRule.overrides.map((o, j) => (
+                                <p key={j} style={{
+                                  fontSize: 12, color: 'rgba(242,101,34,0.72)',
+                                  lineHeight: 1.5, marginBottom: 3,
+                                }}>
+                                  <span style={{ fontWeight: 600 }}>{o.dates}</span>
+                                  {o.status ? ` — ${o.status}` : ''}
+                                  {o.notes ? `: ${o.notes}` : ''}
+                                </p>
+                              ))}
+                              {s.emergencyRule.url && (
+                                <a
+                                  href={s.emergencyRule.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{
+                                    fontSize: 11, color: '#f26522',
+                                    textDecoration: 'underline',
+                                    display: 'inline-block', marginTop: 6,
+                                  }}
+                                >
+                                  View official rule →
+                                </a>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* ── Non-Skagit: regulation season tiles ────────────────────────── */}
+            {!isSkagit && displayRegs.length > 0 && (
               <div
                 style={{
                   display: 'flex',
@@ -874,42 +1034,7 @@ export default function FishWaterSheet({
                   </>
                 )}
 
-                {/* Skagit section status list */}
-                {isSkagit && skagitSectionStatuses.length > 0 && (
-                  <>
-                    <p style={{
-                      fontSize: 9, textTransform: 'uppercase', fontWeight: 800,
-                      letterSpacing: '0.13em', color: '#f26522', marginBottom: 10,
-                    }}>
-                      Section Status
-                    </p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                      {skagitSectionStatuses.map((s, i) => {
-                        const sc = s.status === 'emergency' ? '#f26522' : s.status === 'open' ? '#6ab04c' : '#6b7280'
-                        const dot = s.status === 'emergency' ? '⚑' : s.status === 'open' ? '●' : '○'
-                        return (
-                          <div
-                            key={i}
-                            style={{
-                              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                              padding: '9px 14px',
-                              background: 'rgba(255,255,255,0.03)',
-                              border: '1px solid rgba(255,255,255,0.07)',
-                              borderRadius: 10,
-                            }}
-                          >
-                            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)' }}>
-                              {s.name}
-                            </span>
-                            <span style={{ fontSize: 11, fontWeight: 700, color: sc }}>
-                              {dot} {s.status.toUpperCase()}
-                            </span>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </>
-                )}
+                {/* Skagit section status list removed — accordion in Section 2 covers this */}
 
                 {!guide?.whereToFind?.length && !isLakeType && segments.length === 0 && !isSkagit && (
                   <p style={{ fontSize: 13, color: 'var(--text-faint)', textAlign: 'center', padding: '32px 0' }}>
