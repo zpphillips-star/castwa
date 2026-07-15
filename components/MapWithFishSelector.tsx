@@ -4,10 +4,11 @@ import WAMap from './WAMap'
 import MapFishSelector from './MapFishSelector'
 import MapFishDetailPopup from './MapFishDetailPopup'
 import FishDetailSheet from './FishDetailSheet'
+import FishWaterSheet from './FishWaterSheet'
 import RiverDetailSheet from './RiverDetailSheet'
 import { useSelectedFishSegments } from '@/lib/use-fish-map-segments'
 import type { FishSegment } from '@/lib/use-fish-map-segments'
-import { SPECIES } from '@/lib/fishing-data'
+import { SPECIES, Species, WaterBody, WATER_BODIES } from '@/lib/fishing-data'
 
 import { RIVER_MAP } from '@/lib/river-lookup'
 
@@ -17,6 +18,12 @@ export default function MapWithFishSelector() {
   const [showFishDetail, setShowFishDetail] = useState(false)
   const [zoomToSkagit, setZoomToSkagit] = useState(0)
   const [openRiverId, setOpenRiverId] = useState<string | null>(null)
+  const [fishWaterCombo, setFishWaterCombo] = useState<{
+    fish: Species
+    water: WaterBody
+    siblingWaters: WaterBody[]
+    index: number
+  } | null>(null)
 
   const fishSegments = useSelectedFishSegments(selectedFish)
 
@@ -66,14 +73,37 @@ export default function MapWithFishSelector() {
           fishName={selectedSpecies.name}
           onClose={() => setActiveSegment(null)}
           onViewFullRegs={() => {
-            setShowFishDetail(true)
-            setActiveSegment(null)
+            // fish + water both known → go straight to FishWaterSheet
+            const wb = WATER_BODIES.find(w => w.id === activeSegment.waterId)
+            if (wb && selectedSpecies) {
+              const allWaters = fishSegments
+                .map(fs => WATER_BODIES.find(w => w.id === fs.waterId))
+                .filter((w): w is WaterBody => !!w)
+              const idx = Math.max(0, allWaters.findIndex(w => w.id === wb.id))
+              setFishWaterCombo({ fish: selectedSpecies, water: wb, siblingWaters: allWaters, index: idx })
+              setActiveSegment(null)
+            } else {
+              // fallback: open full fish detail if water can't be resolved
+              setShowFishDetail(true)
+              setActiveSegment(null)
+            }
           }}
           onZoomRiver={handleZoomRiver}
         />
       )}
 
-      {/* Full fish regulations sheet */}
+      {/* FishWaterSheet — primary: fish + water from map segment popup */}
+      {fishWaterCombo && selectedSpecies && (
+        <FishWaterSheet
+          fish={fishWaterCombo.fish}
+          water={fishWaterCombo.water}
+          siblingWaters={fishWaterCombo.siblingWaters}
+          initialSiblingIndex={fishWaterCombo.index}
+          onClose={() => setFishWaterCombo(null)}
+        />
+      )}
+
+      {/* Fallback full fish regulations sheet (no water context available) */}
       {showFishDetail && selectedSpecies && (
         <FishDetailSheet
           species={selectedSpecies}

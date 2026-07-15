@@ -15,7 +15,6 @@ import {
 import { sliceRiverBetween } from '@/lib/river-regulation-segments'
 import type { MapSegment, SegmentStatus } from './RiverDetailMapInner'
 import { FISH_TIPS } from './RiverDetailSheet'
-import FishDetailSheet from './FishDetailSheet'
 import FishWaterSheet from './FishWaterSheet'
 import { useSwipeBack } from '@/hooks/useSwipeBack'
 
@@ -515,8 +514,7 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
   const [selectedSpecies, setSelectedSpecies] = useState<Species | null>(
     initialSpeciesId ? (SPECIES.find(s => s.id === initialSpeciesId) ?? null) : null
   )
-  // Fish tapped in the fish grid → open FishDetailSheet (consistent across all surfaces)
-  const [selectedFishForSheet, setSelectedFishForSheet] = useState<Species | null>(null)
+  // Fish tapped in the fish grid → open FishWaterSheet (targeted fish+water detail)
   const [fishWaterCombo, setFishWaterCombo] = useState<{ fish: Species; water: WaterBody; index: number; siblingFish: Species[] } | null>(null)
   const [selectedSectionIdx, setSelectedSectionIdx] = useState(0)
   const [sectionHighlighted, setSectionHighlighted] = useState(false)
@@ -911,15 +909,6 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
           initialSiblingIndex={fishWaterCombo.index}
           onClose={() => setFishWaterCombo(null)}
           zIndex={(zIndex ?? 50) + 40}
-        />
-      )}
-
-      {/* Fish tapped in the fish grid → open FishDetailSheet (navigation parity with all other surfaces) */}
-      {selectedFishForSheet && (
-        <FishDetailSheet
-          species={selectedFishForSheet}
-          onClose={() => setSelectedFishForSheet(null)}
-          zIndex={(zIndex ?? 50) + 30}
         />
       )}
     </>

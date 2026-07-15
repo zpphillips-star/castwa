@@ -6,15 +6,12 @@ import { Species, Regulation, WaterBody, REGULATIONS, WATER_BODIES, SKAGIT_SECTI
 import { GEAR, GearItem } from '@/lib/gear-data'
 import { FISH_TIPS } from './RiverDetailSheet'
 import { CATCH_GUIDES } from '@/lib/catch-guides'
-import RiverDetailSheet from './RiverDetailSheet'
 import RiverSectionMap from './RiverSectionMap'
 import { SKAGIT_SECTION_COORDS } from '@/lib/river-sections-coords'
 import type { RiverSectionStatus } from './RiverSectionMapInner'
 import RiverConditionsSheet, { RiverMapConfig } from './RiverConditionsSheet'
 import { SKAGIT_COORDS, SAUK_COORDS, NOOKSACK_COORDS, STILLAGUAMISH_COORDS } from '@/lib/river-coords-generated'
-import WaterDetailSheet from './WaterDetailSheet'
 import FishWaterSheet from './FishWaterSheet'
-import { RiverEntry, findRiverEntry } from '@/lib/river-lookup'
 import { useSelectedFishSegments } from '@/lib/use-fish-map-segments'
 import type { FishSegment } from '@/lib/use-fish-map-segments'
 
@@ -271,8 +268,6 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
     detail: string
   } | null>(null)
   const [selectedWaterForConditions, setSelectedWaterForConditions] = useState<GaugeConfig | null>(null)
-  const [selectedFullWater, setSelectedFullWater] = useState<string | null>(null)
-  const [selectedRiverFromFish, setSelectedRiverFromFish] = useState<RiverEntry | null>(null)
   const [fishWaterCombo, setFishWaterCombo] = useState<{ water: WaterBody; index: number; siblings: WaterBody[] } | null>(null)
   const fishSegments = useSelectedFishSegments(species.id)
   const regs    = REGULATIONS.filter(r => r.speciesId === species.id)
@@ -487,16 +482,15 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                   onSegmentClick={(seg: FishSegment) => {
                     const wb = WATER_BODIES.find(w => w.id === seg.waterId)
                     if (wb) {
-                      const riverEntry = findRiverEntry(wb)
-                      if (riverEntry) setSelectedRiverFromFish(riverEntry)
-                      else setSelectedFullWater(seg.waterName)
+                      const sibIdx = waters.findIndex(w => w.id === wb.id)
+                      setFishWaterCombo({ water: wb, index: Math.max(0, sibIdx), siblings: waters })
                     }
                   }}
                   onOpenRiver={(riverId: string) => {
                     const wb = WATER_BODIES.find(w => w.id === riverId)
                     if (wb) {
-                      const riverEntry = findRiverEntry(wb)
-                      if (riverEntry) setSelectedRiverFromFish(riverEntry)
+                      const sibIdx = waters.findIndex(w => w.id === wb.id)
+                      setFishWaterCombo({ water: wb, index: Math.max(0, sibIdx), siblings: waters })
                     }
                   }}
                 />
@@ -930,27 +924,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
       />
     )}
 
-    {/* ── Full water detail sheet (opens with this species pre-selected) ── */}
-    {selectedFullWater && (
-      <WaterDetailSheet
-        waterName={selectedFullWater}
-        onClose={() => setSelectedFullWater(null)}
-        zIndex={90}
-        initialSpeciesId={species.id}
-      />
-    )}
-
-    {/* ── River detail sheet (full RiverDetailSheet for rivers with USGS gauges) ── */}
-    {selectedRiverFromFish && (
-      <RiverDetailSheet
-        river={selectedRiverFromFish}
-        flow={{ cfs: null, status: 'loading', trend: null, fetchedAt: '' }}
-        onClose={() => setSelectedRiverFromFish(null)}
-        zIndex={zIndex + 40}
-      />
-    )}
-
-    {/* ── FishWaterSheet — fish+water detail (from water tap in waters list) ── */}
+    {/* ── FishWaterSheet — fish+water detail (from water tap or map tap) ── */}
     {fishWaterCombo && (
       <FishWaterSheet
         fish={species}

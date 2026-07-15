@@ -3,7 +3,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useStarredWaters } from '@/hooks/useStarred'
 import dynamic from 'next/dynamic'
 import {
-  SPECIES, Species, SKAGIT_SECTIONS, RiverSection, SeasonEntry,
+  SPECIES, Species, WaterBody, SKAGIT_SECTIONS, RiverSection, SeasonEntry,
   GEAR_ICON_INFO, GearIconCode, REGULATIONS, WATER_BODIES, isOpenOn,
 } from '@/lib/fishing-data'
 import {
@@ -13,6 +13,7 @@ import {
 } from '@/lib/river-coords-generated'
 import { sliceRiverBetween } from '@/lib/river-regulation-segments'
 import FishDetailSheet from './FishDetailSheet'
+import FishWaterSheet from './FishWaterSheet'
 import type { MapSegment, SegmentStatus } from './RiverDetailMapInner'
 import { useSwipeBack } from '@/hooks/useSwipeBack'
 import { WATER_COORDS } from '@/lib/water-coords'
@@ -783,6 +784,20 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
   const [selectedSpecies, setSelectedSpecies] = useState<string | null>(null)
   const [flow, setFlow] = useState<FlowData>(initialFlow)
   const [weather, setWeather] = useState<{ temp: number; wind: number; precip: number } | null>(null)
+  const [fishWaterCombo, setFishWaterCombo] = useState<{
+    fish: Species; water: WaterBody; siblingFish: Species[]; index: number
+  } | null>(null)
+
+  // Open FishWaterSheet (fish + this river). Falls back to FishDetailSheet if no WaterBody on record.
+  function openFishWaterSheet(sp: Species) {
+    const wb = WATER_BODIES.find(w => w.id === river.id)
+    if (!wb) { setSelectedFish(sp); return }
+    const targetFish = river.targetSpecies
+      .map(n => SPECIES.find(s => s.name === n || s.name.includes(n) || n.includes(s.name.split(' ')[0])))
+      .filter((s): s is Species => !!s)
+    const idx = targetFish.findIndex(s => s.id === sp.id)
+    setFishWaterCombo({ fish: sp, water: wb, siblingFish: targetFish, index: Math.max(0, idx) })
+  }
 
   // Fetch weather from Open-Meteo (no API key needed)
   useEffect(() => {
@@ -1134,7 +1149,7 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
                   const sp = SPECIES.find(s => s.name === name || s.name.includes(name) || name.includes(s.name.split(' ')[0]))
                   return (
                     <button key={name}
-                      onClick={() => sp ? setSelectedFish(sp) : undefined}
+                      onClick={() => sp ? openFishWaterSheet(sp) : undefined}
                       className="flex flex-col items-center rounded-xl overflow-hidden transition-all active:scale-[0.99]"
                       style={{
                         background: 'rgba(255,255,255,0.05)',
@@ -1233,7 +1248,7 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
                   onNext={goNext}
                   selectedSpecies={selectedSpecies}
                   setSelectedSpecies={setSelectedSpecies}
-                  onSelectFish={setSelectedFish}
+                  onSelectFish={openFishWaterSheet}
                 />
               )}
               {!currentSection && (
@@ -1247,8 +1262,20 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
         </div>
       </div>
 
+      {/* Fallback FishDetailSheet for species with no WaterBody on record */}
       {selectedFish && (
         <FishDetailSheet species={selectedFish} onClose={() => setSelectedFish(null)} showTips zIndex={zIndex + 30} />
+      )}
+      {/* FishWaterSheet — primary destination: fish tapped inside a river context */}
+      {fishWaterCombo && (
+        <FishWaterSheet
+          fish={fishWaterCombo.fish}
+          water={fishWaterCombo.water}
+          siblingFish={fishWaterCombo.siblingFish}
+          initialSiblingIndex={fishWaterCombo.index}
+          onClose={() => setFishWaterCombo(null)}
+          zIndex={zIndex + 30}
+        />
       )}
     </>
   )
