@@ -32,7 +32,7 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     type: 'OPEN',
     species: 'Sockeye Salmon',
     waterBody: 'Skagit River (Hwy 536 Bridge to Baker River)',
-    description: 'Sockeye salmon open Skagit River through Jul 31. Daily limit 4 sockeye, min 12". Night closure in effect. Release all salmon other than sockeye. ⚠️ Tribal conflict closures: Gilligan Creek → Baker River CLOSED to ALL fishing Jul 7–12:29pm Jul 9 and Jul 13–15. Additional periodic closures may occur — verify WDFW before fishing.',
+    description: 'Sockeye salmon open Skagit River through Jul 31. Daily limit 4 sockeye, min 12". Night closure in effect. Release all salmon other than sockeye. ⚠️ Scheduled tribal closures (Jul 7–9 and Jul 13–15) have passed. Additional unannounced closures may still occur on short notice — always verify WDFW before fishing.',
     activeFrom: '2026-07-01',
     activeTo: '2026-07-31',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/lower-skagit-river-fishing-updates-2026-07',
