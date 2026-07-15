@@ -259,7 +259,7 @@ export default function CalendarPage() {
         </div>
       )}
 
-      {selectedFish && <FishDetailSheet species={selectedFish} onClose={() => setSelectedFish(null)} />}
+      {selectedFish && <FishDetailSheet species={selectedFish} onClose={() => setSelectedFish(null)} zIndex={1300} />}
       <BottomNav />
     </div>
   )
