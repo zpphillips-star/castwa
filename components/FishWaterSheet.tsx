@@ -633,45 +633,50 @@ export default function FishWaterSheet({
                           </svg>
                         </button>
 
-                        {/* ── Expanded body — same card style as non-Skagit tiles ── */}
+                        {/* ── Expanded body — ONE card, identical to non-Skagit tiles ── */}
                         {isExp && (
                           <div style={{ padding: '0 14px 14px' }}>
-
-                            {/* Season card — always shows base season, never styled as emergency */}
-                            {s.season ? (() => {
-                              const isSeasonOpen = !s.season.closed
-                              const cardColor = isSeasonOpen ? '#6ab04c' : '#9ca3af'
+                            {(() => {
+                              const hasEmerg = !!s.emergencyRule
+                              const isSeasonOpen = s.season ? !s.season.closed : false
+                              const cardStatus = hasEmerg ? 'emergency' : isSeasonOpen ? 'open' : 'closed'
+                              const cardColor = cardStatus === 'emergency' ? '#f26522' : cardStatus === 'open' ? '#6ab04c' : '#9ca3af'
+                              const eKey = `skagit-${i}`
+                              const isEOpen = expandedEmergency.has(eKey)
                               return (
                                 <div style={{
-                                  background: 'rgba(255,255,255,0.05)',
-                                  border: '1px solid rgba(255,255,255,0.08)',
+                                  background: cardStatus === 'emergency' ? 'rgba(242,101,34,0.06)' : 'rgba(255,255,255,0.05)',
+                                  border: cardStatus === 'emergency' ? '1px solid rgba(242,101,34,0.18)' : '1px solid rgba(255,255,255,0.08)',
                                   borderLeft: `3px solid ${cardColor}`,
                                   borderRadius: 16, padding: '14px 14px',
-                                  marginBottom: s.emergencyRule ? 10 : 0,
                                 }}>
-                                  {/* Header: season label + open/closed */}
+                                  {/* Header: title + status — same as non-Skagit */}
                                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                                     <p style={{
                                       fontSize: 10, textTransform: 'uppercase', fontWeight: 800,
-                                      letterSpacing: '0.08em', color: 'var(--text-faint)',
+                                      letterSpacing: '0.08em',
+                                      color: cardStatus === 'emergency' ? '#f26522' : 'var(--text-faint)',
                                     }}>
-                                      {getSeasonLabel(null, fish.name)}
+                                      {cardStatus === 'emergency' ? 'Emergency Rule in Effect' : getSeasonLabel(null, fish.name)}
                                     </p>
                                     <span style={{ fontSize: 11, fontWeight: 700, color: cardColor }}>
-                                      {isSeasonOpen ? '● OPEN' : '○ CLOSED'}
+                                      {cardStatus === 'open' ? '● OPEN' : cardStatus === 'emergency' ? '⚑ ACTIVE' : '○ CLOSED'}
                                     </span>
                                   </div>
 
                                   {/* Date range */}
-                                  <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 10 }}>
-                                    {s.season.open}
-                                  </p>
-
-                                  <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', marginBottom: 10 }} />
+                                  {s.season && (
+                                    <>
+                                      <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 10 }}>
+                                        {s.season.open}
+                                      </p>
+                                      <div style={{ height: 1, background: cardStatus === 'emergency' ? 'rgba(242,101,34,0.15)' : 'rgba(255,255,255,0.08)', marginBottom: 10 }} />
+                                    </>
+                                  )}
 
                                   {/* Daily limit */}
-                                  {s.season.dailyLimit != null && (
-                                    <div>
+                                  {s.season?.dailyLimit != null && (
+                                    <div style={{ marginBottom: 8 }}>
                                       <p style={{
                                         fontSize: 9, textTransform: 'uppercase', fontWeight: 700,
                                         letterSpacing: '0.08em', color: 'var(--text-faint)', marginBottom: 2,
@@ -684,84 +689,61 @@ export default function FishWaterSheet({
                                     </div>
                                   )}
 
-                                  {/* Notes */}
-                                  {s.season.notes && (
-                                    <p style={{
-                                      fontSize: 12, lineHeight: 1.5, marginTop: 8,
-                                      color: 'rgba(255,255,255,0.45)',
-                                    }}>
+                                  {/* Season notes (non-emergency) */}
+                                  {s.season?.notes && !hasEmerg && (
+                                    <p style={{ fontSize: 12, lineHeight: 1.5, marginTop: 4, color: 'rgba(255,255,255,0.45)' }}>
                                       {s.season.notes}
                                     </p>
                                   )}
-                                </div>
-                              )
-                            })() : (
-                              <p style={{ fontSize: 12, color: 'var(--text-faint)', marginBottom: s.emergencyRule ? 10 : 0 }}>
-                                No base season on file for this species in this section.
-                              </p>
-                            )}
 
-                            {/* Emergency Rule card */}
-                            {s.emergencyRule && (() => {
-                              const eKey = `skagit-${i}`
-                              const isEOpen = expandedEmergency.has(eKey)
-                              return (
-                                <div style={{
-                                  background: 'rgba(242,101,34,0.06)',
-                                  border: '1px solid rgba(242,101,34,0.18)',
-                                  borderLeft: '3px solid #f26522',
-                                  borderRadius: 16, padding: '14px 14px',
-                                }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                                    <p style={{
-                                      fontSize: 10, textTransform: 'uppercase', fontWeight: 800,
-                                      letterSpacing: '0.08em', color: '#f26522',
-                                    }}>
-                                      Emergency Rule in Effect
-                                    </p>
-                                    <span style={{ fontSize: 11, fontWeight: 700, color: '#f26522' }}>⚑ ACTIVE</span>
-                                  </div>
-                                  <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 8 }}>
-                                    {s.emergencyRule.effective}
-                                  </p>
-                                  {/* Toggle for orange detail text */}
-                                  <button
-                                    onClick={() => toggleEmergency(eKey)}
-                                    style={{
-                                      display: 'flex', alignItems: 'center', gap: 4,
-                                      background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                                      fontSize: 12, fontWeight: 700, color: 'rgba(242,101,34,0.75)',
-                                    }}
-                                  >
-                                    {isEOpen ? 'Hide details ↑' : 'See rule details ↓'}
-                                  </button>
-                                  {isEOpen && (
-                                    <div style={{ marginTop: 10 }}>
-                                      <div style={{ height: 1, background: 'rgba(242,101,34,0.18)', marginBottom: 10 }} />
-                                      {s.emergencyRule.overrides.map((o, j) => (
-                                        <p key={j} style={{
-                                          fontSize: 13, color: 'rgba(242,101,34,0.82)',
-                                          lineHeight: 1.55, marginBottom: 4,
-                                        }}>
-                                          <span style={{ fontWeight: 700 }}>{o.dates}</span>
-                                          {o.status ? ` — ${o.status}` : ''}
-                                          {o.notes ? `: ${o.notes}` : ''}
-                                        </p>
-                                      ))}
-                                      {s.emergencyRule.url && (
-                                        <a
-                                          href={s.emergencyRule.url}
-                                          target="_blank" rel="noopener noreferrer"
-                                          style={{
-                                            fontSize: 12, color: '#f26522',
-                                            textDecoration: 'underline',
-                                            display: 'inline-block', marginTop: 8,
-                                          }}
-                                        >
-                                          View official rule →
-                                        </a>
+                                  {/* Emergency: collapsible details — same toggle as non-Skagit */}
+                                  {hasEmerg && s.emergencyRule && (
+                                    <div style={{ marginTop: 4 }}>
+                                      <button
+                                        onClick={() => toggleEmergency(eKey)}
+                                        style={{
+                                          display: 'flex', alignItems: 'center', gap: 4,
+                                          background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                                          fontSize: 12, fontWeight: 700, color: 'rgba(242,101,34,0.75)',
+                                        }}
+                                      >
+                                        {isEOpen ? 'Hide details ↑' : 'See rule details ↓'}
+                                      </button>
+                                      {isEOpen && (
+                                        <div style={{ marginTop: 8 }}>
+                                          {s.emergencyRule.overrides.map((o, j) => (
+                                            <p key={j} style={{
+                                              fontSize: 13, color: 'rgba(242,101,34,0.82)',
+                                              lineHeight: 1.55, marginBottom: 4,
+                                            }}>
+                                              <span style={{ fontWeight: 700 }}>{o.dates}</span>
+                                              {o.status ? ` — ${o.status}` : ''}
+                                              {o.notes ? `: ${o.notes}` : ''}
+                                            </p>
+                                          ))}
+                                          {s.emergencyRule.url && (
+                                            <a
+                                              href={s.emergencyRule.url}
+                                              target="_blank" rel="noopener noreferrer"
+                                              style={{
+                                                fontSize: 12, color: '#f26522',
+                                                textDecoration: 'underline',
+                                                display: 'inline-block', marginTop: 8,
+                                              }}
+                                            >
+                                              View official rule →
+                                            </a>
+                                          )}
+                                        </div>
                                       )}
                                     </div>
+                                  )}
+
+                                  {/* No season fallback */}
+                                  {!s.season && !hasEmerg && (
+                                    <p style={{ fontSize: 12, color: 'var(--text-faint)' }}>
+                                      No regulation on file for this section.
+                                    </p>
                                   )}
                                 </div>
                               )
