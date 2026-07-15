@@ -212,6 +212,15 @@ export default function FishWaterSheet({
   const [mapExpanded, setMapExpanded] = useState(false)
   // Skagit accordion: which section row is expanded (null = all collapsed, start closed)
   const [expandedSection, setExpandedSection] = useState<number | null>(null)
+  // Emergency rule detail toggle: Set of keys (reg.id or 'skagit-N') where details are visible
+  const [expandedEmergency, setExpandedEmergency] = useState<Set<string>>(new Set())
+  function toggleEmergency(key: string) {
+    setExpandedEmergency(prev => {
+      const next = new Set(prev)
+      next.has(key) ? next.delete(key) : next.add(key)
+      return next
+    })
+  }
 
   // Determine mode and resolve current fish + water
   const mode = siblingWaters ? 'from-fish' : siblingFish ? 'from-water' : 'solo'
@@ -696,51 +705,70 @@ export default function FishWaterSheet({
                             )}
 
                             {/* Emergency Rule card */}
-                            {s.emergencyRule && (
-                              <div style={{
-                                background: 'rgba(242,101,34,0.06)',
-                                border: '1px solid rgba(242,101,34,0.18)',
-                                borderLeft: '3px solid #f26522',
-                                borderRadius: 16, padding: '14px 14px',
-                              }}>
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                                  <p style={{
-                                    fontSize: 10, textTransform: 'uppercase', fontWeight: 800,
-                                    letterSpacing: '0.08em', color: '#f26522',
-                                  }}>
-                                    Emergency Rule in Effect
+                            {s.emergencyRule && (() => {
+                              const eKey = `skagit-${i}`
+                              const isEOpen = expandedEmergency.has(eKey)
+                              return (
+                                <div style={{
+                                  background: 'rgba(242,101,34,0.06)',
+                                  border: '1px solid rgba(242,101,34,0.18)',
+                                  borderLeft: '3px solid #f26522',
+                                  borderRadius: 16, padding: '14px 14px',
+                                }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                                    <p style={{
+                                      fontSize: 10, textTransform: 'uppercase', fontWeight: 800,
+                                      letterSpacing: '0.08em', color: '#f26522',
+                                    }}>
+                                      Emergency Rule in Effect
+                                    </p>
+                                    <span style={{ fontSize: 11, fontWeight: 700, color: '#f26522' }}>⚑ ACTIVE</span>
+                                  </div>
+                                  <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 8 }}>
+                                    {s.emergencyRule.effective}
                                   </p>
-                                  <span style={{ fontSize: 11, fontWeight: 700, color: '#f26522' }}>⚑ ACTIVE</span>
-                                </div>
-                                <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 10 }}>
-                                  {s.emergencyRule.effective}
-                                </p>
-                                <div style={{ height: 1, background: 'rgba(242,101,34,0.18)', marginBottom: 10 }} />
-                                {s.emergencyRule.overrides.map((o, j) => (
-                                  <p key={j} style={{
-                                    fontSize: 13, color: 'rgba(242,101,34,0.82)',
-                                    lineHeight: 1.55, marginBottom: 4,
-                                  }}>
-                                    <span style={{ fontWeight: 700 }}>{o.dates}</span>
-                                    {o.status ? ` — ${o.status}` : ''}
-                                    {o.notes ? `: ${o.notes}` : ''}
-                                  </p>
-                                ))}
-                                {s.emergencyRule.url && (
-                                  <a
-                                    href={s.emergencyRule.url}
-                                    target="_blank" rel="noopener noreferrer"
+                                  {/* Toggle for orange detail text */}
+                                  <button
+                                    onClick={() => toggleEmergency(eKey)}
                                     style={{
-                                      fontSize: 12, color: '#f26522',
-                                      textDecoration: 'underline',
-                                      display: 'inline-block', marginTop: 8,
+                                      display: 'flex', alignItems: 'center', gap: 4,
+                                      background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                                      fontSize: 12, fontWeight: 700, color: 'rgba(242,101,34,0.75)',
                                     }}
                                   >
-                                    View official rule →
-                                  </a>
-                                )}
-                              </div>
-                            )}
+                                    {isEOpen ? 'Hide details ↑' : 'See rule details ↓'}
+                                  </button>
+                                  {isEOpen && (
+                                    <div style={{ marginTop: 10 }}>
+                                      <div style={{ height: 1, background: 'rgba(242,101,34,0.18)', marginBottom: 10 }} />
+                                      {s.emergencyRule.overrides.map((o, j) => (
+                                        <p key={j} style={{
+                                          fontSize: 13, color: 'rgba(242,101,34,0.82)',
+                                          lineHeight: 1.55, marginBottom: 4,
+                                        }}>
+                                          <span style={{ fontWeight: 700 }}>{o.dates}</span>
+                                          {o.status ? ` — ${o.status}` : ''}
+                                          {o.notes ? `: ${o.notes}` : ''}
+                                        </p>
+                                      ))}
+                                      {s.emergencyRule.url && (
+                                        <a
+                                          href={s.emergencyRule.url}
+                                          target="_blank" rel="noopener noreferrer"
+                                          style={{
+                                            fontSize: 12, color: '#f26522',
+                                            textDecoration: 'underline',
+                                            display: 'inline-block', marginTop: 8,
+                                          }}
+                                        >
+                                          View official rule →
+                                        </a>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })()}
                           </div>
                         )}
                       </div>
@@ -875,15 +903,35 @@ export default function FishWaterSheet({
                         </div>
                       )}
 
-                      {/* Notes */}
-                      {reg.notes && (
-                        <p style={{
-                          fontSize: 12, lineHeight: 1.5, marginTop: 8,
-                          color: hasNoteEmerg ? '#f26522' : 'rgba(255,255,255,0.4)',
-                        }}>
-                          {reg.notes}
-                        </p>
-                      )}
+                      {/* Notes — collapsed if emergency */}
+                      {reg.notes && (() => {
+                        const eKey = reg.id
+                        const isEOpen = expandedEmergency.has(eKey)
+                        if (hasNoteEmerg) return (
+                          <div style={{ marginTop: 8 }}>
+                            <button
+                              onClick={() => toggleEmergency(eKey)}
+                              style={{
+                                display: 'flex', alignItems: 'center', gap: 4,
+                                background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                                fontSize: 12, fontWeight: 700, color: 'rgba(242,101,34,0.75)',
+                              }}
+                            >
+                              {isEOpen ? 'Hide details ↑' : 'See rule details ↓'}
+                            </button>
+                            {isEOpen && (
+                              <p style={{ fontSize: 12, lineHeight: 1.5, marginTop: 8, color: '#f26522' }}>
+                                {reg.notes}
+                              </p>
+                            )}
+                          </div>
+                        )
+                        return (
+                          <p style={{ fontSize: 12, lineHeight: 1.5, marginTop: 8, color: 'rgba(255,255,255,0.4)' }}>
+                            {reg.notes}
+                          </p>
+                        )
+                      })()}
                     </div>
                   )
                 })}
