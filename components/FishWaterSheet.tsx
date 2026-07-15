@@ -253,16 +253,17 @@ export default function FishWaterSheet({
   // When arriving from water→fish, only show currently-active regulations.
   // When arriving from fish→water, show all seasons.
   const displayRegs = useMemo(() => {
-    if (mode !== 'from-water') return regs
+    // Always show only currently-active seasons regardless of entry mode.
+    // If nothing is active right now, fall back to all regs (so user knows when to return).
     const activeNow = regs.filter(r => isOpenOn(r, today))
     if (activeNow.length > 0) return activeNow
     if (hasEmergency) return regs
-    return []
-  }, [regs, mode, hasEmergency]) // eslint-disable-line react-hooks/exhaustive-deps
+    return regs // nothing active — show all so user can see upcoming seasons
+  }, [regs, hasEmergency]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Next opening for closed state (from-water mode when nothing is open)
+  // Next opening when nothing is currently open
   const nextOpening = useMemo(() => {
-    if (mode !== 'from-water' || anyOpen || hasEmergency) return null
+    if (anyOpen || hasEmergency) return null
     const future = regs.map(r => r.seasonStart).filter(Boolean).sort()
     return future[0] ?? null
   }, [regs, mode, anyOpen, hasEmergency]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -558,7 +559,7 @@ export default function FishWaterSheet({
             )}
 
             {/* CLOSED right now — from-water mode with no active seasons */}
-            {displayRegs.length === 0 && mode === 'from-water' && regs.length > 0 && (
+            {displayRegs.length === 0 && regs.length > 0 && (
               <div style={{
                 background: 'rgba(107,114,128,0.07)',
                 border: '1px solid rgba(107,114,128,0.2)',
