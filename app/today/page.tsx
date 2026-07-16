@@ -640,15 +640,15 @@ export default function TodayPage() {
   const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg)', paddingBottom: '100px' }}>
+    <div className="min-h-screen pb-[100px] lg:pb-8" style={{ background: 'var(--bg)' }}>
       <header className="glass-header sticky top-0 z-30 px-4">
-        <div className="max-w-lg mx-auto py-3 flex items-center justify-between">
+        <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto py-3 flex items-center justify-between">
           <h1 className="text-lg font-bold text-white">Today</h1>
           <p className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>{dateStr}</p>
         </div>
       </header>
 
-      <div className="max-w-lg mx-auto px-4 pt-4">
+      <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto px-4 pt-4">
         {/* ── EMERGENCY RULES — compact inline banner ── */}
         <button
           onClick={() => setShowAlertsSheet(true)}

@@ -86,7 +86,7 @@ export default function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-[1100]"
+      className="fixed bottom-0 left-0 right-0 z-[1100] lg:hidden"
       style={{
         background: 'var(--bg)',
         borderTop: '1px solid var(--border)',

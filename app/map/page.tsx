@@ -252,10 +252,10 @@ export default function NearMePage() {
   ]
 
   return (
-    <div className="flex flex-col" style={{ height: '100dvh', background: 'var(--bg)', paddingBottom: '100px' }}>
+    <div className="flex flex-col" style={{ height: '100dvh', background: 'var(--bg)' }}>
       {/* Header */}
       <header className="glass-header px-4 flex-shrink-0">
-        <div className="max-w-lg mx-auto py-3">
+        <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto py-3">
           <h1 className="text-lg font-bold text-white">Near Me</h1>
           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
             {locState === 'granted' && userLoc
@@ -299,8 +299,8 @@ export default function NearMePage() {
       </div>
 
       {/* Body */}
-      <div className="flex-1 overflow-y-auto" style={{ padding: '0 16px 16px' }}>
-        <div className="max-w-lg mx-auto">
+      <div className="flex-1 overflow-y-auto pb-[100px] lg:pb-8" style={{ padding: '0 16px 16px' }}>
+        <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto">
 
           {/* Location loading */}
           {locState === 'loading' && (

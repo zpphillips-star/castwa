@@ -223,7 +223,7 @@ function RegCard({ reg, water }: { reg: Regulation; water: WaterBody }) {
     <div className="rounded-md p-3 mb-2"
       style={{ background: 'var(--bg)', borderLeft: `3px solid ${isOpen ? 'var(--accent-green)' : '#374151'}` }}>
       <div className="flex items-start justify-between mb-1">
-        <span className="text-sm font-semibold text-white">{water.name}</span>
+        <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>{water.name}</span>
         <span className="text-[10px] font-bold px-2 py-0.5 rounded ml-2"
           style={{ background: isOpen ? 'rgba(106,176,76,0.15)' : 'rgba(239,68,68,0.15)',
                    color: isOpen ? '#6ab04c' : '#ef4444' }}>
@@ -233,18 +233,18 @@ function RegCard({ reg, water }: { reg: Regulation; water: WaterBody }) {
       <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Season: {reg.seasonStart} – {reg.seasonEnd}</p>
       {reg.dailyLimit && (
         <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-          Daily limit: <span className="text-white">{reg.dailyLimit}</span>
+          Daily limit: <span style={{ color: 'var(--text)' }}>{reg.dailyLimit}</span>
         </p>
       )}
       {reg.minSize && (
         <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-          Min size: <span className="text-white">{reg.minSize}&quot;</span>
+          Min size: <span style={{ color: 'var(--text)' }}>{reg.minSize}&quot;</span>
         </p>
       )}
       {reg.hatcheryOnly && <p className="text-xs mt-0.5 text-amber-400">Hatchery fish only</p>}
       {reg.gearRestriction && (
         <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-          Gear: <span className="text-white">{reg.gearRestriction}</span>
+          Gear: <span style={{ color: 'var(--text)' }}>{reg.gearRestriction}</span>
         </p>
       )}
       {reg.notes && <p className="text-xs mt-0.5 text-amber-400">{reg.notes}</p>}
@@ -368,13 +368,13 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
 
   return (
     <>
-    <div className="fixed inset-0 flex flex-col justify-end animate-backdrop"
+    <div className="fixed inset-0 lg:left-[72px] flex flex-col justify-end lg:flex-row lg:justify-end lg:items-stretch animate-backdrop"
       onTouchStart={e => e.stopPropagation()}
       onTouchEnd={e => e.stopPropagation()}
       onClick={(e) => { e.stopPropagation(); if (e.target === e.currentTarget) onClose() }}
       style={{ background: 'rgba(0,0,0,0.8)', zIndex }}>
-      <div className="animate-slide-up rounded-t-xl overflow-hidden flex flex-col"
-        style={{ background: 'var(--surface)', height: '92vh' }}>
+      <div className="animate-slide-up rounded-t-xl lg:rounded-none lg:rounded-l-2xl overflow-hidden flex flex-col h-[92vh] lg:h-full lg:w-[520px]"
+        style={{ background: 'var(--surface)' }}>
 
         {/* ── Hero photo — compact ── */}
         <div className="relative flex-shrink-0 flex items-center justify-center"
@@ -387,7 +387,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
           <button onClick={onClose}
             className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center"
             style={{ background: 'rgba(0,0,0,0.5)' }}>
-            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4" style={{ color: '#fff' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
             </svg>
           </button>
@@ -487,7 +487,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                 <div className="absolute bottom-2 left-2 flex gap-2.5 px-2.5 py-1.5 rounded-lg"
                   style={{ background: 'rgba(10,12,20,0.85)', backdropFilter: 'blur(4px)' }}>
                   {([['#6ab04c','Open'],['#ef4444','Closed'],['#374151','No data']] as [string,string][]).map(([c,l]) => (
-                    <span key={l} className="flex items-center gap-1 text-[10px] font-semibold text-white">
+                    <span key={l} className="flex items-center gap-1 text-[10px] font-semibold" style={{ color: '#fff' }}>
                       <span style={{ width:8, height:8, borderRadius:'50%', background:c, display:'inline-block', flexShrink:0 }} />{l}
                     </span>
                   ))}

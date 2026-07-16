@@ -261,8 +261,8 @@ function RegionSheet({
   ].filter(g => g.waters.length > 0)
   return (
     <>
-      <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(0,0,0,0.6)' }} />
-      <div style={{
+      <div onClick={onClose} className="fixed inset-0 lg:left-[72px]" style={{ zIndex: 50, background: 'rgba(0,0,0,0.6)' }} />
+      <div className="lg:right-0 lg:left-auto lg:top-0 lg:bottom-0 lg:w-[480px] lg:rounded-none lg:rounded-l-2xl lg:max-h-full" style={{
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 51,
         background: 'var(--bg)', borderRadius: '24px 24px 0 0',
         maxHeight: '70vh', display: 'flex', flexDirection: 'column',
@@ -511,7 +511,7 @@ export default function WatersPage() {
   return (
     <div className="flex flex-col" style={{ height: '100dvh', background: 'var(--bg)' }}>
       <header className="glass-header flex-shrink-0 z-30 px-4">
-        <div className="max-w-lg mx-auto py-3 flex items-center justify-between">
+        <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto py-3 flex items-center justify-between">
           <div>
             <h1 className="text-lg font-bold text-white">Waters</h1>
             <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Find a place to fish</p>
@@ -523,8 +523,8 @@ export default function WatersPage() {
       </header>
 
       {/* ── Single scrollable body: everything scrolls ── */}
-      <div className="flex-1 overflow-y-auto no-scrollbar" style={{ paddingBottom: '100px' }}>
-      <div className="max-w-lg mx-auto w-full px-4 pt-4">
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-[100px] lg:pb-8">
+      <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto w-full px-4 pt-4">
 
         {/* Most Active Right Now */}
         {featuredWaters.length > 0 && (
@@ -737,9 +737,9 @@ export default function WatersPage() {
               <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
             </div>
 
-            {/* Water rows */}
-            <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
-              {section.waters.map((water, idx) => {
+            {/* Water rows — 1 col mobile, 2 col tablet+, 3 col desktop+ */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {section.waters.map((water) => {
                 const isGauged = GAUGED_IDS.has(water.id)
                 const flow = flowData[water.id]
                 const palette = flow ? FLOW_PALETTE[flow.status] : null
@@ -754,12 +754,10 @@ export default function WatersPage() {
                   <button
                     key={water.id}
                     onClick={() => openWater(water)}
-                    className="w-full text-left transition-all active:scale-[0.99]"
+                    className="w-full text-left transition-all active:scale-[0.99] rounded-2xl"
                     style={{
                       background: 'var(--surface)',
-                      border: 'none',
-                      borderBottom: idx < section.waters.length - 1 ? '1px solid var(--border)' : 'none',
-                      borderRadius: 0,
+                      border: '1px solid var(--border)',
                       padding: '14px 16px',
                       cursor: 'pointer',
                     }}

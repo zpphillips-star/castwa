@@ -52,8 +52,8 @@ export default function MapFishDetailPopup({
         id="fish-detail-popup"
         className="rounded-2xl p-4 shadow-2xl"
         style={{
-          background: '#111118',
-          border: '1px solid #374151',
+          background: 'var(--surface)',
+          border: '1px solid var(--border)',
           pointerEvents: 'auto',
           animation: 'fishPopupSlideUp 0.22s ease-out',
         }}
@@ -62,7 +62,7 @@ export default function MapFishDetailPopup({
         <div className="flex items-start justify-between mb-3">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-white font-bold text-base">{fishName}</span>
+              <span className="font-bold text-base" style={{ color: 'var(--text)' }}>{fishName}</span>
               <span
                 className="text-xs font-bold px-2 py-0.5 rounded-full"
                 style={{ color: st.color, background: st.bg }}
@@ -70,15 +70,15 @@ export default function MapFishDetailPopup({
                 {st.label}
               </span>
             </div>
-            <p className="text-sm" style={{ color: '#9ca3af' }}>{segment.waterName}</p>
+            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{segment.waterName}</p>
             {segment.sectionName && (
-              <p className="text-xs mt-0.5" style={{ color: '#6b7280' }}>{segment.sectionName}</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-faint)' }}>{segment.sectionName}</p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="text-xl leading-none ml-3 mt-0.5 hover:text-white transition-colors"
-            style={{ color: '#6b7280' }}
+            className="text-xl leading-none ml-3 mt-0.5 transition-colors"
+            style={{ color: 'var(--text-faint)' }}
           >
             ×
           </button>
@@ -124,7 +124,7 @@ export default function MapFishDetailPopup({
 
           {/* Fallback if neither */}
           {!reg && !sec && (
-            <p className="text-sm" style={{ color: '#6b7280' }}>No detailed regulation data.</p>
+            <p className="text-sm" style={{ color: 'var(--text-faint)' }}>No detailed regulation data.</p>
           )}
         </div>
 
@@ -132,16 +132,16 @@ export default function MapFishDetailPopup({
         <div className="flex gap-2">
           <button
             onClick={onViewFullRegs}
-            className="flex-1 py-2 rounded-xl text-sm font-semibold transition-colors hover:border-gray-500"
-            style={{ background: '#1f2937', color: '#e5e7eb', border: '1px solid #374151' }}
+            className="flex-1 py-2 rounded-xl text-sm font-semibold transition-colors"
+            style={{ background: 'var(--surface-2)', color: 'var(--text)', border: '1px solid var(--border)' }}
           >
             See full regulations →
           </button>
           {segment.waterId === 'skagit' && (
             <button
               onClick={onZoomRiver}
-              className="flex-1 py-2 rounded-xl text-sm font-semibold transition-colors hover:border-gray-500"
-              style={{ background: '#1f2937', color: '#e5e7eb', border: '1px solid #374151' }}
+              className="flex-1 py-2 rounded-xl text-sm font-semibold transition-colors"
+              style={{ background: 'var(--surface-2)', color: 'var(--text)', border: '1px solid var(--border)' }}
             >
               See whole river →
             </button>
@@ -173,10 +173,10 @@ function Row({
 }) {
   return (
     <div className="flex justify-between gap-2">
-      <span className="text-sm flex-shrink-0" style={{ color: '#6b7280' }}>{label}</span>
+      <span className="text-sm flex-shrink-0" style={{ color: 'var(--text-faint)' }}>{label}</span>
       <span
         className={`text-right ${small ? 'text-xs' : 'text-sm'}`}
-        style={{ color: accent ?? '#e5e7eb' }}
+        style={{ color: accent ?? 'var(--text)' }}
       >
         {value}
       </span>

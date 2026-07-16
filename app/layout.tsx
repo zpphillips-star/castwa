@@ -3,6 +3,7 @@ import { Geist, Barlow_Condensed } from "next/font/google"
 import "./globals.css"
 import Providers from "./providers"
 import OfflineBanner from "@/components/OfflineBanner"
+import SidebarNav from "@/components/SidebarNav"
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] })
 const barlowCondensed = Barlow_Condensed({
@@ -25,11 +26,13 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#08080f",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f5f2ed" },
+    { media: "(prefers-color-scheme: dark)",  color: "#0c0d0a" },
+  ],
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // Allow zoom on desktop / for accessibility; mobile-specific lock removed
   viewportFit: "cover",
 }
 
@@ -38,30 +41,37 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={`${geistSans.variable} ${barlowCondensed.variable} antialiased`}
             style={{ background: "var(--bg)", color: "var(--text)" }}>
-        {/* ⚠️ Legal Disclaimer Banner */}
-        <div style={{
-          background: '#7f1d1d',
-          borderBottom: '2px solid #ef4444',
-          padding: '5px 16px',
-          textAlign: 'center',
-          fontSize: '11px',
-          lineHeight: '1.4',
-          color: '#fecaca',
-          fontFamily: 'var(--font-geist-sans)',
-          zIndex: 9999,
-          position: 'relative',
-        }}>
-          <strong style={{ color: '#fff' }}>⚠️ Reference only — always verify at</strong>
-          {' '}<a href="https://wdfw.wa.gov/fishing/regulations" target="_blank" rel="noopener noreferrer" 
-             style={{ color: '#fbbf24', textDecoration: 'underline' }}>
-            WDFW.wa.gov
-          </a>
+        {/* Desktop sidebar — hidden on mobile via SidebarNav's own lg:flex class */}
+        <SidebarNav />
+
+        {/* Main content — offset right of sidebar on desktop */}
+        <div className="lg:pl-[72px]">
+          {/* ⚠️ Legal Disclaimer Banner */}
+          <div style={{
+            background: '#7f1d1d',
+            borderBottom: '2px solid #ef4444',
+            padding: '5px 16px',
+            textAlign: 'center',
+            fontSize: '11px',
+            lineHeight: '1.4',
+            color: '#fecaca',
+            fontFamily: 'var(--font-geist-sans)',
+            zIndex: 9999,
+            position: 'relative',
+          }}>
+            <strong style={{ color: '#fff' }}>⚠️ Reference only — always verify at</strong>
+            {' '}<a href="https://wdfw.wa.gov/fishing/regulations" target="_blank" rel="noopener noreferrer" 
+               style={{ color: '#fbbf24', textDecoration: 'underline' }}>
+              WDFW.wa.gov
+            </a>
+          </div>
+          <Providers>
+            <OfflineBanner />
+            {children}
+          </Providers>
         </div>
-        <Providers>
-          <OfflineBanner />
-          {children}
-        </Providers>
       </body>
     </html>
   )
 }
+

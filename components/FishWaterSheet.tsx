@@ -370,15 +370,15 @@ export default function FishWaterSheet({
 
   return (
     <div
-      className="fixed inset-0 flex flex-col justify-end animate-backdrop"
+      className="fixed inset-0 lg:left-[72px] flex flex-col justify-end lg:flex-row lg:justify-end lg:items-stretch animate-backdrop"
       style={{ zIndex, background: 'rgba(0,0,0,0.85)' }}
       onTouchStart={e => e.stopPropagation()}
       onTouchEnd={e => e.stopPropagation()}
       onClick={e => { e.stopPropagation(); if (e.target === e.currentTarget) onClose() }}
     >
       <div
-        className="animate-slide-up rounded-t-2xl flex flex-col overflow-hidden"
-        style={{ background: 'var(--bg)', height: '95dvh' }}
+        className="animate-slide-up rounded-t-2xl lg:rounded-none lg:rounded-l-2xl flex flex-col overflow-hidden h-[95dvh] lg:h-full lg:w-[520px]"
+        style={{ background: 'var(--bg)' }}
       >
 
         {/* ── Fixed top nav bar ── */}

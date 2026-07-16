@@ -886,13 +886,13 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
   return (
     <>
       <div
-        className="fixed inset-0 flex flex-col justify-end animate-backdrop"
+        className="fixed inset-0 lg:left-[72px] flex flex-col justify-end lg:flex-row lg:justify-end lg:items-stretch animate-backdrop"
         style={{ zIndex, background: 'rgba(0,0,0,0.75)' }}
         onClick={e => { if (e.target === e.currentTarget) onClose() }}
       >
         <div
-          className="animate-slide-up rounded-t-2xl flex flex-col overflow-hidden"
-          style={{ background: 'var(--bg)', height: '92dvh', position: 'relative' }}
+          className="animate-slide-up rounded-t-2xl lg:rounded-none lg:rounded-l-2xl flex flex-col overflow-hidden h-[92dvh] lg:h-full lg:w-[520px]"
+          style={{ background: 'var(--bg)', position: 'relative' }}
           {...swipeBack}
         >
 

@@ -114,9 +114,9 @@ export default function CalendarPage() {
   })
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg)', paddingBottom: '100px' }}>
+    <div className="min-h-screen pb-[100px] lg:pb-8" style={{ background: 'var(--bg)' }}>
       <header className="glass-header sticky top-0 z-30 px-4">
-        <div className="max-w-lg mx-auto py-3 flex items-center justify-between">
+        <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto py-3 flex items-center justify-between">
           <div>
             <h1 className="text-lg font-bold text-white">Season Calendar</h1>
             <p className="text-xs" style={{ color: 'var(--text-muted)' }}>● open days &nbsp;·&nbsp; tap any date</p>
@@ -124,7 +124,7 @@ export default function CalendarPage() {
         </div>
       </header>
 
-      <div className="max-w-lg mx-auto px-4 pt-4">
+      <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto px-4 pt-4">
         {months.map(({ year, month }) => (
           <MonthBlock
             key={`${year}-${month}`}

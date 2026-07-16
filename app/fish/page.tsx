@@ -297,16 +297,16 @@ export default function FishPage() {
     : []
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg)', paddingBottom: '100px' }}>
+    <div className="min-h-screen pb-[100px] lg:pb-8" style={{ background: 'var(--bg)' }}>
       {/* Header */}
       <header className="glass-header sticky top-0 z-30 px-4 pt-safe">
-        <div className="max-w-lg mx-auto py-3">
+        <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto py-3">
           <h1 className="text-lg font-bold text-white">Fish</h1>
           <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>What do you want to catch today?</p>
         </div>
       </header>
 
-      <div className="max-w-lg mx-auto px-4 pt-4">
+      <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto px-4 pt-4">
         {/* Reg trust signal */}
         <p className="text-xs mb-3" style={{ color: 'var(--text-faint)' }}>
           <span className="inline-block px-2 py-0.5 rounded font-semibold"
@@ -357,7 +357,7 @@ export default function FishPage() {
           )}
 
           {/* ── Search + Filter — below hero ── */}
-          <div className="max-w-lg mx-auto px-4 pb-2">
+          <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto px-4 pb-2">
             <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
               {FILTERS.map(f => {
                 const active = activeFilter === f.key
@@ -441,9 +441,9 @@ export default function FishPage() {
         </div>
       ) : (
         /* ══════════════════════════════════════════════════════════════
-            SEARCH / FILTER MODE: 3-column grid (unchanged)
+            SEARCH / FILTER MODE: responsive grid
         ══════════════════════════════════════════════════════════════ */
-        <div className="max-w-lg mx-auto px-4">
+        <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto px-4">
           {/* Search bar + filter pills — persistent in search/filter mode */}
           <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 mt-2">
             {FILTERS.map(f => {
@@ -515,7 +515,7 @@ export default function FishPage() {
           </div>
 
           {/* Fish grid */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-4">
             {sortedFiltered.map(fish => {
               const status = getSeasonStatus(fish.id)
               const inSeason = status !== 'closed'

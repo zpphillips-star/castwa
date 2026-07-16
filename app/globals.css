@@ -18,6 +18,7 @@
 
 :root {
   /* Outdoor / Hunting palette — inspired by onX, Fishbrain, GOHUNT */
+  /* Default: dark theme (night fishing / OLED-friendly) */
   --bg:           #0c0d0a;          /* near-black with earthy green tint */
   --surface:      #151a10;          /* dark forest floor */
   --surface-2:    #1d2416;          /* slightly lighter earth */
@@ -32,6 +33,61 @@
   --live:         #ef4444;
   --open:         #6ab04c;          /* fish-able / open indicator */
   --closed:       #6b7280;          /* closed / out of season */
+}
+
+/* ── Light mode: respects OS/browser prefers-color-scheme ─────────────────── */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg:           #f5f2ed;          /* warm parchment — earthy light */
+    --surface:      #ffffff;
+    --surface-2:    #ede8df;          /* slightly darker warm white */
+    --border:       rgba(0,0,0,0.10);
+    --accent:       #e85d18;          /* slightly deeper orange for light bg contrast */
+    --accent-green: #3d7a35;
+    --accent-bright-green: #2e7d2e;
+    --accent-dim:   rgba(232,93,24,0.10);
+    --text:         #1c1a17;          /* warm near-black */
+    --text-muted:   rgba(28,26,23,0.68);
+    --text-faint:   #6b7280;
+    --live:         #dc2626;
+    --open:         #2e7d2e;
+    --closed:       #6b7280;
+  }
+
+  /* Override Tailwind text-white so it uses the theme text color on light surfaces */
+  .text-white { color: var(--text); }
+
+  /* Override hardcoded dark Tailwind bg classes */
+  .bg-gray-800, .bg-gray-700 { background-color: var(--surface-2) !important; }
+  .hover\:bg-gray-800\/50:hover { background-color: rgba(0,0,0,0.06) !important; }
+  .active\:bg-gray-800:active  { background-color: rgba(0,0,0,0.10) !important; }
+
+  /* Glass header — light translucent */
+  .glass-header {
+    background: rgba(245,242,237,0.93);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(232,93,24,0.18);
+  }
+
+  /* Card backgrounds */
+  .card {
+    background: var(--surface);
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+  .card-raised {
+    background: var(--surface-2);
+    border: 1px solid rgba(0,0,0,0.10);
+  }
+
+  /* Scrollbar thumb */
+  ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); }
+
+  /* html/body background */
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+  }
 }
 
 * { box-sizing: border-box; padding: 0; margin: 0; }
@@ -73,6 +129,17 @@ body { font-family: var(--font-geist-sans), system-ui, sans-serif; }
   to   { opacity: 1; transform: translateY(0); }
 }
 .animate-fade-in { animation: fade-in 0.2s ease both; }
+
+/* ── Desktop: right-panel slide-in for sheets ── */
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+@media (min-width: 1024px) {
+  .animate-slide-up {
+    animation: slide-in-right 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
 
 .card {
   background: var(--surface);
