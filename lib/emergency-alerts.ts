@@ -32,34 +32,9 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     type: 'OPEN',
     species: 'Sockeye Salmon',
     waterBody: 'Skagit River (Hwy 536 Bridge to Baker River)',
-    description: 'Sockeye salmon open Skagit River through Jul 31. Daily limit 4 sockeye, min 12". Night closure in effect. Release all salmon other than sockeye. ⚠️ Tribal closures: Jul 7–9 and Jul 13–15, Gilligan Creek to Baker River (all species). Full reach resumes Jul 16. Additional unannounced closures may still occur on short notice — always verify WDFW before fishing.',
+    description: 'Sockeye salmon open Skagit River through Jul 31. Daily limit 4 sockeye, min 12". Night closure in effect. Release all salmon other than sockeye. Full reach (Hwy 536 Bridge to Baker River) is open as of Jul 16 — previously scheduled tribal closures (Jul 7–9, Jul 13–15) have passed. ⚠️ Additional unannounced tribal closures may still occur on short notice — always verify WDFW before fishing.',
     activeFrom: '2026-07-01',
     activeTo: '2026-07-31',
-    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/lower-skagit-river-fishing-updates-2026-07',
-  },
-  // ── SKAGIT RIVER TRIBAL CLOSURE — JULY 7 THROUGH 12:29 PM JULY 9 ─────────
-  // Source: WDFW ER 26-126-136780 (pub. Jul 7 2026). Extended from Jul 8 to Jul 9 due to
-  // treaty fishery extension. Gear conflict with tribal fishery.
-  {
-    id: 'ea-skagit-tribal-closure-jul7-2026',
-    type: 'CLOSED',
-    species: 'All species',
-    waterBody: 'Skagit River (Gilligan Creek to Baker River)',
-    description: '🚨 CLOSED TO ALL FISHING July 7 through 12:29 p.m. July 9 — tribal fishery conflict avoidance (extended). Affects Gilligan Creek to Dalles Bridge AND Dalles Bridge to Baker River. Hwy 536 to Gilligan Creek remains open (4 sockeye). Baker River boat launch also closed.',
-    activeFrom: '2026-07-07',
-    activeTo: '2026-07-09',
-    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/lower-skagit-river-fishing-updates-2026-07',
-  },
-  // ── SKAGIT RIVER TRIBAL CLOSURE — JULY 13–15 ────────────────────────────
-  // Source: WDFW ER 26-123-136776 (pub. Jul 6 2026). Gear conflict with tribal fishery.
-  {
-    id: 'ea-skagit-tribal-closure-jul13-2026',
-    type: 'CLOSED',
-    species: 'All species',
-    waterBody: 'Skagit River (Gilligan Creek to Baker River)',
-    description: '⚠️ CLOSED TO ALL FISHING July 13–15 — tribal fishery conflict avoidance. Affects Gilligan Creek to Dalles Bridge AND Dalles Bridge to Baker River. Hwy 536 to Gilligan Creek remains open (4 sockeye). Baker River boat launch also closed.',
-    activeFrom: '2026-07-13',
-    activeTo: '2026-07-15',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/lower-skagit-river-fishing-updates-2026-07',
   },
   // ── TULALIP TERMINAL AREA SALMON CLOSED (MA 8-2) ─────────────────────────
