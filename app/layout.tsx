@@ -3,7 +3,7 @@ import { Geist, Barlow_Condensed } from "next/font/google"
 import "./globals.css"
 import Providers from "./providers"
 import OfflineBanner from "@/components/OfflineBanner"
-import SidebarNav from "@/components/SidebarNav"
+import TopNav from "@/components/TopNav"
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] })
 const barlowCondensed = Barlow_Condensed({
@@ -41,11 +41,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={`${geistSans.variable} ${barlowCondensed.variable} antialiased`}
             style={{ background: "var(--bg)", color: "var(--text)" }}>
-        {/* Desktop sidebar — hidden on mobile via SidebarNav's own lg:flex class */}
-        <SidebarNav />
+        {/* Desktop top nav — hidden on mobile via TopNav's own lg:flex class */}
+        <TopNav />
 
-        {/* Main content — offset right of sidebar on desktop */}
-        <div className="lg:pl-[72px]">
+        {/* Main content — offset below top nav on desktop */}
+        <div className="lg:pt-[56px]">
           {/* ⚠️ Legal Disclaimer Banner */}
           <div style={{
             background: '#7f1d1d',
