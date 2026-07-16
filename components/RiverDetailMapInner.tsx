@@ -20,11 +20,11 @@ interface Props {
 }
 
 const STATUS_COLOR: Record<SegmentStatus, string> = {
-  open:       '#4ade80',
-  closed:     '#ef4444',
-  emergency:  '#f97316',
-  restricted: '#fbbf24',
-  neutral:    '#60a5fa',  // plain waterway blue
+  open:       'var(--status-open-bright)',
+  closed:     'var(--live)',
+  emergency:  'var(--warning)',
+  restricted: 'var(--amber)',
+  neutral:    'var(--blue)',  // plain waterway blue
 }
 
 /** Fit map to a specific set of coords whenever they change */
@@ -56,7 +56,7 @@ export default function RiverDetailMapInner({ segments, selectedIdx, onSegmentCl
   if (allCoords.length === 0) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',
-        height: '100%', background: '#b8d8ea', color: '#6b7280', fontSize: 14 }}>
+        height: '100%', background: '#b8d8ea', color: 'var(--text-faint)', fontSize: 14 }}>
         No map data available
       </div>
     )
@@ -88,7 +88,7 @@ export default function RiverDetailMapInner({ segments, selectedIdx, onSegmentCl
       {/* All non-selected segments */}
       {segments.map(seg => {
         if (seg.idx === selectedIdx) return null
-        const color = '#60a5fa'
+        const color = 'var(--blue)'
         const opacity = selectedIdx >= 0 ? 0.45 : 0.85
         if (seg.coords.length === 1) {
           return (
@@ -126,7 +126,7 @@ export default function RiverDetailMapInner({ segments, selectedIdx, onSegmentCl
               key={`selected-${selectedIdx}`}
               center={seg.coords[0]}
               radius={16}
-              pathOptions={{ color: '#f97316', fillColor: '#f97316', fillOpacity: 0.5, opacity: 1, weight: 3 }}
+              pathOptions={{ color: 'var(--warning)', fillColor: 'var(--warning)', fillOpacity: 0.5, opacity: 1, weight: 3 }}
               eventHandlers={{ click: () => onSegmentClick?.(selectedIdx) }}
             />
           )
@@ -136,7 +136,7 @@ export default function RiverDetailMapInner({ segments, selectedIdx, onSegmentCl
             key={`selected-${selectedIdx}`}
             positions={seg.coords}
             pathOptions={{
-              color: '#f97316',
+              color: 'var(--warning)',
               weight: 8,
               opacity: 1,
               lineCap: 'round',

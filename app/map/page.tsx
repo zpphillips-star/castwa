@@ -23,11 +23,11 @@ type FlowStatus = 'ideal' | 'low' | 'high' | 'loading' | 'error'
 type FlowData = { cfs: number | null; status: FlowStatus; trend: 'rising' | 'falling' | 'stable' | null; fetchedAt: string }
 
 const FLOW_COLORS: Record<FlowStatus, string> = {
-  ideal: '#6ab04c',
-  low: '#f97316',
-  high: '#ef4444',
-  loading: '#6b7280',
-  error: '#6b7280',
+  ideal: 'var(--open)',
+  low: 'var(--warning)',
+  high: 'var(--live)',
+  loading: 'var(--text-faint)',
+  error: 'var(--text-faint)',
 }
 
 function formatCfs(cfs: number): string {
@@ -71,7 +71,7 @@ function NearMeCard({
       className="w-full text-left transition-all active:opacity-70"
       style={{
         padding: '16px 4px',
-        borderBottom: isLast ? 'none' : '1px solid rgba(255,255,255,0.22)',
+        borderBottom: isLast ? 'none' : '1px solid var(--text-20)',
         display: 'block',
         background: 'transparent',
       }}
@@ -92,7 +92,7 @@ function NearMeCard({
               {openSpecies.slice(0, 4).map(sp => (
                 <span key={sp} style={{
                   background: 'rgba(106,176,76,0.15)',
-                  color: '#6ab04c',
+                  color: 'var(--open)',
                   borderRadius: '20px',
                   padding: '2px 8px',
                   fontSize: '11px',
@@ -102,7 +102,7 @@ function NearMeCard({
                 </span>
               ))}
               {openSpecies.length > 4 && (
-                <span style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-faint)', borderRadius: '20px', padding: '2px 8px', fontSize: '11px' }}>
+                <span style={{ background: 'var(--border)', color: 'var(--text-faint)', borderRadius: '20px', padding: '2px 8px', fontSize: '11px' }}>
                   +{openSpecies.length - 4}
                 </span>
               )}
@@ -140,7 +140,7 @@ function NearMeCard({
 
       {/* Note — matches Today page structure */}
       {hasFlow && flowData!.status !== 'loading' && flowData!.status !== 'error' && (
-        <div className="mt-3 pt-3 flex items-baseline gap-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="mt-3 pt-3 flex items-baseline gap-2" style={{ borderTop: '1px solid var(--border)' }}>
           <span className="text-[10px] font-bold uppercase tracking-wide flex-shrink-0" style={{ color: 'var(--text-faint)' }}>Note</span>
           <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{getCfsDescription(flowData!.status)}</span>
         </div>
@@ -256,7 +256,7 @@ export default function NearMePage() {
       {/* Header */}
       <header className="glass-header px-4 flex-shrink-0">
         <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto py-3">
-          <h1 className="text-lg font-bold text-white">Near Me</h1>
+          <h1 className="text-lg font-bold text-[var(--text)]">Near Me</h1>
           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
             {locState === 'granted' && userLoc
               ? `${filtered.length} water${filtered.length !== 1 ? 's' : ''} within 50 miles`

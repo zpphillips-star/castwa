@@ -300,17 +300,17 @@ const SKAGIT_SEGS: RiverSeg[] = [
 ]
 
 // ─── COLORS ───────────────────────────────────────────────────────────────────
-const C_OPEN        = '#22c55e'   // green  — open today (fish selected + in season)
-const C_HARD        = '#ef4444'   // red    — closed (fish selected + out of season)
-const C_GREY        = '#374151'   // grey   — no data for selected fish
-const C_GREY2       = '#4b5563'   // lighter grey for stroke
-const C_BLUE        = '#3b82f6'   // blue   — no fish selected (default)
-const C_BLUE2       = '#60a5fa'   // lighter blue stroke
-const C_SLATE       = '#475569'   // slate  — unregulated river
+const C_OPEN        = 'var(--status-open-bright)'   // green  — open today (fish selected + in season)
+const C_HARD        = 'var(--live)'   // red    — closed (fish selected + out of season)
+const C_GREY        = 'var(--border-inactive)'   // grey   — no data for selected fish
+const C_GREY2       = 'var(--text-faint)'   // lighter grey for stroke
+const C_BLUE        = 'var(--blue)'   // blue   — no fish selected (default)
+const C_BLUE2       = 'var(--blue)'   // lighter blue stroke
+const C_SLATE       = 'var(--border-inactive)'   // slate  — unregulated river
 const C_LAKE_FILL   = '#1e3a5f'   // dark blue fill for lakes
-const C_LAKE_STROKE = '#3b82f6'   // blue stroke for lakes (same as C_BLUE)
-const C_MARINE_OPEN = '#22c55e'   // green fill for open marine areas
-const C_MARINE_GREY = '#374151'   // grey fill for closed/restricted marine areas
+const C_LAKE_STROKE = 'var(--blue)'   // blue stroke for lakes (same as C_BLUE)
+const C_MARINE_OPEN = 'var(--status-open-bright)'   // green fill for open marine areas
+const C_MARINE_GREY = 'var(--border-inactive)'   // grey fill for closed/restricted marine areas
 
 // ─── INNER MAP COMPONENT ─────────────────────────────────────────────────────
 // Must live inside <MapContainer> to use react-leaflet hooks.
@@ -376,14 +376,14 @@ function WAMapContents({
             }}
           >
             <Popup>
-              <div style={{ background: '#111118', color: '#fff', borderRadius: 8, padding: '8px 12px', minWidth: 170 }}>
+              <div style={{ background: 'var(--photo-bg)', color: '#fff', borderRadius: 8, padding: '8px 12px', minWidth: 170 }}>
                 <p style={{ fontWeight: 700, fontSize: 12, marginBottom: 3 }}>{seg.label}</p>
                 <p style={{ fontSize: 11, marginBottom: line2 ? 2 : 0,
-                  color: color === C_OPEN ? C_OPEN : color === C_HARD ? C_HARD : '#6b7280' }}>
+                  color: color === C_OPEN ? C_OPEN : color === C_HARD ? C_HARD : 'var(--text-faint)' }}>
                   {fishSeg ? (fishSeg.status === 'open' ? 'Open for selected fish' : fishSeg.status === 'emergency' ? 'Emergency closure' : 'No season for selected fish') : line1}
                 </p>
-                {!fishSeg && line2 && <p style={{ fontSize: 10, color: '#9ca3af' }}>{line2}</p>}
-                <p style={{ fontSize: 10, color: '#6b7280', marginTop: 4 }}>Tap line to open section detail</p>
+                {!fishSeg && line2 && <p style={{ fontSize: 10, color: 'var(--text-faint)' }}>{line2}</p>}
+                <p style={{ fontSize: 10, color: 'var(--text-faint)', marginTop: 4 }}>Tap line to open section detail</p>
               </div>
             </Popup>
           </Polyline>
@@ -453,10 +453,10 @@ function WAMapContents({
               } : undefined}
             >
               <Popup>
-                <div style={{ background: '#111118', color: '#fff', borderRadius: 8, padding: '8px 12px', minWidth: 160 }}>
+                <div style={{ background: 'var(--photo-bg)', color: '#fff', borderRadius: 8, padding: '8px 12px', minWidth: 160 }}>
                   <p style={{ fontWeight: 700, fontSize: 12, marginBottom: 3 }}>{name}</p>
                   <p style={{ fontSize: 11,
-                    color: color === C_OPEN ? C_OPEN : color === C_HARD ? C_HARD : color === C_BLUE ? C_BLUE : color === C_SLATE ? C_SLATE : '#6b7280' }}>
+                    color: color === C_OPEN ? C_OPEN : color === C_HARD ? C_HARD : color === C_BLUE ? C_BLUE : color === C_SLATE ? C_SLATE : 'var(--text-faint)' }}>
                     {popupStatus}
                   </p>
                 </div>
@@ -490,16 +490,16 @@ function WAMapContents({
                 )
               } else {
                 strokeColor = C_GREY2
-                popupContent = <p style={{ fontSize: 11, color: '#6b7280' }}>No data for selected fish</p>
+                popupContent = <p style={{ fontSize: 11, color: 'var(--text-faint)' }}>No data for selected fish</p>
               }
             } else {
               strokeColor = C_GREY2
-              popupContent = <p style={{ fontSize: 11, color: '#6b7280' }}>Lake / water body</p>
+              popupContent = <p style={{ fontSize: 11, color: 'var(--text-faint)' }}>Lake / water body</p>
             }
           } else {
             // No fish selected — default blue stroke
             strokeColor = C_LAKE_STROKE
-            popupContent = <p style={{ fontSize: 11, color: '#6b7280' }}>Select a fish to see season status</p>
+            popupContent = <p style={{ fontSize: 11, color: 'var(--text-faint)' }}>Select a fish to see season status</p>
           }
 
           // Use only the first (outer) ring
@@ -516,7 +516,7 @@ function WAMapContents({
               eventHandlers={fishingId && onWaterClick ? { click: () => onWaterClick(fishingId) } : undefined}
             >
               <Popup>
-                <div style={{ background: '#111118', color: '#fff', borderRadius: 8, padding: '8px 12px', minWidth: 160 }}>
+                <div style={{ background: 'var(--photo-bg)', color: '#fff', borderRadius: 8, padding: '8px 12px', minWidth: 160 }}>
                   <p style={{ fontWeight: 700, fontSize: 12, marginBottom: 3 }}>{name}</p>
                   {popupContent}
                 </div>
@@ -550,10 +550,10 @@ function WAMapContents({
             }}
           >
             <Popup>
-              <div style={{ background: '#111118', color: '#fff', borderRadius: 8, padding: '8px 12px', minWidth: 190 }}>
+              <div style={{ background: 'var(--photo-bg)', color: '#fff', borderRadius: 8, padding: '8px 12px', minWidth: 190 }}>
                 <p style={{ fontWeight: 700, fontSize: 12, marginBottom: 2 }}>{area.name}</p>
-                <p style={{ fontSize: 10, color: '#9ca3af', marginBottom: 5 }}>{area.description}</p>
-                <p style={{ fontSize: 11, color: areaOpen ? C_OPEN : '#6b7280' }}>{area.salmonNote}</p>
+                <p style={{ fontSize: 10, color: 'var(--text-faint)', marginBottom: 5 }}>{area.description}</p>
+                <p style={{ fontSize: 11, color: areaOpen ? C_OPEN : 'var(--text-faint)' }}>{area.salmonNote}</p>
               </div>
             </Popup>
           </Polygon>
@@ -586,13 +586,13 @@ function WAMapContents({
             } else {
               fillColor = C_GREY
               strokeColor = C_GREY2
-              popupContent = <p style={{ fontSize: 11, color: '#6b7280' }}>No data for selected fish</p>
+              popupContent = <p style={{ fontSize: 11, color: 'var(--text-faint)' }}>No data for selected fish</p>
             }
           } else {
             // No fish selected — default blue
             fillColor = C_BLUE
             strokeColor = C_BLUE2
-            popupContent = <p style={{ fontSize: 11, color: '#6b7280' }}>Select a fish to see season status</p>
+            popupContent = <p style={{ fontSize: 11, color: 'var(--text-faint)' }}>Select a fish to see season status</p>
           }
 
           return (
@@ -609,9 +609,9 @@ function WAMapContents({
               eventHandlers={onWaterClick ? { click: () => onWaterClick(wb.id) } : undefined}
             >
               <Popup>
-                <div style={{ background: '#111118', color: '#fff', borderRadius: 8, padding: '8px 12px', minWidth: 160 }}>
+                <div style={{ background: 'var(--photo-bg)', color: '#fff', borderRadius: 8, padding: '8px 12px', minWidth: 160 }}>
                   <p style={{ fontWeight: 700, marginBottom: 3, fontSize: 12 }}>{wb.name}</p>
-                  <p style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>{wb.region} · {wb.type}</p>
+                  <p style={{ fontSize: 11, color: 'var(--text-faint)', marginBottom: 4 }}>{wb.region} · {wb.type}</p>
                   {popupContent}
                 </div>
               </Popup>

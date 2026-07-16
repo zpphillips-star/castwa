@@ -39,10 +39,10 @@ function FitBounds({ coords }: { coords: [number, number][] }) {
 }
 
 const STATUS_COLOR: Record<RiverSectionStatus, string> = {
-  open:       '#4ade80',
-  closed:     '#ef4444',
-  emergency:  '#f97316',
-  restricted: '#fbbf24',
+  open:       'var(--status-open-bright)',
+  closed:     'var(--live)',
+  emergency:  'var(--warning)',
+  restricted: 'var(--amber)',
 }
 
 function makeLabelIcon(text: string, color: string, anchor: 'start' | 'end') {

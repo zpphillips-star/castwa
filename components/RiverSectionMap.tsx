@@ -11,7 +11,7 @@ const RiverSectionMapInner = dynamic(
     loading: () => (
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        height: '100%', background: '#08080f', color: '#6b7280', fontSize: 14,
+        height: '100%', background: 'var(--photo-bg)', color: 'var(--text-faint)', fontSize: 14,
       }}>
         Loading map…
       </div>
@@ -42,10 +42,10 @@ const STATUS_LABEL: Record<RiverSectionStatus, string> = {
   restricted: '⚠️ RESTRICTED',
 }
 const STATUS_COLOR: Record<RiverSectionStatus, string> = {
-  open:       '#4ade80',
-  closed:     '#ef4444',
-  emergency:  '#f97316',
-  restricted: '#fbbf24',
+  open:       'var(--status-open-bright)',
+  closed:     'var(--live)',
+  emergency:  'var(--warning)',
+  restricted: 'var(--amber)',
 }
 
 export default function RiverSectionMap({
@@ -79,7 +79,7 @@ export default function RiverSectionMap({
       <div
         className="flex flex-col overflow-hidden"
         style={{
-          background: '#0d0f1a',
+          background: 'var(--photo-bg)',
           height: fullScreen ? '100dvh' : '72dvh',
           borderTopLeftRadius: fullScreen ? 0 : 16,
           borderTopRightRadius: fullScreen ? 0 : 16,
@@ -102,9 +102,9 @@ export default function RiverSectionMap({
                 {label}
               </span>
             </div>
-            <p className="text-sm font-bold text-white leading-tight truncate">{sectionName}</p>
+            <p className="text-sm font-bold text-[var(--text)] leading-tight truncate">{sectionName}</p>
             {detail && (
-              <p className="text-[11px] mt-0.5 leading-snug" style={{ color: '#9ca3af' }}>
+              <p className="text-[11px] mt-0.5 leading-snug" style={{ color: 'var(--text-faint)' }}>
                 {detail}
               </p>
             )}
@@ -116,7 +116,7 @@ export default function RiverSectionMap({
             <button
               onClick={() => setFullScreen(f => !f)}
               className="w-8 h-8 rounded-full flex items-center justify-center active:opacity-70"
-              style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
+              style={{ background: 'var(--border)', border: '1px solid var(--border)' }}
               title={fullScreen ? 'Shrink' : 'Full screen'}
             >
               <span style={{ fontSize: 14 }}>{fullScreen ? '⤓' : '⤢'}</span>
@@ -126,10 +126,10 @@ export default function RiverSectionMap({
             <button
               onClick={onClose}
               className="w-8 h-8 rounded-full flex items-center justify-center active:opacity-70"
-              style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
+              style={{ background: 'var(--border)', border: '1px solid var(--border)' }}
               title="Close"
             >
-              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 text-[var(--text)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -155,14 +155,14 @@ export default function RiverSectionMap({
         {/* ── Footer ── */}
         <div
           className="flex-shrink-0 flex items-center justify-between px-4 py-3 gap-3"
-          style={{ borderTop: '1px solid rgba(255,255,255,0.07)', background: '#0d0f1a' }}
+          style={{ borderTop: '1px solid var(--border)', background: 'var(--photo-bg)' }}
         >
           {/* Landmark summary */}
           <div className="flex-1 min-w-0">
-            <p className="text-[11px]" style={{ color: '#6b7280' }}>
-              <span style={{ color: '#9ca3af' }}>{startLabel}</span>
-              <span className="mx-1" style={{ color: '#374151' }}>→</span>
-              <span style={{ color: '#9ca3af' }}>{endLabel}</span>
+            <p className="text-[11px]" style={{ color: 'var(--text-faint)' }}>
+              <span style={{ color: 'var(--text-faint)' }}>{startLabel}</span>
+              <span className="mx-1" style={{ color: 'var(--border-inactive)' }}>→</span>
+              <span style={{ color: 'var(--text-faint)' }}>{endLabel}</span>
             </p>
           </div>
 
@@ -175,7 +175,7 @@ export default function RiverSectionMap({
             style={{
               background: 'rgba(74,222,128,0.12)',
               border: '1px solid rgba(74,222,128,0.3)',
-              color: '#4ade80',
+              color: 'var(--status-open-bright)',
               fontSize: 12,
               fontWeight: 700,
               textDecoration: 'none',

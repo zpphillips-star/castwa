@@ -109,7 +109,7 @@ export default function MapFishSelector({ selected, onSelect }: Props) {
             className={`flex-shrink-0 self-center px-3 py-2 rounded text-sm border transition-colors ${
               selected === null
                 ? 'bg-green-600 border-green-500 text-white'
-                : 'bg-transparent border-transparent text-gray-400'
+                : 'bg-transparent border-transparent text-[var(--text-muted)]'
             }`}
           >
             All
@@ -124,7 +124,7 @@ export default function MapFishSelector({ selected, onSelect }: Props) {
                 key={sp.id}
                 onClick={() => onSelect(isSelected ? null : sp.id)}
                 className={`flex flex-col items-center cursor-pointer shrink-0 active:scale-95 w-16 rounded-lg px-1 py-1 transition-colors ${
-                  isSelected ? 'bg-gray-700/80 shadow-lg shadow-green-900/50' : ''
+                  isSelected ? 'bg-[var(--surface-raised)] shadow-lg shadow-green-900/50' : ''
                 }`}
               >
                 <div className={`transition-transform duration-150 ${isSelected ? 'scale-115' : 'scale-100'}`}>
@@ -136,7 +136,7 @@ export default function MapFishSelector({ selected, onSelect }: Props) {
                     className="w-16 h-12 object-contain"
                   />
                 </div>
-                <span className={`text-xs text-center leading-tight mt-1 ${isSelected ? 'text-green-400 font-semibold' : 'text-gray-400'}`}>
+                <span className={`text-xs text-center leading-tight mt-1 ${isSelected ? 'text-green-400 font-semibold' : 'text-[var(--text-muted)]'}`}>
                   {shortName}
                 </span>
               </button>

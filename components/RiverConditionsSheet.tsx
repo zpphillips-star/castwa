@@ -46,22 +46,22 @@ function formatCfs(cfs: number): string {
 
 // Three-tier fishability label
 const FISHABLE: Record<GaugeStatus, { label: string; color: string }> = {
-  low:     { label: 'Safe',      color: '#6ab04c' },
-  good:    { label: 'Safe',      color: '#6ab04c' },
-  high:    { label: 'Caution',   color: '#f59e0b' },
-  flood:   { label: 'Dangerous', color: '#ef4444' },
-  loading: { label: '…',         color: '#6b7280' },
-  error:   { label: 'N/A',       color: '#6b7280' },
+  low:     { label: 'Safe',      color: 'var(--open)' },
+  good:    { label: 'Safe',      color: 'var(--open)' },
+  high:    { label: 'Caution',   color: 'var(--amber)' },
+  flood:   { label: 'Dangerous', color: 'var(--live)' },
+  loading: { label: '…',         color: 'var(--text-faint)' },
+  error:   { label: 'N/A',       color: 'var(--text-faint)' },
 }
 
 // Border accent per status
 const STATUS_BORDER: Record<GaugeStatus, string> = {
-  low:     '#6ab04c',
-  good:    '#6ab04c',
-  high:    '#f59e0b',
-  flood:   '#ef4444',
-  loading: '#6b7280',
-  error:   '#6b7280',
+  low:     'var(--open)',
+  good:    'var(--open)',
+  high:    'var(--amber)',
+  flood:   'var(--live)',
+  loading: 'var(--text-faint)',
+  error:   'var(--text-faint)',
 }
 
 // One-line plain-English summary
@@ -174,15 +174,15 @@ export default function RiverConditionsSheet({
       >
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
-          <div className="w-10 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.2)' }} />
+          <div className="w-10 h-1 rounded-full" style={{ background: 'var(--text-20)' }} />
         </div>
 
         {/* Header */}
         <div
           className="flex-shrink-0 flex items-center justify-between px-5 py-3"
-          style={{ borderBottom: `1px solid rgba(255,255,255,0.07)` }}
+          style={{ borderBottom: `1px solid var(--border)` }}
         >
-          <p className="text-base font-black text-white leading-tight">{gaugeName}</p>
+          <p className="text-base font-black text-[var(--text)] leading-tight">{gaugeName}</p>
           <button
             onClick={onClose}
             className="w-9 h-9 rounded-full flex items-center justify-center active:opacity-60"
@@ -219,21 +219,21 @@ export default function RiverConditionsSheet({
           {/* 2 ── What's the flow? */}
           <div className="flex items-baseline gap-3">
             {data.status === 'loading' ? (
-              <div className="w-36 h-14 rounded-xl animate-pulse" style={{ background: 'rgba(255,255,255,0.07)' }} />
+              <div className="w-36 h-14 rounded-xl animate-pulse" style={{ background: 'var(--border)' }} />
             ) : data.cfs !== null ? (
               <>
                 <span
                   className="font-black leading-none"
-                  style={{ fontSize: 'clamp(52px, 14vw, 72px)', color: '#ffffff', letterSpacing: '-0.03em' }}
+                  style={{ fontSize: 'clamp(52px, 14vw, 72px)', color: 'var(--text)', letterSpacing: '-0.03em' }}
                 >
                   {formatCfs(data.cfs)}
                 </span>
-                <span className="text-xl font-bold" style={{ color: 'rgba(255,255,255,0.35)' }}>cfs</span>
+                <span className="text-xl font-bold" style={{ color: 'var(--text-40)' }}>cfs</span>
                 {data.trend && (
                   <span
                     className="text-3xl font-black"
                     style={{
-                      color: data.trend === 'rising' ? '#ef4444' : data.trend === 'falling' ? '#60a5fa' : '#6ab04c',
+                      color: data.trend === 'rising' ? 'var(--live)' : data.trend === 'falling' ? 'var(--blue)' : 'var(--open)',
                       lineHeight: 1,
                     }}
                   >
@@ -242,12 +242,12 @@ export default function RiverConditionsSheet({
                 )}
               </>
             ) : (
-              <span className="text-2xl font-black" style={{ color: '#6b7280' }}>No data</span>
+              <span className="text-2xl font-black" style={{ color: 'var(--text-faint)' }}>No data</span>
             )}
           </div>
 
           {/* 3 ── Anything else? */}
-          <p className="text-base font-medium leading-snug" style={{ color: 'rgba(255,255,255,0.55)' }}>
+          <p className="text-base font-medium leading-snug" style={{ color: 'var(--text-60)' }}>
             {summary}
           </p>
 
@@ -264,8 +264,8 @@ export default function RiverConditionsSheet({
                 border: '1px solid rgba(74,222,128,0.22)',
               }}
             >
-              <span className="text-sm font-semibold text-white">View on Map</span>
-              <span className="text-base font-bold" style={{ color: '#4ade80' }}>→</span>
+              <span className="text-sm font-semibold text-[var(--text)]">View on Map</span>
+              <span className="text-base font-bold" style={{ color: 'var(--status-open-bright)' }}>→</span>
             </button>
           ) : (
             <a
@@ -274,12 +274,12 @@ export default function RiverConditionsSheet({
               rel="noopener noreferrer"
               className="flex items-center justify-between w-full px-5 py-4 rounded-2xl active:scale-[0.99] no-underline"
               style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                background: 'var(--surface-overlay)',
+                border: '1px solid var(--border)',
                 textDecoration: 'none',
               }}
             >
-              <span className="text-sm font-semibold text-white">Full gauge data</span>
+              <span className="text-sm font-semibold text-[var(--text)]">Full gauge data</span>
               <span className="text-base font-bold" style={{ color: 'var(--text-muted)' }}>→</span>
             </a>
           )}

@@ -221,12 +221,12 @@ function RegCard({ reg, water }: { reg: Regulation; water: WaterBody }) {
   const isOpen = isOpenOn(reg, new Date())
   return (
     <div className="rounded-md p-3 mb-2"
-      style={{ background: 'var(--bg)', borderLeft: `3px solid ${isOpen ? 'var(--accent-green)' : '#374151'}` }}>
+      style={{ background: 'var(--bg)', borderLeft: `3px solid ${isOpen ? 'var(--accent-green)' : 'var(--border-inactive)'}` }}>
       <div className="flex items-start justify-between mb-1">
         <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>{water.name}</span>
         <span className="text-[10px] font-bold px-2 py-0.5 rounded ml-2"
           style={{ background: isOpen ? 'rgba(106,176,76,0.15)' : 'rgba(239,68,68,0.15)',
-                   color: isOpen ? '#6ab04c' : '#ef4444' }}>
+                   color: isOpen ? 'var(--open)' : 'var(--live)' }}>
           {isOpen ? 'OPEN' : 'CLOSED'}
         </span>
       </div>
@@ -378,7 +378,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
 
         {/* ── Hero photo — compact ── */}
         <div className="relative flex-shrink-0 flex items-center justify-center"
-          style={{ height: '120px', background: 'rgb(11,13,20)' }}>
+          style={{ height: '120px', background: 'var(--photo-bg)' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={species.photo} alt={species.name}
             style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '10px' }} />
@@ -397,9 +397,9 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
             className="absolute top-3 left-3 w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-90"
             style={{ background: 'rgba(0,0,0,0.5)' }}>
             {isFishStarred(species.id) ? (
-              <svg className="w-4 h-4" fill="#f59e0b" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+              <svg className="w-4 h-4" fill="var(--amber)" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
             ) : (
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5} style={{ color: 'rgba(255,255,255,0.6)' }}><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.563.563 0 00-.182-.557l-4.204-3.602a.562.562 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.499z"/></svg>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5} style={{ color: 'var(--text-muted)' }}><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.563.563 0 00-.182-.557l-4.204-3.602a.562.562 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.499z"/></svg>
             )}
           </button>
         </div>
@@ -410,32 +410,32 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                    borderBottom: `2px solid ${anyOpen ? 'rgba(106,176,76,0.4)' : 'rgba(55,65,81,0.6)'}` }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm font-black" style={{ color: anyOpen ? '#6ab04c' : '#6b7280' }}>
+              <span className="text-sm font-black" style={{ color: anyOpen ? 'var(--open)' : 'var(--text-faint)' }}>
                 {anyOpen ? '● OPEN' : '○ CLOSED'}
               </span>
               {anyOpen && openWaterCount > 0 && (
                 <button
                   onClick={() => setActiveTab('regs')}
                   className="text-[11px] font-bold px-2 py-0.5 rounded-full active:scale-[0.99]"
-                  style={{ background: 'rgba(106,176,76,0.18)', color: '#6ab04c', border: '1px solid rgba(106,176,76,0.3)' }}>
+                  style={{ background: 'rgba(106,176,76,0.18)', color: 'var(--open)', border: '1px solid rgba(106,176,76,0.3)' }}>
                   {openWaterCount} {openWaterCount === 1 ? 'water' : 'waters'} open — see all →
                 </button>
               )}
               {anyOpen && openRegs[0] && openWaterCount === 0 && (
                 <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                  style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)' }}>
+                  style={{ background: 'var(--surface-overlay)', color: 'var(--text-muted)' }}>
                   {fmtDate(openRegs[0].seasonStart)}–{fmtDate(openRegs[0].seasonEnd)}
                 </span>
               )}
               {!anyOpen && nextOpen && (
                 <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                  style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)' }}>
+                  style={{ background: 'var(--surface-overlay)', color: 'var(--text-muted)' }}>
                   Opens {fmtDate(nextOpen)}
                 </span>
               )}
             </div>
             <div className="text-right">
-              <p className="text-sm font-bold text-white leading-tight">{species.name}</p>
+              <p className="text-sm font-bold text-[var(--text)] leading-tight">{species.name}</p>
               <p className="text-[10px]" style={{ color: 'var(--text-faint)' }}>{species.category}</p>
             </div>
           </div>
@@ -486,7 +486,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                 {/* Legend overlay */}
                 <div className="absolute bottom-2 left-2 flex gap-2.5 px-2.5 py-1.5 rounded-lg"
                   style={{ background: 'rgba(10,12,20,0.85)', backdropFilter: 'blur(4px)' }}>
-                  {([['#6ab04c','Open'],['#ef4444','Closed'],['#374151','No data']] as [string,string][]).map(([c,l]) => (
+                  {([['var(--open)','Open'],['var(--live)','Closed'],['var(--border-inactive)','No data']] as [string,string][]).map(([c,l]) => (
                     <span key={l} className="flex items-center gap-1 text-[10px] font-semibold" style={{ color: '#fff' }}>
                       <span style={{ width:8, height:8, borderRadius:'50%', background:c, display:'inline-block', flexShrink:0 }} />{l}
                     </span>
@@ -498,9 +498,9 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
               <div className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-3">
               {regs.length === 0 ? (
                 <div className="rounded-xl p-4 text-center" style={{ border: '1px solid var(--border)' }}>
-                  <p className="text-sm font-semibold text-white mb-1">No regulation data on file</p>
+                  <p className="text-sm font-semibold text-[var(--text)] mb-1">No regulation data on file</p>
                   <a href="https://wdfw.wa.gov/fishing/regulations" target="_blank" rel="noopener noreferrer"
-                    className="text-xs underline" style={{ color: '#f26522' }}>
+                    className="text-xs underline" style={{ color: 'var(--accent)' }}>
                     Check WDFW directly →
                   </a>
                 </div>
@@ -524,17 +524,17 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                         const days    = !isOpen ? daysUntilOpen(reg.seasonStart) : null
                         const soon    = days !== null && days <= 30
 
-                        const borderColor = isEmerg ? '#f97316' : isRestricted ? '#f97316' : isOpen ? '#6ab04c' : '#374151'
+                        const borderColor = isEmerg ? 'var(--warning)' : isRestricted ? 'var(--warning)' : isOpen ? 'var(--open)' : 'var(--border-inactive)'
                         const bgColor     = isEmerg ? 'rgba(249,115,22,0.08)' : isRestricted ? 'rgba(249,115,22,0.06)' : isOpen ? 'rgba(106,176,76,0.08)' : 'transparent'
                         const opacity     = (!isOpen && !isEmerg) ? 0.6 : 1
 
                         const badge = isEmerg
-                          ? { text: 'EMERGENCY RULE', color: '#f97316', bg: 'rgba(249,115,22,0.18)' }
+                          ? { text: 'EMERGENCY RULE', color: 'var(--warning)', bg: 'rgba(249,115,22,0.18)' }
                           : isRestricted
-                            ? { text: 'OPEN · RESTRICTED', color: '#f97316', bg: 'rgba(249,115,22,0.18)' }
+                            ? { text: 'OPEN · RESTRICTED', color: 'var(--warning)', bg: 'rgba(249,115,22,0.18)' }
                           : isOpen
-                            ? { text: '● OPEN',   color: '#6ab04c', bg: 'rgba(106,176,76,0.18)' }
-                            : { text: '○ CLOSED', color: '#6b7280', bg: 'rgba(107,114,128,0.18)' }
+                            ? { text: '● OPEN',   color: 'var(--open)', bg: 'rgba(106,176,76,0.18)' }
+                            : { text: '○ CLOSED', color: 'var(--text-faint)', bg: 'rgba(107,114,128,0.18)' }
 
                         return (
                           <button
@@ -563,7 +563,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                             }}
                           >
                             <div className="flex-1 min-w-0 mr-2">
-                              <p className="text-sm font-bold text-white leading-tight">{water.name}</p>
+                              <p className="text-sm font-bold text-[var(--text)] leading-tight">{water.name}</p>
                               <div className="flex items-center gap-2 mt-1 flex-wrap">
                                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
                                   style={{ background: badge.bg, color: badge.color }}>
@@ -612,17 +612,17 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                             <span className="flex-shrink-0 text-[10px] font-black mt-0.5 px-1.5 py-0.5 rounded"
                               style={{
                                 background: sec.status === 'OPEN' ? 'rgba(106,176,76,0.15)' : sec.status === 'EMERGENCY' ? 'rgba(242,101,34,0.15)' : 'rgba(239,68,68,0.15)',
-                                color: sec.status === 'OPEN' ? '#6ab04c' : sec.status === 'EMERGENCY' ? '#f26522' : '#ef4444',
+                                color: sec.status === 'OPEN' ? 'var(--open)' : sec.status === 'EMERGENCY' ? 'var(--accent)' : 'var(--live)',
                                 whiteSpace: 'nowrap',
                               }}>
                               {sec.status === 'OPEN' ? '● OPEN' : sec.status === 'EMERGENCY' ? '! EMERG.' : '○ CLOSED'}
                             </span>
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs font-semibold text-white leading-tight">{sec.sectionName}</p>
+                              <p className="text-xs font-semibold text-[var(--text)] leading-tight">{sec.sectionName}</p>
                               <p className="text-[11px] leading-snug mt-0.5" style={{ color: 'var(--text-faint)' }}>{sec.detail}</p>
                             </div>
                             {coordData && (
-                              <span className="flex-shrink-0 text-gray-400 text-base font-light ml-1">›</span>
+                              <span className="flex-shrink-0 text-[var(--text-muted)] text-base font-light ml-1">›</span>
                             )}
                           </>
                         )
@@ -639,7 +639,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                                 status: mapStatus,
                                 detail: sec.detail,
                               })}
-                              className="flex items-start gap-3 px-3 py-2.5 w-full text-left cursor-pointer hover:bg-gray-800/50 active:bg-gray-800 transition-colors"
+                              className="flex items-start gap-3 px-3 py-2.5 w-full text-left cursor-pointer hover:bg-[var(--surface-raised)]/50 active:bg-[var(--surface-raised)] transition-colors"
                               style={rowStyle}>
                               {rowContent}
                             </button>
@@ -677,7 +677,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                       <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>ROD & LINE SETUP</p>
                     </div>
                     <div className="px-3 py-3" style={{ background: 'var(--bg)' }}>
-                      <p className="text-sm font-medium text-white">{gear.rodSetup}</p>
+                      <p className="text-sm font-medium text-[var(--text)]">{gear.rodSetup}</p>
                     </div>
                   </div>
 
@@ -686,7 +686,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                       <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>LURES</p>
                     </div>
                     <div className="p-3" style={{ background: 'var(--bg)' }}>
-                      <GearGrid items={gear.lures} accent="#f26522" />
+                      <GearGrid items={gear.lures} accent="var(--accent)" />
                     </div>
                   </div>
 
@@ -695,7 +695,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                       <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>BAIT</p>
                     </div>
                     <div className="p-3" style={{ background: 'var(--bg)' }}>
-                      <GearGrid items={gear.bait} accent="#6ab04c" />
+                      <GearGrid items={gear.bait} accent="var(--open)" />
                     </div>
                   </div>
 
@@ -730,8 +730,8 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                     <ul className="space-y-1.5">
                       {guide.whereToFind.map((tip, i) => (
                         <li key={i} className="flex items-start gap-2">
-                          <span className="flex-shrink-0 mt-0.5 text-xs" style={{ color: '#6ab04c' }}>●</span>
-                          <span className="text-sm text-white leading-snug">{tip}</span>
+                          <span className="flex-shrink-0 mt-0.5 text-xs" style={{ color: 'var(--open)' }}>●</span>
+                          <span className="text-sm text-[var(--text)] leading-snug">{tip}</span>
                         </li>
                       ))}
                     </ul>
@@ -743,9 +743,9 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                     <div className="space-y-2">
                       {guide.bestBait.map((bait, i) => (
                         <div key={i} className="flex items-start gap-3 px-3 py-2.5 rounded"
-                          style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                          style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-white leading-tight">{bait.name}</p>
+                            <p className="text-sm font-semibold text-[var(--text)] leading-tight">{bait.name}</p>
                             <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{bait.when}</p>
                           </div>
                         </div>
@@ -759,8 +759,8 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                     <ul className="space-y-1.5">
                       {guide.technique.map((tip, i) => (
                         <li key={i} className="flex items-start gap-2">
-                          <span className="flex-shrink-0 mt-0.5 text-xs" style={{ color: '#63b3ed' }}>●</span>
-                          <span className="text-sm text-white leading-snug">{tip}</span>
+                          <span className="flex-shrink-0 mt-0.5 text-xs" style={{ color: 'var(--blue)' }}>●</span>
+                          <span className="text-sm text-[var(--text)] leading-snug">{tip}</span>
                         </li>
                       ))}
                     </ul>
@@ -768,8 +768,8 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
 
                   {/* Best Time */}
                   <div className="px-3 py-2.5 rounded" style={{ background: 'rgba(242,101,34,0.08)', border: '1px solid rgba(242,101,34,0.2)' }}>
-                    <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: '#f26522' }}>Best Time</p>
-                    <p className="text-sm text-white leading-snug">{guide.bestTime}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--accent)' }}>Best Time</p>
+                    <p className="text-sm text-[var(--text)] leading-snug">{guide.bestTime}</p>
                   </div>
 
                   {/* Pro Tips */}
@@ -778,8 +778,8 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                     <ul className="space-y-1.5">
                       {guide.proTips.map((tip, i) => (
                         <li key={i} className="flex items-start gap-2">
-                          <span className="flex-shrink-0 mt-0.5 text-xs" style={{ color: '#f59e0b' }}>★</span>
-                          <span className="text-sm text-white leading-snug">{tip}</span>
+                          <span className="flex-shrink-0 mt-0.5 text-xs" style={{ color: 'var(--amber)' }}>★</span>
+                          <span className="text-sm text-[var(--text)] leading-snug">{tip}</span>
                         </li>
                       ))}
                     </ul>
@@ -805,7 +805,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                         <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>BEST TIMES</p>
                       </div>
                       <div className="px-3 py-3" style={{ background: 'var(--bg)' }}>
-                        <p className="text-sm font-semibold text-white">{gear.bestTimes}</p>
+                        <p className="text-sm font-semibold text-[var(--text)]">{gear.bestTimes}</p>
                       </div>
                     </div>
                   )}
@@ -842,7 +842,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                         {tips.howToSpot.map((tip, i) => (
                           <div key={i} className="flex gap-3 px-3 py-2.5"
                             style={{ borderBottom: i < tips.howToSpot.length - 1 ? '1px solid var(--border)' : 'none' }}>
-                            <span className="flex-shrink-0 font-bold text-sm mt-0.5" style={{ color: '#6ab04c' }}>●</span>
+                            <span className="flex-shrink-0 font-bold text-sm mt-0.5" style={{ color: 'var(--open)' }}>●</span>
                             <p className="text-sm leading-snug" style={{ color: 'var(--text-muted)' }}>{tip}</p>
                           </div>
                         ))}

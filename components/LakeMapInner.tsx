@@ -9,7 +9,7 @@ interface Props {
   waterName: string
   lat: number
   lng: number
-  /** Optional fill color for the polygon (defaults to '#3b82f6' — blue). */
+  /** Optional fill color for the polygon (defaults to 'var(--blue)' — blue). */
   fillColor?: string
 }
 
@@ -46,7 +46,7 @@ function FitToPolygon({ geojson }: { geojson: GeoJsonObject }) {
  * Falls back to a plain centred view (zoom 12) if Nominatim returns no
  * polygon — the OSM tiles will still show the lake shape naturally.
  */
-export default function LakeMapInner({ waterName, lat, lng, fillColor = '#3b82f6' }: Props) {
+export default function LakeMapInner({ waterName, lat, lng, fillColor = 'var(--blue)' }: Props) {
   const [geojson, setGeojson] = useState<GeoJsonObject | null>(null)
 
   useEffect(() => {

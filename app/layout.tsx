@@ -28,7 +28,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#f5f2ed" },
-    { media: "(prefers-color-scheme: dark)",  color: "#0c0d0a" },
+    { media: "(prefers-color-scheme: dark)",  color: "var(--bg)" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -61,7 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}>
             <strong style={{ color: '#fff' }}>⚠️ Reference only — always verify at</strong>
             {' '}<a href="https://wdfw.wa.gov/fishing/regulations" target="_blank" rel="noopener noreferrer" 
-               style={{ color: '#fbbf24', textDecoration: 'underline' }}>
+               style={{ color: 'var(--amber)', textDecoration: 'underline' }}>
               WDFW.wa.gov
             </a>
           </div>

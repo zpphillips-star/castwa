@@ -26,7 +26,7 @@ const RiverDetailMapInner = dynamic(
     loading: () => (
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        height: '100%', background: '#08080f', color: '#6b7280', fontSize: 14,
+        height: '100%', background: 'var(--photo-bg)', color: 'var(--text-faint)', fontSize: 14,
       }}>
         Loading map…
       </div>
@@ -131,10 +131,10 @@ const TILE_STATUS_COLORS: Record<TileFishStatus, {
   bg: string; border: string; nameColor: string
   numBg: string; numColor: string; glow: string
 }> = {
-  green:  { bg: 'rgba(74,222,128,0.15)',  border: 'rgba(74,222,128,0.60)',  nameColor: '#86efac', numBg: 'rgba(74,222,128,0.20)',  numColor: '#4ade80', glow: '0 0 14px rgba(74,222,128,0.18), 0 2px 8px rgba(0,0,0,0.4)'  },
-  orange: { bg: 'rgba(249,115,22,0.15)',  border: 'rgba(249,115,22,0.60)',  nameColor: '#fdba74', numBg: 'rgba(249,115,22,0.20)',  numColor: '#f97316', glow: '0 0 14px rgba(249,115,22,0.22), 0 2px 8px rgba(0,0,0,0.4)'  },
-  red:    { bg: 'rgba(239,68,68,0.12)',   border: 'rgba(239,68,68,0.50)',   nameColor: '#fca5a5', numBg: 'rgba(239,68,68,0.20)',   numColor: '#ef4444', glow: '0 0 12px rgba(239,68,68,0.16), 0 2px 8px rgba(0,0,0,0.4)'   },
-  blue:   { bg: 'rgba(96,165,250,0.10)',  border: 'rgba(96,165,250,0.40)',  nameColor: '#93c5fd', numBg: 'rgba(96,165,250,0.15)',  numColor: '#60a5fa', glow: '0 0 10px rgba(96,165,250,0.12), 0 2px 8px rgba(0,0,0,0.4)'  },
+  green:  { bg: 'rgba(74,222,128,0.15)',  border: 'rgba(74,222,128,0.60)',  nameColor: 'var(--status-open-bright)', numBg: 'rgba(74,222,128,0.20)',  numColor: 'var(--status-open-bright)', glow: '0 0 14px rgba(74,222,128,0.18), 0 2px 8px rgba(0,0,0,0.4)'  },
+  orange: { bg: 'rgba(249,115,22,0.15)',  border: 'rgba(249,115,22,0.60)',  nameColor: 'var(--warning)', numBg: 'rgba(249,115,22,0.20)',  numColor: 'var(--warning)', glow: '0 0 14px rgba(249,115,22,0.22), 0 2px 8px rgba(0,0,0,0.4)'  },
+  red:    { bg: 'rgba(239,68,68,0.12)',   border: 'rgba(239,68,68,0.50)',   nameColor: 'var(--live-soft)', numBg: 'rgba(239,68,68,0.20)',   numColor: 'var(--live)', glow: '0 0 12px rgba(239,68,68,0.16), 0 2px 8px rgba(0,0,0,0.4)'   },
+  blue:   { bg: 'rgba(96,165,250,0.10)',  border: 'rgba(96,165,250,0.40)',  nameColor: 'var(--blue)', numBg: 'rgba(96,165,250,0.15)',  numColor: 'var(--blue)', glow: '0 0 10px rgba(96,165,250,0.12), 0 2px 8px rgba(0,0,0,0.4)'  },
 }
 
 function getRiverFullCoords(riverId: string): [number, number][] {
@@ -202,9 +202,9 @@ function GearBadge({ code }: { code: GearIconCode }) {
   return (
     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold"
       style={{
-        background: isAlert ? 'rgba(239,68,68,0.12)' : 'rgba(255,255,255,0.06)',
-        border: `1px solid ${isAlert ? 'rgba(239,68,68,0.35)' : 'rgba(255,255,255,0.12)'}`,
-        color: isAlert ? '#ef4444' : 'var(--text-muted)',
+        background: isAlert ? 'rgba(239,68,68,0.12)' : 'var(--surface-overlay)',
+        border: `1px solid ${isAlert ? 'rgba(239,68,68,0.35)' : 'var(--border)'}`,
+        color: isAlert ? 'var(--live)' : 'var(--text-muted)',
       }}>
       <span>{info.icon}</span>
       <span>{info.label}</span>
@@ -214,11 +214,11 @@ function GearBadge({ code }: { code: GearIconCode }) {
 
 function SectionStatusChip({ status }: { status: SegmentStatus }) {
   const cfg = {
-    open:       { label: '● OPEN',       color: '#4ade80', bg: 'rgba(74,222,128,0.12)'  },
-    closed:     { label: '○ CLOSED',     color: '#ef4444', bg: 'rgba(239,68,68,0.12)'  },
-    emergency:  { label: '🚨 EMERGENCY', color: '#f97316', bg: 'rgba(249,115,22,0.12)' },
-    restricted: { label: '⚠️ RESTRICTED', color: '#fbbf24', bg: 'rgba(251,191,36,0.12)' },
-    neutral:    { label: '● WATERWAY',   color: '#60a5fa', bg: 'rgba(96,165,250,0.12)'  },
+    open:       { label: '● OPEN',       color: 'var(--status-open-bright)', bg: 'rgba(74,222,128,0.12)'  },
+    closed:     { label: '○ CLOSED',     color: 'var(--live)', bg: 'rgba(239,68,68,0.12)'  },
+    emergency:  { label: '🚨 EMERGENCY', color: 'var(--warning)', bg: 'rgba(249,115,22,0.12)' },
+    restricted: { label: '⚠️ RESTRICTED', color: 'var(--amber)', bg: 'rgba(251,191,36,0.12)' },
+    neutral:    { label: '● WATERWAY',   color: 'var(--blue)', bg: 'rgba(96,165,250,0.12)'  },
   }[status]
   return (
     <span className="inline-block mt-1 text-[9px] font-bold px-1.5 py-0.5 rounded"
@@ -230,11 +230,11 @@ function SectionStatusChip({ status }: { status: SegmentStatus }) {
 
 function FlowBadge({ status }: { status: string }) {
   const cfg: Record<string, { label: string; color: string; bg: string }> = {
-    ideal:   { label: 'IDEAL',   color: '#6ab04c', bg: 'rgba(106,176,76,0.15)'  },
-    low:     { label: 'LOW',     color: '#f26522', bg: 'rgba(242,101,34,0.15)'  },
-    high:    { label: 'HIGH',    color: '#ef4444', bg: 'rgba(239,68,68,0.15)'   },
-    loading: { label: '…',       color: '#6b7280', bg: 'rgba(107,114,128,0.15)' },
-    error:   { label: 'N/A',     color: '#6b7280', bg: 'rgba(107,114,128,0.15)' },
+    ideal:   { label: 'IDEAL',   color: 'var(--open)', bg: 'rgba(106,176,76,0.15)'  },
+    low:     { label: 'LOW',     color: 'var(--accent)', bg: 'rgba(242,101,34,0.15)'  },
+    high:    { label: 'HIGH',    color: 'var(--live)', bg: 'rgba(239,68,68,0.15)'   },
+    loading: { label: '…',       color: 'var(--text-faint)', bg: 'rgba(107,114,128,0.15)' },
+    error:   { label: 'N/A',     color: 'var(--text-faint)', bg: 'rgba(107,114,128,0.15)' },
   }
   const c = cfg[status] ?? cfg.loading
   return (
@@ -280,11 +280,11 @@ function RestrictionCard({
   useEffect(() => { setShowFutureSeasons(false) }, [selectedSpecies, sectionIdx])
 
   const statusColor = {
-    open:       '#4ade80',
-    closed:     '#ef4444',
-    emergency:  '#f97316',
-    restricted: '#fbbf24',
-    neutral:    '#60a5fa',
+    open:       'var(--status-open-bright)',
+    closed:     'var(--live)',
+    emergency:  'var(--warning)',
+    restricted: 'var(--amber)',
+    neutral:    'var(--blue)',
   }[getSectionStatus(section)]
 
   // ── Today-aware season helpers (using shared module-level functions) ──────────
@@ -368,7 +368,7 @@ function RestrictionCard({
                 </svg>
               </button>
               <div className="min-w-0 flex-1">
-                <p className="text-base font-black text-white leading-tight">{selectedSpecies}</p>
+                <p className="text-base font-black text-[var(--text)] leading-tight">{selectedSpecies}</p>
               </div>
             </div>
           ) : (
@@ -377,7 +377,7 @@ function RestrictionCard({
                 <SectionStatusChip status={getSectionStatus(section)} />
                 <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>CRC #{section.crc}</span>
               </div>
-              <p className="text-sm font-bold text-white leading-tight">{section.name}</p>
+              <p className="text-sm font-bold text-[var(--text)] leading-tight">{section.name}</p>
             </div>
           )}
         </div>
@@ -385,7 +385,7 @@ function RestrictionCard({
         <div className="flex items-center gap-1.5 ml-3 flex-shrink-0">
           <button onClick={onPrev} disabled={sectionIdx === 0}
             className="w-7 h-7 rounded-full flex items-center justify-center text-sm disabled:opacity-30"
-            style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}>
+            style={{ background: 'var(--border)', border: '1px solid var(--border)' }}>
             ‹
           </button>
           <span className="text-[10px] font-semibold" style={{ color: 'var(--text-faint)' }}>
@@ -393,7 +393,7 @@ function RestrictionCard({
           </span>
           <button onClick={onNext} disabled={sectionIdx === totalSections - 1}
             className="w-7 h-7 rounded-full flex items-center justify-center text-sm disabled:opacity-30"
-            style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}>
+            style={{ background: 'var(--border)', border: '1px solid var(--border)' }}>
             ›
           </button>
           <button onClick={onClose}
@@ -418,9 +418,9 @@ function RestrictionCard({
                 style={{ background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.25)' }}>
                 <span className="text-base flex-shrink-0">ℹ️</span>
                 <div>
-                  <p className="text-xs font-bold mb-0.5" style={{ color: '#93c5fd' }}>No section-specific data</p>
-                  <p className="text-[11px] leading-snug" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                    No regulations were found for this section. All species are shown from the rest of the river and are presumed <span style={{ color: '#fca5a5', fontWeight: 700 }}>CLOSED</span> here. Verify with WDFW before fishing.
+                  <p className="text-xs font-bold mb-0.5" style={{ color: 'var(--blue)' }}>No section-specific data</p>
+                  <p className="text-[11px] leading-snug" style={{ color: 'var(--text-40)' }}>
+                    No regulations were found for this section. All species are shown from the rest of the river and are presumed <span style={{ color: 'var(--live-soft)', fontWeight: 700 }}>CLOSED</span> here. Verify with WDFW before fishing.
                   </p>
                 </div>
               </div>
@@ -436,11 +436,11 @@ function RestrictionCard({
                     }}
                     className="flex flex-col items-center rounded-xl overflow-hidden transition-all active:scale-[0.99]"
                     style={{
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1.5px solid rgba(255,255,255,0.10)',
+                      background: 'var(--surface-overlay)',
+                      border: '1.5px solid var(--border)',
                     }}>
                     {/* Fish photo */}
-                    <div className="w-full aspect-square relative" style={{ background: '#0a0c14' }}>
+                    <div className="w-full aspect-square relative" style={{ background: 'var(--photo-bg)' }}>
                       {sp?.photo ? (
                         <img src={sp.photo} alt={name}
                           className="w-full h-full object-contain"
@@ -451,7 +451,7 @@ function RestrictionCard({
                       {/* Today status badge */}
                       {openToday ? (
                         <div className="absolute top-1 right-1 px-1 py-0.5 rounded text-[9px] font-bold"
-                          style={{ background: 'rgba(74,222,128,0.9)', color: '#0d1a0d' }}>
+                          style={{ background: 'rgba(74,222,128,0.9)', color: 'var(--photo-bg)' }}>
                           OPEN
                         </div>
                       ) : (
@@ -463,7 +463,7 @@ function RestrictionCard({
                     </div>
                     {/* Fish name */}
                     <p className="w-full text-center text-[10px] font-semibold px-1 py-1.5 leading-tight"
-                      style={{ color: openToday ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.45)' }}>
+                      style={{ color: openToday ? 'var(--text-80)' : 'var(--text-40)' }}>
                       {name}
                     </p>
                   </button>
@@ -484,7 +484,7 @@ function RestrictionCard({
             {/* Emergency rule banner */}
             {section.emergencyRule && (
               <div className="rounded-lg p-3" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.25)' }}>
-                <p className="text-xs font-bold mb-1" style={{ color: '#ef4444' }}>🚨 Emergency Rule Active</p>
+                <p className="text-xs font-bold mb-1" style={{ color: 'var(--live)' }}>🚨 Emergency Rule Active</p>
                 <p className="text-[10px]" style={{ color: 'var(--text-faint)' }}>{section.emergencyRule.effective}</p>
               </div>
             )}
@@ -493,12 +493,12 @@ function RestrictionCard({
             <div className="flex gap-2 pb-2">
               <a href={section.mapsLinkDownstream} target="_blank" rel="noopener noreferrer"
                 className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg active:scale-[0.99]"
-                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border)', color: 'var(--text-muted)', textDecoration: 'none' }}>
+                style={{ background: 'var(--surface-overlay)', border: '1px solid var(--border)', color: 'var(--text-muted)', textDecoration: 'none' }}>
                 📍 Downstream
               </a>
               <a href={section.mapsLinkUpstream} target="_blank" rel="noopener noreferrer"
                 className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg active:scale-[0.99]"
-                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border)', color: 'var(--text-muted)', textDecoration: 'none' }}>
+                style={{ background: 'var(--surface-overlay)', border: '1px solid var(--border)', color: 'var(--text-muted)', textDecoration: 'none' }}>
                 📍 Upstream
               </a>
             </div>
@@ -524,76 +524,76 @@ function RestrictionCard({
                   style={{ background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.3)' }}>
                   <span className="text-base flex-shrink-0">🔵</span>
                   <div>
-                    <p className="text-xs font-bold mb-0.5" style={{ color: '#93c5fd' }}>No data for this section</p>
-                    <p className="text-[11px] leading-snug" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                      No specific regulations were found for <strong style={{ color: 'rgba(255,255,255,0.8)' }}>{selectedSpecies}</strong> in this section. Absence of data means this species is <strong style={{ color: '#fca5a5' }}>presumed closed</strong> here. Always verify with WDFW before fishing.
+                    <p className="text-xs font-bold mb-0.5" style={{ color: 'var(--blue)' }}>No data for this section</p>
+                    <p className="text-[11px] leading-snug" style={{ color: 'var(--text-60)' }}>
+                      No specific regulations were found for <strong style={{ color: 'var(--text-80)' }}>{selectedSpecies}</strong> in this section. Absence of data means this species is <strong style={{ color: 'var(--live-soft)' }}>presumed closed</strong> here. Always verify with WDFW before fishing.
                     </p>
                   </div>
                 </div>
               )}
               {er && (
                 <div className="rounded-xl overflow-hidden"
-                  style={{ border: `2px solid ${todayOverride?.status === 'CLOSED' ? '#ef4444' : todayOverride?.status === 'OPEN' ? '#4ade80' : '#f97316'}` }}>
+                  style={{ border: `2px solid ${todayOverride?.status === 'CLOSED' ? 'var(--live)' : todayOverride?.status === 'OPEN' ? 'var(--status-open-bright)' : 'var(--warning)'}` }}>
 
                   {/* Header stripe */}
                   <div className="px-4 py-2.5 flex items-center justify-between"
                     style={{ background: todayOverride?.status === 'CLOSED' ? 'rgba(239,68,68,0.2)' : todayOverride?.status === 'OPEN' ? 'rgba(74,222,128,0.15)' : 'rgba(249,115,22,0.15)' }}>
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color: 'rgba(255,255,255,0.5)' }}>RIGHT NOW — {section.name}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color: 'var(--text-40)' }}>RIGHT NOW — {section.name}</p>
                       <p className="text-lg font-black leading-tight"
-                        style={{ color: todayOverride?.status === 'CLOSED' ? '#f87171' : todayOverride?.status === 'OPEN' ? '#4ade80' : '#fb923c' }}>
+                        style={{ color: todayOverride?.status === 'CLOSED' ? 'var(--live)' : todayOverride?.status === 'OPEN' ? 'var(--status-open-bright)' : 'var(--accent)' }}>
                         {todayOverride?.status === 'CLOSED' ? '⛔ CLOSED TODAY' : todayOverride?.status === 'OPEN' ? '✅ OPEN TODAY' : '⚠️ EMERGENCY RULE IN EFFECT'}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.4)' }}>{er.effective}</p>
+                      <p className="text-[10px]" style={{ color: 'var(--text-40)' }}>{er.effective}</p>
                     </div>
                   </div>
 
                   {/* Today's specific rule */}
                   {todayOverride && (
                     <div className="px-4 py-3" style={{ background: 'rgba(0,0,0,0.3)' }}>
-                      <p className="text-sm leading-relaxed text-white">{todayOverride.notes}</p>
+                      <p className="text-sm leading-relaxed text-[var(--text)]">{todayOverride.notes}</p>
                     </div>
                   )}
 
                   {/* What is an emergency rule? */}
-                  <div className="px-4 py-2.5" style={{ background: 'rgba(0,0,0,0.2)', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-                    <p className="text-xs font-bold mb-1" style={{ color: 'rgba(255,255,255,0.4)' }}>WHAT IS AN EMERGENCY RULE?</p>
-                    <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                  <div className="px-4 py-2.5" style={{ background: 'rgba(0,0,0,0.2)', borderTop: '1px solid var(--border)' }}>
+                    <p className="text-xs font-bold mb-1" style={{ color: 'var(--text-40)' }}>WHAT IS AN EMERGENCY RULE?</p>
+                    <p className="text-xs leading-relaxed" style={{ color: 'var(--text-60)' }}>
                       WDFW can issue emergency rules mid-season to protect fish runs, avoid conflicts with tribal nets, or respond to low returns. They override the printed pamphlet immediately. This section is currently under one — always check this before you fish.
                     </p>
                   </div>
 
                   {/* Full schedule */}
-                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-                    <p className="text-[10px] font-bold uppercase tracking-widest px-4 pt-3 pb-1.5" style={{ color: 'rgba(255,255,255,0.4)' }}>FULL SCHEDULE FOR THIS SECTION</p>
+                  <div style={{ borderTop: '1px solid var(--border)' }}>
+                    <p className="text-[10px] font-bold uppercase tracking-widest px-4 pt-3 pb-1.5" style={{ color: 'var(--text-40)' }}>FULL SCHEDULE FOR THIS SECTION</p>
                     {er.overrides.map((o, i) => {
                       const isNow = o.startDate && o.endDate && today >= o.startDate && today <= o.endDate
                       return (
                         <div key={i} className="px-4 py-2.5 flex gap-3"
                           style={{
-                            borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                            borderTop: i > 0 ? '1px solid var(--border)' : 'none',
                             background: isNow ? (o.status === 'CLOSED' ? 'rgba(239,68,68,0.12)' : 'rgba(74,222,128,0.08)') : 'transparent',
                           }}>
                           <div className="flex-shrink-0 w-24">
                             {isNow && (
                               <span className="inline-block text-[9px] font-black px-1.5 py-0.5 rounded mb-1"
-                                style={{ background: o.status === 'CLOSED' ? '#ef4444' : '#6ab04c', color: 'white' }}>
+                                style={{ background: o.status === 'CLOSED' ? 'var(--live)' : 'var(--open)', color: 'white' }}>
                                 TODAY
                               </span>
                             )}
-                            <p className="text-xs font-bold" style={{ color: o.status === 'CLOSED' ? '#f87171' : o.status === 'OPEN' ? '#4ade80' : 'rgba(255,255,255,0.7)' }}>
+                            <p className="text-xs font-bold" style={{ color: o.status === 'CLOSED' ? 'var(--live)' : o.status === 'OPEN' ? 'var(--status-open-bright)' : 'var(--text-muted)' }}>
                               {o.status === 'CLOSED' ? '⛔' : o.status === 'OPEN' ? '✅' : '—'} {o.dates}
                             </p>
                           </div>
-                          <p className="text-xs leading-relaxed flex-1" style={{ color: isNow ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.5)' }}>{o.notes}</p>
+                          <p className="text-xs leading-relaxed flex-1" style={{ color: isNow ? 'var(--text-80)' : 'var(--text-40)' }}>{o.notes}</p>
                         </div>
                       )
                     })}
                     <a href={er.url} target="_blank" rel="noopener noreferrer"
                       className="block text-xs font-semibold px-4 py-3 active:scale-[0.99]"
-                      style={{ color: '#f97316', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+                      style={{ color: 'var(--warning)', borderTop: '1px solid var(--border)' }}>
                       Official rule source at WDFW.wa.gov →
                     </a>
                   </div>
@@ -602,10 +602,10 @@ function RestrictionCard({
 
               {/* ── Pamphlet season — today's windows only, future hidden ── */}
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-40)' }}>
                   {er ? 'PAMPHLET SEASON (may be overridden above)' : 'SEASON RULES'}
                 </p>
-                <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
                   {(() => {
                     const todayEntries = currentItem.allEntries.filter(e => isSeasonActiveToday(e))
                     const futureEntries = currentItem.allEntries.filter(e => !isSeasonActiveToday(e))
@@ -619,31 +619,31 @@ function RestrictionCard({
                         {hasToday ? visibleEntries.map((entry, i) => (
                           <div key={i} className="px-4 py-3"
                             style={{
-                              borderBottom: (hasFuture) ? '1px solid rgba(255,255,255,0.07)' : 'none',
+                              borderBottom: (hasFuture) ? '1px solid var(--border)' : 'none',
                               background: 'rgba(74,222,128,0.05)',
                             }}>
                             <div className="flex items-center gap-2 mb-1 flex-wrap">
                               <span className="text-[9px] font-black px-1.5 py-0.5 rounded"
-                                style={{ background: '#6ab04c', color: 'white' }}>TODAY</span>
-                              <span className="text-sm font-bold" style={{ color: '#4ade80' }}>✅ Open now</span>
+                                style={{ background: 'var(--open)', color: 'white' }}>TODAY</span>
+                              <span className="text-sm font-bold" style={{ color: 'var(--status-open-bright)' }}>✅ Open now</span>
                               {entry.dailyLimit && (
-                                <span className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                                  · Limit: <span style={{ color: 'rgba(255,255,255,0.8)' }}>{entry.dailyLimit}</span>
+                                <span className="text-xs font-semibold" style={{ color: 'var(--text-40)' }}>
+                                  · Limit: <span style={{ color: 'var(--text-80)' }}>{entry.dailyLimit}</span>
                                 </span>
                               )}
                             </div>
                             {entry.open && (
-                              <p className="text-xs mb-1" style={{ color: 'rgba(255,255,255,0.45)' }}>{entry.open}</p>
+                              <p className="text-xs mb-1" style={{ color: 'var(--text-40)' }}>{entry.open}</p>
                             )}
                             {entry.notes && (
-                              <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.75)' }}>{entry.notes}</p>
+                              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>{entry.notes}</p>
                             )}
                           </div>
                         )) : (
-                          <div className="px-4 py-3" style={{ borderBottom: hasFuture ? '1px solid rgba(255,255,255,0.07)' : 'none', background: 'var(--bg)' }}>
-                            <span className="text-sm font-bold" style={{ color: '#f87171' }}>⛔ Closed today</span>
+                          <div className="px-4 py-3" style={{ borderBottom: hasFuture ? '1px solid var(--border)' : 'none', background: 'var(--bg)' }}>
+                            <span className="text-sm font-bold" style={{ color: 'var(--live)' }}>⛔ Closed today</span>
                             {currentItem.allEntries[0]?.notes && (
-                              <p className="text-sm mt-1 leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                              <p className="text-sm mt-1 leading-relaxed" style={{ color: 'var(--text-40)' }}>
                                 {currentItem.allEntries[0].notes}
                               </p>
                             )}
@@ -656,11 +656,11 @@ function RestrictionCard({
                             <button
                               onClick={() => setShowFutureSeasons(v => !v)}
                               className="w-full px-4 py-2.5 flex items-center justify-between active:scale-[0.99]"
-                              style={{ background: 'rgba(255,255,255,0.03)', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-                              <span className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                              style={{ background: 'var(--border)', borderTop: '1px solid var(--border)' }}>
+                              <span className="text-xs font-semibold" style={{ color: 'var(--text-40)' }}>
                                 {showFutureSeasons ? 'Hide future seasons' : `View future seasons (${futureEntries.length})`}
                               </span>
-                              <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>
+                              <span style={{ color: 'var(--text-40)', fontSize: 14 }}>
                                 {showFutureSeasons ? '▲' : '▼'}
                               </span>
                             </button>
@@ -668,21 +668,21 @@ function RestrictionCard({
                             {showFutureSeasons && futureEntries.map((entry, i) => (
                               <div key={i} className="px-4 py-3"
                                 style={{
-                                  borderTop: '1px solid rgba(255,255,255,0.06)',
+                                  borderTop: '1px solid var(--border)',
                                   background: 'var(--bg)',
                                 }}>
                                 <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                  <span className="text-sm font-bold" style={{ color: entry.closed ? '#f87171' : 'rgba(255,255,255,0.45)' }}>
+                                  <span className="text-sm font-bold" style={{ color: entry.closed ? 'var(--live)' : 'var(--text-40)' }}>
                                     {entry.closed ? '⛔ Closed' : '🗓 ' + (entry.open || '—')}
                                   </span>
                                   {!entry.closed && entry.dailyLimit && (
-                                    <span className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                                    <span className="text-xs font-semibold" style={{ color: 'var(--text-40)' }}>
                                       · Limit: {entry.dailyLimit}
                                     </span>
                                   )}
                                 </div>
                                 {entry.notes && (
-                                  <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.4)' }}>{entry.notes}</p>
+                                  <p className="text-sm leading-relaxed" style={{ color: 'var(--text-40)' }}>{entry.notes}</p>
                                 )}
                               </div>
                             ))}
@@ -712,7 +712,7 @@ function RestrictionCard({
                     {section.gearPeriods.map((p, i) => (
                       <div key={i} className="px-3 py-2.5 flex gap-3 items-baseline"
                         style={{ borderBottom: i < section.gearPeriods.length - 1 ? '1px solid var(--border)' : 'none', background: 'var(--bg)' }}>
-                        <span className="text-sm font-semibold flex-shrink-0 w-28 text-white">{p.dates}</span>
+                        <span className="text-sm font-semibold flex-shrink-0 w-28 text-[var(--text)]">{p.dates}</span>
                         <span className="text-sm leading-snug" style={{ color: 'var(--text-muted)' }}>{p.rules}</span>
                       </div>
                     ))}
@@ -898,9 +898,9 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
 
           {/* ── Header ── */}
           <div className="flex-shrink-0 flex items-start justify-between px-4 py-3"
-            style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+            style={{ borderBottom: '1px solid var(--border)' }}>
             <div className="flex-1 min-w-0 mr-3">
-              <h2 className="text-2xl font-black text-white leading-tight">{river.name}</h2>
+              <h2 className="text-2xl font-black text-[var(--text)] leading-tight">{river.name}</h2>
               <div className="flex items-center gap-2 mt-1 flex-wrap">
                 <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>
                   {river.region} · River
@@ -913,7 +913,7 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
                     </span>
                   )}
                   {flow.trend && (
-                    <span className="text-xs font-bold" style={{ color: flow.trend === 'rising' ? '#ef4444' : flow.trend === 'falling' ? '#60a5fa' : '#6ab04c' }}>
+                    <span className="text-xs font-bold" style={{ color: flow.trend === 'rising' ? 'var(--live)' : flow.trend === 'falling' ? 'var(--blue)' : 'var(--open)' }}>
                       {flow.trend === 'rising' ? '↑' : flow.trend === 'falling' ? '↓' : '→'}
                     </span>
                   )}
@@ -965,8 +965,8 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
             <div className="flex-shrink-0 relative"
               style={{
                 background: 'rgba(0,0,0,0.35)',
-                borderTop: '1px solid rgba(255,255,255,0.07)',
-                borderBottom: '1px solid rgba(255,255,255,0.07)',
+                borderTop: '1px solid var(--border)',
+                borderBottom: '1px solid var(--border)',
               }}>
               {/* right-edge scroll hint fade */}
               <div className="absolute right-0 top-0 bottom-0 w-12 pointer-events-none z-10"
@@ -988,19 +988,19 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
                     // else fall back to the classic orange-selected / neutral-unselected style
                     const tileBg     = tc ? tc.bg : selected
                       ? 'linear-gradient(135deg, rgba(249,115,22,0.25), rgba(249,115,22,0.10))'
-                      : 'linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04))'
+                      : 'linear-gradient(135deg, var(--border), var(--border))'
                     const tileBorder = tc
                       ? `${selected ? '2px' : '1.5px'} solid ${tc.border}`
                       : selected
                         ? '1.5px solid rgba(249,115,22,0.7)'
-                        : '1.5px solid rgba(255,255,255,0.18)'
+                        : '1.5px solid var(--border)'
                     const tileShadow = tc ? tc.glow : selected
                       ? '0 0 14px rgba(249,115,22,0.25), 0 2px 8px rgba(0,0,0,0.4)'
                       : '0 2px 8px rgba(0,0,0,0.4)'
-                    const numBg    = tc ? tc.numBg    : selected ? 'rgba(249,115,22,0.3)' : 'rgba(255,255,255,0.1)'
-                    const numColor = tc ? tc.numColor : selected ? '#f97316' : 'rgba(255,255,255,0.5)'
-                    const nameColor = tc ? tc.nameColor : selected ? '#fdba74' : 'rgba(255,255,255,0.9)'
-                    const hintColor = tc ? tc.numColor : selected ? '#f97316' : 'rgba(255,255,255,0.3)'
+                    const numBg    = tc ? tc.numBg    : selected ? 'rgba(249,115,22,0.3)' : 'var(--border)'
+                    const numColor = tc ? tc.numColor : selected ? 'var(--warning)' : 'var(--text-40)'
+                    const nameColor = tc ? tc.nameColor : selected ? 'var(--warning)' : 'var(--text-80)'
+                    const hintColor = tc ? tc.numColor : selected ? 'var(--warning)' : 'var(--text-40)'
 
                     return (
                       <button key={section.id}
@@ -1074,7 +1074,7 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
 
                 if (openItems.length === 0) return (
                   <div className="px-4 py-4 rounded-xl"
-                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    style={{ background: 'var(--border)', border: '1px solid var(--border)' }}>
                     <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--text-faint)' }}>What&apos;s Open Today</p>
                     <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No species open today — check calendar for upcoming seasons</p>
                   </div>
@@ -1085,47 +1085,47 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
                      <div className="flex items-center justify-between mb-2 px-1">
                        <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>What&apos;s Open Today</p>
                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded"
-                         style={{ background: 'rgba(106,176,76,0.1)', color: '#6ab04c', border: '1px solid rgba(106,176,76,0.2)' }}>
+                         style={{ background: 'rgba(106,176,76,0.1)', color: 'var(--open)', border: '1px solid rgba(106,176,76,0.2)' }}>
                          ✓ Verified {REGS_VERIFIED_DATE}
                        </span>
                      </div>
                     <div className="rounded-2xl overflow-hidden"
-                      style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
                       {openItems.map(({ reg, species: sp }, i) => (
                         <div key={reg.id}
                           className="flex items-center gap-4 px-4 py-3.5"
-                          style={{ borderBottom: i < openItems.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+                          style={{ borderBottom: i < openItems.length - 1 ? '1px solid var(--border)' : 'none' }}>
                           <div className="flex-shrink-0 rounded-lg overflow-hidden"
-                            style={{ width: 48, height: 48, background: '#0b0d14' }}>
+                            style={{ width: 48, height: 48, background: 'var(--photo-bg)' }}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={sp.photo} alt={sp.name}
                               style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 6 }} />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold text-white leading-tight">{sp.name}</p>
+                            <p className="text-sm font-bold text-[var(--text)] leading-tight">{sp.name}</p>
                             <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 mt-1">
                               {reg.dailyLimit !== null && (
                                 <div className="flex items-baseline gap-1.5">
                                   <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Limit</span>
-                                  <span className="text-xs font-semibold text-white">{reg.dailyLimit}/day</span>
+                                  <span className="text-xs font-semibold text-[var(--text)]">{reg.dailyLimit}/day</span>
                                 </div>
                               )}
                               {reg.minSize !== null && (
                                 <div className="flex items-baseline gap-1.5">
                                   <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Min</span>
-                                  <span className="text-xs font-semibold text-white">{reg.minSize}&quot;</span>
+                                  <span className="text-xs font-semibold text-[var(--text)]">{reg.minSize}&quot;</span>
                                 </div>
                               )}
                               {reg.hatcheryOnly && (
                                 <div className="flex items-baseline gap-1.5">
                                   <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Type</span>
-                                  <span className="text-xs font-semibold" style={{ color: '#f59e0b' }}>Hatchery only</span>
+                                  <span className="text-xs font-semibold" style={{ color: 'var(--amber)' }}>Hatchery only</span>
                                 </div>
                               )}
                               {reg.gearRestriction && (
                                 <div className="flex items-baseline gap-1.5 col-span-2">
                                   <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Rules</span>
-                                  <span className="text-xs font-semibold text-white">{reg.gearRestriction}</span>
+                                  <span className="text-xs font-semibold text-[var(--text)]">{reg.gearRestriction}</span>
                                 </div>
                               )}
                             </div>
@@ -1152,10 +1152,10 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
                       onClick={() => sp ? openFishWaterSheet(sp) : undefined}
                       className="flex flex-col items-center rounded-xl overflow-hidden transition-all active:scale-[0.99]"
                       style={{
-                        background: 'rgba(255,255,255,0.05)',
+                        background: 'var(--surface-overlay)',
                         border: '1.5px solid rgba(242,101,34,0.4)',
                       }}>
-                      <div className="w-full aspect-square relative" style={{ background: '#0a0c14' }}>
+                      <div className="w-full aspect-square relative" style={{ background: 'var(--photo-bg)' }}>
                         {sp?.photo ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={sp.photo} alt={name} className="w-full h-full object-contain" />
@@ -1168,7 +1168,7 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
                         </div>
                       </div>
                       <p className="w-full text-center text-[10px] font-semibold px-1 py-1.5 leading-tight"
-                        style={{ color: 'rgba(255,255,255,0.85)' }}>
+                        style={{ color: 'var(--text-80)' }}>
                         {name}
                       </p>
                     </button>
@@ -1200,7 +1200,7 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
                     {details.fishingTips.map((tip, i) => (
                       <div key={i} className="flex items-start gap-2.5 px-3 py-2.5"
                         style={{ borderBottom: i < details.fishingTips.length - 1 ? '1px solid var(--border)' : 'none', background: 'var(--bg)' }}>
-                        <span className="flex-shrink-0 font-bold mt-0.5" style={{ color: '#f26522', fontSize: 14 }}>›</span>
+                        <span className="flex-shrink-0 font-bold mt-0.5" style={{ color: 'var(--accent)', fontSize: 14 }}>›</span>
                         <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{tip}</p>
                       </div>
                     ))}
@@ -1210,9 +1210,9 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
 
               {/* WDFW warning */}
               <div className="p-3 rounded-xl" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
-                <p className="text-xs font-semibold mb-1" style={{ color: '#ef4444' }}>⚠️ VERIFY BEFORE YOU FISH</p>
+                <p className="text-xs font-semibold mb-1" style={{ color: 'var(--live)' }}>⚠️ VERIFY BEFORE YOU FISH</p>
                 <a href="https://wdfw.wa.gov/fishing/regulations" target="_blank" rel="noopener noreferrer"
-                  className="text-xs font-semibold underline" style={{ color: '#f26522' }}>
+                  className="text-xs font-semibold underline" style={{ color: 'var(--accent)' }}>
                   Check current regulations at WDFW.wa.gov →
                 </a>
               </div>

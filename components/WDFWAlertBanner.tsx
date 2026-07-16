@@ -43,10 +43,10 @@ export default function WDFWAlertBanner() {
           onClick={() => setExpanded(!expanded)}
         >
           <span className="text-sm">🚨</span>
-          <span className="flex-1 text-xs font-semibold" style={{ color: '#f87171' }}>
+          <span className="flex-1 text-xs font-semibold" style={{ color: 'var(--live)' }}>
             {data.alerts.length} WDFW Emergency Closure{data.alerts.length > 1 ? 's' : ''} — tap to view
           </span>
-          <span className="text-xs" style={{ color: '#f87171' }}>{expanded ? '▲' : '▼'}</span>
+          <span className="text-xs" style={{ color: 'var(--live)' }}>{expanded ? '▲' : '▼'}</span>
         </button>
 
         {expanded && (
@@ -58,14 +58,14 @@ export default function WDFWAlertBanner() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block text-xs pt-1.5"
-                style={{ color: '#fca5a5', textDecoration: 'none' }}
+                style={{ color: 'var(--live-soft)', textDecoration: 'none' }}
               >
                 → {alert.title}
               </a>
             ))}
             {data.alerts.length > 5 && (
               <a href="https://wdfw.wa.gov/fishing/regulations" target="_blank" rel="noopener noreferrer"
-                className="block text-xs" style={{ color: '#f87171' }}>
+                className="block text-xs" style={{ color: 'var(--live)' }}>
                 + {data.alerts.length - 5} more at wdfw.wa.gov ↗
               </a>
             )}

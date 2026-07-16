@@ -20,56 +20,96 @@
   /* Outdoor / Hunting palette — inspired by onX, Fishbrain, GOHUNT */
   /* Default: dark theme (night fishing / OLED-friendly) */
   --bg:           #0c0d0a;          /* near-black with earthy green tint */
+  --bg-subtle:    #111510;          /* slightly lighter dark bg */
   --surface:      #151a10;          /* dark forest floor */
   --surface-2:    #1d2416;          /* slightly lighter earth */
+  --surface-raised: #1d2416;        /* elevated card bg (alias of surface-2) */
   --border:       rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.15);
   --surface-overlay: rgba(255,255,255,0.08); /* ghost buttons, card shimmer */
-  --accent:       #f26522;          /* hunting / blaze orange — onX signature */
+  --accent:       #f97316;          /* hunting / blaze orange — onX signature */
   --accent-green: #4a7c3f;          /* muted forest green */
   --accent-bright-green: #6ab04c;   /* open/active indicator green */
-  --accent-dim:   rgba(242,101,34,0.14);
-  --text:         #f5f0e8;          /* warm off-white, easier on eyes outdoors */
-  --text-muted:   rgba(255,255,255,0.75);   /* soft white */
-  --text-faint:   #6b7280;          /* muted gray — timestamps, hints, disabled */
+  --accent-dim:   rgba(249,115,22,0.15);
+  --accent-subtle: rgba(249,115,22,0.15); /* alias for accent-dim */
+  --text:         #e8f0e4;          /* off-white, slightly green */
+  --text-muted:   #8a9e84;          /* muted green-gray */
+  --text-faint:   #526b4c;          /* very faint green-gray */
   --live:         #ef4444;
   --open:         #6ab04c;          /* fish-able / open indicator */
   --closed:       #6b7280;          /* closed / out of season */
+  --nav-bg:       #0f1410;          /* navigation bar background */
+  --input-bg:     #1d2416;          /* input field background */
+  --overlay:      rgba(0,0,0,0.70); /* backdrop/modal overlay */
+
+  /* Extended semantic tokens */
+  --photo-bg:     #0b0d14;          /* fish photo container bg — intentionally dark */
+  --warning:      #f97316;          /* emergency / warning orange */
+  --warning-dim:  rgba(249,115,22,0.14);
+  --amber:        #f59e0b;          /* starred items, hatchery badge */
+  --amber-dim:    rgba(245,158,11,0.12);
+  --blue:         #60a5fa;          /* water / river accent */
+  --status-open-bright: #4ade80;   /* bright green used in map legend */
+  --border-inactive: rgba(107,114,128,0.38); /* closed/inactive border */
+  --text-on-color: #ffffff;         /* text ON a colored badge/button bg */
+  --live-soft:    #fca5a5;          /* soft red text in error banners */
+  /* Text opacity levels — for use in JS inline styles */
+  --text-80:      rgba(232,240,228,0.88);  /* near-full body text */
+  --text-60:      rgba(232,240,228,0.62);  /* secondary body text */
+  --text-40:      rgba(232,240,228,0.42);  /* tertiary / hint text */
+  --text-20:      rgba(232,240,228,0.22);  /* divider / handle */
 }
 
 /* ── Light mode: respects OS/browser prefers-color-scheme ─────────────────── */
 @media (prefers-color-scheme: light) {
   :root {
-    --bg:           #f5f2ed;          /* warm parchment — earthy light */
+    --bg:           #f0f4ed;          /* soft sage white */
+    --bg-subtle:    #e6ede2;          /* slightly darker sage */
     --surface:      #ffffff;
-    --surface-2:    #ede8df;          /* slightly darker warm white */
-    --border:       rgba(0,0,0,0.10);
+    --surface-2:    #f7faf5;          /* slightly warm white */
+    --surface-raised: #f7faf5;        /* elevated card bg */
+    --border:       rgba(0,0,0,0.08);
+    --border-strong: rgba(0,0,0,0.15);
     --surface-overlay: rgba(0,0,0,0.07); /* ghost buttons visible on light bg */
-    --accent:       #e85d18;          /* slightly deeper orange for light bg contrast */
+    --accent:       #e8650a;          /* slightly deeper orange for light bg contrast */
     --accent-green: #3d7a35;
     --accent-bright-green: #2e7d2e;
-    --accent-dim:   rgba(232,93,24,0.10);
-    --text:         #1c1a17;          /* warm near-black */
-    --text-muted:   rgba(28,26,23,0.68);
-    --text-faint:   #6b7280;
+    --accent-dim:   rgba(232,101,10,0.12);
+    --accent-subtle: rgba(232,101,10,0.12);
+    --text:         #1a2e16;          /* dark forest green */
+    --text-muted:   #4a6b44;          /* muted forest green */
+    --text-faint:   #7a9b74;          /* faint green */
     --live:         #dc2626;
     --open:         #2e7d2e;
     --closed:       #6b7280;
+    --nav-bg:       #ffffff;          /* navigation bar background */
+    --input-bg:     #f0f4ed;          /* input field background */
+    --overlay:      rgba(0,0,0,0.40); /* backdrop/modal overlay */
+
+    /* Extended tokens — light overrides */
+    --photo-bg:     #1a2035;          /* still dark so fish photos look good */
+    --warning:      #ea6a00;
+    --warning-dim:  rgba(234,106,0,0.12);
+    --amber:        #d97706;
+    --amber-dim:    rgba(217,119,6,0.12);
+    --blue:         #2563eb;
+    --status-open-bright: #16a34a;   /* darker green, readable on white bg */
+    --border-inactive: rgba(107,114,128,0.30);
+    --text-on-color: #ffffff;
+    --live-soft:    #b91c1c;          /* darker red text on light bg */
+    /* Text opacity levels for light mode */
+    --text-80:      rgba(26,46,22,0.88);
+    --text-60:      rgba(26,46,22,0.62);
+    --text-40:      rgba(26,46,22,0.40);
+    --text-20:      rgba(26,46,22,0.18);
   }
-
-  /* Override Tailwind text-white so it uses the theme text color on light surfaces */
-  .text-white { color: var(--text); }
-
-  /* Override hardcoded dark Tailwind bg classes */
-  .bg-gray-800, .bg-gray-700 { background-color: var(--surface-2) !important; }
-  .hover\:bg-gray-800\/50:hover { background-color: rgba(0,0,0,0.06) !important; }
-  .active\:bg-gray-800:active  { background-color: rgba(0,0,0,0.10) !important; }
 
   /* Glass header — light translucent */
   .glass-header {
-    background: rgba(245,242,237,0.93);
+    background: rgba(240,244,237,0.93);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(232,93,24,0.18);
+    border-bottom: 1px solid rgba(232,101,10,0.18);
   }
 
   /* Card backgrounds */
@@ -145,12 +185,12 @@ body { font-family: var(--font-geist-sans), system-ui, sans-serif; }
 
 .card {
   background: var(--surface);
-  border: 1px solid rgba(255,255,255,0.07);
+  border: 1px solid var(--border);
   border-radius: 14px;
 }
 .card-raised {
   background: var(--surface-2);
-  border: 1px solid rgba(255,255,255,0.09);
+  border: 1px solid var(--border);
   border-radius: 14px;
 }
 .glass-header {

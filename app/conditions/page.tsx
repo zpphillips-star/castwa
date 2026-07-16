@@ -35,11 +35,11 @@ function formatCfs(cfs: number): string {
 }
 
 const FLOW_PALETTE: Record<FlowStatus, { color: string; label: string }> = {
-  ideal:   { color: '#6ab04c', label: 'IDEAL'   },
-  low:     { color: '#f26522', label: 'LOW'      },
-  high:    { color: '#ef4444', label: 'HIGH'     },
-  loading: { color: '#6b7280', label: '…'        },
-  error:   { color: '#6b7280', label: 'N/A'      },
+  ideal:   { color: 'var(--open)', label: 'IDEAL'   },
+  low:     { color: 'var(--accent)', label: 'LOW'      },
+  high:    { color: 'var(--live)', label: 'HIGH'     },
+  loading: { color: 'var(--text-faint)', label: '…'        },
+  error:   { color: 'var(--text-faint)', label: 'N/A'      },
 }
 
 // ─── WA Grid Map ──────────────────────────────────────────────────────────────
@@ -173,7 +173,7 @@ function WaGridMap({
           </clipPath>
         </defs>
         <rect width="600" height="380" fill="var(--bg, #0d1117)" />
-        <path d={WA_PATH} fill="#1a2035" stroke="rgba(255,255,255,0.18)" strokeWidth="1.5" />
+        <path d={WA_PATH} fill="#1a2035" stroke="var(--text-20)" strokeWidth="1.5" />
         <g clipPath="url(#wa-clip)">
           {[0, 1].flatMap(row =>
             [0, 1, 2, 3].map(col => {
@@ -182,15 +182,15 @@ function WaGridMap({
               return (
                 <rect key={`sel-${row}-${col}`}
                   x={col * COL_W} y={row * ROW_H} width={COL_W} height={ROW_H}
-                  fill="rgba(242,101,34,0.25)" stroke="#f26522" strokeWidth="1.5"
+                  fill="rgba(242,101,34,0.25)" stroke="var(--accent)" strokeWidth="1.5"
                 />
               )
             })
           )}
-          <line x1="150" y1="0" x2="150" y2="380" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="4,4" />
-          <line x1="300" y1="0" x2="300" y2="380" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="4,4" />
-          <line x1="450" y1="0" x2="450" y2="380" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="4,4" />
-          <line x1="0" y1="190" x2="600" y2="190" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="4,4" />
+          <line x1="150" y1="0" x2="150" y2="380" stroke="var(--text-20)" strokeWidth="1" strokeDasharray="4,4" />
+          <line x1="300" y1="0" x2="300" y2="380" stroke="var(--text-20)" strokeWidth="1" strokeDasharray="4,4" />
+          <line x1="450" y1="0" x2="450" y2="380" stroke="var(--text-20)" strokeWidth="1" strokeDasharray="4,4" />
+          <line x1="0" y1="190" x2="600" y2="190" stroke="var(--text-20)" strokeWidth="1" strokeDasharray="4,4" />
         </g>
         {[0, 1].flatMap(row =>
           [0, 1, 2, 3].map(col => {
@@ -270,7 +270,7 @@ function RegionSheet({
         transition: 'transform 300ms ease-out',
       }}>
         <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '12px', paddingBottom: '4px' }}>
-          <div style={{ width: '36px', height: '4px', borderRadius: '2px', background: 'rgba(255,255,255,0.2)' }} />
+          <div style={{ width: '36px', height: '4px', borderRadius: '2px', background: 'var(--text-20)' }} />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 20px 12px' }}>
           <div>
@@ -279,7 +279,7 @@ function RegionSheet({
           </div>
           <button onClick={onClose} style={{
             width: '32px', height: '32px', borderRadius: '50%',
-            background: 'rgba(255,255,255,0.1)', border: 'none',
+            background: 'var(--border)', border: 'none',
             color: '#fff', fontSize: '16px', cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
           }}>✕</button>
@@ -290,11 +290,11 @@ function RegionSheet({
           ) : groups.map(group => (
             <div key={group.label} style={{ marginBottom: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
-                <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6b7280', whiteSpace: 'nowrap' }}>
+                <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+                <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-faint)', whiteSpace: 'nowrap' }}>
                   {group.label} · {group.waters.length}
                 </span>
-                <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+                <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
               </div>
               <div style={{ borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border)' }}>
                 {group.waters.map((water, idx) => {
@@ -311,7 +311,7 @@ function RegionSheet({
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
                         <div style={{ minWidth: 0, flex: 1 }}>
                           <p style={{ fontSize: '15px', fontWeight: 700, color: '#fff', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{water.name}</p>
-                          {openCount > 0 && <p style={{ fontSize: '12px', fontWeight: 700, color: '#6ab04c', marginTop: '2px', marginBottom: 0 }}>{openCount} open</p>}
+                          {openCount > 0 && <p style={{ fontSize: '12px', fontWeight: 700, color: 'var(--open)', marginTop: '2px', marginBottom: 0 }}>{openCount} open</p>}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
                           {isGauged && flow && flow.cfs !== null && palette ? (
@@ -364,9 +364,9 @@ function buildSections(today: Date): WaterSection[] {
   }
 
   return [
-    { label: 'Rivers & Streams', borderColor: '#60a5fa', waters: sortWaters(rivers) },
-    { label: 'Lakes & Reservoirs', borderColor: '#34d399', waters: sortWaters(lakes) },
-    { label: 'Marine, Sound & Bay', borderColor: '#22d3ee', waters: sortWaters(marine) },
+    { label: 'Rivers & Streams', borderColor: 'var(--blue)', waters: sortWaters(rivers) },
+    { label: 'Lakes & Reservoirs', borderColor: 'var(--status-open-bright)', waters: sortWaters(lakes) },
+    { label: 'Marine, Sound & Bay', borderColor: 'var(--blue)', waters: sortWaters(marine) },
   ].filter(s => s.waters.length > 0)
 }
 
@@ -513,7 +513,7 @@ export default function WatersPage() {
       <header className="glass-header flex-shrink-0 z-30 px-4">
         <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto py-3 flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold text-white">Waters</h1>
+            <h1 className="text-lg font-bold text-[var(--text)]">Waters</h1>
             <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Find a place to fish</p>
           </div>
           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
@@ -531,8 +531,8 @@ export default function WatersPage() {
           <div className="mb-4">
             {/* Featured header */}
             <div style={{ padding: '4px 0 12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ width: 3, height: 18, borderRadius: 2, background: '#f26522', flexShrink: 0 }} />
-              <span style={{ fontSize: '13px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#f26522' }}>
+              <div style={{ width: 3, height: 18, borderRadius: 2, background: 'var(--accent)', flexShrink: 0 }} />
+              <span style={{ fontSize: '13px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent)' }}>
                 Most Active Right Now
               </span>
               <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-faint)' }}>
@@ -548,7 +548,7 @@ export default function WatersPage() {
                 const palette = flow ? FLOW_PALETTE[flow.status] : null
                 const accentColor = (isGauged && flow && palette)
                   ? palette.color
-                  : '#6ab04c'
+                  : 'var(--open)'
                 const waterTypeLabel = water.type === 'lake' ? 'LAKE'
                   : water.type === 'sound' || water.type === 'bay' ? 'MARINE'
                   : 'RIVER'
@@ -594,7 +594,7 @@ export default function WatersPage() {
                         {speciesExtra > 0 && (
                           <span style={{
                             fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 9999,
-                            background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)',
+                            background: 'var(--surface-overlay)', color: 'var(--text-muted)',
                           }}>+{speciesExtra}</span>
                         )}
                       </div>
@@ -613,7 +613,7 @@ export default function WatersPage() {
                       </div>
                     ) : (
                       <div style={{ padding: '8px 12px 11px', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: '#6ab04c' }}>{openCount} open</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--open)' }}>{openCount} open</span>
                         <span style={{ color: 'var(--text-faint)', fontSize: 13 }}>›</span>
                       </div>
                     )}
@@ -646,7 +646,7 @@ export default function WatersPage() {
                 padding: '14px 16px',
                 background: 'rgba(242,101,34,0.12)',
                 borderTop: '1px solid rgba(242,101,34,0.2)',
-                color: '#f26522',
+                color: 'var(--accent)',
                 fontSize: '14px',
                 fontWeight: 700,
                 letterSpacing: '0.01em',
@@ -659,11 +659,11 @@ export default function WatersPage() {
               <span>Find Waters Near You</span>
             </button>
           ) : locationDenied ? (
-            <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.06)', fontSize: '12px', color: 'var(--text-faint)', textAlign: 'center' }}>
+            <div style={{ padding: '12px 16px', borderTop: '1px solid var(--border)', fontSize: '12px', color: 'var(--text-faint)', textAlign: 'center' }}>
               Location access denied — enable in browser settings
             </div>
           ) : nearbyWaters.length === 0 && userLocation ? (
-            <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.06)', fontSize: '12px', color: 'var(--text-faint)', textAlign: 'center' }}>
+            <div style={{ padding: '12px 16px', borderTop: '1px solid var(--border)', fontSize: '12px', color: 'var(--text-faint)', textAlign: 'center' }}>
               No open waters found nearby today
             </div>
           ) : nearbyWaters.length === 0 ? (
@@ -677,21 +677,21 @@ export default function WatersPage() {
         {locationRequested && !locationDenied && nearbyWaters.length > 0 && (
           <div className="mb-4">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
-              <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6b7280', whiteSpace: 'nowrap' }}>Near You · Open Today</span>
-              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+              <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+              <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-faint)', whiteSpace: 'nowrap' }}>Near You · Open Today</span>
+              <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
             </div>
             <div className="flex flex-col gap-2">
               {nearbyWaters.map(({ water, distMiles, openCount }) => (
                 <button key={water.id} onClick={() => openWater(water)}
                   className="flex items-center justify-between px-4 text-left transition-all active:scale-[0.99]"
-                  style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '14px 16px' }}>
+                  style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '14px 16px' }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p className="text-sm font-bold text-white truncate">{water.name}</p>
+                    <p className="text-sm font-bold text-[var(--text)] truncate">{water.name}</p>
                     <p className="text-xs mt-0.5" style={{ color: 'var(--text-faint)' }}>{openCount} species open</p>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0 ml-3">
-                    <p className="text-sm font-bold" style={{ color: '#f26522' }}>{distMiles < 10 ? distMiles.toFixed(1) : Math.round(distMiles)} mi</p>
+                    <p className="text-sm font-bold" style={{ color: 'var(--accent)' }}>{distMiles < 10 ? distMiles.toFixed(1) : Math.round(distMiles)} mi</p>
                     <span style={{ color: 'var(--text-faint)', fontSize: '14px' }}>›</span>
                   </div>
                 </button>
@@ -730,11 +730,11 @@ export default function WatersPage() {
         {visibleSections.map(section => (
           <div key={section.label} className="mb-8">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
-              <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6b7280', whiteSpace: 'nowrap' }}>
+              <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+              <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-faint)', whiteSpace: 'nowrap' }}>
                 {section.label} · {section.waters.length}
               </span>
-              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+              <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
             </div>
 
             {/* Water rows — 1 col mobile, 2 col tablet+, 3 col desktop+ */}
@@ -744,7 +744,7 @@ export default function WatersPage() {
                 const flow = flowData[water.id]
                 const palette = flow ? FLOW_PALETTE[flow.status] : null
                 const trendIcon = flow?.trend === 'rising' ? '↑' : flow?.trend === 'falling' ? '↓' : flow?.trend === 'stable' ? '→' : null
-                const trendColor = flow?.trend === 'rising' ? '#ef4444' : flow?.trend === 'falling' ? '#60a5fa' : '#6ab04c'
+                const trendColor = flow?.trend === 'rising' ? 'var(--live)' : flow?.trend === 'falling' ? 'var(--blue)' : 'var(--open)'
 
                 // Open species count for this water
                 const openRegs = REGULATIONS.filter(r => r.waterBodyId === water.id && isOpenOn(r, today))
@@ -765,9 +765,9 @@ export default function WatersPage() {
                     <div className="flex items-center justify-between gap-3">
                       {/* Left: name + region */}
                       <div className="min-w-0 flex-1">
-                        <p className="text-base font-bold text-white leading-tight truncate">{water.name}</p>
+                        <p className="text-base font-bold text-[var(--text)] leading-tight truncate">{water.name}</p>
                         {openCount > 0 && (
-                          <p className="text-xs mt-0.5 font-bold" style={{ color: '#6ab04c' }}>
+                          <p className="text-xs mt-0.5 font-bold" style={{ color: 'var(--open)' }}>
                             {openCount} open
                           </p>
                         )}
@@ -812,7 +812,7 @@ export default function WatersPage() {
         <div className="py-3 px-4 rounded-2xl mb-4" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
           <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-faint)' }}>River gauge legend</p>
           <div className="flex items-center gap-6">
-            {[['#6ab04c','Ideal flow'],['#f26522','Low'],['#ef4444','High']].map(([color, label]) => (
+            {[['var(--open)','Ideal flow'],['var(--accent)','Low'],['var(--live)','High']].map(([color, label]) => (
               <div key={label} className="flex items-center gap-1.5">
                 <div className="w-2.5 h-2.5 rounded-full" style={{ background: color }} />
                 <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{label}</span>

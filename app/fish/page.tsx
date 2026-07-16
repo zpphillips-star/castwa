@@ -67,11 +67,11 @@ function StarButton({
       aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
     >
       {isFav ? (
-        <svg width={dim.icon} height={dim.icon} fill="#f59e0b" viewBox="0 0 20 20">
+        <svg width={dim.icon} height={dim.icon} fill="var(--amber)" viewBox="0 0 20 20">
           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
         </svg>
       ) : (
-        <svg width={dim.icon} height={dim.icon} fill="none" stroke="rgba(255,255,255,0.6)" viewBox="0 0 24 24" strokeWidth={1.5}>
+        <svg width={dim.icon} height={dim.icon} fill="none" stroke="var(--text-muted)" viewBox="0 0 24 24" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.563.563 0 00-.182-.557l-4.204-3.602a.562.562 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.499z" />
         </svg>
       )}
@@ -83,14 +83,14 @@ function StarButton({
 function SectionDivider({ label }: { label: string }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '20px 16px 12px' }}>
-      <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+      <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
       <span style={{
         fontSize: '11px', fontWeight: 800, letterSpacing: '0.07em',
-        textTransform: 'uppercase', color: '#6b7280', whiteSpace: 'nowrap',
+        textTransform: 'uppercase', color: 'var(--text-faint)', whiteSpace: 'nowrap',
       }}>
         {label}
       </span>
-      <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+      <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
     </div>
   )
 }
@@ -109,7 +109,7 @@ function HeroCard({
   onSelect: () => void
   onToggleStar: (e: React.MouseEvent) => void
 }) {
-  const accentColor = status === 'open' ? '#6ab04c' : '#f26522'
+  const accentColor = status === 'open' ? 'var(--open)' : 'var(--accent)'
   return (
     <button
       onClick={onSelect}
@@ -119,7 +119,7 @@ function HeroCard({
         borderRadius: 20, overflow: 'hidden', position: 'relative',
         border: `1.5px solid ${accentColor}55`,
         boxShadow: `0 4px 24px ${accentColor}22`,
-        background: 'rgb(11,13,20)',
+        background: 'var(--photo-bg)',
       }}
     >
       {/* Accent top bar */}
@@ -192,13 +192,13 @@ function LaneCard({
       style={{
         width: 108, height: 148, flexShrink: 0,
         borderRadius: 14, overflow: 'hidden', position: 'relative',
-        border: '1px solid rgba(255,255,255,0.08)',
+        border: '1px solid var(--border)',
         background: 'var(--surface)',
         display: 'flex', flexDirection: 'column',
       }}
     >
       {/* Photo area — top 2/3 */}
-      <div style={{ height: 96, background: 'rgb(11,13,20)', flexShrink: 0, position: 'relative' }}>
+      <div style={{ height: 96, background: 'var(--photo-bg)', flexShrink: 0, position: 'relative' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={fish.photo}
@@ -216,10 +216,10 @@ function LaneCard({
       </div>
       {/* Name bar — bottom 1/3 */}
       <div style={{ flex: 1, padding: '6px 8px', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <p style={{ fontSize: 11, fontWeight: 700, color: '#fff', lineHeight: 1.2, margin: 0 }}>{fish.name}</p>
+        <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text)', lineHeight: 1.2, margin: 0 }}>{fish.name}</p>
         <p style={{
           fontSize: 9, fontWeight: 700, marginTop: 3,
-          color: status === 'open' ? '#6ab04c' : status === 'restricted' ? '#f26522' : 'var(--text-faint)',
+          color: status === 'open' ? 'var(--open)' : status === 'restricted' ? 'var(--accent)' : 'var(--text-faint)',
         }}>
           {status === 'open' ? 'Open' : status === 'restricted' ? 'Restricted' : 'Closed'}
         </p>
@@ -301,7 +301,7 @@ export default function FishPage() {
       {/* Header */}
       <header className="glass-header sticky top-0 z-30 px-4 pt-safe">
         <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto py-3">
-          <h1 className="text-lg font-bold text-white">Fish</h1>
+          <h1 className="text-lg font-bold text-[var(--text)]">Fish</h1>
           <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>What do you want to catch today?</p>
         </div>
       </header>
@@ -310,7 +310,7 @@ export default function FishPage() {
         {/* Reg trust signal */}
         <p className="text-xs mb-3" style={{ color: 'var(--text-faint)' }}>
           <span className="inline-block px-2 py-0.5 rounded font-semibold"
-            style={{ background: 'rgba(106,176,76,0.1)', color: '#6ab04c', border: '1px solid rgba(106,176,76,0.2)' }}>
+            style={{ background: 'rgba(106,176,76,0.1)', color: 'var(--open)', border: '1px solid rgba(106,176,76,0.2)' }}>
             Regs verified July 2026
           </span>
         </p>
@@ -327,8 +327,8 @@ export default function FishPage() {
             <>
               {/* Featured section header — orange, not gray */}
               <div style={{ padding: '16px 16px 12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ width: 3, height: 18, borderRadius: 2, background: '#f26522', flexShrink: 0 }} />
-                <span style={{ fontSize: '13px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#f26522' }}>
+                <div style={{ width: 3, height: 18, borderRadius: 2, background: 'var(--accent)', flexShrink: 0 }} />
+                <span style={{ fontSize: '13px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent)' }}>
                   What&apos;s Running Now
                 </span>
                 <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-faint)' }}>
@@ -398,15 +398,15 @@ export default function FishPage() {
                   paddingTop: 14, paddingBottom: 14, paddingLeft: 44,
                   paddingRight: searchQuery ? 40 : 16,
                   background: 'var(--surface)',
-                  border: '1.5px solid rgba(255,255,255,0.12)',
-                  color: '#fff', fontSize: '15px',
+                  border: '1.5px solid var(--border)',
+                  color: 'var(--text)', fontSize: '15px',
                 }}
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
                   className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
-                  style={{ background: 'rgba(255,255,255,0.12)', color: 'var(--text-faint)' }}
+                  style={{ background: 'var(--border)', color: 'var(--text-faint)' }}
                 >
                   ×
                 </button>
@@ -485,15 +485,15 @@ export default function FishPage() {
                 paddingTop: 14, paddingBottom: 14, paddingLeft: 44,
                 paddingRight: searchQuery ? 40 : 16,
                 background: 'var(--surface)',
-                border: '1.5px solid rgba(255,255,255,0.12)',
-                color: '#fff', fontSize: '15px',
+                border: '1.5px solid var(--border)',
+                color: 'var(--text)', fontSize: '15px',
               }}
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
                 className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
-                style={{ background: 'rgba(255,255,255,0.12)', color: 'var(--text-faint)' }}
+                style={{ background: 'var(--border)', color: 'var(--text-faint)' }}
               >
                 ×
               </button>
@@ -502,8 +502,8 @@ export default function FishPage() {
 
           {/* Section header */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', marginTop: '12px' }}>
-            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
-            <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#6b7280', whiteSpace: 'nowrap' }}>
+            <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+            <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-faint)', whiteSpace: 'nowrap' }}>
               {activeFilter === 'starred' ? 'Saved Fish'
                 : activeFilter === 'river' ? 'River Fish'
                 : activeFilter === 'lake' ? 'Lake Fish'
@@ -511,7 +511,7 @@ export default function FishPage() {
                 : activeFilter === 'shellfish' ? 'Shellfish'
                 : 'Results'} · {sortedFiltered.length}
             </span>
-            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
+            <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
           </div>
 
           {/* Fish grid */}
@@ -527,7 +527,7 @@ export default function FishPage() {
                   className="overflow-hidden text-left transition-all active:scale-[0.99] rounded-2xl relative"
                   style={{
                     background: 'var(--surface)',
-                    border: `1px solid ${selectedFish?.id === fish.id ? '#6ab04c' : 'rgba(255,255,255,0.08)'}`,
+                    border: `1px solid ${selectedFish?.id === fish.id ? 'var(--open)' : 'var(--border)'}`,
                   }}
                 >
                   {/* Star icon — top-right corner */}
@@ -538,13 +538,13 @@ export default function FishPage() {
                     aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
                   >
                     {isFav ? (
-                      <svg className="w-3.5 h-3.5" fill="#f59e0b" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                      <svg className="w-3.5 h-3.5" fill="var(--amber)" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                     ) : (
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5} style={{ color: 'rgba(255,255,255,0.6)' }}><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.563.563 0 00-.182-.557l-4.204-3.602a.562.562 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.499z"/></svg>
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5} style={{ color: 'var(--text-muted)' }}><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.563.563 0 00-.182-.557l-4.204-3.602a.562.562 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.499z"/></svg>
                     )}
                   </button>
                   {/* Photo area */}
-                  <div className="flex items-center justify-center" style={{ minHeight: '120px', background: 'rgb(11,13,20)' }}>
+                  <div className="flex items-center justify-center" style={{ minHeight: '120px', background: 'var(--photo-bg)' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={fish.photo}
@@ -559,9 +559,9 @@ export default function FishPage() {
                   </div>
                   {/* Name bar */}
                   <div className="px-3 py-2.5 text-center">
-                    <p className="text-sm font-semibold leading-tight text-white">{fish.name}</p>
+                    <p className="text-sm font-semibold leading-tight text-[var(--text)]">{fish.name}</p>
                     <p className="text-[10px] font-semibold mt-1" style={{
-                      color: status === 'open' ? '#6ab04c' : status === 'restricted' ? '#f97316' : 'var(--text-faint)'
+                      color: status === 'open' ? 'var(--open)' : status === 'restricted' ? 'var(--warning)' : 'var(--text-faint)'
                     }}>
                       {status === 'open' ? 'In Season' : status === 'restricted' ? 'w/ Restrictions' : 'Closed'}
                     </p>
@@ -572,7 +572,7 @@ export default function FishPage() {
             {sortedFiltered.length === 0 && (
               <div className="col-span-3 py-12 text-center">
                 <p className="text-2xl mb-2">?</p>
-                <p className="text-sm font-semibold text-white">No results</p>
+                <p className="text-sm font-semibold text-[var(--text)]">No results</p>
                 <p className="text-xs mt-1" style={{ color: 'var(--text-faint)' }}>
                   {activeFilter === 'starred' ? 'Star some fish to see them here' : 'Try a different search or filter'}
                 </p>

@@ -21,7 +21,7 @@ export default function OfflineBanner() {
   return (
     <div
       className="fixed top-0 left-0 right-0 z-[2000] flex items-center justify-center gap-2 px-4 py-2 text-xs font-bold"
-      style={{ background: '#f59e0b', color: '#000' }}
+      style={{ background: 'var(--amber)', color: '#000' }}
     >
       <span>📵</span>
       <span>Offline — showing cached regulations</span>

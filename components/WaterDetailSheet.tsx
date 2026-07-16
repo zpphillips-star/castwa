@@ -29,7 +29,7 @@ const RiverDetailMapInner = dynamic(
     ssr: false,
     loading: () => (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',
-        height: '100%', background: '#08080f', color: '#6b7280', fontSize: 14 }}>
+        height: '100%', background: 'var(--photo-bg)', color: 'var(--text-faint)', fontSize: 14 }}>
         Loading map…
       </div>
     ),
@@ -42,7 +42,7 @@ const LakeMapInner = dynamic(
     ssr: false,
     loading: () => (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',
-        height: '100%', background: '#b8d8ea', color: '#374151', fontSize: 14 }}>
+        height: '100%', background: '#b8d8ea', color: 'var(--border-inactive)', fontSize: 14 }}>
         Loading map…
       </div>
     ),
@@ -177,11 +177,11 @@ function buildFullRiverSegment(riverId: string): MapSegment[] {
 // ─── Sub-components ───────────────────────────────────────────────────────────
 function SectionStatusChip({ status }: { status: SegmentStatus }) {
   const cfg = {
-    open:       { label: '● OPEN',       color: '#4ade80', bg: 'rgba(74,222,128,0.12)'  },
-    closed:     { label: '○ CLOSED',     color: '#ef4444', bg: 'rgba(239,68,68,0.12)'  },
-    emergency:  { label: 'EMERG.',    color: '#f97316', bg: 'rgba(249,115,22,0.12)' },
-    restricted: { label: 'RESTR.',    color: '#fbbf24', bg: 'rgba(251,191,36,0.12)' },
-    neutral:    { label: '● WATERWAY',   color: '#60a5fa', bg: 'rgba(96,165,250,0.12)'  },
+    open:       { label: '● OPEN',       color: 'var(--status-open-bright)', bg: 'rgba(74,222,128,0.12)'  },
+    closed:     { label: '○ CLOSED',     color: 'var(--live)', bg: 'rgba(239,68,68,0.12)'  },
+    emergency:  { label: 'EMERG.',    color: 'var(--warning)', bg: 'rgba(249,115,22,0.12)' },
+    restricted: { label: 'RESTR.',    color: 'var(--amber)', bg: 'rgba(251,191,36,0.12)' },
+    neutral:    { label: '● WATERWAY',   color: 'var(--blue)', bg: 'rgba(96,165,250,0.12)'  },
   }[status]
   return (
     <span className="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded mt-1"
@@ -193,15 +193,15 @@ function SectionStatusChip({ status }: { status: SegmentStatus }) {
 
 function FlowStatusBadge({ status, cfs, trend }: { status: FlowData['status']; cfs: number | null; trend: FlowData['trend'] }) {
   const cfg: Record<string, { label: string; color: string; bg: string }> = {
-    ideal:   { label: 'IDEAL',   color: '#6ab04c', bg: 'rgba(106,176,76,0.15)'  },
-    low:     { label: 'LOW',     color: '#f26522', bg: 'rgba(242,101,34,0.15)'  },
-    high:    { label: 'HIGH',    color: '#ef4444', bg: 'rgba(239,68,68,0.15)'   },
-    loading: { label: '…',       color: '#6b7280', bg: 'rgba(107,114,128,0.15)' },
-    error:   { label: 'N/A',     color: '#6b7280', bg: 'rgba(107,114,128,0.15)' },
+    ideal:   { label: 'IDEAL',   color: 'var(--open)', bg: 'rgba(106,176,76,0.15)'  },
+    low:     { label: 'LOW',     color: 'var(--accent)', bg: 'rgba(242,101,34,0.15)'  },
+    high:    { label: 'HIGH',    color: 'var(--live)', bg: 'rgba(239,68,68,0.15)'   },
+    loading: { label: '…',       color: 'var(--text-faint)', bg: 'rgba(107,114,128,0.15)' },
+    error:   { label: 'N/A',     color: 'var(--text-faint)', bg: 'rgba(107,114,128,0.15)' },
   }
   const c = cfg[status] ?? cfg.loading
   const trendIcon = trend === 'rising' ? '↑' : trend === 'falling' ? '↓' : trend === 'stable' ? '→' : null
-  const trendColor = trend === 'rising' ? '#ef4444' : trend === 'falling' ? '#60a5fa' : '#6ab04c'
+  const trendColor = trend === 'rising' ? 'var(--live)' : trend === 'falling' ? 'var(--blue)' : 'var(--open)'
   return (
     <div className="flex items-center gap-1.5">
       {cfs !== null && (
@@ -277,7 +277,7 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
 
       {/* ── Back header ── */}
       <div className="flex-shrink-0 flex items-center gap-3 px-4 py-3"
-        style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        style={{ borderBottom: '1px solid var(--border)' }}>
         <button onClick={onBack}
           className="flex items-center gap-1.5 text-sm font-semibold active:scale-[0.99]"
           style={{ color: 'var(--accent)' }}>
@@ -289,9 +289,9 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
         <div className="flex-1" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={species.photo} alt={species.name}
-          style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 6, background: '#0b0d14' }} />
+          style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 6, background: 'var(--photo-bg)' }} />
         <div className="text-right">
-          <p className="text-sm font-black text-white leading-tight">{species.name}</p>
+          <p className="text-sm font-black text-[var(--text)] leading-tight">{species.name}</p>
           <p className="text-[10px]" style={{ color: 'var(--text-faint)' }}>in {waterName}</p>
         </div>
       </div>
@@ -303,14 +303,14 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
             <div key={i} className="px-4 py-2.5 flex items-start gap-2"
               style={{ background: 'rgba(239,68,68,0.12)', borderBottom: '1.5px solid rgba(239,68,68,0.3)' }}>
               <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: '#ef4444' }}>
+                <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--live)' }}>
                   Emergency Rule Active — {er.section}
                 </p>
-                <p className="text-[11px] leading-snug mt-0.5" style={{ color: '#fca5a5' }}>
+                <p className="text-[11px] leading-snug mt-0.5" style={{ color: 'var(--live-soft)' }}>
                   {er.rule.effective}
                 </p>
                 <a href={er.rule.url} target="_blank" rel="noopener noreferrer"
-                  className="text-[10px] underline" style={{ color: '#ef4444' }}>
+                  className="text-[10px] underline" style={{ color: 'var(--live)' }}>
                   View official rule ↗
                 </a>
               </div>
@@ -326,7 +326,7 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
             waterName={waterName}
             lat={water.lat}
             lng={water.lng}
-            fillColor={lakeRegStatus === 'open' ? '#4ade80' : '#ef4444'}
+            fillColor={lakeRegStatus === 'open' ? 'var(--status-open-bright)' : 'var(--live)'}
           />
         </div>
       ) : segments.length > 0 ? (
@@ -342,14 +342,14 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
       {/* ── Section tile strip (Skagit only, same as RiverDetailSheet) ── */}
       {isSkagit && segments.length > 0 && (
         <div className="flex-shrink-0 px-3 py-2 overflow-x-auto no-scrollbar"
-          style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+          style={{ borderBottom: '1px solid var(--border)' }}>
           <div className="flex gap-2" style={{ paddingRight: 12 }}>
             {segments.map((seg, i) => {
               const selected = segHighlighted && selectedSegIdx === i
               const statusCfg: Record<string, { color: string; label: string }> = {
-                open:      { color: '#4ade80', label: '● OPEN'      },
-                emergency: { color: '#f97316', label: 'EMERGENCY' },
-                closed:    { color: '#ef4444', label: '○ CLOSED'    },
+                open:      { color: 'var(--status-open-bright)', label: '● OPEN'      },
+                emergency: { color: 'var(--warning)', label: 'EMERGENCY' },
+                closed:    { color: 'var(--live)', label: '○ CLOSED'    },
               }
               const cfg = statusCfg[seg.status] ?? statusCfg.closed
               return (
@@ -357,12 +357,12 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
                   onClick={() => { setSelectedSegIdx(i); setSegHighlighted(true) }}
                   className="flex-shrink-0 px-3 py-2 rounded-xl text-left transition-all active:scale-[0.99]"
                   style={{
-                    background: selected ? `${cfg.color}18` : 'rgba(255,255,255,0.05)',
-                    border: `1.5px solid ${selected ? cfg.color : 'rgba(255,255,255,0.09)'}`,
+                    background: selected ? `${cfg.color}18` : 'var(--surface-overlay)',
+                    border: `1.5px solid ${selected ? cfg.color : 'var(--border)'}`,
                     minWidth: 140,
                     maxWidth: 170,
                   }}>
-                  <p className="text-xs font-bold text-white leading-tight"
+                  <p className="text-xs font-bold text-[var(--text)] leading-tight"
                     style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 150 }}>
                     {seg.label}
                   </p>
@@ -381,9 +381,9 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
         {(segments.length > 0 || isLakeType) && (
           <div className="flex gap-3 px-4 pt-3 pb-1 flex-wrap">
             {[
-              { color: '#4ade80', label: 'OPEN' },
-              { color: '#f97316', label: 'EMERGENCY' },
-              { color: '#ef4444', label: 'CLOSED' },
+              { color: 'var(--status-open-bright)', label: 'OPEN' },
+              { color: 'var(--warning)', label: 'EMERGENCY' },
+              { color: 'var(--live)', label: 'CLOSED' },
             ].map(l => (
               <div key={l.label} className="flex items-center gap-1">
                 <span className="w-3 h-2 rounded-sm inline-block" style={{ background: l.color }} />
@@ -402,9 +402,9 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
 
           {fishRegs.length === 0 ? (
             <div className="rounded-xl p-4 text-center" style={{ border: '1px solid var(--border)' }}>
-              <p className="text-sm font-semibold text-white mb-1">No specific regulation on file</p>
+              <p className="text-sm font-semibold text-[var(--text)] mb-1">No specific regulation on file</p>
               <a href="https://wdfw.wa.gov/fishing/regulations" target="_blank" rel="noopener noreferrer"
-                className="text-xs underline" style={{ color: '#f26522' }}>
+                className="text-xs underline" style={{ color: 'var(--accent)' }}>
                 Check WDFW directly →
               </a>
             </div>
@@ -416,15 +416,15 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
                   <div key={reg.id}
                     className="rounded-xl px-4 py-3"
                     style={{
-                      background: isOpen ? 'rgba(106,176,76,0.08)' : 'rgba(255,255,255,0.04)',
+                      background: isOpen ? 'rgba(106,176,76,0.08)' : 'var(--surface-overlay)',
                       border: `1px solid ${isOpen ? 'rgba(106,176,76,0.25)' : 'var(--border)'}`,
-                      borderLeft: `3px solid ${isOpen ? '#6ab04c' : '#374151'}`,
+                      borderLeft: `3px solid ${isOpen ? 'var(--open)' : 'var(--border-inactive)'}`,
                     }}>
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-black px-2 py-0.5 rounded"
                         style={{
                           background: isOpen ? 'rgba(106,176,76,0.18)' : 'rgba(107,114,128,0.18)',
-                          color: isOpen ? '#6ab04c' : '#9ca3af',
+                          color: isOpen ? 'var(--open)' : 'var(--text-faint)',
                         }}>
                         {isOpen ? '● OPEN' : '○ CLOSED'}
                       </span>
@@ -433,27 +433,27 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
                       </span>
                     </div>
                     {reg.dailyLimit != null && (
-                      <p className="text-sm font-semibold text-white">
-                        Daily limit: <span style={{ color: '#6ab04c' }}>{reg.dailyLimit}</span>
+                      <p className="text-sm font-semibold text-[var(--text)]">
+                        Daily limit: <span style={{ color: 'var(--open)' }}>{reg.dailyLimit}</span>
                       </p>
                     )}
                     {reg.minSize != null && (
                       <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-                        Min size: <span className="text-white">{reg.minSize}&quot;</span>
+                        Min size: <span className="text-[var(--text)]">{reg.minSize}&quot;</span>
                       </p>
                     )}
                     {reg.hatcheryOnly && (
-                      <p className="text-xs mt-1 font-semibold" style={{ color: '#fbbf24' }}>
+                      <p className="text-xs mt-1 font-semibold" style={{ color: 'var(--amber)' }}>
                         Hatchery fish only (clipped adipose fin)
                       </p>
                     )}
                     {reg.gearRestriction && (
                       <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-                        Gear: <span className="text-white">{reg.gearRestriction}</span>
+                        Gear: <span className="text-[var(--text)]">{reg.gearRestriction}</span>
                       </p>
                     )}
                     {reg.notes && (
-                      <p className="text-xs mt-1.5 leading-snug" style={{ color: '#fdba74' }}>{reg.notes}</p>
+                      <p className="text-xs mt-1.5 leading-snug" style={{ color: 'var(--warning)' }}>{reg.notes}</p>
                     )}
                   </div>
                 )
@@ -487,7 +487,7 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
           <a href="https://wdfw.wa.gov/fishing/regulations" target="_blank" rel="noopener noreferrer"
             className="flex items-center justify-between w-full px-5 py-3.5 rounded-xl no-underline"
             style={{ background: 'rgba(242,101,34,0.12)', border: '1px solid rgba(242,101,34,0.3)', textDecoration: 'none' }}>
-            <span className="text-sm font-bold" style={{ color: '#f26522' }}>Verify on WDFW →</span>
+            <span className="text-sm font-bold" style={{ color: 'var(--accent)' }}>Verify on WDFW →</span>
             <span className="text-xs" style={{ color: 'var(--text-faint)' }}>wdfw.wa.gov</span>
           </a>
         </div>
@@ -628,13 +628,13 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
             <>
           {/* ── Header ── */}
           <div className="flex-shrink-0 flex items-start justify-between px-4 py-3"
-            style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+            style={{ borderBottom: '1px solid var(--border)' }}>
             <div className="flex-1 min-w-0 mr-3">
-              <h2 className="text-xl font-black text-white leading-tight">{waterName}</h2>
+              <h2 className="text-xl font-black text-[var(--text)] leading-tight">{waterName}</h2>
               <div className="flex items-center gap-2 mt-1 flex-wrap">
                 {water && (
                   <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full"
-                    style={{ background: 'rgba(255,255,255,0.07)', color: 'var(--text-muted)', textTransform: 'capitalize' }}>
+                    style={{ background: 'var(--border)', color: 'var(--text-muted)', textTransform: 'capitalize' }}>
                     {water.region} · {water.type}
                   </span>
                 )}
@@ -649,9 +649,9 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                 <button
                   onClick={() => toggleWaterStar(water.id)}
                   className="w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-90"
-                  style={{ background: 'rgba(255,255,255,0.08)' }}>
+                  style={{ background: 'var(--border)' }}>
                   {isWaterStarred(water.id) ? (
-                    <svg className="w-4 h-4" fill="#f59e0b" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    <svg className="w-4 h-4" fill="var(--amber)" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                   ) : (
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5} style={{ color: 'var(--text-faint)' }}><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.563.563 0 00-.182-.557l-4.204-3.602a.562.562 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.499z"/></svg>
                   )}
@@ -659,8 +659,8 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
               )}
               <button onClick={onClose}
                 className="w-8 h-8 rounded-full flex items-center justify-center"
-                style={{ background: 'rgba(255,255,255,0.08)' }}>
-                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                style={{ background: 'var(--border)' }}>
+                <svg className="w-4 h-4 text-[var(--text)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
                 </svg>
               </button>
@@ -679,10 +679,10 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                 {/* Live stats row */}
                 <div className="grid grid-cols-3 gap-2 mb-3">
                   <div className="rounded-xl px-3 py-2.5 col-span-2"
-                    style={{ background: flow.status === 'ideal' ? 'rgba(106,176,76,0.1)' : flow.status === 'loading' ? 'rgba(255,255,255,0.04)' : 'rgba(242,101,34,0.1)', border: `1px solid ${flow.status === 'ideal' ? 'rgba(106,176,76,0.25)' : flow.status === 'loading' ? 'var(--border)' : 'rgba(242,101,34,0.25)'}` }}>
+                    style={{ background: flow.status === 'ideal' ? 'rgba(106,176,76,0.1)' : flow.status === 'loading' ? 'var(--surface-overlay)' : 'rgba(242,101,34,0.1)', border: `1px solid ${flow.status === 'ideal' ? 'rgba(106,176,76,0.25)' : flow.status === 'loading' ? 'var(--border)' : 'rgba(242,101,34,0.25)'}` }}>
                     <p className="text-[10px] font-semibold uppercase tracking-widest mb-0.5" style={{ color: 'var(--text-faint)' }}>Live Flow</p>
                     {flow.cfs !== null ? (
-                      <p className="text-2xl font-black text-white">
+                      <p className="text-2xl font-black text-[var(--text)]">
                         {flow.cfs >= 10000 ? `${(flow.cfs / 1000).toFixed(0)}k` : flow.cfs.toLocaleString()}
                         <span className="text-sm font-semibold ml-1" style={{ color: 'var(--text-faint)' }}>cfs</span>
                       </p>
@@ -692,13 +692,13 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                     {flow.fetchedAt && <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-faint)' }}>as of {flow.fetchedAt}</p>}
                   </div>
                   <div className="rounded-xl px-3 py-2.5"
-                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)' }}>
+                    style={{ background: 'var(--surface-overlay)', border: '1px solid var(--border)' }}>
                     <p className="text-[10px] font-semibold uppercase tracking-widest mb-0.5" style={{ color: 'var(--text-faint)' }}>Status</p>
-                    <p className="text-sm font-black" style={{ color: flow.status === 'ideal' ? '#6ab04c' : flow.status === 'error' ? '#6b7280' : '#f26522' }}>
+                    <p className="text-sm font-black" style={{ color: flow.status === 'ideal' ? 'var(--open)' : flow.status === 'error' ? 'var(--text-faint)' : 'var(--accent)' }}>
                       {flow.status === 'ideal' ? 'IDEAL' : flow.status === 'low' ? 'LOW' : flow.status === 'high' ? 'HIGH' : flow.status === 'loading' ? '…' : 'N/A'}
                     </p>
                     {flow.trend && (
-                      <p className="text-[11px] mt-0.5" style={{ color: flow.trend === 'rising' ? '#ef4444' : flow.trend === 'falling' ? '#60a5fa' : '#6ab04c' }}>
+                      <p className="text-[11px] mt-0.5" style={{ color: flow.trend === 'rising' ? 'var(--live)' : flow.trend === 'falling' ? 'var(--blue)' : 'var(--open)' }}>
                         {flow.trend === 'rising' ? '↑ rising' : flow.trend === 'falling' ? '↓ falling' : '→ stable'}
                       </p>
                     )}
@@ -748,12 +748,12 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                   <div className="flex items-center justify-between mb-2">
                      <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>What&apos;s Open Today</p>
                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded"
-                       style={{ background: 'rgba(106,176,76,0.1)', color: '#6ab04c', border: '1px solid rgba(106,176,76,0.2)' }}>
+                       style={{ background: 'rgba(106,176,76,0.1)', color: 'var(--open)', border: '1px solid rgba(106,176,76,0.2)' }}>
                        Verified {REGS_VERIFIED_DATE}
                      </span>
                    </div>
                   <div className="px-4 py-3 rounded-xl"
-                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    style={{ background: 'var(--border)', border: '1px solid var(--border)' }}>
                     <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No species open today — check calendar for upcoming seasons</p>
                   </div>
                 </div>
@@ -763,12 +763,12 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                   <div className="flex items-center justify-between mb-2">
                      <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>What&apos;s Open Today</p>
                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded"
-                       style={{ background: 'rgba(106,176,76,0.1)', color: '#6ab04c', border: '1px solid rgba(106,176,76,0.2)' }}>
+                       style={{ background: 'rgba(106,176,76,0.1)', color: 'var(--open)', border: '1px solid rgba(106,176,76,0.2)' }}>
                        Verified {REGS_VERIFIED_DATE}
                      </span>
                    </div>
                   <div className="rounded-2xl overflow-hidden"
-                    style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
                     {openItems.map(({ reg, species: sp, effectiveStatus }, i) => {
                       const isEmerg = effectiveStatus === 'emergency'
                       return (
@@ -782,21 +782,21 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                           }}
                           className="w-full flex items-center gap-4 px-4 py-3.5 text-left transition-all active:bg-white/5"
                           style={{
-                            borderBottom: i < openItems.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                            borderBottom: i < openItems.length - 1 ? '1px solid var(--border)' : 'none',
                             borderLeft: isEmerg ? '3px solid #f97316' : undefined,
                           }}>
                           <div className="flex-shrink-0 rounded-lg overflow-hidden"
-                            style={{ width: 48, height: 48, background: '#0b0d14' }}>
+                            style={{ width: 48, height: 48, background: 'var(--photo-bg)' }}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={sp.photo} alt={sp.name}
                               style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 6 }} />
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-0.5">
-                              <p className="text-sm font-bold text-white leading-tight">{sp.name}</p>
+                              <p className="text-sm font-bold text-[var(--text)] leading-tight">{sp.name}</p>
                               {isEmerg && (
                                 <span className="text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wide flex-shrink-0"
-                                  style={{ background: 'rgba(249,115,22,0.18)', color: '#f97316' }}>
+                                  style={{ background: 'rgba(249,115,22,0.18)', color: 'var(--warning)' }}>
                                   EMERGENCY RULE
                                 </span>
                               )}
@@ -805,30 +805,30 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                               {reg.dailyLimit !== null && (
                                 <div className="flex items-baseline gap-1.5">
                                   <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Limit</span>
-                                  <span className="text-xs font-semibold text-white">{reg.dailyLimit}/day</span>
+                                  <span className="text-xs font-semibold text-[var(--text)]">{reg.dailyLimit}/day</span>
                                 </div>
                               )}
                               {reg.minSize !== null && (
                                 <div className="flex items-baseline gap-1.5">
                                   <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Min</span>
-                                  <span className="text-xs font-semibold text-white">{reg.minSize}&quot;</span>
+                                  <span className="text-xs font-semibold text-[var(--text)]">{reg.minSize}&quot;</span>
                                 </div>
                               )}
                               {reg.hatcheryOnly && (
                                 <div className="flex items-baseline gap-1.5">
                                   <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Type</span>
-                                  <span className="text-xs font-semibold" style={{ color: '#f59e0b' }}>Hatchery only</span>
+                                  <span className="text-xs font-semibold" style={{ color: 'var(--amber)' }}>Hatchery only</span>
                                 </div>
                               )}
                               {reg.gearRestriction && (
                                 <div className="flex items-baseline gap-1.5 col-span-2">
                                   <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Rules</span>
-                                  <span className="text-xs font-semibold text-white">{reg.gearRestriction}</span>
+                                  <span className="text-xs font-semibold text-[var(--text)]">{reg.gearRestriction}</span>
                                 </div>
                               )}
                             </div>
                           </div>
-                          <svg className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.25)' }}
+                          <svg className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-20)' }}
                             fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                           </svg>
@@ -850,7 +850,7 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                   <button
                     onClick={() => setAllFishExpanded(v => !v)}
                     className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl transition-all active:scale-[0.99]"
-                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+                    style={{ background: 'var(--surface-overlay)', border: '1px solid var(--border)' }}
                   >
                     <span className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>
                       {allFishExpanded ? 'All Fish on this Water' : `All Fish — ${closedItems.length} more (closed)`}
@@ -866,7 +866,7 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                   {/* Expanded rows */}
                   {allFishExpanded && (
                     <div className="rounded-2xl overflow-hidden mt-2"
-                      style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
                       {closedItems.map(({ reg, species: sp }, i) => (
                         <button
                           key={reg.id}
@@ -877,19 +877,19 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                             setFishWaterCombo({ fish: sp, water, index: Math.max(0, idx), siblingFish: sibs })
                           }}
                           className="w-full flex items-center gap-4 px-4 py-3.5 text-left transition-all active:bg-white/5"
-                          style={{ borderBottom: i < closedItems.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}
+                          style={{ borderBottom: i < closedItems.length - 1 ? '1px solid var(--border)' : 'none' }}
                         >
                           <div className="flex-shrink-0 rounded-lg overflow-hidden"
-                            style={{ width: 48, height: 48, background: '#0b0d14' }}>
+                            style={{ width: 48, height: 48, background: 'var(--photo-bg)' }}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={sp.photo} alt={sp.name}
                               style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 6, opacity: 0.5 }} />
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-0.5">
-                              <p className="text-sm font-bold leading-tight" style={{ color: 'rgba(255,255,255,0.55)' }}>{sp.name}</p>
+                              <p className="text-sm font-bold leading-tight" style={{ color: 'var(--text-60)' }}>{sp.name}</p>
                               <span className="text-[9px] font-bold px-1.5 py-0.5 rounded"
-                                style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171' }}>CLOSED</span>
+                                style={{ background: 'rgba(239,68,68,0.15)', color: 'var(--live)' }}>CLOSED</span>
                             </div>
                             <div className="flex gap-3 flex-wrap">
                               {reg.seasonStart && (
@@ -904,7 +904,7 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                               )}
                             </div>
                           </div>
-                          <svg className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.2)' }}
+                          <svg className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-20)' }}
                             fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                           </svg>
@@ -928,7 +928,7 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
               className="flex items-center justify-between w-full px-5 py-3.5 rounded-xl no-underline transition-opacity active:scale-[0.99]"
               style={{ background: 'rgba(242,101,34,0.12)', border: '1px solid rgba(242,101,34,0.3)', textDecoration: 'none' }}
             >
-              <span className="text-sm font-bold" style={{ color: '#f26522' }}>View on WDFW →</span>
+              <span className="text-sm font-bold" style={{ color: 'var(--accent)' }}>View on WDFW →</span>
               <span className="text-xs" style={{ color: 'var(--text-faint)' }}>wdfw.wa.gov</span>
             </a>
           </div>

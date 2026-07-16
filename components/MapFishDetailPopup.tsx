@@ -12,9 +12,9 @@ interface Props {
 }
 
 const STATUS_CONFIG = {
-  open:      { label: 'OPEN',      color: '#6ab04c', bg: 'rgba(34,197,94,0.15)' },
-  closed:    { label: 'CLOSED',    color: '#ef4444', bg: 'rgba(239,68,68,0.15)' },
-  emergency: { label: 'EMERGENCY', color: '#f97316', bg: 'rgba(249,115,22,0.15)' },
+  open:      { label: 'OPEN',      color: 'var(--open)', bg: 'rgba(34,197,94,0.15)' },
+  closed:    { label: 'CLOSED',    color: 'var(--live)', bg: 'rgba(239,68,68,0.15)' },
+  emergency: { label: 'EMERGENCY', color: 'var(--warning)', bg: 'rgba(249,115,22,0.15)' },
 } as const
 
 // ─── COMPONENT ────────────────────────────────────────────────────────────────
@@ -96,7 +96,7 @@ export default function MapFishDetailPopup({
                 <Row label="Min size" value={`${reg.minSize}"`} />
               )}
               {reg.hatcheryOnly && (
-                <Row label="Hatchery" value="Hatchery only (clipped fin)" accent="#fbbf24" />
+                <Row label="Hatchery" value="Hatchery only (clipped fin)" accent="var(--amber)" />
               )}
               {reg.gearRestriction && (
                 <Row label="Gear" value={reg.gearRestriction} />

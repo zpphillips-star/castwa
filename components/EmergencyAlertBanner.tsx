@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react'
 import { getActiveAlerts, EmergencyAlert, AlertType } from '@/lib/emergency-alerts'
 
 const TYPE_STYLE: Record<AlertType, { bg: string; border: string; badge: string; badgeBg: string; icon: string }> = {
-  OPEN:     { bg: 'rgba(34,197,94,0.08)',  border: 'rgba(34,197,94,0.3)',  badge: '#22c55e', badgeBg: 'rgba(34,197,94,0.15)',  icon: '🟢' },
-  CLOSED:   { bg: 'rgba(239,68,68,0.08)',  border: 'rgba(239,68,68,0.3)',  badge: '#ef4444', badgeBg: 'rgba(239,68,68,0.15)',  icon: '🔴' },
-  MODIFIED: { bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.3)', badge: '#f59e0b', badgeBg: 'rgba(245,158,11,0.15)', icon: '🟡' },
+  OPEN:     { bg: 'rgba(34,197,94,0.08)',  border: 'rgba(34,197,94,0.3)',  badge: 'var(--status-open-bright)', badgeBg: 'rgba(34,197,94,0.15)',  icon: '🟢' },
+  CLOSED:   { bg: 'rgba(239,68,68,0.08)',  border: 'rgba(239,68,68,0.3)',  badge: 'var(--live)', badgeBg: 'rgba(239,68,68,0.15)',  icon: '🔴' },
+  MODIFIED: { bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.3)', badge: 'var(--amber)', badgeBg: 'rgba(245,158,11,0.15)', icon: '🟡' },
 }
 
 function AlertCard({ alert }: { alert: EmergencyAlert }) {
@@ -24,22 +24,22 @@ function AlertCard({ alert }: { alert: EmergencyAlert }) {
               style={{ background: s.badgeBg, color: s.badge }}>
               {alert.type}
             </span>
-            <span className="text-xs font-bold text-white">{alert.species}</span>
+            <span className="text-xs font-bold text-[var(--text)]">{alert.species}</span>
           </div>
-          <p className="text-[11px] mt-0.5 leading-snug" style={{ color: '#fde68a' }}>
+          <p className="text-[11px] mt-0.5 leading-snug" style={{ color: 'var(--amber)' }}>
             {alert.waterBody}
           </p>
-          <p className="text-[11px] mt-0.5 leading-snug" style={{ color: '#d1d5db' }}>
+          <p className="text-[11px] mt-0.5 leading-snug" style={{ color: 'var(--text-muted)' }}>
             {alert.description}
           </p>
           <div className="flex items-center justify-between mt-1">
-            <span className="text-[10px]" style={{ color: '#9ca3af' }}>{dateRange}</span>
+            <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>{dateRange}</span>
             <a
               href={alert.wdfw_url}
               target="_blank"
               rel="noopener noreferrer"
               className="text-[10px] font-semibold"
-              style={{ color: '#f59e0b' }}
+              style={{ color: 'var(--amber)' }}
             >
               WDFW ↗
             </a>
@@ -112,17 +112,17 @@ export default function EmergencyAlertBanner() {
           className="flex-1 flex items-center gap-1 text-left"
           onClick={() => setExpanded(e => !e)}
         >
-          <span className="text-xs font-black tracking-wide" style={{ color: '#f59e0b' }}>
+          <span className="text-xs font-black tracking-wide" style={{ color: 'var(--amber)' }}>
             WDFW EMERGENCY RULE
           </span>
-          <span className="text-xs" style={{ color: '#f59e0b' }}>
+          <span className="text-xs" style={{ color: 'var(--amber)' }}>
             — {alerts.length} active {alerts.length === 1 ? 'alert' : 'alerts'} {expanded ? '▲' : '▼'}
           </span>
         </button>
         <button
           onClick={handleDismiss}
           className="flex-shrink-0 text-xs px-2 py-0.5 rounded-full"
-          style={{ background: 'rgba(245,158,11,0.15)', color: '#f59e0b' }}
+          style={{ background: 'rgba(245,158,11,0.15)', color: 'var(--amber)' }}
           aria-label="Dismiss"
         >
           ✕
@@ -135,8 +135,8 @@ export default function EmergencyAlertBanner() {
       {/* Collapsed preview */}
       {!expanded && (
         <div className="px-3 pb-2">
-          <p className="text-[11px] leading-snug" style={{ color: '#fde68a' }}>
-            {alerts[0].species} · {alerts[0].waterBody} · <span style={{ color: '#f59e0b' }}>{alerts[0].type}</span>
+          <p className="text-[11px] leading-snug" style={{ color: 'var(--amber)' }}>
+            {alerts[0].species} · {alerts[0].waterBody} · <span style={{ color: 'var(--amber)' }}>{alerts[0].type}</span>
             {alerts.length > 1 ? ` + ${alerts.length - 1} more` : ''}
           </p>
         </div>

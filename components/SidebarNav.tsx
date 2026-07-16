@@ -12,7 +12,7 @@ const NAV_ITEMS = [
     href: '/fish',
     label: 'Fish',
     icon: (active: boolean) => (
-      <svg className="w-6 h-6" style={{ color: active ? '#f26522' : '#6b7280' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg className="w-6 h-6" style={{ color: active ? 'var(--accent)' : 'var(--text-faint)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12c0 0-4-6-9-6S3 12 3 12s4 6 9 6 9-6 9-6z"/>
         <circle cx="15" cy="12" r="1.5" fill="currentColor" stroke="none"/>
         <path strokeLinecap="round" strokeWidth={2} d="M3 12L1 9M3 12L1 15"/>
@@ -23,7 +23,7 @@ const NAV_ITEMS = [
     href: '/conditions',
     label: 'Waters',
     icon: (active: boolean) => (
-      <svg className="w-6 h-6" style={{ color: active ? '#f26522' : '#6b7280' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg className="w-6 h-6" style={{ color: active ? 'var(--accent)' : 'var(--text-faint)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2C12 2 5 10 5 15a7 7 0 0014 0C19 10 12 2 12 2z"/>
       </svg>
     ),
@@ -32,7 +32,7 @@ const NAV_ITEMS = [
     href: '/map',
     label: 'Near Me',
     icon: (active: boolean) => (
-      <svg className="w-6 h-6" style={{ color: active ? '#f26522' : '#6b7280' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg className="w-6 h-6" style={{ color: active ? 'var(--accent)' : 'var(--text-faint)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
         <circle cx="12" cy="9" r="2.5" strokeWidth={2}/>
       </svg>
@@ -42,7 +42,7 @@ const NAV_ITEMS = [
     href: '/calendar',
     label: 'Calendar',
     icon: (active: boolean) => (
-      <svg className="w-6 h-6" style={{ color: active ? '#f26522' : '#6b7280' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg className="w-6 h-6" style={{ color: active ? 'var(--accent)' : 'var(--text-faint)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <rect x="3" y="4" width="18" height="18" rx="2" strokeWidth={2}/>
         <line x1="16" y1="2" x2="16" y2="6" strokeWidth={2} strokeLinecap="round"/>
         <line x1="8" y1="2" x2="8" y2="6" strokeWidth={2} strokeLinecap="round"/>
@@ -78,7 +78,7 @@ export default function SidebarNav() {
         <div
           className="w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden transition-transform active:scale-95"
           style={{
-            background: '#f26522',
+            background: 'var(--accent)',
             boxShadow: todayActive
               ? '0 0 18px rgba(242,101,34,0.6), 0 2px 12px rgba(0,0,0,0.4)'
               : '0 2px 10px rgba(0,0,0,0.3)',
@@ -94,7 +94,7 @@ export default function SidebarNav() {
             style={{ width: '80%', height: '80%', objectFit: 'contain' }}
           />
         </div>
-        <span className="text-[9px] font-bold" style={{ color: todayActive ? '#f26522' : '#6b7280' }}>
+        <span className="text-[9px] font-bold" style={{ color: todayActive ? 'var(--accent)' : 'var(--text-faint)' }}>
           Today
         </span>
       </button>
@@ -119,11 +119,11 @@ export default function SidebarNav() {
               {active && (
                 <div
                   className="absolute left-0 top-2 bottom-2 w-0.5 rounded-r"
-                  style={{ background: '#f26522' }}
+                  style={{ background: 'var(--accent)' }}
                 />
               )}
               {item.icon(active)}
-              <span className="text-[9px] font-bold" style={{ color: active ? '#f26522' : '#6b7280' }}>
+              <span className="text-[9px] font-bold" style={{ color: active ? 'var(--accent)' : 'var(--text-faint)' }}>
                 {item.label}
               </span>
             </button>

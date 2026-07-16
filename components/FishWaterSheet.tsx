@@ -48,7 +48,7 @@ const RiverDetailMapInner = dynamic(() => import('./RiverDetailMapInner'), {
   loading: () => (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      height: '100%', background: 'var(--bg)', color: '#6b7280', fontSize: 14,
+      height: '100%', background: 'var(--bg)', color: 'var(--text-faint)', fontSize: 14,
     }}>
       Loading map…
     </div>
@@ -60,7 +60,7 @@ const LakeMapInner = dynamic(() => import('./LakeMapInner'), {
   loading: () => (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      height: '100%', background: 'var(--bg)', color: '#6b7280', fontSize: 14,
+      height: '100%', background: 'var(--bg)', color: 'var(--text-faint)', fontSize: 14,
     }}>
       Loading map…
     </div>
@@ -325,7 +325,7 @@ export default function FishWaterSheet({
   const guide = CATCH_GUIDES.find(g => g.speciesId === fish.id) ?? null
 
   // Overall status computed above via getFishSeasonStatus
-  const statusColor = overallStatus === 'emergency' ? '#f26522' : overallStatus === 'open' ? '#6ab04c' : '#6b7280'
+  const statusColor = overallStatus === 'emergency' ? 'var(--accent)' : overallStatus === 'open' ? 'var(--open)' : 'var(--text-faint)'
   const statusLabel = overallStatus === 'emergency' ? 'EMERGENCY' : overallStatus === 'open' ? 'OPEN' : 'CLOSED'
   const firstReg = displayRegs[0] ?? regs[0]
 
@@ -385,7 +385,7 @@ export default function FishWaterSheet({
         <div
           className="flex-shrink-0 flex items-center gap-2 px-4 py-3"
           style={{
-            borderBottom: '1px solid rgba(255,255,255,0.08)',
+            borderBottom: '1px solid var(--border)',
             background: 'var(--bg)',
             zIndex: 20,
           }}
@@ -404,9 +404,9 @@ export default function FishWaterSheet({
           </button>
 
           <div className="flex-1 min-w-0 text-center px-1 truncate">
-            <span className="text-sm font-bold text-white">{fish.name}</span>
+            <span className="text-sm font-bold text-[var(--text)]">{fish.name}</span>
             <span className="text-sm" style={{ color: 'var(--text-faint)' }}> on </span>
-            <span className="text-sm font-bold text-white">{water.name}</span>
+            <span className="text-sm font-bold text-[var(--text)]">{water.name}</span>
           </div>
 
           {siblings.length > 1 && (
@@ -442,7 +442,7 @@ export default function FishWaterSheet({
           {/* ═══════════════════════════════════════════════════════════════
               SECTION 1 — Hero: fish photo + name overlay + status pill
           ═══════════════════════════════════════════════════════════════ */}
-          <div style={{ position: 'relative', height: 200, background: '#090909', flexShrink: 0 }}>
+          <div style={{ position: 'relative', height: 200, background: 'var(--photo-bg)', flexShrink: 0 }}>
             {fish.photo && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -482,7 +482,7 @@ export default function FishWaterSheet({
               </span>
               {firstReg && overallStatus === 'open' && (
                 <span style={{
-                  fontSize: 10, color: 'rgba(255,255,255,0.72)',
+                  fontSize: 10, color: 'var(--text-muted)',
                   textAlign: 'right', lineHeight: 1.3,
                 }}>
                   {fmtDate(firstReg.seasonStart)} – {fmtDate(firstReg.seasonEnd)}
@@ -501,7 +501,7 @@ export default function FishWaterSheet({
               </p>
               <p style={{
                 fontSize: 13, fontWeight: 500,
-                color: 'rgba(255,255,255,0.58)',
+                color: 'var(--text-60)',
                 textShadow: '0 1px 4px rgba(0,0,0,0.5)',
               }}>
                 on {water.name}
@@ -518,8 +518,8 @@ export default function FishWaterSheet({
             {/* No regulation on file */}
             {!isSkagit && regs.length === 0 && (
               <div style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.08)',
+                background: 'var(--surface-overlay)',
+                border: '1px solid var(--border)',
                 borderRadius: 16, padding: '18px 16px', marginBottom: 12, textAlign: 'center',
               }}>
                 <p style={{ fontSize: 13, color: 'var(--text-faint)', marginBottom: 8 }}>
@@ -528,7 +528,7 @@ export default function FishWaterSheet({
                 <a
                   href="https://wdfw.wa.gov/fishing/regulations"
                   target="_blank" rel="noopener noreferrer"
-                  style={{ fontSize: 12, color: '#f26522', textDecoration: 'underline' }}
+                  style={{ fontSize: 12, color: 'var(--accent)', textDecoration: 'underline' }}
                 >
                   Check WDFW regulations
                 </a>
@@ -542,20 +542,20 @@ export default function FishWaterSheet({
                 border: '1px solid rgba(107,114,128,0.2)',
                 borderRadius: 16, padding: '18px 16px', marginBottom: 12, textAlign: 'center',
               }}>
-                <p style={{ fontSize: 16, fontWeight: 700, color: '#9ca3af', marginBottom: 6 }}>
+                <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-faint)', marginBottom: 6 }}>
                   CLOSED right now
                 </p>
                 {nextOpening && (
                   <p style={{ fontSize: 13, color: 'var(--text-faint)' }}>
                     Season opens{' '}
-                    <span style={{ color: '#fff', fontWeight: 600 }}>{fmtDate(nextOpening)}</span>
+                    <span style={{ color: 'var(--text)', fontWeight: 600 }}>{fmtDate(nextOpening)}</span>
                   </p>
                 )}
                 <a
                   href="https://wdfw.wa.gov/fishing/regulations"
                   target="_blank" rel="noopener noreferrer"
                   style={{
-                    fontSize: 11, color: '#f26522', textDecoration: 'underline',
+                    fontSize: 11, color: 'var(--accent)', textDecoration: 'underline',
                     display: 'inline-block', marginTop: 10,
                   }}
                 >
@@ -579,7 +579,7 @@ export default function FishWaterSheet({
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {skagitSectionStatuses.map((s, i) => {
                     const isExp = expandedSection === i
-                    const sc = s.status === 'emergency' ? '#f26522' : s.status === 'open' ? '#6ab04c' : '#6b7280'
+                    const sc = s.status === 'emergency' ? 'var(--accent)' : s.status === 'open' ? 'var(--open)' : 'var(--text-faint)'
                     const lbl = s.status === 'emergency' ? '⚑ EMERGENCY' : s.status === 'open' ? '● OPEN' : '○ CLOSED'
 
                     return (
@@ -592,12 +592,12 @@ export default function FishWaterSheet({
                             ? 'rgba(242,101,34,0.06)'
                             : s.status === 'open'
                             ? 'rgba(106,176,76,0.05)'
-                            : 'rgba(255,255,255,0.04)',
+                            : 'var(--surface-overlay)',
                           border: s.status === 'emergency'
                             ? '1px solid rgba(242,101,34,0.22)'
                             : s.status === 'open'
                             ? '1px solid rgba(106,176,76,0.18)'
-                            : '1px solid rgba(255,255,255,0.08)',
+                            : '1px solid var(--border)',
                           borderLeft: `3px solid ${sc}`,
                         }}
                       >
@@ -612,7 +612,7 @@ export default function FishWaterSheet({
                             border: 'none', cursor: 'pointer', textAlign: 'left',
                           }}
                         >
-                          <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.88)', lineHeight: 1.3 }}>
+                          <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: 'var(--text-80)', lineHeight: 1.3 }}>
                             {s.name}
                           </span>
                           <span style={{ fontSize: 11, fontWeight: 800, color: sc, flexShrink: 0 }}>
@@ -639,15 +639,15 @@ export default function FishWaterSheet({
                               const hasEmerg = !!s.emergencyRule
                               const isSeasonOpen = s.season ? !s.season.closed : false
                               const cardStatus = hasEmerg ? 'emergency' : isSeasonOpen ? 'open' : 'closed'
-                              const cardColor = cardStatus === 'emergency' ? '#f26522' : cardStatus === 'open' ? '#6ab04c' : '#9ca3af'
+                              const cardColor = cardStatus === 'emergency' ? 'var(--accent)' : cardStatus === 'open' ? 'var(--open)' : 'var(--text-faint)'
                               const eKey = `skagit-${i}`
                               const isEOpen = expandedEmergency.has(eKey)
                               // Use the main REGULATIONS entry for this fish on Skagit to get all fields
                               const reg = regs[0] ?? null
                               return (
                                 <div style={{
-                                  background: cardStatus === 'emergency' ? 'rgba(242,101,34,0.06)' : 'rgba(255,255,255,0.05)',
-                                  border: cardStatus === 'emergency' ? '1px solid rgba(242,101,34,0.18)' : '1px solid rgba(255,255,255,0.08)',
+                                  background: cardStatus === 'emergency' ? 'rgba(242,101,34,0.06)' : 'var(--surface-overlay)',
+                                  border: cardStatus === 'emergency' ? '1px solid rgba(242,101,34,0.18)' : '1px solid var(--border)',
                                   borderRadius: 16, padding: '14px 14px',
                                 }}>
                                   {/* Header — identical to non-Skagit */}
@@ -655,7 +655,7 @@ export default function FishWaterSheet({
                                     <p style={{
                                       fontSize: 10, textTransform: 'uppercase', fontWeight: 800,
                                       letterSpacing: '0.08em',
-                                      color: cardStatus === 'emergency' ? '#f26522' : 'var(--text-faint)',
+                                      color: cardStatus === 'emergency' ? 'var(--accent)' : 'var(--text-faint)',
                                     }}>
                                       {cardStatus === 'emergency' ? 'Emergency Rule in Effect' : getSeasonLabel(reg?.seasonStart ?? null, fish.name)}
                                     </p>
@@ -665,11 +665,11 @@ export default function FishWaterSheet({
                                   </div>
 
                                   {/* Date range — section-specific from s.season, fallback to reg */}
-                                  <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 10 }}>
+                                  <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 10 }}>
                                     {s.season?.open ?? (reg ? `${fmtDate(reg.seasonStart)} – ${fmtDate(reg.seasonEnd)}` : '—')}
                                   </p>
 
-                                  <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', marginBottom: 10 }} />
+                                  <div style={{ height: 1, background: 'var(--border)', marginBottom: 10 }} />
 
                                   {/* 2-col grid: daily limit + min size — from reg */}
                                   {reg && (reg.dailyLimit != null || reg.minSize != null) && (
@@ -682,16 +682,16 @@ export default function FishWaterSheet({
                                       {reg.dailyLimit != null && (
                                         <div>
                                           <p style={{ fontSize: 9, textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.08em', color: 'var(--text-faint)', marginBottom: 2 }}>Daily Limit</p>
-                                          <p style={{ fontSize: 17, fontWeight: 800, color: '#fff', lineHeight: 1 }}>
-                                            {reg.dailyLimit}<span style={{ fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,0.5)' }}>/day</span>
+                                          <p style={{ fontSize: 17, fontWeight: 800, color: 'var(--text)', lineHeight: 1 }}>
+                                            {reg.dailyLimit}<span style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-40)' }}>/day</span>
                                           </p>
                                         </div>
                                       )}
                                       {reg.minSize != null && (
                                         <div>
                                           <p style={{ fontSize: 9, textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.08em', color: 'var(--text-faint)', marginBottom: 2 }}>Min Size</p>
-                                          <p style={{ fontSize: 17, fontWeight: 800, color: '#fff', lineHeight: 1 }}>
-                                            {reg.minSize}<span style={{ fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,0.5)' }}>"</span>
+                                          <p style={{ fontSize: 17, fontWeight: 800, color: 'var(--text)', lineHeight: 1 }}>
+                                            {reg.minSize}<span style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-40)' }}>"</span>
                                           </p>
                                         </div>
                                       )}
@@ -700,19 +700,19 @@ export default function FishWaterSheet({
 
                                   {/* Hatchery Only badge — from reg */}
                                   {reg?.hatcheryOnly && (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', borderTop: (reg.dailyLimit != null || reg.minSize != null) ? '1px solid rgba(255,255,255,0.07)' : 'none' }}>
-                                      <span style={{ fontSize: 11, fontWeight: 800, color: '#1a1100', background: '#fbbf24', borderRadius: 20, padding: '3px 9px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', borderTop: (reg.dailyLimit != null || reg.minSize != null) ? '1px solid var(--border)' : 'none' }}>
+                                      <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--photo-bg)', background: 'var(--amber)', borderRadius: 20, padding: '3px 9px' }}>
                                         Hatchery Only ✂
                                       </span>
-                                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>clipped adipose fin only</span>
+                                      <span style={{ fontSize: 11, color: 'var(--text-40)' }}>clipped adipose fin only</span>
                                     </div>
                                   )}
 
                                   {/* Gear restriction — from reg */}
                                   {reg?.gearRestriction && (
-                                    <div style={{ padding: '8px 0', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+                                    <div style={{ padding: '8px 0', borderTop: '1px solid var(--border)' }}>
                                       <p style={{ fontSize: 9, textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.08em', color: 'var(--text-faint)', marginBottom: 3 }}>Gear Restriction</p>
-                                      <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.78)' }}>{reg.gearRestriction}</p>
+                                      <p style={{ fontSize: 13, color: 'var(--text-60)' }}>{reg.gearRestriction}</p>
                                     </div>
                                   )}
 
@@ -736,7 +736,7 @@ export default function FishWaterSheet({
                                           ))}
                                           {s.emergencyRule.url && (
                                             <a href={s.emergencyRule.url} target="_blank" rel="noopener noreferrer"
-                                              style={{ fontSize: 12, color: '#f26522', textDecoration: 'underline', display: 'inline-block', marginTop: 8 }}>
+                                              style={{ fontSize: 12, color: 'var(--accent)', textDecoration: 'underline', display: 'inline-block', marginTop: 8 }}>
                                               View official rule →
                                             </a>
                                           )}
@@ -770,15 +770,15 @@ export default function FishWaterSheet({
                   const isOpen = isOpenOn(reg, today)
                   const hasNoteEmerg = !!(reg.notes && /emergency/i.test(reg.notes))
                   const regStatus = hasNoteEmerg ? 'emergency' : isOpen ? 'open' : 'closed'
-                  const regSColor = regStatus === 'emergency' ? '#f26522' : regStatus === 'open' ? '#6ab04c' : '#9ca3af'
+                  const regSColor = regStatus === 'emergency' ? 'var(--accent)' : regStatus === 'open' ? 'var(--open)' : 'var(--text-faint)'
 
                   return (
                     <div
                       key={reg.id}
                       style={{
-                        background: regStatus === 'emergency' ? 'rgba(242,101,34,0.06)' : 'rgba(255,255,255,0.05)',
-                        border: regStatus === 'emergency' ? '1px solid rgba(242,101,34,0.18)' : '1px solid rgba(255,255,255,0.08)',
-                        borderLeft: regStatus === 'emergency' ? '3px solid #f26522' : '1px solid rgba(255,255,255,0.08)',
+                        background: regStatus === 'emergency' ? 'rgba(242,101,34,0.06)' : 'var(--surface-overlay)',
+                        border: regStatus === 'emergency' ? '1px solid rgba(242,101,34,0.18)' : '1px solid var(--border)',
+                        borderLeft: regStatus === 'emergency' ? '3px solid #f26522' : '1px solid var(--border)',
                         borderRadius: 16, padding: '14px 14px',
                         flex: displayRegs.length === 2 ? '1 1 0' : undefined,
                         minWidth: 0,
@@ -789,7 +789,7 @@ export default function FishWaterSheet({
                         <p style={{
                           fontSize: 10, textTransform: 'uppercase', fontWeight: 800,
                           letterSpacing: '0.08em',
-                          color: regStatus === 'emergency' ? '#f26522' : 'var(--text-faint)',
+                          color: regStatus === 'emergency' ? 'var(--accent)' : 'var(--text-faint)',
                         }}>
                           {regStatus === 'emergency' ? 'Emergency Rule in Effect' : getSeasonLabel(reg.seasonStart, fish.name)}
                         </p>
@@ -799,11 +799,11 @@ export default function FishWaterSheet({
                       </div>
 
                       {/* Date range */}
-                      <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 10 }}>
+                      <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 10 }}>
                         {fmtDate(reg.seasonStart)} – {fmtDate(reg.seasonEnd)}
                       </p>
 
-                      <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', marginBottom: 10 }} />
+                      <div style={{ height: 1, background: 'var(--border)', marginBottom: 10 }} />
 
                       {/* 2-col grid: daily limit + min size */}
                       {(reg.dailyLimit != null || reg.minSize != null) && (
@@ -821,8 +821,8 @@ export default function FishWaterSheet({
                               }}>
                                 Daily Limit
                               </p>
-                              <p style={{ fontSize: 17, fontWeight: 800, color: '#fff', lineHeight: 1 }}>
-                                {reg.dailyLimit}<span style={{ fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,0.5)' }}>/day</span>
+                              <p style={{ fontSize: 17, fontWeight: 800, color: 'var(--text)', lineHeight: 1 }}>
+                                {reg.dailyLimit}<span style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-40)' }}>/day</span>
                               </p>
                             </div>
                           )}
@@ -834,8 +834,8 @@ export default function FishWaterSheet({
                               }}>
                                 Min Size
                               </p>
-                              <p style={{ fontSize: 17, fontWeight: 800, color: '#fff', lineHeight: 1 }}>
-                                {reg.minSize}<span style={{ fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,0.5)' }}>"</span>
+                              <p style={{ fontSize: 17, fontWeight: 800, color: 'var(--text)', lineHeight: 1 }}>
+                                {reg.minSize}<span style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-40)' }}>"</span>
                               </p>
                             </div>
                           )}
@@ -847,17 +847,17 @@ export default function FishWaterSheet({
                         <div style={{
                           display: 'flex', alignItems: 'center', gap: 8,
                           padding: '8px 0',
-                          borderTop: (reg.dailyLimit != null || reg.minSize != null) ? '1px solid rgba(255,255,255,0.07)' : 'none',
+                          borderTop: (reg.dailyLimit != null || reg.minSize != null) ? '1px solid var(--border)' : 'none',
                         }}>
                           <span style={{
                             fontSize: 11, fontWeight: 800,
-                            color: '#1a1100',
-                            background: '#fbbf24',
+                            color: 'var(--photo-bg)',
+                            background: 'var(--amber)',
                             borderRadius: 20, padding: '3px 9px',
                           }}>
                             Hatchery Only ✂
                           </span>
-                          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>
+                          <span style={{ fontSize: 11, color: 'var(--text-40)' }}>
                             clipped adipose fin only
                           </span>
                         </div>
@@ -867,7 +867,7 @@ export default function FishWaterSheet({
                       {reg.gearRestriction && (
                         <div style={{
                           padding: '8px 0',
-                          borderTop: '1px solid rgba(255,255,255,0.07)',
+                          borderTop: '1px solid var(--border)',
                         }}>
                           <p style={{
                             fontSize: 9, textTransform: 'uppercase', fontWeight: 700,
@@ -875,7 +875,7 @@ export default function FishWaterSheet({
                           }}>
                             Gear Restriction
                           </p>
-                          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.78)' }}>
+                          <p style={{ fontSize: 13, color: 'var(--text-60)' }}>
                             {reg.gearRestriction}
                           </p>
                         </div>
@@ -898,14 +898,14 @@ export default function FishWaterSheet({
                               {isEOpen ? 'Hide details ↑' : 'See rule details ↓'}
                             </button>
                             {isEOpen && (
-                              <p style={{ fontSize: 12, lineHeight: 1.5, marginTop: 8, color: '#f26522' }}>
+                              <p style={{ fontSize: 12, lineHeight: 1.5, marginTop: 8, color: 'var(--accent)' }}>
                                 {reg.notes}
                               </p>
                             )}
                           </div>
                         )
                         return (
-                          <p style={{ fontSize: 12, lineHeight: 1.5, marginTop: 8, color: 'rgba(255,255,255,0.4)' }}>
+                          <p style={{ fontSize: 12, lineHeight: 1.5, marginTop: 8, color: 'var(--text-40)' }}>
                             {reg.notes}
                           </p>
                         )
@@ -929,7 +929,7 @@ export default function FishWaterSheet({
                   textDecoration: 'none', marginBottom: 4,
                 }}
               >
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#f26522' }}>Verify on WDFW</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent)' }}>Verify on WDFW</span>
                 <span style={{ fontSize: 11, color: 'var(--text-faint)' }}>wdfw.wa.gov →</span>
               </a>
             )}
@@ -943,8 +943,8 @@ export default function FishWaterSheet({
           <div style={{
             position: 'sticky', top: 0, zIndex: 10,
             background: 'var(--bg)',
-            borderBottom: '1px solid rgba(255,255,255,0.08)',
-            borderTop: '1px solid rgba(255,255,255,0.08)',
+            borderBottom: '1px solid var(--border)',
+            borderTop: '1px solid var(--border)',
             display: 'flex',
             marginTop: 16,
           }}>
@@ -984,7 +984,7 @@ export default function FishWaterSheet({
                   <>
                     <p style={{
                       fontSize: 9, textTransform: 'uppercase', fontWeight: 800,
-                      letterSpacing: '0.13em', color: '#f26522', marginBottom: 10,
+                      letterSpacing: '0.13em', color: 'var(--accent)', marginBottom: 10,
                     }}>
                       Best Spots on {water.name}
                     </p>
@@ -994,16 +994,16 @@ export default function FishWaterSheet({
                           key={i}
                           style={{
                             display: 'flex', alignItems: 'flex-start', gap: 12,
-                            background: 'rgba(255,255,255,0.04)',
-                            border: '1px solid rgba(255,255,255,0.07)',
+                            background: 'var(--surface-overlay)',
+                            border: '1px solid var(--border)',
                             borderRadius: 14, padding: '12px 14px',
                           }}
                         >
                           <div style={{
                             width: 8, height: 8, borderRadius: '50%',
-                            background: '#f26522', flexShrink: 0, marginTop: 4,
+                            background: 'var(--accent)', flexShrink: 0, marginTop: 4,
                           }} />
-                          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', lineHeight: 1.55 }}>
+                          <p style={{ fontSize: 13, color: 'var(--text-80)', lineHeight: 1.55 }}>
                             {spot}
                           </p>
                         </div>
@@ -1021,7 +1021,7 @@ export default function FishWaterSheet({
                     }}>
                       <p style={{
                         fontSize: 9, textTransform: 'uppercase', fontWeight: 800,
-                        letterSpacing: '0.13em', color: '#f26522',
+                        letterSpacing: '0.13em', color: 'var(--accent)',
                       }}>
                         Map
                       </p>
@@ -1042,7 +1042,7 @@ export default function FishWaterSheet({
                         borderRadius: 16, overflow: 'hidden', marginBottom: 24,
                         height: mapExpanded ? 280 : 150,
                         transition: 'height 0.25s ease',
-                        border: '1px solid rgba(255,255,255,0.08)',
+                        border: '1px solid var(--border)',
                       }}
                     >
                       {isLakeType ? (
@@ -1050,7 +1050,7 @@ export default function FishWaterSheet({
                           waterName={water.name}
                           lat={water.lat}
                           lng={water.lng}
-                          fillColor={anyOpen ? '#6ab04c' : '#e74c3c'}
+                          fillColor={anyOpen ? 'var(--open)' : 'var(--live)'}
                         />
                       ) : (
                         <RiverDetailMapInner
@@ -1083,7 +1083,7 @@ export default function FishWaterSheet({
                     {/* Best Time — featured block */}
                     <p style={{
                       fontSize: 9, textTransform: 'uppercase', fontWeight: 800,
-                      letterSpacing: '0.13em', color: '#f26522', marginBottom: 10,
+                      letterSpacing: '0.13em', color: 'var(--accent)', marginBottom: 10,
                     }}>
                       Best Time
                     </p>
@@ -1093,7 +1093,7 @@ export default function FishWaterSheet({
                       borderLeft: '3px solid #f26522',
                       borderRadius: 14, padding: '13px 15px', marginBottom: 24,
                     }}>
-                      <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', lineHeight: 1.6 }}>
+                      <p style={{ fontSize: 14, color: 'var(--text-80)', lineHeight: 1.6 }}>
                         {guide.bestTime}
                       </p>
                     </div>
@@ -1103,7 +1103,7 @@ export default function FishWaterSheet({
                       <>
                         <p style={{
                           fontSize: 9, textTransform: 'uppercase', fontWeight: 800,
-                          letterSpacing: '0.13em', color: '#f26522', marginBottom: 10,
+                          letterSpacing: '0.13em', color: 'var(--accent)', marginBottom: 10,
                         }}>
                           Best Bait Right Now
                         </p>
@@ -1112,15 +1112,15 @@ export default function FishWaterSheet({
                             <div
                               key={i}
                               style={{
-                                background: 'rgba(255,255,255,0.05)',
-                                border: '1px solid rgba(255,255,255,0.09)',
+                                background: 'var(--surface-overlay)',
+                                border: '1px solid var(--border)',
                                 borderRadius: 14, padding: '12px 14px',
                               }}
                             >
-                              <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 4 }}>
+                              <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 4 }}>
                                 {bait.name}
                               </p>
-                              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.52)', lineHeight: 1.5 }}>
+                              <p style={{ fontSize: 12, color: 'var(--text-60)', lineHeight: 1.5 }}>
                                 {bait.when}
                               </p>
                             </div>
@@ -1134,7 +1134,7 @@ export default function FishWaterSheet({
                       <>
                         <p style={{
                           fontSize: 9, textTransform: 'uppercase', fontWeight: 800,
-                          letterSpacing: '0.13em', color: '#f26522', marginBottom: 10,
+                          letterSpacing: '0.13em', color: 'var(--accent)', marginBottom: 10,
                         }}>
                           Techniques
                         </p>
@@ -1144,8 +1144,8 @@ export default function FishWaterSheet({
                               key={i}
                               style={{
                                 display: 'flex', alignItems: 'flex-start', gap: 12,
-                                background: 'rgba(255,255,255,0.04)',
-                                border: '1px solid rgba(255,255,255,0.07)',
+                                background: 'var(--surface-overlay)',
+                                border: '1px solid var(--border)',
                                 borderRadius: 14, padding: '12px 14px',
                               }}
                             >
@@ -1153,11 +1153,11 @@ export default function FishWaterSheet({
                                 flexShrink: 0, width: 22, height: 22, borderRadius: '50%',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 fontSize: 10, fontWeight: 800,
-                                background: 'rgba(242,101,34,0.18)', color: '#f26522', marginTop: 1,
+                                background: 'rgba(242,101,34,0.18)', color: 'var(--accent)', marginTop: 1,
                               }}>
                                 {i + 1}
                               </span>
-                              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', lineHeight: 1.55 }}>
+                              <p style={{ fontSize: 13, color: 'var(--text-80)', lineHeight: 1.55 }}>
                                 {t}
                               </p>
                             </div>
@@ -1171,7 +1171,7 @@ export default function FishWaterSheet({
                       <>
                         <p style={{
                           fontSize: 9, textTransform: 'uppercase', fontWeight: 800,
-                          letterSpacing: '0.13em', color: '#f26522', marginBottom: 10,
+                          letterSpacing: '0.13em', color: 'var(--accent)', marginBottom: 10,
                         }}>
                           Pro Tips
                         </p>
@@ -1186,7 +1186,7 @@ export default function FishWaterSheet({
                                 borderRadius: 14, padding: '12px 14px',
                               }}
                             >
-                              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.82)', lineHeight: 1.58 }}>
+                              <p style={{ fontSize: 13, color: 'var(--text-80)', lineHeight: 1.58 }}>
                                 {tip}
                               </p>
                             </div>
@@ -1199,7 +1199,7 @@ export default function FishWaterSheet({
                   <>
                     <p style={{
                       fontSize: 9, textTransform: 'uppercase', fontWeight: 800,
-                      letterSpacing: '0.13em', color: '#f26522', marginBottom: 10,
+                      letterSpacing: '0.13em', color: 'var(--accent)', marginBottom: 10,
                     }}>
                       How to Catch
                     </p>
@@ -1209,8 +1209,8 @@ export default function FishWaterSheet({
                           key={i}
                           style={{
                             display: 'flex', gap: 12,
-                            background: 'rgba(255,255,255,0.04)',
-                            border: '1px solid rgba(255,255,255,0.07)',
+                            background: 'var(--surface-overlay)',
+                            border: '1px solid var(--border)',
                             borderRadius: 14, padding: '12px 14px',
                           }}
                         >
@@ -1218,11 +1218,11 @@ export default function FishWaterSheet({
                             flexShrink: 0, width: 22, height: 22, borderRadius: '50%',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             fontSize: 10, fontWeight: 800,
-                            background: 'rgba(242,101,34,0.18)', color: '#f26522', marginTop: 1,
+                            background: 'rgba(242,101,34,0.18)', color: 'var(--accent)', marginTop: 1,
                           }}>
                             {i + 1}
                           </span>
-                          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', lineHeight: 1.55 }}>{tip}</p>
+                          <p style={{ fontSize: 13, color: 'var(--text-80)', lineHeight: 1.55 }}>{tip}</p>
                         </div>
                       ))}
                     </div>
@@ -1250,13 +1250,13 @@ export default function FishWaterSheet({
                     {/* Rod & Line */}
                     <p style={{
                       fontSize: 9, textTransform: 'uppercase', fontWeight: 800,
-                      letterSpacing: '0.13em', color: '#f26522', marginBottom: 8,
+                      letterSpacing: '0.13em', color: 'var(--accent)', marginBottom: 8,
                     }}>
                       Rod &amp; Line
                     </p>
                     <div style={{
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid rgba(255,255,255,0.08)',
+                      background: 'var(--surface-overlay)',
+                      border: '1px solid var(--border)',
                       borderRadius: 16, padding: '14px 16px', marginBottom: 20,
                     }}>
                       <p style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.55 }}>
@@ -1269,7 +1269,7 @@ export default function FishWaterSheet({
                       <>
                         <p style={{
                           fontSize: 9, textTransform: 'uppercase', fontWeight: 800,
-                          letterSpacing: '0.13em', color: '#f26522', marginBottom: 8,
+                          letterSpacing: '0.13em', color: 'var(--accent)', marginBottom: 8,
                         }}>
                           Lures
                         </p>
@@ -1286,9 +1286,9 @@ export default function FishWaterSheet({
                                 <span style={{
                                   fontSize: 12, fontWeight: 500, padding: '6px 13px',
                                   borderRadius: 20, display: 'inline-block',
-                                  background: 'rgba(255,255,255,0.08)',
-                                  color: 'rgba(255,255,255,0.85)',
-                                  border: '1px solid rgba(255,255,255,0.1)',
+                                  background: 'var(--border)',
+                                  color: 'var(--text-80)',
+                                  border: '1px solid var(--border)',
                                 }}>
                                   {item.name.replace(/ fishing$/, '').replace(/\s+\(.*?\)$/, '')}
                                 </span>
@@ -1303,7 +1303,7 @@ export default function FishWaterSheet({
                       <>
                         <p style={{
                           fontSize: 9, textTransform: 'uppercase', fontWeight: 800,
-                          letterSpacing: '0.13em', color: '#f26522', marginBottom: 8,
+                          letterSpacing: '0.13em', color: 'var(--accent)', marginBottom: 8,
                         }}>
                           Bait
                         </p>
@@ -1320,9 +1320,9 @@ export default function FishWaterSheet({
                                 <span style={{
                                   fontSize: 12, fontWeight: 500, padding: '6px 13px',
                                   borderRadius: 20, display: 'inline-block',
-                                  background: 'rgba(255,255,255,0.08)',
-                                  color: 'rgba(255,255,255,0.85)',
-                                  border: '1px solid rgba(255,255,255,0.1)',
+                                  background: 'var(--border)',
+                                  color: 'var(--text-80)',
+                                  border: '1px solid var(--border)',
                                 }}>
                                   {item.name.replace(/ fishing$/, '').replace(/\s+\(.*?\)$/, '')}
                                 </span>
@@ -1337,13 +1337,13 @@ export default function FishWaterSheet({
                       <>
                         <p style={{
                           fontSize: 9, textTransform: 'uppercase', fontWeight: 800,
-                          letterSpacing: '0.13em', color: '#f26522', marginBottom: 8,
+                          letterSpacing: '0.13em', color: 'var(--accent)', marginBottom: 8,
                         }}>
                           Technique
                         </p>
                         <div style={{
-                          background: 'rgba(255,255,255,0.04)',
-                          border: '1px solid rgba(255,255,255,0.08)',
+                          background: 'var(--surface-overlay)',
+                          border: '1px solid var(--border)',
                           borderRadius: 16, padding: '2px 0', marginBottom: 20,
                         }}>
                           {gear.technique.map((t, i) => (
@@ -1352,18 +1352,18 @@ export default function FishWaterSheet({
                               style={{
                                 display: 'flex', gap: 12, padding: '11px 16px',
                                 borderBottom: i < gear.technique.length - 1
-                                  ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                                  ? '1px solid var(--border)' : 'none',
                               }}
                             >
                               <span style={{
                                 flexShrink: 0, width: 20, height: 20, borderRadius: '50%',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 fontSize: 10, fontWeight: 800,
-                                background: 'rgba(242,101,34,0.18)', color: '#f26522', marginTop: 2,
+                                background: 'rgba(242,101,34,0.18)', color: 'var(--accent)', marginTop: 2,
                               }}>
                                 {i + 1}
                               </span>
-                              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.55 }}>
+                              <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.55 }}>
                                 {t}
                               </p>
                             </div>
@@ -1377,13 +1377,13 @@ export default function FishWaterSheet({
                       <>
                         <p style={{
                           fontSize: 9, textTransform: 'uppercase', fontWeight: 800,
-                          letterSpacing: '0.13em', color: '#f26522', marginBottom: 8,
+                          letterSpacing: '0.13em', color: 'var(--accent)', marginBottom: 8,
                         }}>
                           Best Times
                         </p>
                         <div style={{
-                          background: 'rgba(255,255,255,0.04)',
-                          border: '1px solid rgba(255,255,255,0.08)',
+                          background: 'var(--surface-overlay)',
+                          border: '1px solid var(--border)',
                           borderRadius: 14, padding: '12px 16px',
                         }}>
                           <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.55 }}>
