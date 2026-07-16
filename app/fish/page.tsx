@@ -300,13 +300,13 @@ export default function FishPage() {
     <div className="min-h-screen pb-[100px] lg:pb-8" style={{ background: 'var(--bg)' }}>
       {/* Header */}
       <header className="glass-header sticky top-0 z-30 px-4 pt-safe">
-        <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto py-3">
-          <h1 className="text-lg font-bold text-[var(--text)]">Fish</h1>
-          <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>What do you want to catch today?</p>
+        <div className="max-w-7xl mx-auto py-3 lg:py-4 px-2 lg:px-6">
+          <h1 className="text-lg lg:text-3xl font-bold text-[var(--text)]">Fish</h1>
+          <p className="text-xs lg:text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>What do you want to catch today?</p>
         </div>
       </header>
 
-      <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto px-4 pt-4">
+      <div className="max-w-7xl mx-auto px-4 lg:px-8 pt-4">
         {/* Reg trust signal */}
         <p className="text-xs mb-3" style={{ color: 'var(--text-faint)' }}>
           <span className="inline-block px-2 py-0.5 rounded font-semibold"
@@ -326,7 +326,8 @@ export default function FishPage() {
           {heroFish.length > 0 && (
             <>
               {/* Featured section header — orange, not gray */}
-              <div style={{ padding: '16px 16px 12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ padding: '16px 16px 12px', display: 'flex', alignItems: 'center', gap: '10px' }}
+                className="max-w-7xl mx-auto px-4 lg:px-8">
                 <div style={{ width: 3, height: 18, borderRadius: 2, background: 'var(--accent)', flexShrink: 0 }} />
                 <span style={{ fontSize: '13px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent)' }}>
                   What&apos;s Running Now
@@ -335,10 +336,28 @@ export default function FishPage() {
                   · {heroFish.length} species at peak
                 </span>
               </div>
+              {/* Mobile: horizontal scroll. Desktop: grid */}
               <div
-                className="no-scrollbar"
+                className="no-scrollbar lg:hidden"
                 style={{ overflowX: 'auto', display: 'flex', gap: 12, padding: '0 16px 16px', WebkitOverflowScrolling: 'touch' }}
               >
+                {heroFish.map(fish => {
+                  const status = getSeasonStatus(fish.id) as 'open' | 'restricted'
+                  return (
+                    <HeroCard
+                      key={fish.id}
+                      fish={fish}
+                      status={status}
+                      isFav={isFishStarred(fish.id)}
+                      onSelect={() => setSelectedFish(fish)}
+                      onToggleStar={e => { e.stopPropagation(); toggleFish(fish.id) }}
+                    />
+                  )
+                })}
+              </div>
+              {/* Desktop grid */}
+              <div className="hidden lg:grid max-w-7xl mx-auto px-8 pb-4"
+                style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 14 }}>
                 {heroFish.map(fish => {
                   const status = getSeasonStatus(fish.id) as 'open' | 'restricted'
                   return (
@@ -357,7 +376,7 @@ export default function FishPage() {
           )}
 
           {/* ── Search + Filter — below hero ── */}
-          <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto px-4 pb-2">
+          <div className="max-w-7xl mx-auto px-4 lg:px-8 pb-2">
             <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
               {FILTERS.map(f => {
                 const active = activeFilter === f.key
@@ -365,7 +384,7 @@ export default function FishPage() {
                   <button
                     key={f.key}
                     onClick={() => setActiveFilter(f.key)}
-                    className="flex-shrink-0 font-semibold transition-all active:scale-[0.99] rounded-full"
+                    className="flex-shrink-0 font-semibold transition-all active:scale-[0.99] rounded-full cursor-pointer"
                     style={{
                       padding: '7px 16px', fontSize: '13px',
                       background: active ? 'var(--accent)' : 'var(--surface)',
@@ -405,7 +424,7 @@ export default function FishPage() {
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold cursor-pointer"
                   style={{ background: 'var(--border)', color: 'var(--text-faint)' }}
                 >
                   ×
@@ -414,13 +433,33 @@ export default function FishPage() {
             </div>
           </div>
 
-          {/* Category lanes */}
+          {/* Category lanes — mobile scroll, desktop grid */}
           {categoryLanes.map(({ cat, species }) => (
-            <div key={cat}>
+            <div key={cat} className="max-w-7xl mx-auto">
               <SectionDivider label={`${cat} · ${species.length}`} />
+              {/* Mobile: horizontal scroll */}
               <div
-                className="no-scrollbar"
+                className="no-scrollbar lg:hidden"
                 style={{ overflowX: 'auto', display: 'flex', gap: 12, padding: '0 16px 4px', WebkitOverflowScrolling: 'touch' }}
+              >
+                {species.map(fish => {
+                  const status = getSeasonStatus(fish.id)
+                  return (
+                    <LaneCard
+                      key={fish.id}
+                      fish={fish}
+                      status={status}
+                      isFav={isFishStarred(fish.id)}
+                      onSelect={() => setSelectedFish(fish)}
+                      onToggleStar={e => { e.stopPropagation(); toggleFish(fish.id) }}
+                    />
+                  )
+                })}
+              </div>
+              {/* Desktop: grid */}
+              <div
+                className="hidden lg:grid px-8 pb-4"
+                style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 12 }}
               >
                 {species.map(fish => {
                   const status = getSeasonStatus(fish.id)
@@ -443,7 +482,7 @@ export default function FishPage() {
         /* ══════════════════════════════════════════════════════════════
             SEARCH / FILTER MODE: responsive grid
         ══════════════════════════════════════════════════════════════ */
-        <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4 lg:px-8">
           {/* Search bar + filter pills — persistent in search/filter mode */}
           <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 mt-2">
             {FILTERS.map(f => {
@@ -515,7 +554,7 @@ export default function FishPage() {
           </div>
 
           {/* Fish grid */}
-          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 lg:gap-4">
             {sortedFiltered.map(fish => {
               const status = getSeasonStatus(fish.id)
               const inSeason = status !== 'closed'
@@ -524,16 +563,19 @@ export default function FishPage() {
                 <button
                   key={fish.id}
                   onClick={() => setSelectedFish(fish)}
-                  className="overflow-hidden text-left transition-all active:scale-[0.99] rounded-2xl relative"
+                  className="overflow-hidden text-left transition-all active:scale-[0.99] rounded-2xl relative cursor-pointer group"
                   style={{
                     background: 'var(--surface)',
                     border: `1px solid ${selectedFish?.id === fish.id ? 'var(--open)' : 'var(--border)'}`,
                   }}
                 >
+                  {/* Hover overlay on desktop */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                    style={{ background: 'rgba(255,255,255,0.04)', zIndex: 1 }} />
                   {/* Star icon — top-right corner */}
                   <button
                     onClick={e => { e.stopPropagation(); toggleFish(fish.id) }}
-                    className="absolute top-2 right-2 z-10 w-7 h-7 flex items-center justify-center rounded-full"
+                    className="absolute top-2 right-2 z-10 w-7 h-7 flex items-center justify-center rounded-full cursor-pointer"
                     style={{ background: 'rgba(0,0,0,0.45)' }}
                     aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
                   >

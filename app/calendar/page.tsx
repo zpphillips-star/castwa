@@ -63,7 +63,7 @@ function MonthBlock({
               key={day}
               onClick={() => onSelectDate(date)}
               disabled={isPast}
-              className="relative flex flex-col items-center justify-center transition-all active:scale-[0.99]"
+              className="relative flex flex-col items-center justify-center transition-all active:scale-[0.99] cursor-pointer"
               style={{
                 height: 52,
                 background: isSelected ? 'var(--accent)' : isToday ? 'rgba(242,101,34,0.12)' : 'var(--surface)',
@@ -116,37 +116,140 @@ export default function CalendarPage() {
   return (
     <div className="min-h-screen pb-[100px] lg:pb-8" style={{ background: 'var(--bg)' }}>
       <header className="glass-header sticky top-0 z-30 px-4">
-        <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto py-3 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto py-3 lg:py-4 px-2 lg:px-6 flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold text-[var(--text)]">Season Calendar</h1>
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>● open days &nbsp;·&nbsp; tap any date</p>
+            <h1 className="text-lg lg:text-3xl font-bold text-[var(--text)]">Season Calendar</h1>
+            <p className="text-xs lg:text-sm" style={{ color: 'var(--text-muted)' }}>● open days &nbsp;·&nbsp; tap any date</p>
           </div>
         </div>
       </header>
 
-      <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto px-4 pt-4">
-        {months.map(({ year, month }) => (
-          <MonthBlock
-            key={`${year}-${month}`}
-            year={year} month={month}
-            selectedDate={selectedDate}
-            onSelectDate={setSelectedDate}
-            now={now}
-          />
-        ))}
-        <p className="text-xs text-center pb-6" style={{ color: 'var(--text-faint)' }}>
-          Always verify at{' '}
-          <a href="https://wdfw.wa.gov/fishing/regulations" className="underline"
-            style={{ color: 'var(--accent)' }} target="_blank" rel="noopener noreferrer">
-            wdfw.wa.gov
-          </a>{' '}before fishing
-        </p>
+      {/* Desktop: side-by-side layout */}
+      <div className="max-w-7xl mx-auto px-4 lg:px-8 pt-4">
+        <div className="lg:grid lg:grid-cols-[1fr_380px] lg:gap-8 lg:items-start">
+          {/* Calendar column */}
+          <div>
+            {months.map(({ year, month }) => (
+              <MonthBlock
+                key={`${year}-${month}`}
+                year={year} month={month}
+                selectedDate={selectedDate}
+                onSelectDate={setSelectedDate}
+                now={now}
+              />
+            ))}
+            <p className="text-xs text-center pb-6" style={{ color: 'var(--text-faint)' }}>
+              Always verify at{' '}
+              <a href="https://wdfw.wa.gov/fishing/regulations" className="underline"
+                style={{ color: 'var(--accent)' }} target="_blank" rel="noopener noreferrer">
+                wdfw.wa.gov
+              </a>{' '}before fishing
+            </p>
+          </div>
+
+          {/* Desktop: sticky detail panel */}
+          <div className="hidden lg:block lg:sticky lg:top-[120px]">
+            {!selectedDate ? (
+              <div className="rounded-2xl flex flex-col items-center justify-center py-16 gap-3"
+                style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
+                <span className="text-4xl">📅</span>
+                <p className="text-base font-bold text-[var(--text)]">Select a date</p>
+                <p className="text-sm text-center" style={{ color: 'var(--text-muted)' }}>
+                  Tap any date to see which fish are open that day
+                </p>
+              </div>
+            ) : (
+              <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
+                {/* Header */}
+                <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-base font-black text-[var(--text)]">{selectedDateLabel}</p>
+                      <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                        {openSpecies.length === 0
+                          ? 'No species open this day'
+                          : `${openSpecies.length} species open`}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setSelectedDate(null)}
+                      className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer"
+                      style={{ background: 'var(--border)' }}
+                    >
+                      <svg className="w-3.5 h-3.5 text-[var(--text)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                {/* Fish list */}
+                <div className="overflow-y-auto" style={{ maxHeight: '60vh' }}>
+                  {openSpecies.length === 0 ? (
+                    <div className="py-8 text-center">
+                      <p className="text-sm font-semibold text-[var(--text)]">Nothing open this day</p>
+                      <p className="text-xs mt-1" style={{ color: 'var(--text-faint)' }}>Try tapping another date</p>
+                    </div>
+                  ) : (
+                    openSpecies.map((fish, i) => {
+                      const regs = REGULATIONS.filter(r => r.speciesId === fish.id && isOpenOn(r, selectedDate))
+                      const bestReg = regs[0] ?? null
+                      const waters = regs
+                        .map(r => WATER_BODIES.find(w => w.id === r.waterBodyId)?.name)
+                        .filter((n): n is string => !!n)
+                        .filter((v, idx, a) => a.indexOf(v) === idx)
+                        .slice(0, 3)
+
+                      return (
+                        <button
+                          key={fish.id}
+                          onClick={() => setSelectedFish(fish)}
+                          className="w-full flex items-center gap-4 px-4 py-4 text-left transition-all cursor-pointer"
+                          style={{
+                            borderBottom: i < openSpecies.length - 1 ? '1px solid var(--border)' : 'none',
+                            background: 'transparent',
+                          }}
+                          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
+                          onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                        >
+                          <div className="flex-shrink-0 overflow-hidden"
+                            style={{ width: 48, height: 48, background: 'var(--photo-bg)', borderRadius: 10 }}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={fish.photo} alt={fish.name}
+                              style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 5 }} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <p className="text-sm font-bold text-[var(--text)] leading-tight">{fish.name}</p>
+                              <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full flex-shrink-0"
+                                style={{ background: 'rgba(106,176,76,0.2)', color: 'var(--open)' }}>OPEN</span>
+                            </div>
+                            {bestReg && bestReg.dailyLimit !== null && (
+                              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                                Limit: {bestReg.dailyLimit}/day{bestReg.hatcheryOnly ? ' · Hatchery' : ''}
+                              </p>
+                            )}
+                            {waters.length > 0 && (
+                              <p className="text-[11px] mt-0.5 truncate" style={{ color: 'var(--text-faint)' }}>
+                                {waters.join(' · ')}{regs.length > 3 ? ` +${regs.length - 3}` : ''}
+                              </p>
+                            )}
+                          </div>
+                          <span className="flex-shrink-0 text-sm" style={{ color: 'var(--text-faint)' }}>›</span>
+                        </button>
+                      )
+                    })
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* ── Date detail bottom sheet ── */}
+      {/* Mobile: Date detail bottom sheet */}
       {selectedDate && (
         <div
-          className="fixed inset-0 flex flex-col justify-end"
+          className="lg:hidden fixed inset-0 flex flex-col justify-end"
           style={{ zIndex: 1200, background: 'rgba(0,0,0,0.6)' }}
           onClick={e => { if (e.target === e.currentTarget) setSelectedDate(null) }}
         >

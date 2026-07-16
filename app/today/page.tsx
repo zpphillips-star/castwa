@@ -642,17 +642,36 @@ export default function TodayPage() {
   return (
     <div className="min-h-screen pb-[100px] lg:pb-8" style={{ background: 'var(--bg)' }}>
       <header className="glass-header sticky top-0 z-30 px-4">
-        <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto py-3 flex items-center justify-between">
-          <h1 className="text-lg font-bold text-[var(--text)]">Today</h1>
-          <p className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>{dateStr}</p>
+        <div className="max-w-7xl mx-auto py-3 lg:py-4 px-2 lg:px-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-lg lg:text-3xl font-bold text-[var(--text)]">Today</h1>
+            <p className="text-xs lg:text-sm font-semibold mt-0.5" style={{ color: 'var(--text-muted)' }}>{dateStr}</p>
+          </div>
+          {/* Desktop: quick nav links */}
+          <div className="hidden lg:flex items-center gap-3">
+            <button onClick={() => setShowAlertsSheet(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer"
+              style={{
+                background: totalAlertCount > 0 ? 'rgba(239,68,68,0.10)' : 'var(--surface)',
+                border: `1px solid ${totalAlertCount > 0 ? 'rgba(239,68,68,0.3)' : 'var(--border)'}`,
+                color: totalAlertCount > 0 ? 'var(--live-soft)' : 'var(--text-muted)',
+              }}>
+              {totalAlertCount > 0 ? `⚠️ ${totalAlertCount} Emergency Rules` : '✓ No Emergency Rules'}
+            </button>
+            <a href="https://fishhunt.dfw.wa.gov/" target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold no-underline transition-all"
+              style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)', textDecoration: 'none' }}>
+              🎫 Buy License ↗
+            </a>
+          </div>
         </div>
       </header>
 
-      <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto px-4 pt-4">
-        {/* ── EMERGENCY RULES — compact inline banner ── */}
+      <div className="max-w-7xl mx-auto px-4 lg:px-8 pt-4">
+        {/* Mobile: Emergency Rules banner (hidden on desktop — shown in header) */}
         <button
           onClick={() => setShowAlertsSheet(true)}
-          className="w-full text-left rounded-xl mb-2 transition-all active:scale-[0.99] flex items-center gap-4"
+          className="lg:hidden w-full text-left rounded-xl mb-2 transition-all active:scale-[0.99] flex items-center gap-4 cursor-pointer"
           style={{
             background: totalAlertCount > 0 ? 'rgba(239,68,68,0.10)' : 'var(--surface-overlay)',
             border: `1px solid ${totalAlertCount > 0 ? 'rgba(239,68,68,0.3)' : 'var(--border)'}`,
@@ -672,8 +691,10 @@ export default function TodayPage() {
           </div>
         </button>
 
-        {/* ── BEST BITE TIMES — featured banner ── */}
-        <SolunarTimeline date={today} />
+        {/* Desktop 2-column layout */}
+        <div className="lg:grid lg:grid-cols-[1fr_400px] lg:gap-8">
+          {/* ── LEFT COLUMN: My Waters + My Fish + Opening Soon ── */}
+          <div>
 
         {/* ── MY WATERS ── */}
         <div className="mb-10" style={{ paddingTop: "20px" }}>
@@ -723,12 +744,14 @@ export default function TodayPage() {
                   <button
                     key={water.id}
                     onClick={() => setSelectedWater(water.name)}
-                    className="w-full text-left transition-all active:opacity-70"
+                    className="w-full text-left transition-all active:opacity-70 cursor-pointer"
                     style={{
                       padding: '16px 20px',
                       borderBottom: wi < starredWaters.length - 1 ? '1px solid var(--border)' : 'none',
                       display: 'block',
                     }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = '')}
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
@@ -838,8 +861,10 @@ export default function TodayPage() {
                   <button
                     key={fish.id}
                     onClick={() => setSelectedFish(fish)}
-                    className="w-full flex items-center gap-4 px-4 py-4 text-left transition-all active:opacity-75"
+                    className="w-full flex items-center gap-4 px-4 py-4 text-left transition-all active:opacity-75 cursor-pointer"
                     style={{ borderBottom: i < starredFish.length - 1 ? '1px solid var(--border)' : 'none' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = '')}
                   >
                     {/* LEFT: fish photo */}
                     <div className="flex-shrink-0 rounded-xl overflow-hidden"
@@ -951,12 +976,12 @@ export default function TodayPage() {
           </div>
         )}
 
-        {/* ── WA FISHING LICENSE ── */}
+        {/* ── WA FISHING LICENSE — mobile only (desktop shows in header) ── */}
         <a
           href="https://fishhunt.dfw.wa.gov/"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-between px-4 py-3 rounded-xl no-underline"
+          className="lg:hidden flex items-center justify-between px-4 py-3 rounded-xl no-underline"
           style={{ background: 'var(--surface)', border: '1px solid var(--border)', textDecoration: 'none' }}
         >
           <div className="flex items-center gap-3">
@@ -968,6 +993,70 @@ export default function TodayPage() {
           </div>
           <span className="text-base font-bold flex-shrink-0" style={{ color: 'var(--accent)' }}>↗</span>
         </a>
+          </div>{/* end left column */}
+
+          {/* ── RIGHT COLUMN: Solunar + Quick Links (desktop only) ── */}
+          <div className="hidden lg:flex lg:flex-col lg:gap-6 lg:pt-5">
+            {/* Solunar / Best Bite Times */}
+            <SolunarTimeline date={today} />
+
+            {/* Quick links */}
+            <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
+              <div className="px-4 pt-4 pb-2">
+                <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--text-faint)' }}>Quick Links</p>
+              </div>
+              {[
+                { label: 'WA Fishing License', sub: 'fishhunt.dfw.wa.gov', href: 'https://fishhunt.dfw.wa.gov/', emoji: '🎫' },
+                { label: 'WDFW Regulations', sub: 'wdfw.wa.gov/fishing/regulations', href: 'https://wdfw.wa.gov/fishing/regulations', emoji: '📋' },
+                { label: 'WDFW Emergency Rules', sub: 'Latest alerts and closures', href: 'https://wdfw.wa.gov/fishing/regulations/emergency', emoji: '⚠️' },
+              ].map((link, i) => (
+                <a key={i} href={link.href} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-3 px-4 py-3 no-underline transition-all"
+                  style={{
+                    borderTop: '1px solid var(--border)',
+                    textDecoration: 'none',
+                    color: 'inherit',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = '')}
+                >
+                  <span style={{ fontSize: '20px' }}>{link.emoji}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-[var(--text)] leading-tight">{link.label}</p>
+                    <p className="text-xs mt-0.5 truncate" style={{ color: 'var(--text-faint)' }}>{link.sub}</p>
+                  </div>
+                  <span className="text-sm font-bold flex-shrink-0" style={{ color: 'var(--accent)' }}>↗</span>
+                </a>
+              ))}
+            </div>
+
+            {/* Emergency rules on desktop (if any) */}
+            {totalAlertCount > 0 && (
+              <button
+                onClick={() => setShowAlertsSheet(true)}
+                className="w-full text-left px-4 py-4 rounded-2xl transition-all cursor-pointer"
+                style={{
+                  background: 'rgba(239,68,68,0.08)',
+                  border: '1px solid rgba(239,68,68,0.3)',
+                }}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-xl">⚠️</span>
+                  <p className="text-base font-black text-[var(--text)]">Emergency Rules Active</p>
+                </div>
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                  {totalAlertCount} active rule{totalAlertCount > 1 ? 's' : ''} — tap to view details
+                </p>
+                <p className="text-xs mt-2 font-semibold" style={{ color: 'var(--live-soft)' }}>View all rules →</p>
+              </button>
+            )}
+          </div>{/* end right column */}
+        </div>{/* end 2-col grid */}
+
+        {/* Mobile Solunar (desktop version is in right column) */}
+        <div className="lg:hidden mt-0">
+          <SolunarTimeline date={today} />
+        </div>
       </div>
 
       {/* ── WDFW ALERTS BOTTOM SHEET ── */}

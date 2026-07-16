@@ -255,9 +255,9 @@ export default function NearMePage() {
     <div className="flex flex-col" style={{ height: '100dvh', background: 'var(--bg)' }}>
       {/* Header */}
       <header className="glass-header px-4 flex-shrink-0">
-        <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto py-3">
-          <h1 className="text-lg font-bold text-[var(--text)]">Near Me</h1>
-          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+        <div className="max-w-7xl mx-auto py-3 lg:py-4 px-2 lg:px-6">
+          <h1 className="text-lg lg:text-3xl font-bold text-[var(--text)]">Near Me</h1>
+          <p className="text-xs lg:text-sm" style={{ color: 'var(--text-muted)' }}>
             {locState === 'granted' && userLoc
               ? `${filtered.length} water${filtered.length !== 1 ? 's' : ''} within 50 miles`
               : locState === 'loading' ? 'Finding your location…'
@@ -281,13 +281,12 @@ export default function NearMePage() {
           <button
             key={c.key}
             onClick={() => setFilterType(c.key)}
-            className="flex-shrink-0 font-semibold transition-all active:scale-[0.99] rounded-full"
+            className="flex-shrink-0 font-semibold transition-all active:scale-[0.99] rounded-full cursor-pointer"
             style={{
               whiteSpace: 'nowrap',
               padding: '7px 16px',
               fontSize: '13px',
               fontWeight: 700,
-              cursor: 'pointer',
               background: filterType === c.key ? 'var(--accent)' : 'var(--surface)',
               color: filterType === c.key ? '#fff' : 'var(--text-muted)',
               border: `1.5px solid ${filterType === c.key ? 'var(--accent)' : 'var(--border)'}`,
@@ -300,7 +299,7 @@ export default function NearMePage() {
 
       {/* Body */}
       <div className="flex-1 overflow-y-auto pb-[100px] lg:pb-8" style={{ padding: '0 16px 16px' }}>
-        <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto">
+        <div className="max-w-7xl mx-auto lg:px-6">
 
           {/* Location loading */}
           {locState === 'loading' && (
@@ -333,7 +332,7 @@ export default function NearMePage() {
                   <div style={{ fontSize: '14px' }}>No waters found with this filter.</div>
                 </div>
               ) : (
-                <div>
+                <div className="lg:grid lg:grid-cols-2 lg:gap-4">
                   {filtered.map(({ water, distMiles, openSpecies }, idx) => (
                     <NearMeCard
                       key={water.id}

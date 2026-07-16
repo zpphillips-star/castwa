@@ -65,15 +65,21 @@ function NavTab({ href, label, icon }: { href: string; label: string; icon: (a: 
         if (active) dispatchReset()
         else router.push(href)
       }}
-      className="flex items-center gap-2 px-4 h-full relative transition-colors group"
+      className="flex items-center gap-2 px-4 h-full relative transition-all group cursor-pointer rounded-none"
       style={{ color: active ? 'var(--accent)' : 'var(--text-muted, #6b7280)' }}
+      onMouseEnter={e => {
+        if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.06)'
+      }}
+      onMouseLeave={e => {
+        (e.currentTarget as HTMLButtonElement).style.background = ''
+      }}
     >
       {icon(active)}
       <span className="text-sm font-semibold">{label}</span>
       {/* Active underline indicator */}
       {active && (
         <span
-          className="absolute bottom-0 left-2 right-2 h-0.5 rounded-t"
+          className="absolute bottom-0 left-0 right-0 h-[2.5px] rounded-t"
           style={{ background: 'var(--accent)' }}
         />
       )}
@@ -132,6 +138,9 @@ export default function TopNav() {
             style={{ color: todayActive ? 'var(--accent)' : 'var(--text, #e5e5e5)' }}
           >
             Today
+          </span>
+          <span className="hidden xl:inline text-xs font-medium opacity-50 ml-0.5" style={{ color: todayActive ? 'var(--accent)' : 'var(--text-muted)' }}>
+            · WA Fishing Guide
           </span>
           <span className="text-base leading-none">🎣</span>
         </button>

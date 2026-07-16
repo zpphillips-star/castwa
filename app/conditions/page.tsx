@@ -372,6 +372,67 @@ function buildSections(today: Date): WaterSection[] {
 
 // Preferred rivers for "Most Active Today" featured section
 
+// ─── Featured water card (shared between mobile scroll + desktop grid) ────────
+function FeaturedWaterCard({
+  water, openCount, flowData, openWater, getOpenSpeciesPills, isGauged,
+}: {
+  water: import('@/lib/fishing-data').WaterBody
+  openCount: number
+  flowData: Record<string, FlowData>
+  openWater: (w: import('@/lib/fishing-data').WaterBody) => void
+  getOpenSpeciesPills: (id: string, max?: number) => { pills: string[]; extra: number }
+  isGauged: boolean
+}) {
+  const flow = flowData[water.id]
+  const palette = flow ? FLOW_PALETTE[flow.status] : null
+  const accentColor = (isGauged && flow && palette) ? palette.color : 'var(--open)'
+  const waterTypeLabel = water.type === 'lake' ? 'LAKE'
+    : water.type === 'sound' || water.type === 'bay' ? 'MARINE' : 'RIVER'
+  const { pills: speciesPills, extra: speciesExtra } = getOpenSpeciesPills(water.id)
+  return (
+    <button
+      onClick={() => openWater(water)}
+      className="cursor-pointer transition-transform active:scale-[0.99]"
+      style={{
+        width: 162, flexShrink: 0, borderRadius: 20, overflow: 'hidden',
+        position: 'relative', border: `1.5px solid ${accentColor}55`,
+        boxShadow: `0 4px 20px ${accentColor}1a`, background: 'var(--surface)',
+        display: 'flex', flexDirection: 'column', textAlign: 'left',
+      }}
+    >
+      <div style={{ height: 3, background: accentColor, flexShrink: 0 }} />
+      <div style={{ flex: 1, padding: '12px 12px 8px' }}>
+        <p style={{ fontSize: 9, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-faint)', margin: '0 0 4px' }}>
+          {waterTypeLabel}
+        </p>
+        <p style={{ fontSize: 15, fontWeight: 900, color: '#fff', lineHeight: 1.15, margin: '0 0 6px' }}>
+          {water.name}
+        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+          {speciesPills.map(pill => (
+            <span key={pill} style={{ fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 9999, background: `${accentColor}18`, color: accentColor }}>{pill}</span>
+          ))}
+          {speciesExtra > 0 && (
+            <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 9999, background: 'var(--surface-overlay)', color: 'var(--text-muted)' }}>+{speciesExtra}</span>
+          )}
+        </div>
+      </div>
+      {isGauged && flow && flow.cfs !== null && palette ? (
+        <div style={{ padding: '8px 12px 11px', borderTop: '1px solid var(--border)', background: `${accentColor}0d`, display: 'flex', alignItems: 'baseline', gap: 5 }}>
+          <span style={{ fontSize: 20, fontWeight: 900, color: accentColor, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>{formatCfs(flow.cfs)}</span>
+          <span style={{ fontSize: 10, color: 'var(--text-faint)' }}>cfs</span>
+          <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 800, color: accentColor }}>{palette.label}</span>
+        </div>
+      ) : (
+        <div style={{ padding: '8px 12px 11px', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--open)' }}>{openCount} open</span>
+          <span style={{ color: 'var(--text-faint)', fontSize: 13 }}>›</span>
+        </div>
+      )}
+    </button>
+  )
+}
+
 export default function WatersPage() {
   const today = new Date()
   const [flowData, setFlowData] = useState<Record<string, FlowData>>({})
@@ -511,10 +572,10 @@ export default function WatersPage() {
   return (
     <div className="flex flex-col" style={{ height: '100dvh', background: 'var(--bg)' }}>
       <header className="glass-header flex-shrink-0 z-30 px-4">
-        <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto py-3 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto py-3 lg:py-4 px-2 lg:px-6 flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold text-[var(--text)]">Waters</h1>
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Find a place to fish</p>
+            <h1 className="text-lg lg:text-3xl font-bold text-[var(--text)]">Waters</h1>
+            <p className="text-xs lg:text-sm" style={{ color: 'var(--text-muted)' }}>Find a place to fish</p>
           </div>
           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
             {lastUpdated ? `Gauges updated ${lastUpdated}` : loading ? 'Loading gauges…' : 'Tap any water for details'}
@@ -524,7 +585,7 @@ export default function WatersPage() {
 
       {/* ── Single scrollable body: everything scrolls ── */}
       <div className="flex-1 overflow-y-auto no-scrollbar pb-[100px] lg:pb-8">
-      <div className="max-w-lg sm:max-w-2xl lg:max-w-5xl mx-auto w-full px-4 pt-4">
+      <div className="max-w-7xl mx-auto w-full px-4 lg:px-8 pt-4">
 
         {/* Most Active Right Now */}
         {featuredWaters.length > 0 && (
@@ -540,86 +601,21 @@ export default function WatersPage() {
               </span>
             </div>
 
-            {/* Horizontal scroll row */}
-            <div className="no-scrollbar" style={{ overflowX: 'auto', display: 'flex', gap: 12, padding: '0 0 8px', WebkitOverflowScrolling: 'touch' }}>
-              {featuredWaters.map(({ water, openCount }) => {
-                const isGauged = GAUGED_IDS.has(water.id)
-                const flow = flowData[water.id]
-                const palette = flow ? FLOW_PALETTE[flow.status] : null
-                const accentColor = (isGauged && flow && palette)
-                  ? palette.color
-                  : 'var(--open)'
-                const waterTypeLabel = water.type === 'lake' ? 'LAKE'
-                  : water.type === 'sound' || water.type === 'bay' ? 'MARINE'
-                  : 'RIVER'
-                const { pills: speciesPills, extra: speciesExtra } = getOpenSpeciesPills(water.id)
-                return (
-                  <button
-                    key={water.id}
-                    onClick={() => openWater(water)}
-                    style={{
-                      width: 162,
-                      flexShrink: 0,
-                      borderRadius: 20,
-                      overflow: 'hidden',
-                      position: 'relative',
-                      border: `1.5px solid ${accentColor}55`,
-                      boxShadow: `0 4px 20px ${accentColor}1a`,
-                      background: 'var(--surface)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      textAlign: 'left',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {/* Top accent bar */}
-                    <div style={{ height: 3, background: accentColor, flexShrink: 0 }} />
-
-                    {/* Card body */}
-                    <div style={{ flex: 1, padding: '12px 12px 8px' }}>
-                      <p style={{ fontSize: 9, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-faint)', margin: '0 0 4px' }}>
-                        {waterTypeLabel}
-                      </p>
-                      <p style={{ fontSize: 15, fontWeight: 900, color: '#fff', lineHeight: 1.15, margin: '0 0 6px' }}>
-                        {water.name}
-                      </p>
-                      {/* Species pills */}
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-                        {speciesPills.map(pill => (
-                          <span key={pill} style={{
-                            fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 9999,
-                            background: `${accentColor}18`, color: accentColor,
-                          }}>{pill}</span>
-                        ))}
-                        {speciesExtra > 0 && (
-                          <span style={{
-                            fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 9999,
-                            background: 'var(--surface-overlay)', color: 'var(--text-muted)',
-                          }}>+{speciesExtra}</span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Card footer */}
-                    {isGauged && flow && flow.cfs !== null && palette ? (
-                      <div style={{ padding: '8px 12px 11px', borderTop: '1px solid var(--border)', background: `${accentColor}0d`, display: 'flex', alignItems: 'baseline', gap: 5 }}>
-                        <span style={{ fontSize: 20, fontWeight: 900, color: accentColor, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
-                          {formatCfs(flow.cfs)}
-                        </span>
-                        <span style={{ fontSize: 10, color: 'var(--text-faint)' }}>cfs</span>
-                        <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 800, color: accentColor }}>
-                          {palette.label}
-                        </span>
-                      </div>
-                    ) : (
-                      <div style={{ padding: '8px 12px 11px', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--open)' }}>{openCount} open</span>
-                        <span style={{ color: 'var(--text-faint)', fontSize: 13 }}>›</span>
-                      </div>
-                    )}
-                  </button>
-                )
-              })}
+            {/* Mobile: horizontal scroll. Desktop: grid */}
+            <div className="no-scrollbar lg:hidden" style={{ overflowX: 'auto', display: 'flex', gap: 12, padding: '0 0 8px', WebkitOverflowScrolling: 'touch' }}>
+              {featuredWaters.map(({ water, openCount }) => (
+                <FeaturedWaterCard key={water.id} water={water} openCount={openCount}
+                  flowData={flowData} openWater={openWater} getOpenSpeciesPills={getOpenSpeciesPills}
+                  isGauged={GAUGED_IDS.has(water.id)} />
+              ))}
+            </div>
+            <div className="hidden lg:grid pb-4"
+              style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
+              {featuredWaters.map(({ water, openCount }) => (
+                <FeaturedWaterCard key={water.id} water={water} openCount={openCount}
+                  flowData={flowData} openWater={openWater} getOpenSpeciesPills={getOpenSpeciesPills}
+                  isGauged={GAUGED_IDS.has(water.id)} />
+              ))}
             </div>
           </div>
         )}
@@ -711,7 +707,7 @@ export default function WatersPage() {
             <button
               key={f.key}
               onClick={() => setActiveFilter(f.key)}
-              className="flex-shrink-0 font-semibold transition-all active:scale-[0.99] rounded-full"
+              className="flex-shrink-0 font-semibold transition-all active:scale-[0.99] rounded-full cursor-pointer"
               style={{
                 padding: '7px 16px',
                 fontSize: '13px',
@@ -754,13 +750,14 @@ export default function WatersPage() {
                   <button
                     key={water.id}
                     onClick={() => openWater(water)}
-                    className="w-full text-left transition-all active:scale-[0.99] rounded-2xl"
+                    className="w-full text-left transition-all active:scale-[0.99] rounded-2xl cursor-pointer group"
                     style={{
                       background: 'var(--surface)',
                       border: '1px solid var(--border)',
                       padding: '14px 16px',
-                      cursor: 'pointer',
                     }}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)')}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
                   >
                     <div className="flex items-center justify-between gap-3">
                       {/* Left: name + region */}
