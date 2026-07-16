@@ -2,7 +2,7 @@
 import { useState, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import { useStarredFish } from '@/hooks/useStarred'
-import { Species, Regulation, WaterBody, REGULATIONS, WATER_BODIES, SKAGIT_SECTIONS, GEAR_ICON_INFO, GearIconCode, isOpenOn } from '@/lib/fishing-data'
+import { Species, Regulation, WaterBody, REGULATIONS, WATER_BODIES, SKAGIT_SECTIONS, GEAR_ICON_INFO, GearIconCode, isOpenOn, SKAGIT_SPECIES_SECTIONS, getFishSeasonStatus } from '@/lib/fishing-data'
 import { GEAR, GearItem } from '@/lib/gear-data'
 import { FISH_TIPS } from './RiverDetailSheet'
 import { CATCH_GUIDES } from '@/lib/catch-guides'
@@ -90,13 +90,7 @@ function GearGrid({ items, accent }: { items: GearItem[]; accent: string }) {
   )
 }
 
-// Which species are found on the Skagit + which section IDs are relevant
-const SKAGIT_SPECIES_MAP: Record<string, string[]> = {
-  sockeye:   ['skagit-hwy536-to-gilligan', 'skagit-gilligan-to-dalles'],
-  chinook:   ['skagit-rockport-to-marblemount'],
-  coho:      ['skagit-mouth-to-hwy536', 'skagit-hwy536-to-gilligan', 'skagit-gilligan-to-dalles', 'skagit-dalles-to-baker-below', 'skagit-baker-confluence', 'skagit-baker-above-to-rockport', 'skagit-rockport-to-marblemount'],
-  steelhead: ['skagit-marblemount-to-newhalem'],
-}
+// SKAGIT_SPECIES_MAP is now SKAGIT_SPECIES_SECTIONS imported from fishing-data.ts
 
 // ─── GAUGE MAP FOR WATER-TAP ─────────────────────────────────────────────────
 type GaugeConfig = {
@@ -145,7 +139,7 @@ function findGaugeForWater(waterName: string): GaugeConfig | null {
 // (RiverEntry + findRiverEntry are now shared; do not redefine here)
 
 function getTodaySkagitStatus(speciesId: string): { sectionId: string; sectionName: string; status: 'OPEN' | 'CLOSED' | 'EMERGENCY'; detail: string; mapsUp: string; mapsDown: string }[] {
-  const sectionIds = SKAGIT_SPECIES_MAP[speciesId]
+  const sectionIds = SKAGIT_SPECIES_SECTIONS[speciesId]
   if (!sectionIds) return []
   const today = new Date()
   const mm = today.getMonth() + 1
@@ -292,16 +286,9 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
   // Open waters count
   const openWaterCount = openRegs.filter(r => WATER_BODIES.find(w => w.id === r.waterBodyId)).length
 
-  // Detect emergency rule on a water body for this species
+  // Detect emergency rule on a water body for this species — uses shared getFishSeasonStatus
   function hasEmergencyOnWater(waterId: string): boolean {
-    if (waterId === 'skagit' && SKAGIT_SPECIES_MAP[species.id]) {
-      return SKAGIT_SPECIES_MAP[species.id].some(sid => {
-        const sec = SKAGIT_SECTIONS.find(s => s.id === sid)
-        return !!sec?.emergencyRule
-      })
-    }
-    const reg = regs.find(r => r.waterBodyId === waterId)
-    return !!(reg?.notes && /emergency/i.test(reg.notes))
+    return getFishSeasonStatus(species.id, waterId, today) === 'emergency'
   }
 
   // Format MM-DD → "Aug 16"
@@ -602,7 +589,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                   </div>
 
                   {/* ── Skagit section detail moved into water detail popup ── */}
-                  {false && SKAGIT_SPECIES_MAP[species.id] && (() => {
+                  {false && SKAGIT_SPECIES_SECTIONS[species.id] && (() => {
                     const STATUS_ORDER = { OPEN: 0, EMERGENCY: 1, CLOSED: 2 } as const
                     const sortedSkagit = [...getTodaySkagitStatus(species.id)].sort(
                       (a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]

@@ -4,7 +4,9 @@ import { useStarredWaters } from '@/hooks/useStarred'
 import dynamic from 'next/dynamic'
 import {
   WATER_BODIES, REGULATIONS, SPECIES, SKAGIT_SECTIONS,
+  SKAGIT_SPECIES_ALIASES,
   isOpenOn,
+  getFishSeasonStatus,
 } from '@/lib/fishing-data'
 import type { Species, Regulation, WaterBody } from '@/lib/fishing-data'
 import {
@@ -121,16 +123,10 @@ function buildSkagitSegments(): MapSegment[] {
   })
 }
 
-// Species-aware Skagit segment builder
-const SPECIES_SEASON_NAMES: Record<string, string[]> = {
-  sockeye:   ['sockeye', 'Sockeye Salmon'],
-  chinook:   ['chinook', 'Chinook Salmon', 'Chinook'],
-  coho:      ['coho', 'Coho Salmon', 'Coho'],
-  steelhead: ['steelhead', 'Steelhead'],
-}
+// Species-aware Skagit segment builder — uses shared SKAGIT_SPECIES_ALIASES from fishing-data
 
 function buildSkagitSegmentsForSpecies(speciesId: string): MapSegment[] {
-  const nameAliases = SPECIES_SEASON_NAMES[speciesId] ?? [speciesId]
+  const nameAliases = SKAGIT_SPECIES_ALIASES[speciesId] ?? [speciesId]
   return SKAGIT_SECTIONS.map((section, idx) => {
     const startCoord = parseGoogleMapsCoord(section.mapsLinkDownstream)
     const endCoord   = parseGoogleMapsCoord(section.mapsLinkUpstream)
@@ -261,7 +257,7 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
     if (!isSkagit) return []
     return SKAGIT_SECTIONS
       .filter(s => s.emergencyRule && s.seasons.some(season =>
-        (SPECIES_SEASON_NAMES[species.id] ?? [species.id]).some(alias =>
+        (SKAGIT_SPECIES_ALIASES[species.id] ?? [species.id]).some(alias =>
           season.species.toLowerCase().includes(alias.toLowerCase())
         )
       ))
@@ -546,13 +542,17 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
     if (!water) return []
     const regs = REGULATIONS.filter(r => r.waterBodyId === water.id)
     return regs
-      .map(r => ({ reg: r, species: SPECIES.find(s => s.id === r.speciesId)! }))
+      .map(r => ({
+        reg: r,
+        species: SPECIES.find(s => s.id === r.speciesId)!,
+        effectiveStatus: getFishSeasonStatus(r.speciesId, water.id, today),
+      }))
       .filter(item => !!item.species)
       .sort((a, b) => {
-        const aOpen = isOpenOn(a.reg, today)
-        const bOpen = isOpenOn(b.reg, today)
-        if (aOpen && !bOpen) return -1
-        if (!aOpen && bOpen) return 1
+        // Sort: emergency first, then open, then closed
+        const rank = (st: string) => st === 'emergency' ? 0 : st === 'open' ? 1 : 2
+        const diff = rank(a.effectiveStatus) - rank(b.effectiveStatus)
+        if (diff !== 0) return diff
         return a.species.name.localeCompare(b.species.name)
       })
   }, [water]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -741,7 +741,8 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
 
             {/* ── What's Open Today ── */}
             {speciesRegs.length > 0 && (() => {
-              const openItems = speciesRegs.filter(({ reg }) => isOpenOn(reg, today))
+              // Include both 'open' and 'emergency' in the "active" section
+              const openItems = speciesRegs.filter(({ effectiveStatus }) => effectiveStatus !== 'closed')
               if (openItems.length === 0) return (
                 <div className="px-4 pb-2">
                   <div className="flex items-center justify-between mb-2">
@@ -768,58 +769,72 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                    </div>
                   <div className="rounded-2xl overflow-hidden"
                     style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                    {openItems.map(({ reg, species: sp }, i) => (
-                      <button
-                        key={reg.id}
-                        onClick={() => {
-                          if (!water) return
-                          const sibs = speciesRegs.map(x => x.species)
-                          const idx = sibs.findIndex(s => s.id === sp.id)
-                          setFishWaterCombo({ fish: sp, water, index: Math.max(0, idx), siblingFish: sibs })
-                        }}
-                        className="w-full flex items-center gap-4 px-4 py-3.5 text-left transition-all active:bg-white/5"
-                        style={{ borderBottom: i < openItems.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
-                        <div className="flex-shrink-0 rounded-lg overflow-hidden"
-                          style={{ width: 48, height: 48, background: '#0b0d14' }}>
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={sp.photo} alt={sp.name}
-                            style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 6 }} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-white leading-tight">{sp.name}</p>
-                          <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 mt-1">
-                            {reg.dailyLimit !== null && (
-                              <div className="flex items-baseline gap-1.5">
-                                <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Limit</span>
-                                <span className="text-xs font-semibold text-white">{reg.dailyLimit}/day</span>
-                              </div>
-                            )}
-                            {reg.minSize !== null && (
-                              <div className="flex items-baseline gap-1.5">
-                                <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Min</span>
-                                <span className="text-xs font-semibold text-white">{reg.minSize}&quot;</span>
-                              </div>
-                            )}
-                            {reg.hatcheryOnly && (
-                              <div className="flex items-baseline gap-1.5">
-                                <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Type</span>
-                                <span className="text-xs font-semibold" style={{ color: '#f59e0b' }}>Hatchery only</span>
-                              </div>
-                            )}
-                            {reg.gearRestriction && (
-                              <div className="flex items-baseline gap-1.5 col-span-2">
-                                <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Rules</span>
-                                <span className="text-xs font-semibold text-white">{reg.gearRestriction}</span>
-                              </div>
-                            )}
+                    {openItems.map(({ reg, species: sp, effectiveStatus }, i) => {
+                      const isEmerg = effectiveStatus === 'emergency'
+                      return (
+                        <button
+                          key={reg.id}
+                          onClick={() => {
+                            if (!water) return
+                            const sibs = speciesRegs.map(x => x.species)
+                            const idx = sibs.findIndex(s => s.id === sp.id)
+                            setFishWaterCombo({ fish: sp, water, index: Math.max(0, idx), siblingFish: sibs })
+                          }}
+                          className="w-full flex items-center gap-4 px-4 py-3.5 text-left transition-all active:bg-white/5"
+                          style={{
+                            borderBottom: i < openItems.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                            borderLeft: isEmerg ? '3px solid #f97316' : undefined,
+                          }}>
+                          <div className="flex-shrink-0 rounded-lg overflow-hidden"
+                            style={{ width: 48, height: 48, background: '#0b0d14' }}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={sp.photo} alt={sp.name}
+                              style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 6 }} />
                           </div>
-                        </div>
-                        <svg className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.25)' }}
-                          fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                        </svg>
-                      </button>
-                    ))}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <p className="text-sm font-bold text-white leading-tight">{sp.name}</p>
+                              {isEmerg && (
+                                <span className="text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wide flex-shrink-0"
+                                  style={{ background: 'rgba(249,115,22,0.18)', color: '#f97316' }}>
+                                  EMERGENCY RULE
+                                </span>
+                              )}
+                            </div>
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 mt-1">
+                              {reg.dailyLimit !== null && (
+                                <div className="flex items-baseline gap-1.5">
+                                  <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Limit</span>
+                                  <span className="text-xs font-semibold text-white">{reg.dailyLimit}/day</span>
+                                </div>
+                              )}
+                              {reg.minSize !== null && (
+                                <div className="flex items-baseline gap-1.5">
+                                  <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Min</span>
+                                  <span className="text-xs font-semibold text-white">{reg.minSize}&quot;</span>
+                                </div>
+                              )}
+                              {reg.hatcheryOnly && (
+                                <div className="flex items-baseline gap-1.5">
+                                  <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Type</span>
+                                  <span className="text-xs font-semibold" style={{ color: '#f59e0b' }}>Hatchery only</span>
+                                </div>
+                              )}
+                              {reg.gearRestriction && (
+                                <div className="flex items-baseline gap-1.5 col-span-2">
+                                  <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Rules</span>
+                                  <span className="text-xs font-semibold text-white">{reg.gearRestriction}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <svg className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.25)' }}
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
               )
@@ -827,7 +842,7 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
 
             {/* ── All Fish (collapsible rows) ── */}
             {speciesRegs.length > 0 && (() => {
-              const closedItems = speciesRegs.filter(({ reg }) => !isOpenOn(reg, today))
+              const closedItems = speciesRegs.filter(({ effectiveStatus }) => effectiveStatus === 'closed')
               if (closedItems.length === 0) return null
               return (
                 <div className="px-4 pt-2 pb-4">

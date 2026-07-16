@@ -322,9 +322,9 @@ export const REGULATIONS: Regulation[] = [
 
   // ── SKYKOMISH RIVER ───────────────────────────────────────────────────────────
   // Note: Pink Salmon NOT listed — 2026 is an even year; no WA pink salmon fishery exists
-  { id: 'r97', speciesId: 'chinook', waterBodyId: 'skykomish', seasonStart: '07-01', seasonEnd: '10-31', dailyLimit: 2, minSize: 24, hatcheryOnly: true, gearRestriction: 'Barbless hooks only', notes: 'See WDFW regulations for current season dates and restrictions' },
-  { id: 'r98', speciesId: 'coho', waterBodyId: 'skykomish', seasonStart: '09-01', seasonEnd: '11-30', dailyLimit: 2, minSize: 16, hatcheryOnly: true, gearRestriction: null, notes: 'See WDFW regulations for current season dates and restrictions' },
-  { id: 'r99', speciesId: 'steelhead', waterBodyId: 'skykomish', seasonStart: '01-01', seasonEnd: '03-31', dailyLimit: 2, minSize: 20, hatcheryOnly: true, gearRestriction: null, notes: 'See WDFW regulations for current season dates and restrictions' },
+  { id: 'r97', speciesId: 'chinook', waterBodyId: 'skykomish', seasonStart: '07-01', seasonEnd: '10-31', dailyLimit: 2, minSize: 24, hatcheryOnly: true, gearRestriction: 'Barbless hooks only', emergencyClosedFrom: '2026-06-02', emergencyClosedTo: '2026-10-31', notes: '🚨 EMERGENCY CLOSURE: Skykomish River closed to ALL species through Oct 31, 2026 — protecting critically low wild Chinook (WDFW ER pub. Jun 2 2026). Overrides all pamphlet seasons. Verify WDFW before fishing.' },
+  { id: 'r98', speciesId: 'coho', waterBodyId: 'skykomish', seasonStart: '09-01', seasonEnd: '11-30', dailyLimit: 2, minSize: 16, hatcheryOnly: true, gearRestriction: null, emergencyClosedFrom: '2026-06-02', emergencyClosedTo: '2026-10-31', notes: '🚨 EMERGENCY CLOSURE: Skykomish River closed to ALL species through Oct 31, 2026 — protecting critically low wild Chinook (WDFW ER pub. Jun 2 2026). Verify WDFW before fishing.' },
+  { id: 'r99', speciesId: 'steelhead', waterBodyId: 'skykomish', seasonStart: '01-01', seasonEnd: '03-31', dailyLimit: 2, minSize: 20, hatcheryOnly: true, gearRestriction: null, notes: 'See WDFW regulations for current season dates and restrictions. ⚠️ Note: Skykomish had emergency closure Jun–Oct 2026 for wild Chinook protection — verify current status with WDFW before fishing.' },
 
   // ── WHITE RIVER ───────────────────────────────────────────────────────────────
   { id: 'r100', speciesId: 'chinook', waterBodyId: 'white', seasonStart: '07-01', seasonEnd: '10-31', dailyLimit: 2, minSize: 24, hatcheryOnly: true, gearRestriction: 'Barbless hooks only', notes: 'See WDFW regulations for current season dates and restrictions' },
@@ -1000,6 +1000,103 @@ export const SKAGIT_SECTIONS: RiverSection[] = [
     ],
   },
 ]
+
+// ─── SKAGIT SPECIES MAPPING (single source of truth) ─────────────────────────
+
+/**
+ * Maps speciesId → Skagit section IDs that are relevant for that species.
+ * Use this everywhere instead of local constants in components.
+ */
+export const SKAGIT_SPECIES_SECTIONS: Record<string, string[]> = {
+  sockeye:   ['skagit-hwy536-to-gilligan', 'skagit-gilligan-to-dalles'],
+  chinook:   ['skagit-rockport-to-marblemount'],
+  coho:      ['skagit-mouth-to-hwy536', 'skagit-hwy536-to-gilligan', 'skagit-gilligan-to-dalles', 'skagit-dalles-to-baker-below', 'skagit-baker-confluence', 'skagit-baker-above-to-rockport', 'skagit-rockport-to-marblemount'],
+  steelhead: ['skagit-marblemount-to-newhalem'],
+  pink:      [],
+  chum:      [],
+}
+
+/**
+ * Maps speciesId → text aliases used to match against SKAGIT_SECTIONS season entries.
+ * Use this everywhere instead of local SPECIES_SEASON_NAMES constants.
+ */
+export const SKAGIT_SPECIES_ALIASES: Record<string, string[]> = {
+  sockeye:   ['sockeye', 'Sockeye Salmon'],
+  chinook:   ['chinook', 'Chinook Salmon', 'Chinook'],
+  coho:      ['coho', 'Coho Salmon', 'Coho'],
+  steelhead: ['steelhead', 'Steelhead', 'all game fish'],
+  pink:      ['pink', 'Pink Salmon'],
+  chum:      ['chum', 'Chum Salmon'],
+  rainbow:   ['trout (other)', 'rainbow'],
+  cutthroat: ['trout (other)', 'cutthroat'],
+  bull:      ['bull trout', 'dolly varden'],
+  sturgeon:  ['sturgeon'],
+}
+
+/**
+ * Returns true if there is any known emergency rule for this species at this water body.
+ * For Skagit: checks SKAGIT_SECTIONS.emergencyRule on relevant sections.
+ * For other waters: checks if any regulation has "emergency" in its notes.
+ * NOTE: This does NOT verify whether the emergency is currently date-active — it is a
+ * conservative check (returns true as long as the section has emergencyRule set).
+ */
+export function hasEmergencyRuleForSpecies(speciesId: string, waterId: string): boolean {
+  if (waterId === 'skagit') {
+    const sectionIds = SKAGIT_SPECIES_SECTIONS[speciesId] ?? []
+    return sectionIds.some(sid => {
+      const sec = SKAGIT_SECTIONS.find(s => s.id === sid)
+      return !!sec?.emergencyRule
+    })
+  }
+  const regs = REGULATIONS.filter(r => r.speciesId === speciesId && r.waterBodyId === waterId)
+  return regs.some(r => r.notes && /emergency/i.test(r.notes))
+}
+
+/**
+ * Canonical single-source-of-truth status for a species at a water body on a date.
+ *
+ * Returns:
+ *   'emergency' — fishery is open but under emergency/modified rules, OR an
+ *                 emergency closure is in effect (check emergencyClosedFrom on the reg)
+ *   'open'      — fishery is open under normal rules
+ *   'closed'    — no open season
+ *
+ * Use this everywhere instead of `isOpenOn()` to determine display status.
+ * `isOpenOn()` is the low-level date check — this function adds emergency awareness.
+ */
+export function getFishSeasonStatus(
+  speciesId: string,
+  waterId: string,
+  date: Date
+): 'emergency' | 'open' | 'closed' {
+  const regs = REGULATIONS.filter(r => r.speciesId === speciesId && r.waterBodyId === waterId)
+  if (regs.length === 0) return 'closed'
+
+  // If any reg has an active emergency closure, the fish is not simply "open"
+  // isOpenOn() already returns false for emergency-closed regs, but we want to
+  // surface the emergency label rather than just "closed".
+  const anyEmergencyClosed = regs.some(r => {
+    if (!r.emergencyClosedFrom) return false
+    const from = new Date(r.emergencyClosedFrom)
+    const to   = r.emergencyClosedTo ? new Date(r.emergencyClosedTo) : null
+    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+    const f = new Date(from.getFullYear(), from.getMonth(), from.getDate())
+    return d >= f && (to === null || d <= new Date(to.getFullYear(), to.getMonth(), to.getDate()))
+  })
+  if (anyEmergencyClosed) return 'emergency'
+
+  // Skagit: check section-level emergency rules
+  if (waterId === 'skagit' && hasEmergencyRuleForSpecies(speciesId, waterId)) {
+    return 'emergency'
+  }
+
+  // Notes-based emergency keyword check
+  const noteEmergency = regs.some(r => r.notes && /emergency/i.test(r.notes))
+  if (noteEmergency) return 'emergency'
+
+  const anyOpen = regs.some(r => isOpenOn(r, date))
+  return anyOpen ? 'open' : 'closed'
+}
 
 // ─── REGULATION HELPERS ───────────────────────────────────────────────────────
 

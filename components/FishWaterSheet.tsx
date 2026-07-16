@@ -23,7 +23,9 @@ import {
   WaterBody,
   REGULATIONS,
   SKAGIT_SECTIONS,
+  SKAGIT_SPECIES_ALIASES,
   isOpenOn,
+  getFishSeasonStatus,
 } from '@/lib/fishing-data'
 import type { MapSegment, SegmentStatus } from './RiverDetailMapInner'
 import { GEAR } from '@/lib/gear-data'
@@ -98,17 +100,10 @@ function parseGoogleMapsCoord(url: string): [number, number] | null {
   return null
 }
 
-const SPECIES_SEASON_NAMES: Record<string, string[]> = {
-  sockeye:   ['sockeye', 'Sockeye Salmon'],
-  chinook:   ['chinook', 'Chinook Salmon', 'Chinook'],
-  coho:      ['coho', 'Coho Salmon', 'Coho'],
-  steelhead: ['steelhead', 'Steelhead'],
-  pink:      ['pink', 'Pink Salmon'],
-  chum:      ['chum', 'Chum Salmon'],
-}
+// SPECIES_SEASON_NAMES is now SKAGIT_SPECIES_ALIASES imported from fishing-data.ts
 
 function buildSkagitSegmentsForSpecies(speciesId: string): MapSegment[] {
-  const nameAliases = SPECIES_SEASON_NAMES[speciesId] ?? [speciesId]
+  const nameAliases = SKAGIT_SPECIES_ALIASES[speciesId] ?? [speciesId]
   return SKAGIT_SECTIONS.map((section, idx) => {
     const startCoord = parseGoogleMapsCoord(section.mapsLinkDownstream)
     const endCoord   = parseGoogleMapsCoord(section.mapsLinkUpstream)
@@ -244,14 +239,18 @@ export default function FishWaterSheet({
   const anyOpen  = regs.some(r => isOpenOn(r, today))
   const isSkagit = water.id === 'skagit'
 
-  // Emergency rules (Skagit only, plus notes-based emergency)
+  // Use the canonical getFishSeasonStatus as the single source of truth for the status pill.
+  // The emergencyRules/noteEmergency checks below are kept for the emergency detail banners.
+  const overallStatus = getFishSeasonStatus(fish.id, water.id, today)
+
+  // Emergency rules (Skagit only, plus notes-based emergency) — for displaying detail banners
   const emergencyRules = useMemo(() => {
     if (!isSkagit) return []
     return SKAGIT_SECTIONS
       .filter(s =>
         s.emergencyRule &&
         s.seasons.some(season =>
-          (SPECIES_SEASON_NAMES[fish.id] ?? [fish.id]).some(alias =>
+          (SKAGIT_SPECIES_ALIASES[fish.id] ?? [fish.id]).some(alias =>
             season.species.toLowerCase().includes(alias.toLowerCase())
           )
         )
@@ -259,8 +258,7 @@ export default function FishWaterSheet({
       .map(s => ({ section: s.name, rule: s.emergencyRule! }))
   }, [isSkagit, fish.id])
 
-  const noteEmergency = regs.find(r => r.notes && /emergency/i.test(r.notes))
-  const hasEmergency  = emergencyRules.length > 0 || !!noteEmergency
+  const hasEmergency  = overallStatus === 'emergency'
 
   // When arriving from water→fish, only show currently-active regulations.
   // When arriving from fish→water, show all seasons.
@@ -297,7 +295,7 @@ export default function FishWaterSheet({
   // Skagit section status list — enriched with season + emergencyRule for accordion
   const skagitSectionStatuses = useMemo(() => {
     if (!isSkagit) return []
-    const nameAliases = SPECIES_SEASON_NAMES[fish.id] ?? [fish.id]
+    const nameAliases = SKAGIT_SPECIES_ALIASES[fish.id] ?? [fish.id]
     return SKAGIT_SECTIONS.map(section => {
       let st: 'open' | 'closed' | 'emergency' = 'closed'
       if (section.emergencyRule) {
@@ -326,8 +324,7 @@ export default function FishWaterSheet({
   const tips  = FISH_TIPS[fish.id]
   const guide = CATCH_GUIDES.find(g => g.speciesId === fish.id) ?? null
 
-  // Overall status
-  const overallStatus = hasEmergency ? 'emergency' : anyOpen ? 'open' : 'closed'
+  // Overall status computed above via getFishSeasonStatus
   const statusColor = overallStatus === 'emergency' ? '#f26522' : overallStatus === 'open' ? '#6ab04c' : '#6b7280'
   const statusLabel = overallStatus === 'emergency' ? 'EMERGENCY' : overallStatus === 'open' ? 'OPEN' : 'CLOSED'
   const firstReg = displayRegs[0] ?? regs[0]
