@@ -362,8 +362,8 @@ function RestrictionCard({
             <div className="flex items-center gap-2">
               <button onClick={() => setSelectedSpecies(null)}
                 className="flex items-center justify-center w-7 h-7 rounded-full flex-shrink-0"
-                style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}>
-                <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                style={{ background: 'var(--surface-overlay)', border: '1px solid var(--border)' }}>
+                <svg className="w-3.5 h-3.5" style={{ color: 'var(--text)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7"/>
                 </svg>
               </button>
@@ -398,8 +398,8 @@ function RestrictionCard({
           </button>
           <button onClick={onClose}
             className="w-7 h-7 rounded-full flex items-center justify-center ml-1"
-            style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}>
-            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            style={{ background: 'var(--surface-overlay)', border: '1px solid var(--border)' }}>
+            <svg className="w-3 h-3" style={{ color: 'var(--text)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
             </svg>
           </button>
@@ -935,15 +935,15 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
               <button
                 onClick={() => toggleWaterStar(river.id)}
                 className="w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-90"
-                style={{ background: 'rgba(255,255,255,0.08)' }}>
+                style={{ background: 'var(--surface-overlay)' }}>
                 <span style={{ fontSize: '15px', lineHeight: 1 }}>
                   {isWaterStarred(river.id) ? '⭐' : '☆'}
                 </span>
               </button>
               <button onClick={onClose}
                 className="w-8 h-8 rounded-full flex items-center justify-center"
-                style={{ background: 'rgba(255,255,255,0.08)' }}>
-                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                style={{ background: 'var(--surface-overlay)' }}>
+                <svg className="w-4 h-4" style={{ color: 'var(--text)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
                 </svg>
               </button>

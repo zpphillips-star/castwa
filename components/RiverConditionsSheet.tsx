@@ -186,9 +186,9 @@ export default function RiverConditionsSheet({
           <button
             onClick={onClose}
             className="w-9 h-9 rounded-full flex items-center justify-center active:opacity-60"
-            style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)' }}
+            style={{ background: 'var(--surface-overlay)', border: '1px solid var(--border)' }}
           >
-            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4" style={{ color: 'var(--text)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>

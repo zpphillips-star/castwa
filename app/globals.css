@@ -23,6 +23,7 @@
   --surface:      #151a10;          /* dark forest floor */
   --surface-2:    #1d2416;          /* slightly lighter earth */
   --border:       rgba(255,255,255,0.08);
+  --surface-overlay: rgba(255,255,255,0.08); /* ghost buttons, card shimmer */
   --accent:       #f26522;          /* hunting / blaze orange — onX signature */
   --accent-green: #4a7c3f;          /* muted forest green */
   --accent-bright-green: #6ab04c;   /* open/active indicator green */
@@ -42,6 +43,7 @@
     --surface:      #ffffff;
     --surface-2:    #ede8df;          /* slightly darker warm white */
     --border:       rgba(0,0,0,0.10);
+    --surface-overlay: rgba(0,0,0,0.07); /* ghost buttons visible on light bg */
     --accent:       #e85d18;          /* slightly deeper orange for light bg contrast */
     --accent-green: #3d7a35;
     --accent-bright-green: #2e7d2e;
