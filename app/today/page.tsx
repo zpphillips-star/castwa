@@ -691,6 +691,11 @@ export default function TodayPage() {
           </div>
         </button>
 
+        {/* Mobile: Best Bite Times — right under Emergency Rules (desktop version is in right column) */}
+        <div className="lg:hidden mt-2 mb-2">
+          <SolunarTimeline date={today} />
+        </div>
+
         {/* Desktop 2-column layout */}
         <div className="lg:grid lg:grid-cols-[1fr_400px] lg:gap-8">
           {/* ── LEFT COLUMN: My Waters + My Fish + Opening Soon ── */}
@@ -1053,10 +1058,6 @@ export default function TodayPage() {
           </div>{/* end right column */}
         </div>{/* end 2-col grid */}
 
-        {/* Mobile Solunar (desktop version is in right column) */}
-        <div className="lg:hidden mt-0">
-          <SolunarTimeline date={today} />
-        </div>
       </div>
 
       {/* ── WDFW ALERTS BOTTOM SHEET ── */}
