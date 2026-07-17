@@ -45,7 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <TopNav />
 
         {/* Main content — offset below top nav on desktop */}
-        <div className="lg:pt-[56px]">
+        <div className="lg:pt-[64px]">
           {/* ⚠️ Legal Disclaimer Banner */}
           <div style={{
             background: '#7f1d1d',
@@ -74,4 +74,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   )
 }
+
 

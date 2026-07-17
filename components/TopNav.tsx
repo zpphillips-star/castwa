@@ -96,7 +96,7 @@ export default function TopNav() {
     <nav
       className="hidden lg:flex items-center fixed top-0 left-0 right-0 z-[1050]"
       style={{
-        height: 56,
+        height: 64,
         background: 'var(--bg)',
         borderBottom: '1px solid var(--border)',
       }}
@@ -122,19 +122,19 @@ export default function TopNav() {
           }}
         >
           <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0"
+            className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0"
             style={{ background: 'var(--accent)' }}
           >
             <Image
               src="/castwa-icon-white.png"
-              width={48}
-              height={48}
+              width={64}
+              height={64}
               alt="CastWA"
               style={{ width: '80%', height: '80%', objectFit: 'contain' }}
             />
           </div>
           <span
-            className="text-sm font-bold tracking-wide"
+            className="text-base font-bold tracking-wide"
             style={{ color: todayActive ? 'var(--accent)' : 'var(--text, #e5e5e5)' }}
           >
             Today
