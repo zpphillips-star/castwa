@@ -117,6 +117,21 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeTo: '2026-10-31',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/skykomish-river-fishing-will-not-open-until-nov-1-2026-06',
   },
+  // ── MARINE AREA 5 (SEKIU / PILLAR POINT) SALMON OPEN ────────────────────
+  // Source: WDFW ER 26-128-136805 (pub. Jul 16 2026). MA 5 fishery at 15% of
+  // 4,323 total legal-size encounter limit (657 through Jul 11). Opens daily
+  // with up to 2 hatchery Chinook. Kydaka Point Area remains closed.
+  // Effective July 18–31, 2026.
+  {
+    id: 'ea-ma5-salmon-open-2026',
+    type: 'OPEN',
+    species: 'Salmon (hatchery Chinook)',
+    waterBody: 'Marine Area 5 (Sekiu & Pillar Point, excluding Kydaka Point Area)',
+    description: 'Marine Area 5 salmon open DAILY July 18–31. Daily limit 2. Chinook min 22". No min size for other salmon species. Release chum, sockeye, wild coho, and wild Chinook. ⚠️ Kydaka Point Area (south of Kydaka Point–Shipwreck Point line) remains CLOSED to salmon. Barbless hooks required.',
+    activeFrom: '2026-07-18',
+    activeTo: '2026-07-31',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-5-sekiu-and-pillar-point-salmon-fishing-opens-daily-two-hatchery-chinook-may-be-retained-2026-07',
+  },
   // ── BIOTOXIN (PSP) — HOOD CANAL & ADMIRALTY INLET BIVALVES CLOSED ────────
   // Source: DOH news release Jun 12 2026 + WDFW closure announcement.
   // PSP at lethal levels in Hood Canal near Union; high levels in surrounding areas.
