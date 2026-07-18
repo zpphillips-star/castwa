@@ -90,20 +90,6 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeTo: '2026-07-20',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/puget-sound-shrimp-fishery-update-2026-06-0',
   },
-  // ── MARINE AREA 5 (SEKIU & PILLAR POINT) SALMON OPEN ────────────────────
-  // Source: WDFW ER 26-128-136805 (pub. Jul 16 2026).
-  // Effective July 18–31, 2026. Daily limit 2 hatchery Chinook, min 22". Release chum,
-  // sockeye, wild coho, wild Chinook. Kydaka Point Area remains CLOSED.
-  {
-    id: 'ea-ma5-salmon-open-2026',
-    type: 'OPEN',
-    species: 'Salmon (Chinook)',
-    waterBody: 'Marine Area 5 (Sekiu & Pillar Point)',
-    description: 'MA 5 salmon open daily July 18–31. Daily limit 2 hatchery Chinook, min 22". Other salmon no minimum size. Release chum, sockeye, wild coho, and wild Chinook. ⚠️ Kydaka Point Area (south of Kydaka Pt–Shipwreck Pt line) remains CLOSED to salmon.',
-    activeFrom: '2026-07-18',
-    activeTo: '2026-07-31',
-    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-5-sekiu-and-pillar-point-salmon-fishing-opens-daily-two-hatchery-chinook-may-be-retained-2026-07',
-  },
   // ── PUGET SOUND SUMMER CRAB ──────────────────────────────────────────────
   // Source: WDFW ER (pub. Jun 2026). Summer Dungeness season open Thu–Mon most areas.
   // MA 12 south of Ayock Pt and MA 13 remain CLOSED until further notice.
