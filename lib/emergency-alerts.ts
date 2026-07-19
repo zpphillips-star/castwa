@@ -35,7 +35,7 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     description: 'Sockeye salmon open Skagit River through Jul 31. Daily limit 4 sockeye, min 12". Night closure in effect. Release all salmon other than sockeye. Full reach (Hwy 536 Bridge to Baker River) is open as of Jul 16 — previously scheduled tribal closures (Jul 7–9, Jul 13–15) have passed. ⚠️ Additional unannounced tribal closures may still occur on short notice — always verify WDFW before fishing.',
     activeFrom: '2026-07-01',
     activeTo: '2026-07-31',
-    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/lower-skagit-river-fishing-updates-2026-07',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/lower-skagit-river-fishing-updates-2026-07-0',
   },
   // ── TULALIP TERMINAL AREA SALMON CLOSED (MA 8-2) ─────────────────────────
   // Source: WDFW ER 26-124-136779 (pub. Jul 7 2026). Chinook quota of 600 reached.
@@ -147,6 +147,58 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeFrom: '2026-06-12',
     activeTo: null,
     wdfw_url: 'https://wdfw.wa.gov/newsroom/news-release/wdfw-closes-hood-canal-admiralty-inlet-shellfish-harvesting-effective-immediately-following-reports',
+  },
+  // ── MARINE AREA 1 (ILWACO) SALMON SEASON ────────────────────────────────
+  // Source: WDFW ER 26-101-136685 (pub. Jun 10 2026). Season open Jun 20–Sept 30 2026.
+  // Daily limit 2, ≤1 Chinook. Chinook min 22". Coho min 16". Release wild coho.
+  {
+    id: 'ea-ma1-salmon-2026',
+    type: 'OPEN',
+    species: 'Salmon (Chinook & Coho)',
+    waterBody: 'Marine Area 1 (Ilwaco)',
+    description: 'Marine Area 1 (Ilwaco) salmon open June 20 – Sept 30, 2026. Daily limit 2 including no more than 1 Chinook. Chinook min 22". Coho min 16". Release wild coho. Columbia River Control Zone closed except from north jetty when adjacent waters are open.',
+    activeFrom: '2026-06-20',
+    activeTo: '2026-09-30',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-1-ilwaco-recreational-salmon-season-2026-06',
+  },
+  // ── MARINE AREA 2 (WESTPORT / OCEAN SHORES) SALMON SEASON ────────────────
+  // Source: WDFW ER 26-101-136686 (pub. Jun 10 2026). Season open Jun 20–Sept 30 2026.
+  // Jun 29–Sept 30: limit 2 (≤1 Chinook), Chinook min 22", coho min 16", release wild coho.
+  // Willapa Bay (2-1) same rules Jun 20–Jul 31. Grays Harbor Control Zone open Jun 20–Sept 30.
+  {
+    id: 'ea-ma2-salmon-2026',
+    type: 'OPEN',
+    species: 'Salmon (Chinook & Coho)',
+    waterBody: 'Marine Area 2 (Westport / Ocean Shores)',
+    description: 'Marine Area 2 salmon open June 20 – Sept 30, 2026. June 20–28: limit 1, Chinook min 22", release coho. June 29–Sept 30: limit 2 (≤1 Chinook), Chinook min 22", coho min 16", release wild coho. Willapa Bay (2-1) same rules through July 31. Grays Harbor Control Zone open June 20–Sept 30.',
+    activeFrom: '2026-06-20',
+    activeTo: '2026-09-30',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-2-westport-ocean-shores-recreational-salmon-seasons-2026-06',
+  },
+  // ── MARINE AREA 3 (LA PUSH) SALMON SEASON ───────────────────────────────
+  // Source: WDFW ER 26-101-136687 (pub. Jun 10 2026). Season open Jun 20–Sept 30 2026.
+  {
+    id: 'ea-ma3-salmon-2026',
+    type: 'OPEN',
+    species: 'Salmon (Chinook & Coho)',
+    waterBody: 'Marine Area 3 (La Push)',
+    description: 'Marine Area 3 (La Push) salmon open June 20 – Sept 30, 2026. June 20–30: limit 1, Chinook min 24". July 1–31: limit 2, Chinook min 24", coho min 16", release wild coho. Aug 1–Sept 30: limit 2, Chinook min 24", coho min 16", release chum and wild coho.',
+    activeFrom: '2026-06-20',
+    activeTo: '2026-09-30',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-3-la-push-recreational-salmon-seasons-2026-06',
+  },
+  // ── MARINE AREA 4 (NEAH BAY) SALMON SEASON ──────────────────────────────
+  // Source: WDFW ER 26-101-136688 (pub. Jun 10 2026). Season open Jun 20–Sept 30 2026.
+  // Kydaka Point Area closed to salmon through Aug 15 (Aug 1–Sept 30 east of Bonilla-Tatoosh).
+  {
+    id: 'ea-ma4-salmon-2026',
+    type: 'OPEN',
+    species: 'Salmon (Chinook & Coho)',
+    waterBody: 'Marine Area 4 (Neah Bay)',
+    description: 'Marine Area 4 (Neah Bay) salmon open June 20 – Sept 30, 2026. July 1–31: limit 2, Chinook min 24", coho min 16", release wild coho (both sides of Bonilla-Tatoosh line). Aug 1–Sept 30: limit 2, coho min 16", release Chinook (east side), release chum and wild coho; Kydaka Point Area closed to salmon through Aug 15.',
+    activeFrom: '2026-06-20',
+    activeTo: '2026-09-30',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-4-neah-bay-recreational-salmon-seasons-2026-06',
   },
   // ── PACIFIC HALIBUT — ALL WA PRIMARY SEASONS CLOSED (QUOTA) ─────────────
   // All WA halibut primary seasons closed due to IPHC quota being reached.
