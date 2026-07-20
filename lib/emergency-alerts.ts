@@ -201,20 +201,23 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-4-neah-bay-recreational-salmon-seasons-2026-06',
   },
   // ── PACIFIC HALIBUT — ALL WA PRIMARY SEASONS CLOSED (QUOTA) ─────────────
-  // All WA halibut primary seasons closed due to IPHC quota being reached.
-  // Puget Sound (MA 5–10): closed Jun 30. North Coast (MA 3–4): closed Jun 28.
-  // South Coast (MA 2): closed Jun 30. Columbia River: closed ~Jun 28.
-  // Remaining quota exists in all areas; Aug/Sep reopenings are possible when
-  // IPHC announces additional days — monitor wdfw.wa.gov for updates.
+  // All WA halibut primary seasons closed at scheduled end dates.
+  // Puget Sound (MA 5–10): closed Jun 30 (58% of 80,512 lb quota used, ~33,720 lbs remain).
+  // North Coast (MA 3–4): closed Jun 28 (44% of 131,149 lb quota used, ~73,003 lbs remain).
+  // South Coast (MA 2): closed Jun 30 (58% of 65,857 lb quota used, ~27,628 lbs remain).
+  // Columbia River: closed ~Jun 28 (61% of 19,299 lb quota used, ~7,556 lbs remain).
+  // All area pages explicitly note Aug/Sep reopenings possible if quota remains.
+  // WDFW held a public meeting Jun 30 to discuss Aug/Sep dates — no dates announced yet
+  // as of Jul 20 2026. Monitor WDFW emergency rules for reopening announcement.
   {
     id: 'ea-halibut-quota-closed-2026',
     type: 'CLOSED',
     species: 'Pacific Halibut',
     waterBody: 'All WA Marine Areas (MA 2, 3–4, 5–10) & Columbia River',
-    description: '🚨 All WA Pacific Halibut primary seasons are CLOSED — area quotas reached. Puget Sound (MA 5–10): closed Jun 30. North Coast (MA 3–4): closed Jun 28. South Coast (MA 2): closed Jun 30. Columbia River: closed ~Jun 28. Remaining quota exists in all areas; August/September reopenings are possible once IPHC announces additional days. Check wdfw.wa.gov for reopening announcements before fishing.',
+    description: '🚨 All WA Pacific Halibut primary seasons are CLOSED — scheduled season end dates reached. Puget Sound (MA 5–10): closed Jun 30. North Coast (MA 3–4): closed Jun 28. South Coast (MA 2): closed Jun 30. Columbia River: closed ~Jun 28. Substantial quota remains in all areas (North Coast ~55% unused). WDFW may announce August/September additional fishing days — monitor wdfw.wa.gov/fishing/regulations/halibut for reopening announcements before fishing.',
     activeFrom: '2026-06-28',
     activeTo: '2026-09-30',
-    wdfw_url: 'https://wdfw.wa.gov/fishing/basics/halibut',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/halibut',
   },
 ]
 
