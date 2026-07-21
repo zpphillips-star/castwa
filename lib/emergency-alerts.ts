@@ -77,19 +77,6 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeTo: '2026-07-31',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/columbia-river-salmon-and-steelhead-fishery-update-2026-06',
   },
-  // ── PUGET SOUND SHRIMP UPDATE ────────────────────────────────────────────
-  // Source: WDFW ER 26-119-136754 (pub. Jun 29 2026).
-  // MA 7 West July 18–20 CANCELLED (quota met). MA 6 outside Discovery Bay added July 19–20.
-  {
-    id: 'ea-ps-shrimp-ma7w-cancelled-2026',
-    type: 'MODIFIED',
-    species: 'Shrimp (all species)',
-    waterBody: 'Puget Sound Marine Areas 6 & 7 West',
-    description: 'Marine Area 7 West shrimp July 18–20 CANCELLED — spot shrimp quota met. MA 6 (outside Discovery Bay) added July 19–20 for all shrimp. MA 4E/5, 7E, 8-1/8-2, 9, 11, 13: open June 29–Oct 15 non-spot shrimp. MA 12: open July 7 only (9am–1pm). MA 7 South and Discovery Bay: closed.',
-    activeFrom: '2026-06-29',
-    activeTo: '2026-07-20',
-    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/puget-sound-shrimp-fishery-update-2026-06-0',
-  },
   // ── PUGET SOUND SUMMER CRAB ──────────────────────────────────────────────
   // Source: WDFW ER (pub. Jun 2026). Summer Dungeness season open Thu–Mon most areas.
   // MA 12 south of Ayock Pt and MA 13 remain CLOSED until further notice.
@@ -131,6 +118,20 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeFrom: '2026-07-18',
     activeTo: '2026-07-31',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-5-sekiu-and-pillar-point-salmon-fishing-opens-daily-two-hatchery-chinook-may-be-retained-2026-07',
+  },
+  // ── PUGET SOUND SUMMER SHRIMP SEASONS (2026) ────────────────────────────
+  // Source: WDFW ER 26-119-136754 (pub. Jun 29 2026). Updated spot shrimp
+  // quota / non-spot season schedule for summer/fall.
+  // MA 7 West spot shrimp quota met → closed. Broad non-spot seasons active through Oct 15.
+  {
+    id: 'ea-ps-shrimp-summer-2026',
+    type: 'MODIFIED',
+    species: 'Shrimp (spot & non-spot)',
+    waterBody: 'Puget Sound Marine Areas',
+    description: 'Summer/fall shrimp seasons active in Puget Sound through Oct 15. ✅ MA 4E & 5: ALL shrimp open Jun 29–Oct 15 (daylight only; 80 spot shrimp/day; 10 lb combined daily limit). ✅ MA 7E, 8-1, 8-2, 9, 11, 13: Non-spot shrimp only through Oct 15 — depth limits apply; all spot shrimp must be immediately released. ⚠️ MA 7 West CLOSED — spot shrimp quota met. ⚠️ MA 7S, MA 10, Discovery Bay Shrimp District: CLOSED. Daylight hours only (pots set/pulled 1 hr before sunrise to 1 hr after sunset; all traps out when closed). Non-spot seasons: 10 lb/day combined limit. All shrimp heads must be retained until ashore.',
+    activeFrom: '2026-06-29',
+    activeTo: '2026-10-15',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/puget-sound-shrimp-fishery-update-2026-06-0',
   },
   // ── BIOTOXIN (PSP) — HOOD CANAL & ADMIRALTY INLET BIVALVES CLOSED ────────
   // Source: DOH news release Jun 12 2026 + WDFW closure announcement.
@@ -200,21 +201,22 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeTo: '2026-09-30',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-4-neah-bay-recreational-salmon-seasons-2026-06',
   },
-  // ── PACIFIC HALIBUT — ALL WA PRIMARY SEASONS CLOSED (QUOTA) ─────────────
-  // All WA halibut primary seasons closed at scheduled end dates.
-  // Puget Sound (MA 5–10): closed Jun 30 (58% of 80,512 lb quota used, ~33,720 lbs remain).
-  // North Coast (MA 3–4): closed Jun 28 (44% of 131,149 lb quota used, ~73,003 lbs remain).
-  // South Coast (MA 2): closed Jun 30 (58% of 65,857 lb quota used, ~27,628 lbs remain).
-  // Columbia River: closed ~Jun 28 (61% of 19,299 lb quota used, ~7,556 lbs remain).
-  // All area pages explicitly note Aug/Sep reopenings possible if quota remains.
-  // WDFW held a public meeting Jun 30 to discuss Aug/Sep dates — no dates announced yet
-  // as of Jul 20 2026. Monitor WDFW emergency rules for reopening announcement.
+  // ── PACIFIC HALIBUT — ALL WA PRIMARY SEASONS CLOSED; AUG/SEP REOPENINGS PLANNED ──
+  // All WA halibut primary seasons closed due to scheduled close dates.
+  // Puget Sound (MA 5–10): closed Jun 30 (~58% of 80,512 lb quota used, ~33,720 lbs remain).
+  // North Coast (MA 3–4): closed Jun 28 (~44% of 131,149 lb quota used, ~73,003 lbs remain).
+  // South Coast (MA 2): closed Jun 30 (~58% of 65,857 lb quota used, ~27,628 lbs remain).
+  // Columbia River: closed ~Jun 28 (~61% of 19,299 lb quota used, ~7,556 lbs remain).
+  // WDFW Jul 15 2026 news release confirmed Aug/Sep reopenings pending NMFS approval:
+  //   MA 1 (Ilwaco) & MA 2 (Westport): Aug 8–Sep 30 daily, 1-fish limit.
+  //   MA 3–4 (North Coast) & MA 5–10 (Puget Sound/Strait): Aug 16–Sep 30 daily, 1-fish limit.
+  //   MA 11 (Tacoma), MA 12 (Hood Canal), MA 13 (S. Puget Sound): CLOSED for the year.
   {
     id: 'ea-halibut-quota-closed-2026',
     type: 'CLOSED',
     species: 'Pacific Halibut',
-    waterBody: 'All WA Marine Areas (MA 2, 3–4, 5–10) & Columbia River',
-    description: '🚨 All WA Pacific Halibut primary seasons are CLOSED — scheduled season end dates reached. Puget Sound (MA 5–10): closed Jun 30. North Coast (MA 3–4): closed Jun 28. South Coast (MA 2): closed Jun 30. Columbia River: closed ~Jun 28. Substantial quota remains in all areas (North Coast ~55% unused). WDFW may announce August/September additional fishing days — monitor wdfw.wa.gov/fishing/regulations/halibut for reopening announcements before fishing.',
+    waterBody: 'All WA Marine Areas (MA 1–10) & Columbia River',
+    description: '🚨 All WA Pacific Halibut primary seasons CLOSED. Puget Sound (MA 5–10): closed Jun 30. North Coast (MA 3–4): closed Jun 28. South Coast (MA 2): closed Jun 30. Columbia River: closed ~Jun 28. MA 11/12/13 closed for the year. ✅ Aug/Sep reopenings PLANNED (pending NMFS approval): MA 1–2 open Aug 8–Sep 30 daily; MA 3–4 and MA 5–10 open Aug 16–Sep 30 daily. Daily limit 1 halibut, no minimum size. Check wdfw.wa.gov for final confirmation before fishing.',
     activeFrom: '2026-06-28',
     activeTo: '2026-09-30',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/halibut',
