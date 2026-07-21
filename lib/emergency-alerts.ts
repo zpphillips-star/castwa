@@ -79,15 +79,17 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
   },
   // ── PUGET SOUND SHRIMP UPDATE ────────────────────────────────────────────
   // Source: WDFW ER 26-119-136754 (pub. Jun 29 2026).
-  // MA 7 West July 18–20 CANCELLED (quota met). MA 6 outside Discovery Bay added July 19–20.
+  // MA 7 West CLOSED — spot shrimp quota met July 2026. MA 6 Jul 19–20 and MA 12 Jul 7 special
+  // openings have passed. Ongoing non-spot shrimp season runs Jun 29–Oct 15 in many areas.
+  // Updated Jul 21 2026: extended activeTo to Oct 15 to cover ongoing non-spot season.
   {
     id: 'ea-ps-shrimp-ma7w-cancelled-2026',
     type: 'MODIFIED',
     species: 'Shrimp (all species)',
-    waterBody: 'Puget Sound Marine Areas 6 & 7 West',
-    description: 'Marine Area 7 West shrimp July 18–20 CANCELLED — spot shrimp quota met. MA 6 (outside Discovery Bay) added July 19–20 for all shrimp. MA 4E/5, 7E, 8-1/8-2, 9, 11, 13: open June 29–Oct 15 non-spot shrimp. MA 12: open July 7 only (9am–1pm). MA 7 South and Discovery Bay: closed.',
+    waterBody: 'Puget Sound Marine Areas (ongoing season update)',
+    description: 'Non-spot shrimp open June 29–Oct 15 (daylight hours) in MA 4E/5, 7E, 8-1/8-2, 9, 11, 13. MA 7 West CLOSED — spot shrimp quota met. MA 6, 7S, Discovery Bay, MA 10 (Elliott Bay), and MA 12 also closed. Depth restrictions apply by area. All spot shrimp caught in non-spot areas must be released immediately. Daily limit 10 lbs whole shrimp, all species combined in non-spot areas.',
     activeFrom: '2026-06-29',
-    activeTo: '2026-07-20',
+    activeTo: '2026-10-15',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/puget-sound-shrimp-fishery-update-2026-06-0',
   },
   // ── PUGET SOUND SUMMER CRAB ──────────────────────────────────────────────
