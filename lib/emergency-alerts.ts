@@ -104,6 +104,20 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeTo: '2026-10-31',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/skykomish-river-fishing-will-not-open-until-nov-1-2026-06',
   },
+  // ── MARINE AREA 7 (SAN JUAN ISLANDS) — ADDITIONAL JULY DAYS ─────────────
+  // Source: WDFW ER 26-130-136820 (pub. Jul 22 2026). Sufficient summer Chinook
+  // quota remains → two additional days opened. Excludes Bellingham Bay.
+  // Effective July 26–27, 2026 only.
+  {
+    id: 'ea-ma7-chinook-july-2026',
+    type: 'OPEN',
+    species: 'Chinook Salmon',
+    waterBody: 'Marine Area 7 (San Juan Islands, excluding Bellingham Bay)',
+    description: 'Marine Area 7 open for salmon July 26–27, 2026 only — additional days added due to remaining Chinook quota. Daily limit 2 including no more than 1 hatchery Chinook. Chinook min 22". All other salmon species no minimum size. Release chum, sockeye, wild coho, and wild Chinook. ⚠️ Bellingham Bay excluded. All year-round closed areas remain closed.',
+    activeFrom: '2026-07-26',
+    activeTo: '2026-07-27',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-7-san-juan-islands-opens-additional-days-july-salmon-fishing-2026-07',
+  },
   // ── MARINE AREA 5 (SEKIU / PILLAR POINT) SALMON OPEN ────────────────────
   // Source: WDFW ER 26-128-136805 (pub. Jul 16 2026). MA 5 fishery at 15% of
   // 4,323 total legal-size encounter limit (657 through Jul 11). Opens daily
