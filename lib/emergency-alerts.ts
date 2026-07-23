@@ -147,6 +147,19 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeTo: '2026-10-15',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/puget-sound-shrimp-fishery-update-2026-06-0',
   },
+  // ── MARINE AREA 7 (SAN JUAN ISLANDS) SALMON — TWO ADDITIONAL DAYS ───────
+  // Source: WDFW ER 26-130-136820 (pub. Jul 22 2026). Sufficient summer Chinook
+  // quota remains. Opens Jul 26–27 only. Bellingham Bay excluded.
+  {
+    id: 'ea-ma7-salmon-july-2026',
+    type: 'OPEN',
+    species: 'Salmon (hatchery Chinook)',
+    waterBody: 'Marine Area 7 (San Juan Islands, excluding Bellingham Bay)',
+    description: 'Marine Area 7 (San Juan Islands) salmon open July 26–27, 2026 only. Daily limit 2, no more than 1 hatchery Chinook. Chinook min 22". All other salmon species no minimum size. Release chum, sockeye, wild coho, and wild Chinook. ⚠️ Bellingham Bay excluded. All year-round closed areas remain closed.',
+    activeFrom: '2026-07-26',
+    activeTo: '2026-07-27',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-7-san-juan-islands-opens-additional-days-july-salmon-fishing-2026-07',
+  },
   // ── BIOTOXIN (PSP) — HOOD CANAL & ADMIRALTY INLET BIVALVES CLOSED ────────
   // Source: DOH news release Jun 12 2026 + WDFW closure announcement.
   // PSP at lethal levels in Hood Canal near Union; high levels in surrounding areas.
