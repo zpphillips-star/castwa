@@ -104,20 +104,6 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeTo: '2026-10-31',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/skykomish-river-fishing-will-not-open-until-nov-1-2026-06',
   },
-  // ── MARINE AREA 7 (SAN JUAN ISLANDS) — ADDITIONAL JULY DAYS ─────────────
-  // Source: WDFW ER 26-130-136820 (pub. Jul 22 2026). Sufficient summer Chinook
-  // quota remains → two additional days opened. Excludes Bellingham Bay.
-  // Effective July 26–27, 2026 only.
-  {
-    id: 'ea-ma7-chinook-july-2026',
-    type: 'OPEN',
-    species: 'Chinook Salmon',
-    waterBody: 'Marine Area 7 (San Juan Islands, excluding Bellingham Bay)',
-    description: 'Marine Area 7 open for salmon July 26–27, 2026 only — additional days added due to remaining Chinook quota. Daily limit 2 including no more than 1 hatchery Chinook. Chinook min 22". All other salmon species no minimum size. Release chum, sockeye, wild coho, and wild Chinook. ⚠️ Bellingham Bay excluded. All year-round closed areas remain closed.',
-    activeFrom: '2026-07-26',
-    activeTo: '2026-07-27',
-    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-7-san-juan-islands-opens-additional-days-july-salmon-fishing-2026-07',
-  },
   // ── MARINE AREA 5 (SEKIU / PILLAR POINT) SALMON OPEN ────────────────────
   // Source: WDFW ER 26-128-136805 (pub. Jul 16 2026). MA 5 fishery at 15% of
   // 4,323 total legal-size encounter limit (657 through Jul 11). Opens daily
@@ -228,22 +214,22 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeTo: '2026-09-30',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-4-neah-bay-recreational-salmon-seasons-2026-06',
   },
-  // ── PACIFIC HALIBUT — ALL WA PRIMARY SEASONS CLOSED; AUG/SEP REOPENINGS PLANNED ──
+  // ── PACIFIC HALIBUT — ALL WA PRIMARY SEASONS CLOSED; AUG/SEP REOPENINGS CONFIRMED ──
   // All WA halibut primary seasons closed due to scheduled close dates.
   // Puget Sound (MA 5–10): closed Jun 30 (~58% of 80,512 lb quota used, ~33,720 lbs remain).
   // North Coast (MA 3–4): closed Jun 28 (~44% of 131,149 lb quota used, ~73,003 lbs remain).
   // South Coast (MA 2): closed Jun 30 (~58% of 65,857 lb quota used, ~27,628 lbs remain).
   // Columbia River: closed ~Jun 28 (~61% of 19,299 lb quota used, ~7,556 lbs remain).
-  // WDFW Jul 15 2026 news release confirmed Aug/Sep reopenings pending NMFS approval:
-  //   MA 1 (Ilwaco) & MA 2 (Westport): Aug 8–Sep 30 daily, 1-fish limit.
-  //   MA 3–4 (North Coast) & MA 5–10 (Puget Sound/Strait): Aug 16–Sep 30 daily, 1-fish limit.
+  // Aug/Sep reopenings NOW OFFICIALLY PUBLISHED on WDFW halibut season pages (verified Jul 25 2026):
+  //   MA 1 (Columbia River) & MA 2 (South Coast/Westport): Aug 8–Sep 30 daily, 1-fish limit.
+  //   MA 3–4 (North Coast) & MA 5–10 (Puget Sound/Strait of JdF): Aug 16–Sep 30 daily, 1-fish limit.
   //   MA 11 (Tacoma), MA 12 (Hood Canal), MA 13 (S. Puget Sound): CLOSED for the year.
   {
     id: 'ea-halibut-quota-closed-2026',
     type: 'CLOSED',
     species: 'Pacific Halibut',
     waterBody: 'All WA Marine Areas (MA 1–10) & Columbia River',
-    description: '🚨 All WA Pacific Halibut primary seasons CLOSED. Puget Sound (MA 5–10): closed Jun 30. North Coast (MA 3–4): closed Jun 28. South Coast (MA 2): closed Jun 30. Columbia River: closed ~Jun 28. MA 11/12/13 closed for the year. ✅ Aug/Sep reopenings PLANNED (pending NMFS approval): MA 1–2 open Aug 8–Sep 30 daily; MA 3–4 and MA 5–10 open Aug 16–Sep 30 daily. Daily limit 1 halibut, no minimum size. Check wdfw.wa.gov for final confirmation before fishing.',
+    description: '🚨 All WA Pacific Halibut primary seasons CLOSED. Puget Sound (MA 5–10): closed Jun 30. North Coast (MA 3–4): closed Jun 28. South Coast (MA 2): closed Jun 30. Columbia River: closed ~Jun 28. MA 11/12/13 closed for the year. ✅ Reopenings CONFIRMED (now officially scheduled on wdfw.wa.gov): MA 1 (Columbia River) & MA 2 (Westport/Ocean Shores) open Aug 8–Sep 30 daily; MA 3–4 (North Coast/Neah Bay/La Push) and MA 5–10 (Puget Sound/Strait) open Aug 16–Sep 30 daily. Daily limit 1 halibut, no minimum size, catch record card required. Seasons may close early if quota taken.',
     activeFrom: '2026-06-28',
     activeTo: '2026-09-30',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/halibut',
