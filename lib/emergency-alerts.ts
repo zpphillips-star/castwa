@@ -120,18 +120,20 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-5-sekiu-and-pillar-point-salmon-fishing-opens-daily-two-hatchery-chinook-may-be-retained-2026-07',
   },
   // ── PUGET SOUND SUMMER SHRIMP SEASONS (2026) ────────────────────────────
-  // Source: WDFW ER 26-119-136754 (pub. Jun 29 2026). Updated spot shrimp
-  // quota / non-spot season schedule for summer/fall.
+  // Source: WDFW ER 26-119-136754 (pub. Jun 29 2026) + ER 26-134-136837 (pub. Jul 27 2026).
+  // Jul 27 update adds Marine Area 6 (excl. Discovery Bay Shrimp District):
+  //   Aug 2 only: all shrimp species open (daylight only).
+  //   Aug 3–Oct 15: non-spot shrimp only (depth limit 175 ft; all spot shrimp must be released).
   // MA 7 West spot shrimp quota met → closed. Broad non-spot seasons active through Oct 15.
   {
     id: 'ea-ps-shrimp-summer-2026',
     type: 'MODIFIED',
     species: 'Shrimp (spot & non-spot)',
     waterBody: 'Puget Sound Marine Areas',
-    description: 'Summer/fall shrimp seasons active in Puget Sound through Oct 15. ✅ MA 4E & 5: ALL shrimp open Jun 29–Oct 15 (daylight only; 80 spot shrimp/day; 10 lb combined daily limit). ✅ MA 7E, 8-1, 8-2, 9, 11, 13: Non-spot shrimp only through Oct 15 — depth limits apply; all spot shrimp must be immediately released. ⚠️ MA 7 West CLOSED — spot shrimp quota met. ⚠️ MA 7S, MA 10, Discovery Bay Shrimp District: CLOSED. Daylight hours only (pots set/pulled 1 hr before sunrise to 1 hr after sunset; all traps out when closed). Non-spot seasons: 10 lb/day combined limit. All shrimp heads must be retained until ashore.',
+    description: 'Summer/fall shrimp seasons active in Puget Sound through Oct 15. ✅ MA 4E & 5: ALL shrimp open Jun 29–Oct 15 (daylight only; 80 spot shrimp/day; 10 lb combined daily limit). ✅ MA 6 (excl. Discovery Bay Shrimp District): ALL shrimp Aug 2 only; non-spot only Aug 3–Oct 15 (depth limit 175 ft; release all spot shrimp). ✅ MA 7E, 8-1, 8-2, 9, 11, 13: Non-spot shrimp only through Oct 15 — depth limits apply; all spot shrimp must be immediately released. ⚠️ MA 7 West CLOSED — spot shrimp quota met. ⚠️ MA 7S, MA 10, MA 12, Discovery Bay Shrimp District: CLOSED. Daylight hours only (pots set/pulled 1 hr before sunrise to 1 hr after sunset; all traps out when closed). Non-spot seasons: 10 lb/day combined limit. All shrimp heads must be retained until ashore.',
     activeFrom: '2026-06-29',
     activeTo: '2026-10-15',
-    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/puget-sound-shrimp-fishery-update-2026-06-0',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/puget-sound-shrimp-fishery-update-2026-07',
   },
   // ── MARINE AREA 7 (SAN JUAN ISLANDS) SALMON — TWO ADDITIONAL DAYS ───────
   // Source: WDFW ER 26-130-136820 (pub. Jul 22 2026). Sufficient summer Chinook
