@@ -135,6 +135,20 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeTo: '2026-10-15',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/puget-sound-shrimp-fishery-update-2026-07',
   },
+  // ── COMMENCEMENT BAY (MA 11) SALMON — CHINOOK LIMIT MODIFICATION ─────────
+  // Source: WDFW ER 26-136-136857 (pub. Jul 29 2026). Rule change aligns
+  // Commencement Bay with the rest of Marine Area 11 per 2026 North of Falcon
+  // season setting process. Effective Aug 1 – Sept 30, 2026.
+  {
+    id: 'ea-commencement-bay-salmon-2026',
+    type: 'MODIFIED',
+    species: 'Salmon (hatchery Chinook)',
+    waterBody: 'Marine Area 11, Commencement Bay',
+    description: 'Commencement Bay (MA 11) salmon MODIFIED starting Aug 1, 2026. No more than one hatchery Chinook may be retained as part of the daily limit. Daily limit 2, ≤1 hatchery Chinook. Chinook min 22". Other salmon species no minimum size. Release chum and wild Chinook. Location: east of a line bearing 215° true from the Cliff House Restaurant (47°17.85\'N, 122°25.90\'W) through Sperry Ocean Dock (47°16.43\'N, 122°27.37\'W).',
+    activeFrom: '2026-08-01',
+    activeTo: '2026-09-30',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/commencement-bay-salmon-fishery-update-2026-07',
+  },
   // ── MARINE AREA 7 (SAN JUAN ISLANDS) SALMON — TWO ADDITIONAL DAYS ───────
   // Source: WDFW ER 26-130-136820 (pub. Jul 22 2026). Sufficient summer Chinook
   // quota remains. Opens Jul 26–27 only. Bellingham Bay excluded.
