@@ -27,6 +27,7 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
   // Source: WDFW ER 26-126-136780 (pub. Jul 7 2026). Supersedes ER 26-123-136776.
   // Effective Jul 7–31 2026. Hwy 536 to Baker River. Limit 4 sockeye.
   // Tribal closures: Gilligan Creek→Baker River CLOSED Jul 7–12:29pm Jul 9 and Jul 13–15 (all species).
+  // ARCHIVED 2026-08-01: activeTo 2026-07-31 has passed; filter excludes from active list.
   {
     id: 'ea-skagit-sockeye-2026',
     type: 'OPEN',
@@ -67,6 +68,7 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
   // ── COLUMBIA RIVER SOCKEYE CLOSURE ──────────────────────────────────────
   // Source: WDFW ER 26-113-136726 (pub. Jun 18 2026). Low returns trigger closures.
   // Most Columbia River sections closed to sockeye Jul 6–31. Possible limited reopening if returns improve.
+  // ARCHIVED 2026-08-01: activeTo 2026-07-31 has passed; filter excludes from active list.
   {
     id: 'ea-columbia-sockeye-closed-2026',
     type: 'CLOSED',
@@ -109,6 +111,7 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
   // 4,323 total legal-size encounter limit (657 through Jul 11). Opens daily
   // with up to 2 hatchery Chinook. Kydaka Point Area remains closed.
   // Effective July 18–31, 2026.
+  // ARCHIVED 2026-08-01: activeTo 2026-07-31 has passed; filter excludes from active list.
   {
     id: 'ea-ma5-salmon-open-2026',
     type: 'OPEN',
