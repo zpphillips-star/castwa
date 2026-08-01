@@ -149,6 +149,20 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeTo: '2026-09-30',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/commencement-bay-salmon-fishery-update-2026-07',
   },
+  // ── MARINE AREA 7 (SAN JUAN ISLANDS) SALMON — ADDITIONAL DAY AUG 6 ───────
+  // Source: WDFW ER 26-138-136860 (pub. Jul 31 2026). Catch estimates indicate
+  // sufficient summer Chinook quota remains for one more retention day.
+  // Bellingham Bay unaffected (open under regular pamphlet rules).
+  {
+    id: 'ea-ma7-salmon-aug6-2026',
+    type: 'OPEN',
+    species: 'Salmon (hatchery Chinook)',
+    waterBody: 'Marine Area 7 (San Juan Islands, excluding Bellingham Bay)',
+    description: 'Marine Area 7 (San Juan Islands) salmon open Aug 6, 2026 only — additional day of Chinook retention. Daily limit 2, no more than 1 hatchery Chinook. Chinook min 22". All other salmon species no minimum size. Release chum, sockeye, wild coho, and wild Chinook. ⚠️ Bellingham Bay excluded (open under regular pamphlet rules). All year-round closed areas remain closed.',
+    activeFrom: '2026-08-06',
+    activeTo: '2026-08-06',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-7-san-juan-islands-opens-additional-day-chinook-retention-2026-07',
+  },
   // ── BIOTOXIN (PSP) — HOOD CANAL & ADMIRALTY INLET BIVALVES CLOSED ────────
   // Source: DOH news release Jun 12 2026 + WDFW closure announcement.
   // PSP at lethal levels in Hood Canal near Union; high levels in surrounding areas.
