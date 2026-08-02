@@ -4,8 +4,10 @@ import BottomNav from '@/components/BottomNav'
 import FishDetailSheet from '@/components/FishDetailSheet'
 import RiverDetailSheet from '@/components/RiverDetailSheet'
 import WaterDetailSheet from '@/components/WaterDetailSheet'
+import DailyUpdatesBanner from '@/components/DailyUpdatesBanner'
 import { REGULATIONS, WATER_BODIES, isOpenOn, getOpenSpeciesForDate, daysUntilOpen, SPECIES, Species } from '@/lib/fishing-data'
 import { getActiveAlerts, EmergencyAlert } from '@/lib/emergency-alerts'
+import { getDailyUpdatesForDate, getNewUpdatesCount } from '@/lib/daily-updates'
 import { useStarred } from '@/hooks/useStarred'
 import { WATER_COORDS } from '@/lib/water-coords'
 
@@ -627,6 +629,10 @@ export default function TodayPage() {
   // Static alerts (from lib/emergency-alerts.ts)
   const staticAlerts = getActiveAlerts(today)
 
+  // Daily Updates — general statewide bulletin
+  const dailyUpdates = getDailyUpdatesForDate(today)
+  const newUpdatesCount = getNewUpdatesCount(today)
+
   // Live WDFW RSS alerts
   useEffect(() => {
     fetch('/api/wdfw-alerts')
@@ -694,6 +700,11 @@ export default function TodayPage() {
         {/* Mobile: Best Bite Times — right under Emergency Rules (desktop version is in right column) */}
         <div className="lg:hidden mt-2 mb-2">
           <SolunarTimeline date={today} />
+        </div>
+
+        {/* Mobile: Daily Updates — right under Best Bite Times */}
+        <div className="lg:hidden mb-4">
+          <DailyUpdatesBanner updates={dailyUpdates} date={today} newCount={newUpdatesCount} />
         </div>
 
         {/* Desktop 2-column layout */}
@@ -1004,6 +1015,9 @@ export default function TodayPage() {
           <div className="hidden lg:flex lg:flex-col lg:gap-6 lg:pt-5">
             {/* Solunar / Best Bite Times */}
             <SolunarTimeline date={today} />
+
+            {/* Daily Updates — general statewide bulletin */}
+            <DailyUpdatesBanner updates={dailyUpdates} date={today} newCount={newUpdatesCount} />
 
             {/* Quick links */}
             <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
