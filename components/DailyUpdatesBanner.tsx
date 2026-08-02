@@ -11,15 +11,15 @@ const PRIORITY_COLOR: Record<UpdatePriority, string> = {
 }
 
 const PRIORITY_BG: Record<UpdatePriority, string> = {
-  alert:     'rgba(239,68,68,0.12)',
-  highlight: 'rgba(245,158,11,0.12)',
-  info:      'rgba(34,197,94,0.10)',
+  alert:     'rgba(239,68,68,0.14)',
+  highlight: 'rgba(245,158,11,0.13)',
+  info:      'rgba(34,197,94,0.11)',
 }
 
-const PRIORITY_LABEL: Record<UpdatePriority, string> = {
-  alert:     'ALERT',
-  highlight: 'UPDATE',
-  info:      'INFO',
+const PRIORITY_BORDER: Record<UpdatePriority, string> = {
+  alert:     'rgba(239,68,68,0.28)',
+  highlight: 'rgba(245,158,11,0.28)',
+  info:      'rgba(34,197,94,0.22)',
 }
 
 const CATEGORY_LABEL: Record<DailyUpdate['category'], string> = {
@@ -38,97 +38,109 @@ function fmtDate(iso: string): string {
   return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
-// ─── EXPANDED ITEM CARD ───────────────────────────────────────────────────────
+function dateRangeLabel(update: DailyUpdate): string {
+  const from = fmtDate(update.activeFrom)
+  if (!update.activeTo) return `${from} – until further notice`
+  return `${from} – ${fmtDate(update.activeTo)}`
+}
 
-function UpdateCard({ update, isLast }: { update: DailyUpdate; isLast: boolean }) {
+// ─── FEATURED UPDATE CARD ─────────────────────────────────────────────────────
+
+function FeaturedCard({ update }: { update: DailyUpdate }) {
   const [expanded, setExpanded] = useState(false)
-  const color = PRIORITY_COLOR[update.priority]
-  const bg    = PRIORITY_BG[update.priority]
+  const color  = PRIORITY_COLOR[update.priority]
+  const bg     = PRIORITY_BG[update.priority]
+  const border = PRIORITY_BORDER[update.priority]
 
   return (
     <div
-      style={{
-        background: 'var(--surface)',
-        borderBottom: isLast ? 'none' : '1px solid var(--border)',
-      }}
+      className="rounded-2xl overflow-hidden"
+      style={{ background: 'var(--surface)', border: `1px solid ${border}` }}
     >
-      {/* Row — always visible */}
-      <button
-        onClick={() => setExpanded(v => !v)}
-        className="w-full text-left px-4 py-3 flex items-start gap-3 transition-opacity active:opacity-70"
-        style={{ cursor: 'pointer' }}
+      {/* ── Colored hero strip ── */}
+      <div
+        className="px-4 py-2.5 flex items-center justify-between"
+        style={{ background: bg, borderBottom: `1px solid ${border}` }}
       >
-        {/* Left accent bar */}
-        <div
-          className="flex-shrink-0 mt-0.5"
-          style={{ width: 3, borderRadius: 2, background: color, alignSelf: 'stretch', minHeight: 20 }}
-        />
-
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          {/* Priority + Category tags */}
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <span
-              className="text-[10px] font-black px-2 py-0.5 rounded-full"
-              style={{ background: bg, color }}
-            >
-              {PRIORITY_LABEL[update.priority]}
-            </span>
-            <span className="text-[10px] font-semibold" style={{ color: 'var(--text-faint)' }}>
-              {CATEGORY_LABEL[update.category]}
-            </span>
-          </div>
-
-          {/* Headline */}
-          <p className="text-sm font-bold text-[var(--text)] leading-snug">{update.headline}</p>
-
-          {/* Subtext */}
-          <p className="text-xs mt-0.5 leading-snug" style={{ color: 'var(--amber)' }}>
-            {update.subtext}
-          </p>
-
-          {/* Date range */}
-          <p className="text-[10px] mt-1" style={{ color: 'var(--text-faint)' }}>
-            {fmtDate(update.activeFrom)}
-            {update.activeTo ? ` – ${fmtDate(update.activeTo)}` : ' – until further notice'}
-          </p>
+        <div className="flex items-center gap-2">
+          <span style={{ fontSize: 17, lineHeight: 1 }}>{update.icon}</span>
+          <span
+            className="text-[11px] font-black tracking-widest uppercase"
+            style={{ color }}
+          >
+            {update.featuredLabel}
+          </span>
         </div>
-
-        {/* Expand chevron */}
         <span
-          className="flex-shrink-0 text-sm transition-transform duration-200"
-          style={{
-            color: 'var(--text-faint)',
-            transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
-          }}
+          className="text-[10px] font-semibold"
+          style={{ color: 'var(--text-faint)' }}
         >
-          ›
+          {CATEGORY_LABEL[update.category]}
         </span>
-      </button>
+      </div>
 
-      {/* Expanded detail */}
-      {expanded && (
-        <div className="px-4 pb-4">
-          {/* Detail text — preserve line breaks */}
-          <p
-            className="text-xs leading-relaxed whitespace-pre-line"
-            style={{ color: 'var(--text-muted)' }}
-          >
-            {update.detail}
-          </p>
+      {/* ── Card body ── */}
+      <div className="px-4 pt-3 pb-3">
+        {/* Headline */}
+        <p className="text-[15px] font-black leading-snug text-[var(--text)]">
+          {update.headline}
+        </p>
 
-          {/* Official rule link */}
-          <a
-            href={update.wdfw_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 mt-3 text-[11px] font-bold no-underline"
-            style={{ color: 'var(--amber)', textDecoration: 'none' }}
+        {/* Location / species subtext */}
+        <p
+          className="text-[12px] font-semibold mt-1 leading-snug"
+          style={{ color: 'var(--amber)' }}
+        >
+          {update.subtext}
+        </p>
+
+        {/* Date range — always visible */}
+        <p
+          className="text-[11px] mt-1.5"
+          style={{ color: 'var(--text-faint)' }}
+        >
+          {dateRangeLabel(update)}
+        </p>
+
+        {/* Expand / collapse detail toggle */}
+        <button
+          onClick={() => setExpanded(v => !v)}
+          className="flex items-center gap-1.5 mt-3 text-[12px] font-bold transition-opacity active:opacity-60"
+          style={{ color, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }}
+        >
+          <span>{expanded ? 'Hide details' : 'View details'}</span>
+          <span
+            className="text-sm transition-transform duration-200"
+            style={{ transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)', display: 'inline-block' }}
           >
-            Official WDFW rule ↗
-          </a>
-        </div>
-      )}
+            ›
+          </span>
+        </button>
+
+        {/* Expanded detail block */}
+        {expanded && (
+          <div
+            className="mt-3 pt-3"
+            style={{ borderTop: '1px solid var(--border)' }}
+          >
+            <p
+              className="text-[12px] leading-relaxed whitespace-pre-line"
+              style={{ color: 'var(--text-muted)' }}
+            >
+              {update.detail}
+            </p>
+            <a
+              href={update.wdfw_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 mt-3 text-[11px] font-bold no-underline"
+              style={{ color: 'var(--amber)', textDecoration: 'none' }}
+            >
+              Official WDFW rule ↗
+            </a>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -156,6 +168,9 @@ export default function DailyUpdatesBanner({
     day: 'numeric',
   })
 
+  // Top update for banner preview
+  const topUpdate = updates[0]
+
   // Banner right-side status copy
   const bannerStatus =
     updates.length === 0
@@ -164,51 +179,58 @@ export default function DailyUpdatesBanner({
       ? `${alertCount} alert${alertCount > 1 ? 's' : ''}`
       : `${updates.length} update${updates.length > 1 ? 's' : ''}`
 
-  const bannerColor =
-    alertCount > 0 ? 'var(--live-soft)' : 'var(--amber)'
-
-  const chevronColor =
-    alertCount > 0 ? 'var(--live)' : 'var(--amber)'
+  const bannerColor  = alertCount > 0 ? 'var(--live-soft)' : 'var(--amber)'
+  const chevronColor = alertCount > 0 ? 'var(--live)'      : 'var(--amber)'
+  const borderColor  = alertCount > 0 ? 'rgba(239,68,68,0.3)' : 'var(--border)'
 
   return (
     <>
       {/* ── Banner button ── */}
       <button
         onClick={() => setOpen(true)}
-        className="w-full text-left rounded-xl transition-all active:scale-[0.99] flex items-center gap-4"
+        className="w-full text-left rounded-xl transition-all active:scale-[0.99]"
         style={{
           background: 'var(--surface-overlay)',
-          border: `1px solid ${alertCount > 0 ? 'rgba(239,68,68,0.3)' : 'var(--border)'}`,
+          border: `1px solid ${borderColor}`,
           cursor: 'pointer',
-          minHeight: 56,
-          paddingLeft: 24,
-          paddingRight: 24,
+          padding: '12px 20px',
         }}
       >
-        {/* Icon + label */}
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          <span style={{ fontSize: 18 }}>📰</span>
-          <div className="flex items-center gap-2 min-w-0">
-            <p className="text-base font-bold text-[var(--text)]">Daily Updates</p>
-            {newCount > 0 && (
-              <span
-                className="text-[9px] font-black px-1.5 py-0.5 rounded-full flex-shrink-0"
-                style={{ background: 'var(--live)', color: '#fff', lineHeight: 1.4 }}
-              >
-                NEW
-              </span>
-            )}
+        <div className="flex items-center gap-3">
+          {/* Icon + label row */}
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <span style={{ fontSize: 18, flexShrink: 0 }}>📰</span>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <p className="text-base font-bold text-[var(--text)]">Daily Updates</p>
+                {newCount > 0 && (
+                  <span
+                    className="text-[9px] font-black px-1.5 py-0.5 rounded-full flex-shrink-0"
+                    style={{ background: 'var(--live)', color: '#fff', lineHeight: 1.4 }}
+                  >
+                    NEW
+                  </span>
+                )}
+              </div>
+              {/* Tease the top update headline if available */}
+              {topUpdate && (
+                <p
+                  className="text-[11px] font-semibold mt-0.5 truncate"
+                  style={{ color: PRIORITY_COLOR[topUpdate.priority] }}
+                >
+                  {topUpdate.featuredLabel}: {topUpdate.headline}
+                </p>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Status + chevron */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <span className="text-sm font-semibold" style={{ color: bannerColor }}>
-            {bannerStatus}
-          </span>
-          <span className="text-lg font-light" style={{ color: chevronColor, opacity: 0.8 }}>
-            ›
-          </span>
+          {/* Status + chevron */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-sm font-semibold" style={{ color: bannerColor }}>
+              {bannerStatus}
+            </span>
+            <span className="text-lg font-light" style={{ color: chevronColor, opacity: 0.8 }}>›</span>
+          </div>
         </div>
       </button>
 
@@ -223,7 +245,7 @@ export default function DailyUpdatesBanner({
             className="animate-slide-up rounded-t-2xl flex flex-col overflow-hidden"
             style={{ background: 'var(--photo-bg)', maxHeight: '88dvh' }}
           >
-            {/* Handle + header */}
+            {/* ── Handle + header ── */}
             <div
               className="flex-shrink-0 px-4 pt-3 pb-3"
               style={{ borderBottom: '1px solid var(--border)' }}
@@ -272,9 +294,9 @@ export default function DailyUpdatesBanner({
               </div>
             </div>
 
-            {/* Scrollable content */}
+            {/* ── Scrollable content ── */}
             <div
-              className="flex-1 overflow-y-auto no-scrollbar px-4 py-4 space-y-4"
+              className="flex-1 overflow-y-auto no-scrollbar py-4 px-4 space-y-3"
               style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 20px)' }}
             >
               {updates.length === 0 ? (
@@ -303,28 +325,19 @@ export default function DailyUpdatesBanner({
                   </div>
                   <p className="text-base font-bold text-[var(--text)]">All quiet today</p>
                   <p className="text-sm text-center" style={{ color: 'var(--text-muted)' }}>
-                    No active statewide updates — check back tomorrow.
+                    No major statewide updates — check back tomorrow.
                   </p>
                 </div>
               ) : (
                 <>
-                  {/* Updates list — grouped visually */}
-                  <div
-                    className="rounded-2xl overflow-hidden"
-                    style={{ border: '1px solid var(--border)' }}
-                  >
-                    {updates.map((update, i) => (
-                      <UpdateCard
-                        key={update.id}
-                        update={update}
-                        isLast={i === updates.length - 1}
-                      />
-                    ))}
-                  </div>
+                  {/* Featured update cards — individual cards, not grouped list */}
+                  {updates.map(update => (
+                    <FeaturedCard key={update.id} update={update} />
+                  ))}
 
                   {/* Disclaimer */}
                   <p
-                    className="text-[10px] text-center leading-relaxed"
+                    className="text-[10px] text-center leading-relaxed pt-1"
                     style={{ color: 'var(--text-faint)' }}
                   >
                     Updates are based on active WDFW emergency rules and published season data.

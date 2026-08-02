@@ -34,7 +34,18 @@ export interface DailyUpdate {
   category: UpdateCategory
   priority: UpdatePriority
   icon: string
-  /** One-line summary shown in the collapsed list row */
+  /**
+   * Hero label shown at the top of the featured card.
+   * E.g. "Season Opening", "Season Closure", "Biotoxin Alert", "Now Open"
+   */
+  featuredLabel: string
+  /**
+   * true  = show in Daily Updates banner (major events only)
+   * false = minor restriction change; omit from banner
+   * Future automated monitor should set this field.
+   */
+  featured: boolean
+  /** One-line summary shown in the card headline */
   headline: string
   /** Location / species subtitle shown beneath the headline */
   subtext: string
@@ -54,6 +65,8 @@ export const DAILY_UPDATES: DailyUpdate[] = [
     id: 'du-halibut-2026-reopen',
     category: 'halibut',
     priority: 'highlight',
+    featured: true,
+    featuredLabel: 'Season Reopening',
     icon: '🐟',
     headline: 'Halibut: Reopens Aug 8 (south) and Aug 16 (north & Puget Sound)',
     subtext: 'All WA Marine Areas — daily limit 1, catch record card required',
@@ -73,6 +86,8 @@ export const DAILY_UPDATES: DailyUpdate[] = [
     id: 'du-ma6-shrimp-aug2-2026',
     category: 'shrimp',
     priority: 'alert',
+    featured: true,
+    featuredLabel: 'Opens Today',
     icon: '🦐',
     headline: 'MA 6 shrimp opens TODAY — all species, daylight only',
     subtext: 'Marine Area 6 (excl. Discovery Bay) · Aug 2 only for spot shrimp',
@@ -88,11 +103,13 @@ export const DAILY_UPDATES: DailyUpdate[] = [
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/puget-sound-shrimp-fishery-update-2026-07',
   },
 
-  // ── MA 7 SAN JUAN ISLANDS — EXTRA CHINOOK DAY AUG 6 ─────────────────────────
+  // ── MA 7 SAN JUAN ISLANDS — EXTRA CHINOOK DAY AUG 6 (minor — not featured) ──
   {
     id: 'du-ma7-aug6-2026',
     category: 'salmon-marine',
     priority: 'highlight',
+    featured: false,
+    featuredLabel: 'One-Day Opening',
     icon: '🎣',
     headline: 'San Juan Islands (MA 7): Extra Chinook day — Aug 6 only',
     subtext: 'Marine Area 7 excluding Bellingham Bay · limit 2, ≤1 hatchery Chinook',
@@ -107,11 +124,13 @@ export const DAILY_UPDATES: DailyUpdate[] = [
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-7-san-juan-islands-opens-additional-day-chinook-retention-2026-07',
   },
 
-  // ── COMMENCEMENT BAY (MA 11) — SALMON LIMIT MODIFIED ─────────────────────────
+  // ── COMMENCEMENT BAY (MA 11) — SALMON LIMIT MODIFIED (minor — not featured) ──
   {
     id: 'du-commencement-bay-aug2026',
     category: 'salmon-marine',
     priority: 'highlight',
+    featured: false,
+    featuredLabel: 'Limit Change',
     icon: '🐟',
     headline: 'Commencement Bay salmon limit modified — now ≤1 hatchery Chinook',
     subtext: 'Marine Area 11, Commencement Bay · Aug 1 – Sep 30',
@@ -130,6 +149,8 @@ export const DAILY_UPDATES: DailyUpdate[] = [
     id: 'du-biotoxin-psp-ma12-2026',
     category: 'biotoxin',
     priority: 'alert',
+    featured: true,
+    featuredLabel: 'Biotoxin Closure',
     icon: '☠️',
     headline: 'BIOTOXIN: Hood Canal & Admiralty Inlet bivalves CLOSED',
     subtext: 'MA 12 (Hood Canal) + MA 9 south of Foulweather Bluff · open-ended',
@@ -147,11 +168,13 @@ export const DAILY_UPDATES: DailyUpdate[] = [
     wdfw_url: 'https://wdfw.wa.gov/newsroom/news-release/wdfw-closes-hood-canal-admiralty-inlet-shellfish-harvesting-effective-immediately-following-reports',
   },
 
-  // ── TULALIP TERMINAL AREA (MA 8-2) SALMON CLOSED ─────────────────────────────
+  // ── TULALIP TERMINAL AREA (MA 8-2) SALMON CLOSED (minor — not featured) ──────
   {
     id: 'du-tulalip-terminal-2026',
     category: 'salmon-marine',
     priority: 'alert',
+    featured: false,
+    featuredLabel: 'Area Closure',
     icon: '🚫',
     headline: 'Tulalip Terminal Area (MA 8-2) salmon CLOSED through Sep 7',
     subtext: 'Marine Area 8-2, west of Tulalip Bay within 2,000 ft of shore',
@@ -168,6 +191,8 @@ export const DAILY_UPDATES: DailyUpdate[] = [
     id: 'du-ps-crab-summer-2026',
     category: 'crab',
     priority: 'info',
+    featured: true,
+    featuredLabel: 'Season Open',
     icon: '🦀',
     headline: 'Puget Sound Dungeness crab open Thu–Mon most areas',
     subtext: 'Most Puget Sound MAs · through Sep 28 · daily limit 5',
@@ -191,6 +216,8 @@ export const DAILY_UPDATES: DailyUpdate[] = [
     id: 'du-ps-shrimp-broad-2026',
     category: 'shrimp',
     priority: 'info',
+    featured: true,
+    featuredLabel: 'Season Open',
     icon: '🦐',
     headline: 'Non-spot shrimp seasons active across most Puget Sound areas',
     subtext: 'MA 4E, 5, 7E, 8-1/8-2, 9, 11, 13 · through Oct 15',
@@ -212,6 +239,8 @@ export const DAILY_UPDATES: DailyUpdate[] = [
     id: 'du-entiat-chinook-2026',
     category: 'salmon-freshwater',
     priority: 'highlight',
+    featured: true,
+    featuredLabel: 'Season Opening',
     icon: '🎣',
     headline: 'Entiat River open for summer Chinook — until further notice',
     subtext: 'Entiat River, mouth to Mad River Road Bridge · limit 6',
@@ -231,6 +260,8 @@ export const DAILY_UPDATES: DailyUpdate[] = [
     id: 'du-skykomish-closed-2026',
     category: 'salmon-freshwater',
     priority: 'alert',
+    featured: true,
+    featuredLabel: 'Season Closure',
     icon: '🚫',
     headline: 'Skykomish River CLOSED to all fishing through Oct 31',
     subtext: 'Mouth to North/South Fork confluence · overrides all pamphlet seasons',
@@ -248,6 +279,8 @@ export const DAILY_UPDATES: DailyUpdate[] = [
     id: 'du-coastal-salmon-2026',
     category: 'salmon-marine',
     priority: 'info',
+    featured: true,
+    featuredLabel: 'Season Open',
     icon: '🐟',
     headline: 'Coastal salmon seasons open Jun 20 – Sep 30',
     subtext: 'Marine Areas 1–4 (Ilwaco, Westport, La Push, Neah Bay)',
@@ -267,8 +300,12 @@ export const DAILY_UPDATES: DailyUpdate[] = [
 // ─── FILTER FUNCTION ──────────────────────────────────────────────────────────
 
 /**
- * Returns DailyUpdates active on the given date, sorted by priority then
+ * Returns featured DailyUpdates active on the given date, sorted by priority then
  * activeFrom descending (newest first within same priority).
+ *
+ * Only items with featured: true are included — minor restriction changes are
+ * excluded from the banner. Future automated monitors should set featured: false
+ * for small bag-limit tweaks, single-area closures, etc.
  *
  * Priority order: alert → highlight → info
  */
@@ -278,6 +315,7 @@ export function getDailyUpdatesForDate(date: Date): DailyUpdate[] {
 
   return DAILY_UPDATES
     .filter(u => {
+      if (!u.featured) return false
       if (u.activeFrom > d) return false
       if (u.activeTo && u.activeTo < d) return false
       return true
@@ -290,8 +328,8 @@ export function getDailyUpdatesForDate(date: Date): DailyUpdate[] {
     })
 }
 
-/** Returns the count of items that became active today (for "new" badge). */
+/** Returns the count of featured items that became active today (for "new" badge). */
 export function getNewUpdatesCount(date: Date): number {
   const d = date.toISOString().slice(0, 10)
-  return DAILY_UPDATES.filter(u => u.activeFrom === d && (!u.activeTo || u.activeTo >= d)).length
+  return DAILY_UPDATES.filter(u => u.featured && u.activeFrom === d && (!u.activeTo || u.activeTo >= d)).length
 }
