@@ -2,25 +2,7 @@
 import { useState } from 'react'
 import { DailyUpdate, UpdatePriority } from '@/lib/daily-updates'
 
-// ─── HELPERS ─────────────────────────────────────────────────────────────────
-
-const PRIORITY_COLOR: Record<UpdatePriority, string> = {
-  alert:     'var(--live)',
-  highlight: 'var(--amber)',
-  info:      'var(--status-open-bright)',
-}
-
-const PRIORITY_BG: Record<UpdatePriority, string> = {
-  alert:     'rgba(239,68,68,0.14)',
-  highlight: 'rgba(245,158,11,0.13)',
-  info:      'rgba(34,197,94,0.11)',
-}
-
-const PRIORITY_BORDER: Record<UpdatePriority, string> = {
-  alert:     'rgba(239,68,68,0.28)',
-  highlight: 'rgba(245,158,11,0.28)',
-  info:      'rgba(34,197,94,0.22)',
-}
+// ─── DESIGN TOKENS ────────────────────────────────────────────────────────────
 
 const CATEGORY_LABEL: Record<DailyUpdate['category'], string> = {
   'halibut':           'Halibut',
@@ -28,7 +10,7 @@ const CATEGORY_LABEL: Record<DailyUpdate['category'], string> = {
   'salmon-freshwater': 'River Salmon',
   'shrimp':            'Shrimp',
   'crab':              'Crab',
-  'biotoxin':          'Biotoxin / Shellfish',
+  'biotoxin':          'Biotoxin',
   'freshwater':        'Freshwater',
   'general':           'General',
 }
@@ -44,87 +26,213 @@ function dateRangeLabel(update: DailyUpdate): string {
   return `${from} – ${fmtDate(update.activeTo)}`
 }
 
-// ─── FEATURED UPDATE CARD ─────────────────────────────────────────────────────
+// ─── CHIP BADGE ───────────────────────────────────────────────────────────────
+
+type ChipColors = { bg: string; color: string; border: string }
+
+function getChipColors(update: DailyUpdate): ChipColors {
+  const lbl = update.featuredLabel.toLowerCase()
+  if (lbl.includes('today') || lbl === 'opens today')
+    return { bg: 'rgba(74,222,128,0.18)', color: '#4ade80',  border: 'rgba(74,222,128,0.32)' }
+  if (lbl.includes('closure') || lbl.includes('closed') || update.category === 'biotoxin')
+    return { bg: 'rgba(239,68,68,0.16)',  color: '#f87171',  border: 'rgba(239,68,68,0.32)' }
+  if (lbl.includes('reopen'))
+    return { bg: 'rgba(245,158,11,0.16)', color: '#fbbf24',  border: 'rgba(245,158,11,0.32)' }
+  if (update.priority === 'alert')
+    return { bg: 'rgba(239,68,68,0.16)',  color: '#f87171',  border: 'rgba(239,68,68,0.32)' }
+  if (update.priority === 'highlight')
+    return { bg: 'rgba(245,158,11,0.16)', color: '#fbbf24',  border: 'rgba(245,158,11,0.32)' }
+  // info / season open
+  return   { bg: 'rgba(74,222,128,0.14)', color: '#86efac',  border: 'rgba(74,222,128,0.26)' }
+}
+
+function ChipBadge({ update, size = 'sm' }: { update: DailyUpdate; size?: 'sm' | 'xs' }) {
+  const c = getChipColors(update)
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 5,
+        background: c.bg,
+        border: `1px solid ${c.border}`,
+        borderRadius: 100,
+        padding: size === 'xs' ? '2px 8px' : '3px 10px',
+        fontSize: size === 'xs' ? 9 : 10,
+        fontWeight: 900,
+        letterSpacing: '0.07em',
+        textTransform: 'uppercase' as const,
+        color: c.color,
+        whiteSpace: 'nowrap' as const,
+      }}
+    >
+      <span
+        style={{
+          width: size === 'xs' ? 4 : 5,
+          height: size === 'xs' ? 4 : 5,
+          borderRadius: '50%',
+          background: c.color,
+          display: 'inline-block',
+          flexShrink: 0,
+        }}
+      />
+      {update.featuredLabel}
+    </span>
+  )
+}
+
+// ─── ICON CIRCLE ──────────────────────────────────────────────────────────────
+
+function IconCircle({ update }: { update: DailyUpdate }) {
+  const c = getChipColors(update)
+  return (
+    <div
+      style={{
+        width: 46,
+        height: 46,
+        borderRadius: '50%',
+        background: c.bg,
+        border: `1.5px solid ${c.border}`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+        fontSize: 22,
+      }}
+    >
+      {update.icon}
+    </div>
+  )
+}
+
+// ─── FEATURED UPDATE CARD (sheet) ─────────────────────────────────────────────
 
 function FeaturedCard({ update }: { update: DailyUpdate }) {
   const [expanded, setExpanded] = useState(false)
-  const color  = PRIORITY_COLOR[update.priority]
-  const bg     = PRIORITY_BG[update.priority]
-  const border = PRIORITY_BORDER[update.priority]
+  const c = getChipColors(update)
 
   return (
     <div
-      className="rounded-2xl overflow-hidden"
-      style={{ background: 'var(--surface)', border: `1px solid ${border}` }}
+      style={{
+        background: 'var(--surface)',
+        border: `1px solid ${c.border}`,
+        borderRadius: 18,
+        overflow: 'hidden',
+      }}
     >
-      {/* ── Colored hero strip ── */}
-      <div
-        className="px-4 py-2.5 flex items-center justify-between"
-        style={{ background: bg, borderBottom: `1px solid ${border}` }}
-      >
-        <div className="flex items-center gap-2">
-          <span style={{ fontSize: 17, lineHeight: 1 }}>{update.icon}</span>
-          <span
-            className="text-[11px] font-black tracking-widest uppercase"
-            style={{ color }}
-          >
-            {update.featuredLabel}
-          </span>
-        </div>
-        <span
-          className="text-[10px] font-semibold"
-          style={{ color: 'var(--text-faint)' }}
-        >
-          {CATEGORY_LABEL[update.category]}
-        </span>
-      </div>
-
       {/* ── Card body ── */}
-      <div className="px-4 pt-2.5 pb-2.5">
-        {/* Headline */}
-        <p className="text-[14px] font-black leading-snug text-[var(--text)]">
-          {update.headline}
-        </p>
+      <div style={{ padding: '14px 16px' }}>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+          {/* Icon circle */}
+          <IconCircle update={update} />
 
-        {/* One-sentence summary — always visible */}
-        <p
-          className="text-[12px] font-medium mt-1 leading-snug"
-          style={{ color: 'var(--text-muted)' }}
-        >
-          {update.subtext}
-        </p>
+          {/* Content */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {/* Badge + category row */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+              <ChipBadge update={update} />
+              <span
+                style={{
+                  fontSize: 10,
+                  color: 'var(--text-faint)',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {CATEGORY_LABEL[update.category]}
+              </span>
+            </div>
 
-        {/* Expand / collapse detail toggle */}
-        <button
-          onClick={() => setExpanded(v => !v)}
-          className="flex items-center gap-1 mt-2 text-[11px] font-bold transition-opacity active:opacity-60"
-          style={{ color, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }}
+            {/* Headline */}
+            <p
+              style={{
+                fontSize: 14,
+                fontWeight: 900,
+                marginTop: 7,
+                color: 'var(--text)',
+                lineHeight: 1.35,
+              }}
+            >
+              {update.headline}
+            </p>
+
+            {/* Subtext */}
+            <p
+              style={{
+                fontSize: 12,
+                marginTop: 4,
+                color: 'var(--text-muted)',
+                lineHeight: 1.4,
+              }}
+            >
+              {update.subtext}
+            </p>
+          </div>
+        </div>
+
+        {/* Expand / collapse toggle */}
+        <div
+          style={{
+            marginTop: 12,
+            paddingTop: 10,
+            borderTop: '1px solid var(--border)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
         >
-          <span>{expanded ? 'Hide details' : 'Details + dates'}</span>
-          <span
-            className="text-sm transition-transform duration-200"
-            style={{ transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)', display: 'inline-block' }}
+          <button
+            onClick={() => setExpanded(v => !v)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              fontSize: 11,
+              fontWeight: 800,
+              color: c.color,
+              background: 'transparent',
+              border: 'none',
+              padding: 0,
+              cursor: 'pointer',
+              letterSpacing: '0.02em',
+            }}
           >
-            ›
-          </span>
-        </button>
+            <span>{expanded ? 'Hide details' : 'Details + dates'}</span>
+            <span
+              style={{
+                fontSize: 14,
+                display: 'inline-block',
+                transition: 'transform 0.2s',
+                transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
+              }}
+            >
+              ›
+            </span>
+          </button>
+        </div>
 
         {/* Expanded detail block */}
         {expanded && (
-          <div
-            className="mt-2.5 pt-2.5"
-            style={{ borderTop: '1px solid var(--border)' }}
-          >
-            {/* Date range inside expanded */}
+          <div style={{ marginTop: 12 }}>
             <p
-              className="text-[11px] mb-2 font-semibold"
-              style={{ color: 'var(--text-faint)' }}
+              style={{
+                fontSize: 11,
+                marginBottom: 8,
+                fontWeight: 700,
+                color: 'var(--text-faint)',
+              }}
             >
               📅 {dateRangeLabel(update)}
             </p>
             <p
-              className="text-[12px] leading-relaxed whitespace-pre-line"
-              style={{ color: 'var(--text-muted)' }}
+              style={{
+                fontSize: 12,
+                lineHeight: 1.65,
+                color: 'var(--text-muted)',
+                whiteSpace: 'pre-line',
+              }}
             >
               {update.detail}
             </p>
@@ -132,10 +240,18 @@ function FeaturedCard({ update }: { update: DailyUpdate }) {
               href={update.wdfw_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 mt-3 text-[11px] font-bold no-underline"
-              style={{ color: 'var(--amber)', textDecoration: 'none' }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4,
+                marginTop: 12,
+                fontSize: 11,
+                fontWeight: 800,
+                color: 'var(--amber)',
+                textDecoration: 'none',
+              }}
             >
-              Official WDFW rule ↗
+              Official WDFW source ↗
             </a>
           </div>
         )}
@@ -144,7 +260,7 @@ function FeaturedCard({ update }: { update: DailyUpdate }) {
   )
 }
 
-// ─── MAIN EXPORTED COMPONENT ──────────────────────────────────────────────────
+// ─── BANNER ENTRY MODULE ──────────────────────────────────────────────────────
 
 interface DailyUpdatesBannerProps {
   updates: DailyUpdate[]
@@ -159,188 +275,357 @@ export default function DailyUpdatesBanner({
 }: DailyUpdatesBannerProps) {
   const [open, setOpen] = useState(false)
 
-  const alertCount = updates.filter(u => u.priority === 'alert').length
+  const alertCount  = updates.filter(u => u.priority === 'alert').length
+  const topUpdate   = updates[0]
+  const restUpdates = updates.slice(1, 4)     // up to 3 mini chips in footer
 
   const dateLabel = date.toLocaleDateString('en-US', {
     weekday: 'long',
-    month: 'long',
-    day: 'numeric',
+    month:   'long',
+    day:     'numeric',
   })
 
-  // Top update for banner preview
-  const topUpdate = updates[0]
+  const shortDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 
-  // Banner right-side status copy
-  const bannerStatus =
-    updates.length === 0
-      ? 'No updates'
-      : alertCount > 0
-      ? `${alertCount} alert${alertCount > 1 ? 's' : ''}`
-      : `${updates.length} update${updates.length > 1 ? 's' : ''}`
-
-  const bannerColor  = alertCount > 0 ? 'var(--live-soft)' : 'var(--amber)'
-  const chevronColor = alertCount > 0 ? 'var(--live)'      : 'var(--amber)'
-  const borderColor  = alertCount > 0 ? 'rgba(239,68,68,0.3)' : 'var(--border)'
+  const hasAlerts   = alertCount > 0
+  const moduleBorder = hasAlerts ? 'rgba(239,68,68,0.28)' : 'rgba(255,255,255,0.10)'
 
   return (
     <>
-      {/* ── Banner button ── */}
-      <button
-        onClick={() => setOpen(true)}
-        className="w-full text-left rounded-xl transition-all active:scale-[0.99]"
+      {/* ── Module card (banner entry) ── */}
+      <div
         style={{
-          background: 'var(--surface-overlay)',
-          border: `1px solid ${borderColor}`,
-          cursor: 'pointer',
-          padding: '12px 20px',
+          background: 'var(--surface)',
+          border: `1px solid ${moduleBorder}`,
+          borderRadius: 18,
+          overflow: 'hidden',
         }}
       >
-        <div className="flex items-center gap-3">
-          {/* Icon + label row */}
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <span style={{ fontSize: 18, flexShrink: 0 }}>📰</span>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <p className="text-base font-bold text-[var(--text)]">Daily Updates</p>
-                {newCount > 0 && (
-                  <span
-                    className="text-[9px] font-black px-1.5 py-0.5 rounded-full flex-shrink-0"
-                    style={{ background: 'var(--live)', color: '#fff', lineHeight: 1.4 }}
-                  >
-                    NEW
-                  </span>
-                )}
-              </div>
-              {/* Tease the top update headline if available */}
-              {topUpdate && (
-                <p
-                  className="text-[11px] font-semibold mt-0.5 truncate"
-                  style={{ color: PRIORITY_COLOR[topUpdate.priority] }}
-                >
-                  {topUpdate.featuredLabel}: {topUpdate.headline}
-                </p>
-              )}
+        {/* ── Module header strip ── */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '10px 16px',
+            background: 'var(--surface-2)',
+            borderBottom: '1px solid var(--border)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+            <span style={{ fontSize: 15 }}>📰</span>
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 900,
+                letterSpacing: '0.09em',
+                textTransform: 'uppercase',
+                color: 'var(--accent)',
+              }}
+            >
+              Daily Briefing
+            </span>
+            {newCount > 0 && (
+              <span
+                style={{
+                  fontSize: 9,
+                  fontWeight: 900,
+                  padding: '2px 6px',
+                  borderRadius: 100,
+                  background: 'var(--live)',
+                  color: '#fff',
+                  letterSpacing: '0.04em',
+                }}
+              >
+                NEW
+              </span>
+            )}
+          </div>
+          <span style={{ fontSize: 11, color: 'var(--text-faint)', fontWeight: 600 }}>
+            {shortDate}
+          </span>
+        </div>
+
+        {/* ── Hero top update ── */}
+        {updates.length === 0 ? (
+          <div
+            style={{
+              padding: '20px 16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+            }}
+          >
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: '50%',
+                background: 'rgba(74,222,128,0.12)',
+                border: '1.5px solid rgba(74,222,128,0.26)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 18,
+              }}
+            >
+              ✓
+            </div>
+            <div>
+              <p style={{ fontSize: 14, fontWeight: 900, color: 'var(--text)' }}>
+                All quiet today
+              </p>
+              <p style={{ fontSize: 12, marginTop: 2, color: 'var(--text-muted)' }}>
+                No major statewide updates
+              </p>
             </div>
           </div>
+        ) : (
+          <button
+            onClick={() => setOpen(true)}
+            style={{
+              width: '100%',
+              textAlign: 'left',
+              padding: '14px 16px',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'block',
+            }}
+          >
+            {/* Chip badge */}
+            {topUpdate && <ChipBadge update={topUpdate} />}
 
-          {/* Status + chevron */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="text-sm font-semibold" style={{ color: bannerColor }}>
-              {bannerStatus}
+            {/* Headline */}
+            {topUpdate && (
+              <p
+                style={{
+                  fontSize: 15,
+                  fontWeight: 900,
+                  marginTop: 9,
+                  color: 'var(--text)',
+                  lineHeight: 1.3,
+                }}
+              >
+                {topUpdate.headline}
+              </p>
+            )}
+
+            {/* Subtext */}
+            {topUpdate && (
+              <p
+                style={{
+                  fontSize: 12,
+                  marginTop: 5,
+                  color: 'var(--text-muted)',
+                  lineHeight: 1.4,
+                }}
+              >
+                {topUpdate.subtext}
+              </p>
+            )}
+          </button>
+        )}
+
+        {/* ── Footer: mini chips for remaining + "See all" ── */}
+        {updates.length > 1 && (
+          <button
+            onClick={() => setOpen(true)}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '10px 16px',
+              background: 'transparent',
+              border: 'none',
+              borderTop: '1px solid var(--border)',
+              cursor: 'pointer',
+            } as React.CSSProperties}
+          >
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
+              {restUpdates.map(u => (
+                <ChipBadge key={u.id} update={u} size="xs" />
+              ))}
+            </div>
+            <span
+              style={{
+                fontSize: 12,
+                fontWeight: 800,
+                color: 'var(--accent)',
+                whiteSpace: 'nowrap',
+                marginLeft: 8,
+              }}
+            >
+              See all {updates.length} →
             </span>
-            <span className="text-lg font-light" style={{ color: chevronColor, opacity: 0.8 }}>›</span>
-          </div>
-        </div>
-      </button>
+          </button>
+        )}
+      </div>
 
       {/* ── Bottom sheet modal ── */}
       {open && (
         <div
-          className="fixed inset-0 flex flex-col justify-end"
-          style={{ zIndex: 1200, background: 'rgba(0,0,0,0.75)' }}
+          className="fixed inset-0 flex flex-col justify-end animate-backdrop"
+          style={{ zIndex: 1200, background: 'rgba(0,0,0,0.72)' }}
           onClick={e => { if (e.target === e.currentTarget) setOpen(false) }}
         >
           <div
             className="animate-slide-up rounded-t-2xl flex flex-col overflow-hidden"
-            style={{ background: 'var(--photo-bg)', maxHeight: '88dvh' }}
+            style={{ background: 'var(--photo-bg)', maxHeight: '90dvh' }}
           >
-            {/* ── Handle + header ── */}
-            <div
-              className="flex-shrink-0 px-4 pt-3 pb-3"
-              style={{ borderBottom: '1px solid var(--border)' }}
-            >
+            {/* ── Handle ── */}
+            <div style={{ paddingTop: 10, paddingBottom: 0, display: 'flex', justifyContent: 'center' }}>
               <div
-                className="w-8 h-1 rounded-full mx-auto mb-3"
-                style={{ background: 'var(--text-20)' }}
+                style={{
+                  width: 36,
+                  height: 4,
+                  borderRadius: 2,
+                  background: 'var(--text-20)',
+                }}
               />
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span style={{ fontSize: 20 }}>📰</span>
-                    <p className="text-base font-black text-[var(--text)]">Daily Updates</p>
-                    {newCount > 0 && (
-                      <span
-                        className="text-[9px] font-black px-1.5 py-0.5 rounded-full"
-                        style={{ background: 'var(--live)', color: '#fff', lineHeight: 1.4 }}
-                      >
-                        NEW
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                    {dateLabel} · {updates.length} featured update{updates.length !== 1 ? 's' : ''}
-                  </p>
-                </div>
-                <button
-                  onClick={() => setOpen(false)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center"
-                  style={{ background: 'var(--border)' }}
-                >
-                  <svg
-                    className="w-4 h-4 text-[var(--text)]"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
             </div>
 
-            {/* ── Scrollable content ── */}
+            {/* ── Sheet header ── */}
             <div
-              className="flex-1 overflow-y-auto no-scrollbar py-4 px-4 space-y-3"
-              style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 20px)' }}
+              style={{
+                padding: '14px 20px 14px',
+                borderBottom: '1px solid var(--border)',
+                display: 'flex',
+                alignItems: 'flex-start',
+                justifyContent: 'space-between',
+              }}
             >
-              {updates.length === 0 ? (
-                <div className="flex flex-col items-center py-10 gap-3">
-                  <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center"
+              <div>
+                {/* Section label */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4 }}>
+                  <span
                     style={{
-                      background: 'rgba(34,197,94,0.12)',
-                      border: '1px solid rgba(34,197,94,0.3)',
+                      fontSize: 10,
+                      fontWeight: 900,
+                      letterSpacing: '0.1em',
+                      textTransform: 'uppercase',
+                      color: 'var(--accent)',
                     }}
                   >
-                    <svg
-                      className="w-6 h-6"
-                      style={{ color: 'var(--status-open-bright)' }}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
+                    📰 Daily Briefing
+                  </span>
+                  {newCount > 0 && (
+                    <span
+                      style={{
+                        fontSize: 9,
+                        fontWeight: 900,
+                        padding: '2px 6px',
+                        borderRadius: 100,
+                        background: 'var(--live)',
+                        color: '#fff',
+                      }}
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
+                      NEW
+                    </span>
+                  )}
+                </div>
+                {/* Large title */}
+                <h2
+                  style={{
+                    fontSize: 22,
+                    fontWeight: 900,
+                    color: 'var(--text)',
+                    lineHeight: 1.1,
+                    letterSpacing: '-0.02em',
+                  }}
+                >
+                  Daily Updates
+                </h2>
+                <p style={{ fontSize: 12, marginTop: 3, color: 'var(--text-muted)' }}>
+                  {dateLabel} · {updates.length} featured {updates.length === 1 ? 'update' : 'updates'}
+                </p>
+              </div>
+
+              {/* Close button */}
+              <button
+                onClick={() => setOpen(false)}
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: '50%',
+                  background: 'var(--surface-overlay)',
+                  border: '1px solid var(--border)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                  marginTop: 2,
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* ── Scrollable cards ── */}
+            <div
+              className="flex-1 overflow-y-auto no-scrollbar"
+              style={{
+                padding: '16px 16px',
+                paddingBottom: 'calc(env(safe-area-inset-bottom) + 24px)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 12,
+              }}
+            >
+              {updates.length === 0 ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    padding: '40px 16px',
+                    gap: 12,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 52,
+                      height: 52,
+                      borderRadius: '50%',
+                      background: 'rgba(74,222,128,0.12)',
+                      border: '1.5px solid rgba(74,222,128,0.26)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 24,
+                    }}
+                  >
+                    ✓
                   </div>
-                  <p className="text-base font-bold text-[var(--text)]">All quiet today</p>
-                  <p className="text-sm text-center" style={{ color: 'var(--text-muted)' }}>
+                  <p style={{ fontSize: 16, fontWeight: 900, color: 'var(--text)' }}>
+                    All quiet today
+                  </p>
+                  <p style={{ fontSize: 13, color: 'var(--text-muted)', textAlign: 'center' }}>
                     No major statewide updates — check back tomorrow.
                   </p>
                 </div>
               ) : (
                 <>
-                  {/* Featured update cards — individual cards, not grouped list */}
-                  {updates.map(update => (
-                    <FeaturedCard key={update.id} update={update} />
+                  {updates.map(u => (
+                    <FeaturedCard key={u.id} update={u} />
                   ))}
 
                   {/* Disclaimer */}
                   <p
-                    className="text-[10px] text-center leading-relaxed pt-1"
-                    style={{ color: 'var(--text-faint)' }}
+                    style={{
+                      fontSize: 10,
+                      color: 'var(--text-faint)',
+                      textAlign: 'center',
+                      lineHeight: 1.6,
+                      paddingTop: 4,
+                    }}
                   >
-                    Updates are based on active WDFW emergency rules and published season data.
-                    Always verify regulations at{' '}
+                    Based on active WDFW emergency rules and published season data.
+                    Always verify at{' '}
                     <a
                       href="https://wdfw.wa.gov/fishing/regulations"
                       target="_blank"
@@ -359,17 +644,21 @@ export default function DailyUpdatesBanner({
                 href="https://wdfw.wa.gov/fishing/regulations/emergency"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-4 py-3 rounded-xl no-underline"
                 style={{
-                  background: 'rgba(242,101,34,0.08)',
-                  border: '1px solid rgba(242,101,34,0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '12px 16px',
+                  borderRadius: 14,
+                  background: 'rgba(249,115,22,0.08)',
+                  border: '1px solid rgba(249,115,22,0.20)',
                   textDecoration: 'none',
                 }}
               >
-                <span className="text-sm font-bold" style={{ color: 'var(--accent)' }}>
+                <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--accent)' }}>
                   All WDFW emergency rules →
                 </span>
-                <span className="text-xs" style={{ color: 'var(--text-faint)' }}>
+                <span style={{ fontSize: 11, color: 'var(--text-faint)' }}>
                   wdfw.wa.gov
                 </span>
               </a>
