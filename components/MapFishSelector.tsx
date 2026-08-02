@@ -49,10 +49,12 @@ const SHORT_NAMES: Record<string, string> = {
 interface Props {
   selected: string | null
   onSelect: (fishId: string | null) => void
+  shellfishMode?: boolean
+  onToggleShellfish?: () => void
 }
 
 // ─── COMPONENT ────────────────────────────────────────────────────────────────
-export default function MapFishSelector({ selected, onSelect }: Props) {
+export default function MapFishSelector({ selected, onSelect, shellfishMode, onToggleShellfish }: Props) {
   const today = useMemo(() => new Date(), [])
 
   const inSeasonSpecies = useMemo(() => {
@@ -105,15 +107,40 @@ export default function MapFishSelector({ selected, onSelect }: Props) {
         <div className="flex gap-3 px-3 py-2 w-max">
           {/* All pill */}
           <button
-            onClick={() => onSelect(null)}
+            onClick={() => { onSelect(null); if (shellfishMode) onToggleShellfish?.() }}
             className={`flex-shrink-0 self-center px-3 py-2 rounded text-sm border transition-colors ${
-              selected === null
+              selected === null && !shellfishMode
                 ? 'bg-green-600 border-green-500 text-white'
                 : 'bg-transparent border-transparent text-[var(--text-muted)]'
             }`}
           >
             All
           </button>
+
+          {/* Shellfish toggle pill */}
+          {onToggleShellfish && (
+            <button
+              onClick={() => { onToggleShellfish(); onSelect(null) }}
+              className="flex flex-col items-center cursor-pointer shrink-0 active:scale-95 w-16 rounded-lg px-1 py-1 transition-colors"
+              style={{
+                background: shellfishMode ? 'var(--surface-raised)' : 'transparent',
+                boxShadow: shellfishMode ? '0 4px 12px rgba(245,158,11,0.25)' : 'none',
+              }}
+            >
+              <div style={{
+                fontSize: 32,
+                lineHeight: 1,
+                transition: 'transform 150ms',
+                transform: shellfishMode ? 'scale(1.15)' : 'scale(1)',
+              }}>
+                🦪
+              </div>
+              <span className={`text-xs text-center leading-tight mt-1 ${shellfishMode ? 'font-semibold' : ''}`}
+                style={{ color: shellfishMode ? 'var(--amber)' : 'var(--text-muted)' }}>
+                Shellfish
+              </span>
+            </button>
+          )}
 
           {/* Fish photo cards */}
           {inSeasonSpecies.map(sp => {
@@ -122,7 +149,7 @@ export default function MapFishSelector({ selected, onSelect }: Props) {
             return (
               <button
                 key={sp.id}
-                onClick={() => onSelect(isSelected ? null : sp.id)}
+                onClick={() => { onSelect(isSelected ? null : sp.id); if (shellfishMode) onToggleShellfish?.() }}
                 className={`flex flex-col items-center cursor-pointer shrink-0 active:scale-95 w-16 rounded-lg px-1 py-1 transition-colors ${
                   isSelected ? 'bg-[var(--surface-raised)] shadow-lg shadow-green-900/50' : ''
                 }`}

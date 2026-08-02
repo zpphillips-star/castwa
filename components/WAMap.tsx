@@ -17,6 +17,8 @@ import {
 } from '@/lib/river-coords-generated'
 import { sliceRiverBetween } from '@/lib/river-regulation-segments'
 import type { FishSegment } from '@/lib/use-fish-map-segments'
+import type { ShellfishBeach } from '@/lib/shellfish-data'
+import { shellfishStatusColor } from '@/lib/shellfish-data'
 
 // --- PROPS ---
 interface WAMapProps {
@@ -27,6 +29,10 @@ interface WAMapProps {
   zoomToSkagit?: number
   /** Fires when any lake / water-body marker is tapped (passes WATER_BODIES id) */
   onWaterClick?: (waterId: string) => void
+  /** When true, renders the shellfish beach overlay instead of fish layers */
+  showShellfish?: boolean
+  shellfishBeaches?: ShellfishBeach[]
+  onBeachClick?: (beach: ShellfishBeach) => void
 }
 
 // --- MAP CONTROLLER ---
@@ -321,12 +327,18 @@ function WAMapContents({
   fishSegments,
   onSegmentClick,
   onWaterClick,
+  showShellfish,
+  shellfishBeaches,
+  onBeachClick,
 }: {
   today: Date
   onOpenRiver?: (riverId: string) => void
   fishSegments?: FishSegment[]
   onSegmentClick?: (segment: FishSegment) => void
   onWaterClick?: (waterId: string) => void
+  showShellfish?: boolean
+  shellfishBeaches?: ShellfishBeach[]
+  onBeachClick?: (beach: ShellfishBeach) => void
 }){
   // Track zoom for zoom-gated unregulated rivers
   const [zoom, setZoom] = useState(7)
@@ -618,11 +630,56 @@ function WAMapContents({
             </CircleMarker>
           )
         })}
+
+      {/* ── Shellfish Beach Overlay ── */}
+      {showShellfish && shellfishBeaches && shellfishBeaches.map(beach => {
+        const color = shellfishStatusColor(beach.status)
+        const isOpen    = beach.status === 'open'
+        const isClosed  = beach.status === 'closed'
+        const opacity   = isClosed ? 0.95 : isOpen ? 0.90 : 0.85
+        const weight    = 6
+        const dashArray = beach.status === 'advisory' ? '8 4' : beach.status === 'unknown' ? '4 4' : undefined
+
+        return (
+          <Polyline
+            key={beach.id}
+            positions={beach.coords}
+            pathOptions={{
+              color,
+              weight,
+              opacity,
+              lineCap: 'round',
+              lineJoin: 'round',
+              dashArray,
+            }}
+            eventHandlers={onBeachClick ? { click: () => onBeachClick(beach) } : undefined}
+          >
+            <Popup>
+              <div style={{ background: 'var(--photo-bg)', color: '#fff', borderRadius: 8, padding: '8px 12px', minWidth: 190 }}>
+                <p style={{ fontWeight: 700, fontSize: 12, marginBottom: 2 }}>{beach.name}</p>
+                <p style={{ fontSize: 10, color: 'var(--text-faint)', marginBottom: 5 }}>{beach.region}</p>
+                <p style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color,
+                  marginBottom: 3,
+                }}>
+                  {beach.status === 'open'     ? '✓ Open to harvest' :
+                   beach.status === 'closed'   ? '✗ Closed' :
+                   beach.status === 'advisory' ? '⚠ Advisory in effect' :
+                   '? Status unknown'}
+                </p>
+                <p style={{ fontSize: 10, color: 'var(--text-faint)' }}>Tap segment for full details</p>
+              </div>
+            </Popup>
+          </Polyline>
+        )
+      })}
     </>
   )
 }
 
-export default function WAMap({ selectedFish, fishSegments, onSegmentClick, onOpenRiver, zoomToSkagit = 0, onWaterClick }: WAMapProps = {}) {
+export default function WAMap({ selectedFish, fishSegments, onSegmentClick, onOpenRiver, zoomToSkagit = 0, onWaterClick, showShellfish, shellfishBeaches, onBeachClick }: WAMapProps = {}) {
   const today = new Date()
 
   return (
@@ -637,7 +694,16 @@ export default function WAMap({ selectedFish, fishSegments, onSegmentClick, onOp
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
       />
       <MapController zoomToSkagit={zoomToSkagit} />
-      <WAMapContents today={today} onOpenRiver={onOpenRiver} fishSegments={fishSegments} onSegmentClick={onSegmentClick} onWaterClick={onWaterClick} />
+      <WAMapContents
+        today={today}
+        onOpenRiver={onOpenRiver}
+        fishSegments={fishSegments}
+        onSegmentClick={onSegmentClick}
+        onWaterClick={onWaterClick}
+        showShellfish={showShellfish}
+        shellfishBeaches={shellfishBeaches}
+        onBeachClick={onBeachClick}
+      />
     </MapContainer>
   )
 }

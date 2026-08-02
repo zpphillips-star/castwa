@@ -6,9 +6,12 @@ import MapFishDetailPopup from './MapFishDetailPopup'
 import FishDetailSheet from './FishDetailSheet'
 import FishWaterSheet from './FishWaterSheet'
 import RiverDetailSheet from './RiverDetailSheet'
+import ShellfishBeachSheet from './ShellfishBeachSheet'
 import { useSelectedFishSegments } from '@/lib/use-fish-map-segments'
 import type { FishSegment } from '@/lib/use-fish-map-segments'
 import { SPECIES, Species, WaterBody, WATER_BODIES } from '@/lib/fishing-data'
+import { SHELLFISH_BEACHES } from '@/lib/shellfish-data'
+import type { ShellfishBeach } from '@/lib/shellfish-data'
 
 import { RIVER_MAP } from '@/lib/river-lookup'
 
@@ -24,6 +27,10 @@ export default function MapWithFishSelector() {
     siblingWaters: WaterBody[]
     index: number
   } | null>(null)
+
+  // ── Shellfish state ────────────────────────────────────────────────────────
+  const [shellfishMode, setShellfishMode] = useState(false)
+  const [selectedBeach, setSelectedBeach] = useState<ShellfishBeach | null>(null)
 
   const fishSegments = useSelectedFishSegments(selectedFish)
 
@@ -46,28 +53,98 @@ export default function MapWithFishSelector() {
     setActiveSegment(null)
   }, [])
 
+  const handleToggleShellfish = useCallback(() => {
+    setShellfishMode(prev => {
+      const next = !prev
+      if (next) {
+        // Entering shellfish mode — clear fish selection
+        setSelectedFish(null)
+        setActiveSegment(null)
+      }
+      return next
+    })
+  }, [])
+
+  const handleBeachClick = useCallback((beach: ShellfishBeach) => {
+    setSelectedBeach(beach)
+  }, [])
+
   const selectedSpecies = selectedFish ? SPECIES.find(s => s.id === selectedFish) ?? null : null
   const openRiver = openRiverId ? RIVER_MAP[openRiverId] ?? null : null
 
   return (
     <div className="relative h-full">
-      {/* Fish selector pill bar — floats above map */}
+      {/* Fish + Shellfish selector pill bar — floats above map */}
       <MapFishSelector
         selected={selectedFish}
         onSelect={handleSelectFish}
+        shellfishMode={shellfishMode}
+        onToggleShellfish={handleToggleShellfish}
       />
 
-      {/* Base map — receives fish overlay data */}
+      {/* Shellfish legend — shown when shellfish mode is active */}
+      {shellfishMode && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 90,
+            left: 12,
+            zIndex: 1000,
+            background: 'var(--surface)',
+            border: '1px solid var(--border)',
+            borderRadius: 10,
+            padding: '8px 12px',
+            pointerEvents: 'none',
+          }}
+        >
+          <p style={{
+            fontSize: 10,
+            fontWeight: 800,
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            color: 'var(--text-faint)',
+            marginBottom: 6,
+          }}>
+            Shellfish Beaches
+          </p>
+          {([
+            { color: '#4ade80', label: 'Open' },
+            { color: '#ef4444', label: 'Closed' },
+            { color: '#f59e0b', label: 'Advisory', dash: true },
+            { color: 'rgba(107,114,128,0.55)', label: 'Unknown', dash: true },
+          ] as { color: string; label: string; dash?: boolean }[]).map(({ color, label, dash }) => (
+            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4 }}>
+              <div style={{
+                width: 22,
+                height: 4,
+                borderRadius: 2,
+                background: color,
+                opacity: dash ? 0.8 : 1,
+                backgroundImage: dash ? `repeating-linear-gradient(90deg, ${color} 0, ${color} 5px, transparent 5px, transparent 8px)` : undefined,
+              }} />
+              <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{label}</span>
+            </div>
+          ))}
+          <p style={{ fontSize: 9, color: 'var(--text-faint)', marginTop: 4, lineHeight: 1.4 }}>
+            Tap a beach for details
+          </p>
+        </div>
+      )}
+
+      {/* Base map — receives fish overlay or shellfish overlay */}
       <WAMap
-        selectedFish={selectedFish}
-        fishSegments={selectedFish ? fishSegments : undefined}
-        onSegmentClick={handleSegmentClick}
-        onOpenRiver={handleOpenRiver}
+        selectedFish={shellfishMode ? null : selectedFish}
+        fishSegments={shellfishMode ? undefined : (selectedFish ? fishSegments : undefined)}
+        onSegmentClick={shellfishMode ? undefined : handleSegmentClick}
+        onOpenRiver={shellfishMode ? undefined : handleOpenRiver}
         zoomToSkagit={zoomToSkagit}
+        showShellfish={shellfishMode}
+        shellfishBeaches={shellfishMode ? SHELLFISH_BEACHES : undefined}
+        onBeachClick={handleBeachClick}
       />
 
       {/* Bottom-sheet popup when a section is tapped with a fish selected */}
-      {activeSegment && selectedSpecies && (
+      {activeSegment && selectedSpecies && !shellfishMode && (
         <MapFishDetailPopup
           segment={activeSegment}
           fishName={selectedSpecies.name}
@@ -117,6 +194,14 @@ export default function MapWithFishSelector() {
           river={openRiver}
           flow={{ cfs: null, status: 'loading', trend: null, fetchedAt: '' }}
           onClose={() => setOpenRiverId(null)}
+        />
+      )}
+
+      {/* Shellfish beach detail sheet */}
+      {selectedBeach && (
+        <ShellfishBeachSheet
+          beach={selectedBeach}
+          onClose={() => setSelectedBeach(null)}
         />
       )}
     </div>
