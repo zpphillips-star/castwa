@@ -211,12 +211,12 @@ export const DAILY_UPDATES: DailyUpdate[] = [
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/puget-sound-summer-crab-schedule-2026-06',
   },
 
-  // ── PUGET SOUND SHRIMP — BROAD SEASON ACTIVE ─────────────────────────────────
+  // ── PUGET SOUND SHRIMP — BROAD SEASON ACTIVE (minor vs. the MA6 opens-today card)
   {
     id: 'du-ps-shrimp-broad-2026',
     category: 'shrimp',
     priority: 'info',
-    featured: true,
+    featured: false,
     featuredLabel: 'Season Open',
     icon: '🦐',
     headline: 'Non-spot shrimp seasons active across most Puget Sound areas',
@@ -234,12 +234,12 @@ export const DAILY_UPDATES: DailyUpdate[] = [
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/puget-sound-shrimp-fishery-update-2026-07',
   },
 
-  // ── ENTIAT RIVER CHINOOK OPEN ─────────────────────────────────────────────────
+  // ── ENTIAT RIVER CHINOOK OPEN (single river — not statewide enough for featured)
   {
     id: 'du-entiat-chinook-2026',
     category: 'salmon-freshwater',
     priority: 'highlight',
-    featured: true,
+    featured: false,
     featuredLabel: 'Season Opening',
     icon: '🎣',
     headline: 'Entiat River open for summer Chinook — until further notice',
@@ -326,6 +326,8 @@ export function getDailyUpdatesForDate(date: Date): DailyUpdate[] {
       // Newest activeFrom first within same priority
       return b.activeFrom.localeCompare(a.activeFrom)
     })
+    // Hard cap: never show more than 5 cards in the featured popup
+    .slice(0, 5)
 }
 
 /** Returns the count of featured items that became active today (for "new" badge). */

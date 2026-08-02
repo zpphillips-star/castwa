@@ -80,35 +80,27 @@ function FeaturedCard({ update }: { update: DailyUpdate }) {
       </div>
 
       {/* ── Card body ── */}
-      <div className="px-4 pt-3 pb-3">
+      <div className="px-4 pt-2.5 pb-2.5">
         {/* Headline */}
-        <p className="text-[15px] font-black leading-snug text-[var(--text)]">
+        <p className="text-[14px] font-black leading-snug text-[var(--text)]">
           {update.headline}
         </p>
 
-        {/* Location / species subtext */}
+        {/* One-sentence summary — always visible */}
         <p
-          className="text-[12px] font-semibold mt-1 leading-snug"
-          style={{ color: 'var(--amber)' }}
+          className="text-[12px] font-medium mt-1 leading-snug"
+          style={{ color: 'var(--text-muted)' }}
         >
           {update.subtext}
-        </p>
-
-        {/* Date range — always visible */}
-        <p
-          className="text-[11px] mt-1.5"
-          style={{ color: 'var(--text-faint)' }}
-        >
-          {dateRangeLabel(update)}
         </p>
 
         {/* Expand / collapse detail toggle */}
         <button
           onClick={() => setExpanded(v => !v)}
-          className="flex items-center gap-1.5 mt-3 text-[12px] font-bold transition-opacity active:opacity-60"
+          className="flex items-center gap-1 mt-2 text-[11px] font-bold transition-opacity active:opacity-60"
           style={{ color, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }}
         >
-          <span>{expanded ? 'Hide details' : 'View details'}</span>
+          <span>{expanded ? 'Hide details' : 'Details + dates'}</span>
           <span
             className="text-sm transition-transform duration-200"
             style={{ transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)', display: 'inline-block' }}
@@ -120,9 +112,16 @@ function FeaturedCard({ update }: { update: DailyUpdate }) {
         {/* Expanded detail block */}
         {expanded && (
           <div
-            className="mt-3 pt-3"
+            className="mt-2.5 pt-2.5"
             style={{ borderTop: '1px solid var(--border)' }}
           >
+            {/* Date range inside expanded */}
+            <p
+              className="text-[11px] mb-2 font-semibold"
+              style={{ color: 'var(--text-faint)' }}
+            >
+              📅 {dateRangeLabel(update)}
+            </p>
             <p
               className="text-[12px] leading-relaxed whitespace-pre-line"
               style={{ color: 'var(--text-muted)' }}
@@ -269,7 +268,7 @@ export default function DailyUpdatesBanner({
                     )}
                   </div>
                   <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                    {dateLabel} · {updates.length} statewide update{updates.length !== 1 ? 's' : ''}
+                    {dateLabel} · {updates.length} featured update{updates.length !== 1 ? 's' : ''}
                   </p>
                 </div>
                 <button
