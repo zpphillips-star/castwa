@@ -15,7 +15,14 @@ import type { ShellfishBeach } from '@/lib/shellfish-data'
 
 import { RIVER_MAP } from '@/lib/river-lookup'
 
-export default function MapWithFishSelector() {
+interface MapWithFishSelectorProps {
+  /** Start in shellfish beach mode (pre-activates the 🦪 toggle) */
+  initialShellfishMode?: boolean
+  /** Called when the user taps the backdrop / close gesture (optional) */
+  onClose?: () => void
+}
+
+export default function MapWithFishSelector({ initialShellfishMode = false, onClose }: MapWithFishSelectorProps = {}) {
   const [selectedFish, setSelectedFish] = useState<string | null>(null)
   const [activeSegment, setActiveSegment] = useState<FishSegment | null>(null)
   const [showFishDetail, setShowFishDetail] = useState(false)
@@ -29,7 +36,7 @@ export default function MapWithFishSelector() {
   } | null>(null)
 
   // ── Shellfish state ────────────────────────────────────────────────────────
-  const [shellfishMode, setShellfishMode] = useState(false)
+  const [shellfishMode, setShellfishMode] = useState(initialShellfishMode)
   const [selectedBeach, setSelectedBeach] = useState<ShellfishBeach | null>(null)
 
   const fishSegments = useSelectedFishSegments(selectedFish)
@@ -74,6 +81,23 @@ export default function MapWithFishSelector() {
 
   return (
     <div className="relative h-full">
+      {/* Optional close button (shown when used as an overlay from Today page) */}
+      {onClose && (
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute', top: 12, right: 12, zIndex: 2000,
+            width: 36, height: 36, borderRadius: '50%',
+            background: 'var(--surface)', border: '1px solid var(--border)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer',
+          }}
+        >
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'var(--text)' }}>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      )}
       {/* Fish + Shellfish selector pill bar — floats above map */}
       <MapFishSelector
         selected={selectedFish}

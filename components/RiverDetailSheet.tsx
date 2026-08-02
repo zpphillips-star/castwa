@@ -897,57 +897,64 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
         >
 
           {/* ── Header ── */}
-          <div className="flex-shrink-0 flex items-start justify-between px-4 py-3"
-            style={{ borderBottom: '1px solid var(--border)' }}>
-            <div className="flex-1 min-w-0 mr-3">
-              <h2 className="text-2xl font-black text-[var(--text)] leading-tight">{river.name}</h2>
-              <div className="flex items-center gap-2 mt-1 flex-wrap">
-                <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>
+          <div className="flex-shrink-0 px-4 py-3" style={{ borderBottom: '1px solid var(--border)' }}>
+            {/* Top row: name + buttons */}
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color: 'var(--text-faint)' }}>
                   {river.region} · River
-                </span>
-                <div className="flex items-center gap-1.5">
-                  <FlowBadge status={flow.status} />
-                  {flow.cfs !== null && (
-                    <span className="text-xs font-semibold tabular-nums" style={{ color: 'var(--text-muted)' }}>
-                      {formatCfs(flow.cfs)} cfs
-                    </span>
-                  )}
+                </p>
+                <h2 className="text-2xl font-black text-[var(--text)] leading-tight">{river.name}</h2>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0 mt-1">
+                {/* Star button */}
+                <button
+                  onClick={() => toggleWaterStar(river.id)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-90"
+                  style={{ background: 'var(--surface-overlay)' }}>
+                  <span style={{ fontSize: '15px', lineHeight: 1 }}>
+                    {isWaterStarred(river.id) ? '⭐' : '☆'}
+                  </span>
+                </button>
+                <button onClick={onClose}
+                  className="w-8 h-8 rounded-full flex items-center justify-center"
+                  style={{ background: 'var(--surface-overlay)' }}>
+                  <svg className="w-4 h-4" style={{ color: 'var(--text)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            {/* Flow row: big prominent CFS number */}
+            <div className="flex items-baseline gap-2 mt-2">
+              {flow.cfs !== null ? (
+                <>
+                  <span className="text-3xl font-black tabular-nums leading-none"
+                    style={{ color: flow.status === 'ideal' ? 'var(--open)' : flow.status === 'low' ? 'var(--accent)' : flow.status === 'high' ? 'var(--live)' : 'var(--text-faint)' }}>
+                    {formatCfs(flow.cfs)}
+                  </span>
+                  <span className="text-sm font-semibold" style={{ color: 'var(--text-faint)' }}>cfs</span>
                   {flow.trend && (
-                    <span className="text-xs font-bold" style={{ color: flow.trend === 'rising' ? 'var(--live)' : flow.trend === 'falling' ? 'var(--blue)' : 'var(--open)' }}>
+                    <span className="text-base font-bold" style={{ color: flow.trend === 'rising' ? 'var(--live)' : flow.trend === 'falling' ? 'var(--blue)' : 'var(--open)' }}>
                       {flow.trend === 'rising' ? '↑' : flow.trend === 'falling' ? '↓' : '→'}
                     </span>
                   )}
-                </div>
-              </div>
-              {flow.status !== 'loading' && getCfsDescriptionForFlow(flow.status) && (
-                <p className="text-xs italic mt-1" style={{ color: 'var(--text-faint)' }}>
-                  {getCfsDescriptionForFlow(flow.status)}
-                </p>
-              )}
-              {weather && (
-                <p className="text-xs mt-1" style={{ color: 'var(--text-faint)' }}>
-                  🌡 {Math.round(weather.temp)}°F · 💨 {Math.round(weather.wind)} mph{weather.precip > 20 ? ` · 🌧 ${weather.precip}% rain` : ''}
-                </p>
-              )}
+                  <FlowBadge status={flow.status} />
+                </>
+              ) : flow.status === 'loading' ? (
+                <div className="h-8 w-24 rounded-lg animate-pulse" style={{ background: 'var(--border)' }} />
+              ) : null}
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0 mt-1">
-              {/* Star button */}
-              <button
-                onClick={() => toggleWaterStar(river.id)}
-                className="w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-90"
-                style={{ background: 'var(--surface-overlay)' }}>
-                <span style={{ fontSize: '15px', lineHeight: 1 }}>
-                  {isWaterStarred(river.id) ? '⭐' : '☆'}
-                </span>
-              </button>
-              <button onClick={onClose}
-                className="w-8 h-8 rounded-full flex items-center justify-center"
-                style={{ background: 'var(--surface-overlay)' }}>
-                <svg className="w-4 h-4" style={{ color: 'var(--text)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-              </button>
-            </div>
+            {flow.status !== 'loading' && getCfsDescriptionForFlow(flow.status) && (
+              <p className="text-xs italic mt-1" style={{ color: 'var(--text-faint)' }}>
+                {getCfsDescriptionForFlow(flow.status)}
+              </p>
+            )}
+            {weather && (
+              <p className="text-xs mt-1" style={{ color: 'var(--text-faint)' }}>
+                🌡 {Math.round(weather.temp)}°F · 💨 {Math.round(weather.wind)} mph{weather.precip > 20 ? ` · 🌧 ${weather.precip}% rain` : ''}
+              </p>
+            )}
           </div>
 
           {/* ── Map — tap to close card if open ── */}

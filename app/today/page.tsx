@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import BottomNav from '@/components/BottomNav'
 import FishDetailSheet from '@/components/FishDetailSheet'
 import RiverDetailSheet from '@/components/RiverDetailSheet'
@@ -10,6 +11,16 @@ import { getActiveAlerts, EmergencyAlert } from '@/lib/emergency-alerts'
 import { getDailyUpdatesForDate, getNewUpdatesCount } from '@/lib/daily-updates'
 import { useStarred } from '@/hooks/useStarred'
 import { WATER_COORDS } from '@/lib/water-coords'
+
+// ── Shellfish map — dynamic (Leaflet requires client-only) ─────────────────────
+const MapWithFishSelectorDynamic = dynamic(
+  () => import('@/components/MapWithFishSelector'),
+  { ssr: false, loading: () => (
+    <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'100%', background:'var(--bg)', color:'var(--text-faint)', fontSize:14 }}>
+      Loading map…
+    </div>
+  )}
+)
 
 // ─── WDFW LIVE ALERT TYPE ─────────────────────────────────────────────────────
 type WDFWLiveAlert = { title: string; link: string; pubDate: string }
@@ -581,6 +592,7 @@ export default function TodayPage() {
   const [selectedWater, setSelectedWater] = useState<string | null>(null)
   const [showOpenSheet, setShowOpenSheet] = useState(false)
   const [showAlertsSheet, setShowAlertsSheet] = useState(false)
+  const [showShellfishMap, setShowShellfishMap] = useState(false)
   const [liveAlerts, setLiveAlerts] = useState<WDFWLiveAlert[]>([])
   const [alertsLoading, setAlertsLoading] = useState(true)
 
@@ -595,6 +607,7 @@ export default function TodayPage() {
       setSelectedWater(null)
       setShowOpenSheet(false)
       setShowAlertsSheet(false)
+      setShowShellfishMap(false)
     }
     window.addEventListener('castwa-nav-reset', handler)
     return () => window.removeEventListener('castwa-nav-reset', handler)
@@ -706,6 +719,29 @@ export default function TodayPage() {
         <div className="lg:hidden mb-4">
           <DailyUpdatesBanner updates={dailyUpdates} date={today} newCount={newUpdatesCount} />
         </div>
+
+        {/* ── Shellfish Beaches card ── always visible, both mobile + desktop ── */}
+        <button
+          onClick={() => setShowShellfishMap(true)}
+          className="w-full text-left rounded-2xl mb-4 transition-all active:scale-[0.99] cursor-pointer"
+          style={{
+            background: 'rgba(245,158,11,0.08)',
+            border: '1.5px solid rgba(245,158,11,0.3)',
+            padding: '14px 18px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '14px',
+          }}
+        >
+          <span style={{ fontSize: '32px', lineHeight: 1, flexShrink: 0 }}>🦪</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-base font-black text-[var(--text)] leading-tight">Shellfish Beaches</p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+              View open, closed &amp; advisory beaches statewide
+            </p>
+          </div>
+          <span className="text-lg font-light flex-shrink-0" style={{ color: 'rgba(245,158,11,0.7)' }}>›</span>
+        </button>
 
         {/* Desktop 2-column layout */}
         <div className="lg:grid lg:grid-cols-[1fr_400px] lg:gap-8">
@@ -1329,9 +1365,57 @@ export default function TodayPage() {
       {selectedWater && (
         <WaterDetailSheet waterName={selectedWater} onClose={() => setSelectedWater(null)} zIndex={70} />
       )}
+
+      {/* ── Shellfish Map full-screen overlay ── */}
+      {showShellfishMap && (
+        <div
+          style={{
+            position: 'fixed', inset: 0,
+            zIndex: 200,
+            background: 'var(--bg)',
+            display: 'flex', flexDirection: 'column',
+          }}
+        >
+          {/* Header bar */}
+          <div
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '12px 16px',
+              borderBottom: '1px solid var(--border)',
+              background: 'var(--bg)',
+              flexShrink: 0,
+            }}
+          >
+            <div>
+              <p style={{ fontSize: '17px', fontWeight: 900, color: 'var(--text)', margin: 0 }}>
+                🦪 Shellfish Beaches
+              </p>
+              <p style={{ fontSize: '11px', color: 'var(--text-faint)', marginTop: '2px' }}>
+                Tap a beach for harvest status · Data: DOH &amp; WDFW
+              </p>
+            </div>
+            <button
+              onClick={() => setShowShellfishMap(false)}
+              style={{
+                width: 36, height: 36, borderRadius: '50%',
+                background: 'var(--surface)', border: '1px solid var(--border)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', flexShrink: 0,
+              }}
+            >
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'var(--text)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          {/* Map fills remaining space */}
+          <div style={{ flex: 1, position: 'relative', minHeight: 0 }}>
+            <MapWithFishSelectorDynamic initialShellfishMode={true} onClose={() => setShowShellfishMap(false)} />
+          </div>
+        </div>
+      )}
+
       <BottomNav />
     </div>
   )
 }
-
-
