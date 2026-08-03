@@ -344,74 +344,54 @@ function UpdateRow({
         overflow: 'hidden',
         cursor: 'pointer',
         display: 'flex',
-        alignItems: 'stretch',
-        padding: 0,
+        alignItems: 'center',
+        padding: '12px 14px',
+        gap: 10,
       }}
     >
-      {/* Left vertical rail — category identity */}
-      <CategoryRail category={update.category} />
-
-      {/* Main content */}
-      <div style={{
-        flex: 1,
-        padding: '12px 12px 12px 14px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-        minWidth: 0,
-      }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          {/* Status chip */}
-          <div style={{ marginBottom: 4 }}>
-            <StatusChip update={update} />
-          </div>
-          {/* Headline */}
-          <p style={{
-            fontSize: 14,
-            fontWeight: 800,
-            color: 'var(--text)',
-            lineHeight: 1.3,
-            marginBottom: 3,
-          }}>
-            {update.headline}
-          </p>
-          {/* Subtext */}
-          <p style={{
-            fontSize: 12,
-            color: 'var(--text-muted)',
-            lineHeight: 1.4,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap' as const,
-          }}>
-            {update.subtext}
-          </p>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        {/* Status chip */}
+        <div style={{ marginBottom: 4 }}>
+          <StatusChip update={update} />
         </div>
-
-        {/* Species visual — one tasteful identifier per item */}
-        {visual && (
-          <span
-            style={{
-              fontSize: 26,
-              lineHeight: 1,
-              flexShrink: 0,
-              opacity: 0.82,
-              filter: 'saturate(0.9)',
-            }}
-          >
-            {visual}
-          </span>
-        )}
-
-        {/* Chevron */}
-        <svg
-          width="14" height="14" viewBox="0 0 24 24" fill="none"
-          stroke="var(--text-faint)" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"
-          style={{ flexShrink: 0 }}
-        >
-          <path d="M9 18l6-6-6-6" />
-        </svg>
+        {/* Headline */}
+        <p style={{
+          fontSize: 14,
+          fontWeight: 800,
+          color: 'var(--text)',
+          lineHeight: 1.3,
+          marginBottom: 3,
+        }}>
+          {update.headline}
+        </p>
+        {/* Subtext */}
+        <p style={{
+          fontSize: 12,
+          color: 'var(--text-muted)',
+          lineHeight: 1.4,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap' as const,
+        }}>
+          {update.subtext}
+        </p>
       </div>
+
+      {/* Species visual — one tasteful identifier per item */}
+      {visual && (
+        <span style={{ fontSize: 26, lineHeight: 1, flexShrink: 0, opacity: 0.82, filter: 'saturate(0.9)' }}>
+          {visual}
+        </span>
+      )}
+
+      {/* Chevron */}
+      <svg
+        width="14" height="14" viewBox="0 0 24 24" fill="none"
+        stroke="var(--text-faint)" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"
+        style={{ flexShrink: 0 }}
+      >
+        <path d="M9 18l6-6-6-6" />
+      </svg>
     </button>
   )
 }
@@ -432,12 +412,9 @@ export default function DailyUpdatesBanner({
   const [open,     setOpen]     = useState(false)
   const [selected, setSelected] = useState<DailyUpdate | null>(null)
 
-  const topUpdate     = updates[0]
-  const footerUpdates = updates.slice(1, 4)
-  const alertCount    = updates.filter(u => u.priority === 'alert').length
-  const hasAlerts     = alertCount > 0
+  const alertCount = updates.filter(u => u.priority === 'alert').length
+  const hasAlerts  = alertCount > 0
 
-  const shortDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
   const dateLabel = date.toLocaleDateString('en-US', {
     weekday: 'long',
     month:   'long',
@@ -446,166 +423,52 @@ export default function DailyUpdatesBanner({
 
   if (updates.length === 0) {
     return (
-      <div style={{
-        background: 'var(--surface)',
-        border: '1px solid rgba(255,255,255,0.10)',
-        borderRadius: 18,
-        padding: '16px 16px',
-      }}>
-        <p style={{ fontSize: 14, fontWeight: 800, color: 'var(--text)' }}>All quiet today</p>
-        <p style={{ fontSize: 12, marginTop: 3, color: 'var(--text-muted)' }}>No major statewide updates</p>
-      </div>
+      <button
+        onClick={() => {}}
+        disabled
+        className="w-full text-left rounded-xl flex items-center gap-4"
+        style={{
+          background: 'var(--surface-overlay)',
+          border: '1px solid var(--border)',
+          minHeight: 56,
+          paddingLeft: 24,
+          paddingRight: 24,
+          cursor: 'default',
+        }}
+      >
+        <div className="flex-1 min-w-0">
+          <p className="text-base font-bold text-[var(--text)]">Daily Updates</p>
+        </div>
+        <span className="text-sm font-semibold" style={{ color: 'var(--text-muted)' }}>All quiet today</span>
+      </button>
     )
   }
 
-  const topVisual = CATEGORY_VISUAL[topUpdate.category]
-
   return (
     <>
-      {/* ── Entry card ── */}
-      <div
+      {/* ── Entry button — same collapsed style as Emergency Rules / Best Bite Times ── */}
+      <button
+        onClick={() => setOpen(true)}
+        className="w-full text-left rounded-xl transition-all active:scale-[0.99] flex items-center gap-4"
         style={{
-          background: 'var(--surface)',
+          background: hasAlerts ? 'rgba(239,68,68,0.08)' : 'var(--surface-overlay)',
           border: `1px solid ${hasAlerts ? 'rgba(239,68,68,0.25)' : 'var(--border)'}`,
-          borderRadius: 18,
-          overflow: 'hidden',
+          cursor: 'pointer',
+          minHeight: 56,
+          paddingLeft: 24,
+          paddingRight: 24,
         }}
       >
-        {/* Header strip */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '8px 16px',
-          background: 'var(--surface-2)',
-          borderBottom: '1px solid var(--border)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{
-              fontSize: 10,
-              fontWeight: 900,
-              letterSpacing: '0.10em',
-              textTransform: 'uppercase' as const,
-              color: 'var(--accent)',
-            }}>
-              Daily Briefing
-            </span>
-            {newCount > 0 && (
-              <span style={{
-                fontSize: 9,
-                fontWeight: 900,
-                padding: '2px 6px',
-                borderRadius: 100,
-                background: 'var(--live)',
-                color: '#fff',
-                letterSpacing: '0.04em',
-              }}>
-                NEW
-              </span>
-            )}
-          </div>
-          <span style={{ fontSize: 11, color: 'var(--text-faint)', fontWeight: 600 }}>
-            {shortDate}
-          </span>
+        <div className="flex-1 min-w-0">
+          <p className="text-base font-bold text-[var(--text)]">Daily Updates</p>
         </div>
-
-        {/* Hero — top update, tappable */}
-        <button
-          onClick={() => setOpen(true)}
-          style={{
-            width: '100%',
-            textAlign: 'left',
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'stretch',
-            padding: 0,
-          }}
-        >
-          {/* Vertical rail */}
-          <CategoryRail category={topUpdate.category} />
-
-          {/* Content */}
-          <div style={{ flex: 1, padding: '14px 14px 14px 16px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-            <div style={{ flex: 1 }}>
-              <StatusChip update={topUpdate} />
-              <p style={{
-                fontSize: 15,
-                fontWeight: 900,
-                marginTop: 5,
-                color: 'var(--text)',
-                lineHeight: 1.3,
-                letterSpacing: '-0.01em',
-              }}>
-                {topUpdate.headline}
-              </p>
-              <p style={{
-                fontSize: 12,
-                marginTop: 4,
-                color: 'var(--text-muted)',
-                lineHeight: 1.4,
-              }}>
-                {topUpdate.subtext}
-              </p>
-            </div>
-
-            {/* Species visual */}
-            {topVisual && (
-              <span style={{
-                fontSize: 32,
-                lineHeight: 1,
-                flexShrink: 0,
-                marginTop: 2,
-                opacity: 0.85,
-                filter: 'saturate(0.88)',
-              }}>
-                {topVisual}
-              </span>
-            )}
-          </div>
-        </button>
-
-        {/* Footer: remaining labels + "See all" */}
-        {footerUpdates.length > 0 && (
-          <button
-            onClick={() => setOpen(true)}
-            style={{
-              width: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '8px 16px',
-              background: 'transparent',
-              border: 'none',
-              borderTop: '1px solid var(--border)',
-              cursor: 'pointer',
-            } as React.CSSProperties}
-          >
-            <p style={{
-              fontSize: 11,
-              color: 'var(--text-faint)',
-              fontWeight: 600,
-              whiteSpace: 'nowrap' as const,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              margin: 0,
-            }}>
-              {footerUpdates.map(u => CATEGORY_SUBJECT[u.category]).join(' · ')}
-            </p>
-            <span style={{
-              fontSize: 12,
-              fontWeight: 800,
-              color: 'var(--accent)',
-              whiteSpace: 'nowrap',
-              marginLeft: 8,
-              flexShrink: 0,
-            }}>
-              See all {updates.length} →
-            </span>
-          </button>
-        )}
-      </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className="text-sm font-semibold" style={{ color: hasAlerts ? 'var(--live-soft)' : 'var(--text-muted)' }}>
+            {updates.length === 1 ? '1 update' : `${updates.length} updates`}{hasAlerts ? ` · ${alertCount} alert${alertCount > 1 ? 's' : ''}` : ''}{newCount > 0 ? ' · new' : ''}
+          </span>
+          <span className="text-lg font-light" style={{ color: hasAlerts ? 'var(--live)' : 'var(--text-faint)', opacity: 0.8 }}>›</span>
+        </div>
+      </button>
 
       {/* ── List sheet ── */}
       {open && (
