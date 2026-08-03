@@ -27,28 +27,33 @@ const CATEGORY_SUBJECT: Record<DailyUpdate['category'], string> = {
   'general':           'NEWS',
 }
 
-// Very muted rail tint — nearly neutral, just enough to anchor the category
+// Unified rail tint — single neutral for all categories, no rainbow effect
+const RAIL_BG = 'rgba(148,163,184,0.10)'
+const RAIL_TEXT = 'rgba(148,163,184,0.58)'
+
+// Keep legacy maps pointing to unified values so the CategoryRail component
+// stays structurally unchanged — just all entries resolve to the same neutral.
 const CATEGORY_RAIL_BG: Record<DailyUpdate['category'], string> = {
-  'halibut':           'rgba(148,163,184,0.13)',
-  'salmon-marine':     'rgba(251,146,60,0.13)',
-  'salmon-freshwater': 'rgba(96,165,250,0.13)',
-  'shrimp':            'rgba(251,191,36,0.13)',
-  'crab':              'rgba(249,115,22,0.13)',
-  'biotoxin':          'rgba(239,68,68,0.13)',
-  'freshwater':        'rgba(52,211,153,0.10)',
-  'general':           'rgba(148,163,184,0.10)',
+  'halibut':           RAIL_BG,
+  'salmon-marine':     RAIL_BG,
+  'salmon-freshwater': RAIL_BG,
+  'shrimp':            RAIL_BG,
+  'crab':              RAIL_BG,
+  'biotoxin':          RAIL_BG,
+  'freshwater':        RAIL_BG,
+  'general':           RAIL_BG,
 }
 
-// Muted text color for the vertical label
+// Unified label text color for vertical rail — same across all categories
 const CATEGORY_RAIL_TEXT: Record<DailyUpdate['category'], string> = {
-  'halibut':           'rgba(148,163,184,0.65)',
-  'salmon-marine':     'rgba(249,115,22,0.65)',
-  'salmon-freshwater': 'rgba(96,165,250,0.65)',
-  'shrimp':            'rgba(234,179,8,0.7)',
-  'crab':              'rgba(249,115,22,0.65)',
-  'biotoxin':          'rgba(239,68,68,0.65)',
-  'freshwater':        'rgba(52,211,153,0.60)',
-  'general':           'rgba(148,163,184,0.60)',
+  'halibut':           RAIL_TEXT,
+  'salmon-marine':     RAIL_TEXT,
+  'salmon-freshwater': RAIL_TEXT,
+  'shrimp':            RAIL_TEXT,
+  'crab':              RAIL_TEXT,
+  'biotoxin':          RAIL_TEXT,
+  'freshwater':        RAIL_TEXT,
+  'general':           RAIL_TEXT,
 }
 
 // One illustrated species emoji per item — shown as visual identifier, not status
@@ -61,15 +66,18 @@ const CATEGORY_VISUAL: Partial<Record<DailyUpdate['category'], string>> = {
   'freshwater':        '🎣',
 }
 
-// Status chip colors — minimal, only for urgency signal
+// Status chip: only one urgency color (red = closure / alert).
+// Everything else uses the same neutral muted tone — no rainbow palette.
+const STATUS_NEUTRAL = 'rgba(148,163,184,0.70)'
+const STATUS_ALERT   = '#f87171'
+
 function getStatusColor(update: DailyUpdate): string {
   const lbl = update.featuredLabel.toLowerCase()
-  if (lbl.includes('closure') || lbl.includes('closed') || update.category === 'biotoxin') return '#f87171'
-  if (lbl.includes('reopen')) return '#fbbf24'
-  if (lbl.includes('opens today') || lbl.includes('today')) return '#4ade80'
-  if (update.priority === 'alert') return '#f87171'
-  if (update.priority === 'highlight') return '#fbbf24'
-  return '#86efac'
+  if (
+    lbl.includes('closure') || lbl.includes('closed') ||
+    update.category === 'biotoxin' || update.priority === 'alert'
+  ) return STATUS_ALERT
+  return STATUS_NEUTRAL
 }
 
 function fmtDate(iso: string): string {
