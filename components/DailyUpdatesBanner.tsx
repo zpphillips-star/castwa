@@ -15,10 +15,61 @@ const CATEGORY_LABEL: Record<DailyUpdate['category'], string> = {
   'general':           'General',
 }
 
-// Species-specific accent emoji shown tastefully in detail views only
-const CATEGORY_ACCENT: Partial<Record<DailyUpdate['category'], string>> = {
-  'shrimp': '🦐',
-  'crab':   '🦀',
+// Short uppercase word shown bottom-to-top in the vertical rail
+const CATEGORY_SUBJECT: Record<DailyUpdate['category'], string> = {
+  'halibut':           'HALIBUT',
+  'salmon-marine':     'SALMON',
+  'salmon-freshwater': 'RIVER',
+  'shrimp':            'SHRIMP',
+  'crab':              'CRAB',
+  'biotoxin':          'CLOSURE',
+  'freshwater':        'LAKE',
+  'general':           'NEWS',
+}
+
+// Very muted rail tint — nearly neutral, just enough to anchor the category
+const CATEGORY_RAIL_BG: Record<DailyUpdate['category'], string> = {
+  'halibut':           'rgba(148,163,184,0.13)',
+  'salmon-marine':     'rgba(251,146,60,0.13)',
+  'salmon-freshwater': 'rgba(96,165,250,0.13)',
+  'shrimp':            'rgba(251,191,36,0.13)',
+  'crab':              'rgba(249,115,22,0.13)',
+  'biotoxin':          'rgba(239,68,68,0.13)',
+  'freshwater':        'rgba(52,211,153,0.10)',
+  'general':           'rgba(148,163,184,0.10)',
+}
+
+// Muted text color for the vertical label
+const CATEGORY_RAIL_TEXT: Record<DailyUpdate['category'], string> = {
+  'halibut':           'rgba(148,163,184,0.65)',
+  'salmon-marine':     'rgba(249,115,22,0.65)',
+  'salmon-freshwater': 'rgba(96,165,250,0.65)',
+  'shrimp':            'rgba(234,179,8,0.7)',
+  'crab':              'rgba(249,115,22,0.65)',
+  'biotoxin':          'rgba(239,68,68,0.65)',
+  'freshwater':        'rgba(52,211,153,0.60)',
+  'general':           'rgba(148,163,184,0.60)',
+}
+
+// One illustrated species emoji per item — shown as visual identifier, not status
+const CATEGORY_VISUAL: Partial<Record<DailyUpdate['category'], string>> = {
+  'shrimp':            '🦐',
+  'crab':              '🦀',
+  'halibut':           '🐟',
+  'salmon-marine':     '🐟',
+  'salmon-freshwater': '🐟',
+  'freshwater':        '🎣',
+}
+
+// Status chip colors — minimal, only for urgency signal
+function getStatusColor(update: DailyUpdate): string {
+  const lbl = update.featuredLabel.toLowerCase()
+  if (lbl.includes('closure') || lbl.includes('closed') || update.category === 'biotoxin') return '#f87171'
+  if (lbl.includes('reopen')) return '#fbbf24'
+  if (lbl.includes('opens today') || lbl.includes('today')) return '#4ade80'
+  if (update.priority === 'alert') return '#f87171'
+  if (update.priority === 'highlight') return '#fbbf24'
+  return '#86efac'
 }
 
 function fmtDate(iso: string): string {
@@ -28,35 +79,57 @@ function fmtDate(iso: string): string {
 
 function dateRangeLabel(update: DailyUpdate): string {
   const from = fmtDate(update.activeFrom)
-  if (!update.activeTo) return `${from} – until further notice`
+  if (!update.activeTo) return `${from} – ongoing`
   return `${from} – ${fmtDate(update.activeTo)}`
 }
 
-// ─── COLOR HELPERS ────────────────────────────────────────────────────────────
+// ─── VERTICAL CATEGORY RAIL ───────────────────────────────────────────────────
+// Shows the subject word bottom-to-top (e.g. "SHRIMP", "HALIBUT")
 
-function getAccentColor(update: DailyUpdate): string {
-  const lbl = update.featuredLabel.toLowerCase()
-  if (lbl.includes('today') || lbl.includes('opens today')) return '#4ade80'
-  if (lbl.includes('closure') || lbl.includes('closed') || update.category === 'biotoxin') return '#f87171'
-  if (lbl.includes('reopen')) return '#fbbf24'
-  if (update.priority === 'alert')     return '#f87171'
-  if (update.priority === 'highlight') return '#fbbf24'
-  return '#86efac'
+function CategoryRail({ category }: { category: DailyUpdate['category'] }) {
+  return (
+    <div
+      style={{
+        width: 28,
+        alignSelf: 'stretch',
+        background: CATEGORY_RAIL_BG[category],
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+      }}
+    >
+      <span
+        style={{
+          writingMode: 'vertical-rl' as const,
+          transform: 'rotate(180deg)',
+          fontSize: 8,
+          fontWeight: 900,
+          letterSpacing: '0.13em',
+          textTransform: 'uppercase' as const,
+          color: CATEGORY_RAIL_TEXT[category],
+          userSelect: 'none' as const,
+          lineHeight: 1,
+        }}
+      >
+        {CATEGORY_SUBJECT[category]}
+      </span>
+    </div>
+  )
 }
 
-// ─── STATUS LABEL (text-only, no dot/border badge) ────────────────────────────
+// ─── STATUS CHIP (minimal, text-only) ─────────────────────────────────────────
 
-function StatusLabel({ update }: { update: DailyUpdate }) {
-  const color = getAccentColor(update)
+function StatusChip({ update }: { update: DailyUpdate }) {
   return (
     <span
       style={{
         display: 'inline-block',
-        fontSize: 10,
-        fontWeight: 800,
+        fontSize: 9,
+        fontWeight: 900,
         letterSpacing: '0.09em',
         textTransform: 'uppercase' as const,
-        color,
+        color: getStatusColor(update),
         whiteSpace: 'nowrap' as const,
       }}
     >
@@ -65,7 +138,7 @@ function StatusLabel({ update }: { update: DailyUpdate }) {
   )
 }
 
-// ─── UPDATE DETAIL SHEET (second level) ───────────────────────────────────────
+// ─── UPDATE DETAIL SHEET (second level, z=1300) ───────────────────────────────
 
 function UpdateDetailSheet({
   update,
@@ -74,8 +147,8 @@ function UpdateDetailSheet({
   update: DailyUpdate
   onClose: () => void
 }) {
-  const accent  = getAccentColor(update)
-  const speciesEmoji = CATEGORY_ACCENT[update.category]
+  const statusColor = getStatusColor(update)
+  const visual = CATEGORY_VISUAL[update.category]
 
   return (
     <div
@@ -120,52 +193,54 @@ function UpdateDetailSheet({
             Daily Updates
           </button>
 
-          {/* Category row */}
+          {/* Category + date row */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            marginBottom: 10,
+            marginBottom: 12,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <StatusLabel update={update} />
               <span style={{
                 fontSize: 10,
-                color: 'var(--text-faint)',
-                fontWeight: 600,
-                letterSpacing: '0.06em',
+                fontWeight: 900,
+                letterSpacing: '0.10em',
                 textTransform: 'uppercase' as const,
+                color: CATEGORY_RAIL_TEXT[update.category],
+                padding: '2px 7px',
+                borderRadius: 4,
+                background: CATEGORY_RAIL_BG[update.category],
               }}>
-                {CATEGORY_LABEL[update.category]}
+                {CATEGORY_SUBJECT[update.category]}
               </span>
+              <StatusChip update={update} />
             </div>
             <span style={{ fontSize: 11, color: 'var(--text-faint)', fontWeight: 500 }}>
               {dateRangeLabel(update)}
             </span>
           </div>
 
-          {/* Headline — species emoji only here if applicable */}
-          <h2 style={{
-            fontSize: 20,
-            fontWeight: 900,
-            color: 'var(--text)',
-            lineHeight: 1.25,
-            letterSpacing: '-0.02em',
-            marginBottom: 6,
-          }}>
-            {speciesEmoji && (
-              <span style={{ marginRight: 7, fontSize: 18 }}>{speciesEmoji}</span>
+          {/* Headline with optional species visual */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 8 }}>
+            {visual && (
+              <span style={{ fontSize: 26, lineHeight: 1, flexShrink: 0, marginTop: 1 }}>
+                {visual}
+              </span>
             )}
-            {update.headline}
-          </h2>
+            <h2 style={{
+              fontSize: 19,
+              fontWeight: 900,
+              color: 'var(--text)',
+              lineHeight: 1.25,
+              letterSpacing: '-0.02em',
+              flex: 1,
+            }}>
+              {update.headline}
+            </h2>
+          </div>
 
           {/* Subtext */}
-          <p style={{
-            fontSize: 13,
-            color: 'var(--text-muted)',
-            lineHeight: 1.5,
-            marginBottom: 0,
-          }}>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: 0 }}>
             {update.subtext}
           </p>
         </div>
@@ -181,7 +256,6 @@ function UpdateDetailSheet({
             paddingBottom: 'calc(env(safe-area-inset-bottom) + 32px)',
           }}
         >
-          {/* Detail section label */}
           <p style={{
             fontSize: 10,
             fontWeight: 800,
@@ -192,8 +266,6 @@ function UpdateDetailSheet({
           }}>
             Details
           </p>
-
-          {/* Detail body */}
           <p style={{
             fontSize: 14,
             lineHeight: 1.75,
@@ -225,18 +297,9 @@ function UpdateDetailSheet({
               href={update.wdfw_url}
               target="_blank"
               rel="noopener noreferrer"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                textDecoration: 'none',
-              }}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none' }}
             >
-              <span style={{
-                fontSize: 13,
-                fontWeight: 800,
-                color: 'var(--accent)',
-              }}>
+              <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--accent)' }}>
                 WDFW — {CATEGORY_LABEL[update.category]} ↗
               </span>
             </a>
@@ -250,7 +313,7 @@ function UpdateDetailSheet({
   )
 }
 
-// ─── UPDATE ROW (in list sheet — fully tappable) ─────────────────────────────
+// ─── UPDATE ROW (list sheet — fully tappable, vertical rail) ─────────────────
 
 function UpdateRow({
   update,
@@ -259,7 +322,7 @@ function UpdateRow({
   update: DailyUpdate
   onSelect: () => void
 }) {
-  const accent = getAccentColor(update)
+  const visual = CATEGORY_VISUAL[update.category]
 
   return (
     <button
@@ -269,56 +332,78 @@ function UpdateRow({
         textAlign: 'left',
         background: 'var(--surface)',
         border: '1px solid var(--border)',
-        borderLeft: `3px solid ${accent}`,
         borderRadius: 14,
-        padding: '13px 14px 13px 16px',
+        overflow: 'hidden',
         cursor: 'pointer',
         display: 'flex',
-        alignItems: 'center',
-        gap: 12,
+        alignItems: 'stretch',
+        padding: 0,
       }}
     >
-      <div style={{ flex: 1, minWidth: 0 }}>
-        {/* Status + category */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
-          <StatusLabel update={update} />
-          <span style={{
-            fontSize: 10,
-            color: 'var(--text-faint)',
-            fontWeight: 600,
-            letterSpacing: '0.05em',
-            textTransform: 'uppercase' as const,
+      {/* Left vertical rail — category identity */}
+      <CategoryRail category={update.category} />
+
+      {/* Main content */}
+      <div style={{
+        flex: 1,
+        padding: '12px 12px 12px 14px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        minWidth: 0,
+      }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {/* Status chip */}
+          <div style={{ marginBottom: 4 }}>
+            <StatusChip update={update} />
+          </div>
+          {/* Headline */}
+          <p style={{
+            fontSize: 14,
+            fontWeight: 800,
+            color: 'var(--text)',
+            lineHeight: 1.3,
+            marginBottom: 3,
           }}>
-            {CATEGORY_LABEL[update.category]}
-          </span>
+            {update.headline}
+          </p>
+          {/* Subtext */}
+          <p style={{
+            fontSize: 12,
+            color: 'var(--text-muted)',
+            lineHeight: 1.4,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap' as const,
+          }}>
+            {update.subtext}
+          </p>
         </div>
-        {/* Headline */}
-        <p style={{
-          fontSize: 14,
-          fontWeight: 800,
-          color: 'var(--text)',
-          lineHeight: 1.35,
-          marginBottom: 3,
-        }}>
-          {update.headline}
-        </p>
-        {/* Subtext */}
-        <p style={{
-          fontSize: 12,
-          color: 'var(--text-muted)',
-          lineHeight: 1.4,
-        }}>
-          {update.subtext}
-        </p>
+
+        {/* Species visual — one tasteful identifier per item */}
+        {visual && (
+          <span
+            style={{
+              fontSize: 26,
+              lineHeight: 1,
+              flexShrink: 0,
+              opacity: 0.82,
+              filter: 'saturate(0.9)',
+            }}
+          >
+            {visual}
+          </span>
+        )}
+
+        {/* Chevron */}
+        <svg
+          width="14" height="14" viewBox="0 0 24 24" fill="none"
+          stroke="var(--text-faint)" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"
+          style={{ flexShrink: 0 }}
+        >
+          <path d="M9 18l6-6-6-6" />
+        </svg>
       </div>
-      {/* Chevron indicator */}
-      <svg
-        width="15" height="15" viewBox="0 0 24 24" fill="none"
-        stroke="var(--text-faint)" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"
-        style={{ flexShrink: 0 }}
-      >
-        <path d="M9 18l6-6-6-6" />
-      </svg>
     </button>
   )
 }
@@ -340,7 +425,7 @@ export default function DailyUpdatesBanner({
   const [selected, setSelected] = useState<DailyUpdate | null>(null)
 
   const topUpdate     = updates[0]
-  const footerUpdates = updates.slice(1, 4)   // up to 3 footer labels
+  const footerUpdates = updates.slice(1, 4)
   const alertCount    = updates.filter(u => u.priority === 'alert').length
   const hasAlerts     = alertCount > 0
 
@@ -350,8 +435,6 @@ export default function DailyUpdatesBanner({
     month:   'long',
     day:     'numeric',
   })
-
-  const moduleBorder = hasAlerts ? 'rgba(239,68,68,0.28)' : 'rgba(255,255,255,0.10)'
 
   if (updates.length === 0) {
     return (
@@ -367,23 +450,25 @@ export default function DailyUpdatesBanner({
     )
   }
 
+  const topVisual = CATEGORY_VISUAL[topUpdate.category]
+
   return (
     <>
-      {/* ── Module card ── */}
+      {/* ── Entry card ── */}
       <div
         style={{
           background: 'var(--surface)',
-          border: `1px solid ${moduleBorder}`,
+          border: `1px solid ${hasAlerts ? 'rgba(239,68,68,0.25)' : 'var(--border)'}`,
           borderRadius: 18,
           overflow: 'hidden',
         }}
       >
-        {/* Header strip — no emoji, clean text */}
+        {/* Header strip */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '9px 16px',
+          padding: '8px 16px',
           background: 'var(--surface-2)',
           borderBottom: '1px solid var(--border)',
         }}>
@@ -416,38 +501,61 @@ export default function DailyUpdatesBanner({
           </span>
         </div>
 
-        {/* Hero — top update, full card tappable */}
+        {/* Hero — top update, tappable */}
         <button
           onClick={() => setOpen(true)}
           style={{
             width: '100%',
             textAlign: 'left',
-            padding: '14px 16px',
             background: 'transparent',
             border: 'none',
-            borderLeft: `3px solid ${getAccentColor(topUpdate)}`,
             cursor: 'pointer',
-            display: 'block',
+            display: 'flex',
+            alignItems: 'stretch',
+            padding: 0,
           }}
         >
-          <StatusLabel update={topUpdate} />
-          <p style={{
-            fontSize: 15,
-            fontWeight: 900,
-            marginTop: 6,
-            color: 'var(--text)',
-            lineHeight: 1.3,
-          }}>
-            {topUpdate.headline}
-          </p>
-          <p style={{
-            fontSize: 12,
-            marginTop: 4,
-            color: 'var(--text-muted)',
-            lineHeight: 1.4,
-          }}>
-            {topUpdate.subtext}
-          </p>
+          {/* Vertical rail */}
+          <CategoryRail category={topUpdate.category} />
+
+          {/* Content */}
+          <div style={{ flex: 1, padding: '14px 14px 14px 16px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+            <div style={{ flex: 1 }}>
+              <StatusChip update={topUpdate} />
+              <p style={{
+                fontSize: 15,
+                fontWeight: 900,
+                marginTop: 5,
+                color: 'var(--text)',
+                lineHeight: 1.3,
+                letterSpacing: '-0.01em',
+              }}>
+                {topUpdate.headline}
+              </p>
+              <p style={{
+                fontSize: 12,
+                marginTop: 4,
+                color: 'var(--text-muted)',
+                lineHeight: 1.4,
+              }}>
+                {topUpdate.subtext}
+              </p>
+            </div>
+
+            {/* Species visual */}
+            {topVisual && (
+              <span style={{
+                fontSize: 32,
+                lineHeight: 1,
+                flexShrink: 0,
+                marginTop: 2,
+                opacity: 0.85,
+                filter: 'saturate(0.88)',
+              }}>
+                {topVisual}
+              </span>
+            )}
+          </div>
         </button>
 
         {/* Footer: remaining labels + "See all" */}
@@ -459,7 +567,7 @@ export default function DailyUpdatesBanner({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              padding: '9px 16px',
+              padding: '8px 16px',
               background: 'transparent',
               border: 'none',
               borderTop: '1px solid var(--border)',
@@ -475,7 +583,7 @@ export default function DailyUpdatesBanner({
               textOverflow: 'ellipsis',
               margin: 0,
             }}>
-              {footerUpdates.map(u => u.featuredLabel).join(' · ')}
+              {footerUpdates.map(u => CATEGORY_SUBJECT[u.category]).join(' · ')}
             </p>
             <span style={{
               fontSize: 12,
@@ -503,7 +611,7 @@ export default function DailyUpdatesBanner({
             style={{ background: 'var(--photo-bg)', maxHeight: '90dvh' }}
           >
             {/* Handle */}
-            <div style={{ paddingTop: 10, paddingBottom: 0, display: 'flex', justifyContent: 'center' }}>
+            <div style={{ paddingTop: 10, display: 'flex', justifyContent: 'center' }}>
               <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--text-20)' }} />
             </div>
 
@@ -576,7 +684,7 @@ export default function DailyUpdatesBanner({
               </button>
             </div>
 
-            {/* Instruction hint */}
+            {/* Hint */}
             <p style={{
               fontSize: 11,
               color: 'var(--text-faint)',
