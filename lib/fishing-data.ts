@@ -211,7 +211,9 @@ export const REGULATIONS: Regulation[] = [
   { id: 'r6', speciesId: 'coho', waterBodyId: 'green', seasonStart: '09-01', seasonEnd: '11-15', dailyLimit: 2, minSize: 16, hatcheryOnly: true, gearRestriction: 'Barbless hooks only', notes: null },
   // Sockeye Salmon
   { id: 'r6b', speciesId: 'sockeye', waterBodyId: 'skagit', seasonStart: '07-01', seasonEnd: '07-31', dailyLimit: 4, minSize: 12, hatcheryOnly: true, gearRestriction: 'Night closure in effect; 2-rod OK; SGR not required for salmon', notes: 'Open by section — see section rules. Active emergency rule through Jul 31 2026 (WDFW ER 26-126-136780, pub Jul 7 2026, supersedes 26-114-136727). Hatchery fish only (clipped adipose fin). Release all salmon other than sockeye.' },
-  { id: 'r7', speciesId: 'sockeye', waterBodyId: 'columbia', seasonStart: '07-01', seasonEnd: '08-15', dailyLimit: 6, minSize: null, hatcheryOnly: true, gearRestriction: null, emergencyClosedFrom: '2026-07-06', emergencyClosedTo: '2026-07-31', notes: '⚠️ 2026: Columbia River sockeye returns were well below forecast. Emergency closure (WDFW ER 26-113-136726) restricted most sections Jul 6–31 (now expired as of Aug 1). Aug 1–15 base season may apply — verify WDFW before fishing.' },
+
+  { id: 'r7', speciesId: 'sockeye', waterBodyId: 'columbia', seasonStart: '07-01', seasonEnd: '08-15', dailyLimit: 6, minSize: null, hatcheryOnly: true, gearRestriction: null, emergencyClosedFrom: '2026-07-06', emergencyClosedTo: '2026-08-31', notes: '⚠️ 2026 EMERGENCY CLOSURE: Columbia River sockeye severely restricted due to below-forecast returns (WDFW ER 26-113-136726). Lower/mid-Columbia sections (Astoria to Priest Rapids): closed to sockeye July 6–31, reverts to pamphlet Aug 1+ (verify WDFW). Priest Rapids Dam to Chief Joseph Dam: closed to ALL salmon July 1–Aug 31. emergencyClosedTo extended to Aug 31 to conservatively cover upper-river closure — always verify WDFW before fishing.' },
+
   { id: 'r8', speciesId: 'sockeye', waterBodyId: 'chelan', seasonStart: '07-15', seasonEnd: '08-31', dailyLimit: 4, minSize: null, hatcheryOnly: true, gearRestriction: null, notes: 'Hatchery fish only (clipped adipose fin). Season varies — see WDFW regulations.' },
   { id: 'r8b', speciesId: 'sockeye', waterBodyId: 'wenatchee-lake', seasonStart: '07-01', seasonEnd: '08-15', dailyLimit: 4, minSize: null, hatcheryOnly: true, gearRestriction: null, notes: 'Lake Wenatchee sockeye — one of WA\'s top sockeye fisheries. Hatchery fish only (clipped adipose fin). ⚠️ 2026: Fishery contingent on adult passage at Tumwater Dam exceeding spawner target — verify WDFW before fishing.' },
   // Pink Salmon — NOT LISTED. 2026 is an even year; no WA pink salmon fishery exists.
@@ -1170,3 +1172,4 @@ export function getWhatsHot(date: Date, limit = 4): Species[] {
     })
     .slice(0, limit)
 }
+

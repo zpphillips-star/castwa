@@ -67,16 +67,19 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
   },
   // ── COLUMBIA RIVER SOCKEYE CLOSURE ──────────────────────────────────────
   // Source: WDFW ER 26-113-136726 (pub. Jun 18 2026). Low returns trigger closures.
-  // Most Columbia River sections closed to sockeye Jul 6–31. Possible limited reopening if returns improve.
-  // ARCHIVED 2026-08-01: activeTo 2026-07-31 has passed; filter excludes from active list.
+
+  // Lower/mid-Columbia most sections: closed to sockeye July 6–31 (reverts to pamphlet Aug 1+).
+  // Priest Rapids Dam to Chief Joseph Dam: closed to ALL salmon July 1–Aug 31.
+  // activeTo extended to 2026-08-31 to cover the upper-river closure.
+
   {
     id: 'ea-columbia-sockeye-closed-2026',
     type: 'CLOSED',
     species: 'Sockeye Salmon',
     waterBody: 'Columbia River (most sections)',
-    description: 'Columbia River sockeye severely restricted — below-forecast returns. Most sections closed to sockeye retention July 6–31. Lower Columbia (Astoria–Bonneville) reverts to hatchery jack Chinook only. Richland/Pasco area closed June 20–July 31. Possible selective reopening of some upper sections if returns improve — verify WDFW before fishing.',
+    description: 'Columbia River sockeye severely restricted — below-forecast returns (run downgraded to 38,600). Lower/mid-Columbia (Astoria to Priest Rapids): closed to sockeye July 6–31; reverts to pamphlet August 1+ (verify WDFW). 🚨 Priest Rapids Dam to Chief Joseph Dam: closed to ALL salmon July 1–August 31. Possible limited reopening of lower sections if returns improve — verify WDFW before fishing any Columbia River section.',
     activeFrom: '2026-06-18',
-    activeTo: '2026-07-31',
+    activeTo: '2026-08-31',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/columbia-river-salmon-and-steelhead-fishery-update-2026-06',
   },
   // ── PUGET SOUND SUMMER CRAB ──────────────────────────────────────────────
@@ -267,3 +270,4 @@ export function getActiveAlerts(date: Date): EmergencyAlert[] {
     return true
   })
 }
+
