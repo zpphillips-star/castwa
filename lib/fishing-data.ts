@@ -211,7 +211,7 @@ export const REGULATIONS: Regulation[] = [
   { id: 'r6', speciesId: 'coho', waterBodyId: 'green', seasonStart: '09-01', seasonEnd: '11-15', dailyLimit: 2, minSize: 16, hatcheryOnly: true, gearRestriction: 'Barbless hooks only', notes: null },
   // Sockeye Salmon
   { id: 'r6b', speciesId: 'sockeye', waterBodyId: 'skagit', seasonStart: '07-01', seasonEnd: '07-31', dailyLimit: 4, minSize: 12, hatcheryOnly: true, gearRestriction: 'Night closure in effect; 2-rod OK; SGR not required for salmon', notes: 'Open by section — see section rules. Active emergency rule through Jul 31 2026 (WDFW ER 26-126-136780, pub Jul 7 2026, supersedes 26-114-136727). Hatchery fish only (clipped adipose fin). Release all salmon other than sockeye.' },
-  { id: 'r7', speciesId: 'sockeye', waterBodyId: 'columbia', seasonStart: '07-01', seasonEnd: '08-15', dailyLimit: 6, minSize: null, hatcheryOnly: true, gearRestriction: null, emergencyClosedFrom: '2026-07-06', emergencyClosedTo: '2026-07-31', notes: '⚠️ 2026 EMERGENCY CLOSURE: Columbia River sockeye severely restricted due to below-forecast returns (WDFW ER 26-113-136726). Most sections closed to sockeye July 6–31. Verify WDFW before fishing — see emergency alerts.' },
+  { id: 'r7', speciesId: 'sockeye', waterBodyId: 'columbia', seasonStart: '07-01', seasonEnd: '08-15', dailyLimit: 6, minSize: null, hatcheryOnly: true, gearRestriction: null, emergencyClosedFrom: '2026-07-06', emergencyClosedTo: '2026-07-31', notes: '⚠️ 2026: Columbia River sockeye returns were well below forecast. Emergency closure (WDFW ER 26-113-136726) restricted most sections Jul 6–31 (now expired as of Aug 1). Aug 1–15 base season may apply — verify WDFW before fishing.' },
   { id: 'r8', speciesId: 'sockeye', waterBodyId: 'chelan', seasonStart: '07-15', seasonEnd: '08-31', dailyLimit: 4, minSize: null, hatcheryOnly: true, gearRestriction: null, notes: 'Hatchery fish only (clipped adipose fin). Season varies — see WDFW regulations.' },
   { id: 'r8b', speciesId: 'sockeye', waterBodyId: 'wenatchee-lake', seasonStart: '07-01', seasonEnd: '08-15', dailyLimit: 4, minSize: null, hatcheryOnly: true, gearRestriction: null, notes: 'Lake Wenatchee sockeye — one of WA\'s top sockeye fisheries. Hatchery fish only (clipped adipose fin). ⚠️ 2026: Fishery contingent on adult passage at Tumwater Dam exceeding spawner target — verify WDFW before fishing.' },
   // Pink Salmon — NOT LISTED. 2026 is an even year; no WA pink salmon fishery exists.
@@ -238,7 +238,7 @@ export const REGULATIONS: Regulation[] = [
   // Yellow Perch
   { id: 'r26', speciesId: 'perch', waterBodyId: 'sammamish', seasonStart: '01-01', seasonEnd: '12-31', dailyLimit: 25, minSize: null, hatcheryOnly: false, gearRestriction: null, notes: null },
   { id: 'r27', speciesId: 'perch', waterBodyId: 'washington', seasonStart: '01-01', seasonEnd: '12-31', dailyLimit: 25, minSize: null, hatcheryOnly: false, gearRestriction: null, notes: null },
-  // Halibut — NOT LISTED. All WA halibut seasons closed as of June 28-30, 2026. Check WDFW/IPHC for future openings.
+  // Halibut — NOT LISTED. Primary seasons closed Jun 28-30, 2026. ✅ Reopenings confirmed (wdfw.wa.gov): MA 1 & 2 open Aug 8–Sep 30 daily; MA 3–4 & 5–10 open Aug 16–Sep 30 daily. 1-fish limit, CRC required. MA 11/12/13 closed for 2026.
   // Dungeness Crab
   { id: 'r30', speciesId: 'crab', waterBodyId: 'puget', seasonStart: '07-01', seasonEnd: '09-30', dailyLimit: 6, minSize: null, hatcheryOnly: false, gearRestriction: 'Crab pots or ring nets', notes: 'Males only, 6.25 in minimum' },
   { id: 'r31', speciesId: 'crab', waterBodyId: 'hood', seasonStart: '07-01', seasonEnd: '08-31', dailyLimit: 6, minSize: null, hatcheryOnly: false, gearRestriction: 'Crab pots only', notes: 'Males only' },
@@ -406,7 +406,7 @@ export const REGULATIONS: Regulation[] = [
 
   // ── MARINE AREA 8-1 (Deception Pass / Skagit Bay) ────────────────────────────
   // Pink Salmon NOT listed — 2026 is an even year; no WA pink salmon fishery exists
-  // Halibut NOT listed — all WA halibut seasons closed as of June 28-30, 2026
+  // Halibut NOT listed — primary seasons closed Jun 28-30. ✅ MA 5–10 reopens Aug 16–Sep 30 daily (1-fish limit, barbless hooks required)
   { id: 'r148', speciesId: 'chinook', waterBodyId: 'marine-8-1', seasonStart: '07-01', seasonEnd: '10-15', dailyLimit: 2, minSize: 22, hatcheryOnly: true, gearRestriction: 'Barbless hooks', notes: 'See WDFW regulations for current season dates and restrictions' },
   { id: 'r149', speciesId: 'coho', waterBodyId: 'marine-8-1', seasonStart: '08-15', seasonEnd: '11-15', dailyLimit: 2, minSize: 16, hatcheryOnly: false, gearRestriction: null, notes: 'See WDFW regulations for current season dates and restrictions' },
   { id: 'r150', speciesId: 'crab', waterBodyId: 'marine-8-1', seasonStart: '07-01', seasonEnd: '09-30', dailyLimit: 6, minSize: null, hatcheryOnly: false, gearRestriction: 'Crab pots or ring nets', notes: 'Males only, 6.25 in minimum; confirm area-specific open dates' },
@@ -417,7 +417,7 @@ export const REGULATIONS: Regulation[] = [
 
   // ── MARINE AREA 8-2 (Port Susan / Saratoga Passage) ──────────────────────────
   // Pink Salmon NOT listed — 2026 is an even year; no WA pink salmon fishery exists
-  // Halibut NOT listed — all WA halibut seasons closed as of June 28-30, 2026
+  // Halibut NOT listed — primary seasons closed Jun 28-30. ✅ MA 5–10 reopens Aug 16–Sep 30 daily (1-fish limit, barbless hooks required)
   { id: 'r155', speciesId: 'chinook', waterBodyId: 'marine-8-2', seasonStart: '07-01', seasonEnd: '10-15', dailyLimit: 2, minSize: 22, hatcheryOnly: true, gearRestriction: 'Barbless hooks', notes: 'See WDFW regulations for current season dates and restrictions' },
   { id: 'r156', speciesId: 'coho', waterBodyId: 'marine-8-2', seasonStart: '08-15', seasonEnd: '11-15', dailyLimit: 2, minSize: 16, hatcheryOnly: false, gearRestriction: null, notes: 'See WDFW regulations for current season dates and restrictions' },
   { id: 'r157', speciesId: 'crab', waterBodyId: 'marine-8-2', seasonStart: '07-01', seasonEnd: '09-30', dailyLimit: 6, minSize: null, hatcheryOnly: false, gearRestriction: 'Crab pots or ring nets', notes: 'Males only, 6.25 in minimum; confirm area-specific open dates' },
@@ -427,7 +427,7 @@ export const REGULATIONS: Regulation[] = [
   { id: 'r161', speciesId: 'chum', waterBodyId: 'marine-8-2', seasonStart: '10-01', seasonEnd: '12-15', dailyLimit: 6, minSize: null, hatcheryOnly: false, gearRestriction: null, notes: 'See WDFW regulations for current season dates and restrictions' },
 
   // ── MARINE AREA 9 (Admiralty Inlet) ──────────────────────────────────────────
-  // Halibut NOT listed — all WA halibut seasons closed as of June 28-30, 2026
+  // Halibut NOT listed — primary seasons closed Jun 28-30. ✅ MA 5–10 reopens Aug 16–Sep 30 daily (1-fish limit, barbless hooks required)
   { id: 'r162', speciesId: 'chinook', waterBodyId: 'marine-9', seasonStart: '07-01', seasonEnd: '10-15', dailyLimit: 2, minSize: 22, hatcheryOnly: true, gearRestriction: 'Barbless hooks', notes: 'See WDFW regulations for current season dates and restrictions' },
   { id: 'r163', speciesId: 'coho', waterBodyId: 'marine-9', seasonStart: '08-15', seasonEnd: '11-15', dailyLimit: 2, minSize: 16, hatcheryOnly: false, gearRestriction: null, notes: 'See WDFW regulations for current season dates and restrictions' },
   { id: 'r164', speciesId: 'crab', waterBodyId: 'marine-9', seasonStart: '07-01', seasonEnd: '09-30', dailyLimit: 6, minSize: null, hatcheryOnly: false, gearRestriction: 'Crab pots or ring nets', notes: 'Males only, 6.25 in minimum; confirm area-specific open dates' },
@@ -437,7 +437,7 @@ export const REGULATIONS: Regulation[] = [
   { id: 'r168', speciesId: 'sockeye', waterBodyId: 'marine-9', seasonStart: '07-01', seasonEnd: '08-15', dailyLimit: 6, minSize: null, hatcheryOnly: true, gearRestriction: null, notes: 'Hatchery fish only (clipped adipose fin). See WDFW regulations for current season dates and restrictions' },
 
   // ── MARINE AREA 10 (Seattle / Bainbridge / Kingston) ─────────────────────────
-  // Halibut NOT listed — all WA halibut seasons closed as of June 28-30, 2026
+  // Halibut NOT listed — primary seasons closed Jun 28-30. ✅ MA 5–10 reopens Aug 16–Sep 30 daily (1-fish limit, barbless hooks required)
   { id: 'r169', speciesId: 'chinook', waterBodyId: 'marine-10', seasonStart: '07-01', seasonEnd: '10-15', dailyLimit: 2, minSize: 22, hatcheryOnly: true, gearRestriction: 'Barbless hooks', notes: 'See WDFW regulations for current season dates and restrictions' },
   { id: 'r170', speciesId: 'coho', waterBodyId: 'marine-10', seasonStart: '08-15', seasonEnd: '11-15', dailyLimit: 2, minSize: 16, hatcheryOnly: false, gearRestriction: null, notes: 'See WDFW regulations for current season dates and restrictions' },
   { id: 'r171', speciesId: 'crab', waterBodyId: 'marine-10', seasonStart: '07-01', seasonEnd: '09-30', dailyLimit: 6, minSize: null, hatcheryOnly: false, gearRestriction: 'Crab pots or ring nets', notes: 'Males only, 6.25 in minimum; confirm area-specific open dates' },
