@@ -1,4 +1,4 @@
-/**
+﻿/**
  * CastWA Emergency Alerts
  *
  * Manually maintained static list of active WDFW emergency rule changes.
@@ -237,25 +237,47 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeTo: '2026-09-30',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-4-neah-bay-recreational-salmon-seasons-2026-06',
   },
-  // ── PACIFIC HALIBUT — ALL WA PRIMARY SEASONS CLOSED; AUG/SEP REOPENINGS CONFIRMED ──
-  // All WA halibut primary seasons closed due to scheduled close dates.
-  // Puget Sound (MA 5–10): closed Jun 30 (~58% of 80,512 lb quota used, ~33,720 lbs remain).
-  // North Coast (MA 3–4): closed Jun 28 (~44% of 131,149 lb quota used, ~73,003 lbs remain).
-  // South Coast (MA 2): closed Jun 30 (~58% of 65,857 lb quota used, ~27,628 lbs remain).
-  // Columbia River: closed ~Jun 28 (~61% of 19,299 lb quota used, ~7,556 lbs remain).
-  // Aug/Sep reopenings NOW OFFICIALLY PUBLISHED on WDFW halibut season pages (verified Jul 25 2026):
-  //   MA 1 (Columbia River) & MA 2 (South Coast/Westport): Aug 8–Sep 30 daily, 1-fish limit.
-  //   MA 3–4 (North Coast) & MA 5–10 (Puget Sound/Strait of JdF): Aug 16–Sep 30 daily, 1-fish limit.
-  //   MA 11 (Tacoma), MA 12 (Hood Canal), MA 13 (S. Puget Sound): CLOSED for the year.
+  // ── PACIFIC HALIBUT — MA 11/12/13 CLOSED FOR THE YEAR ──────────────────
+  // All primary seasons closed Jun 28–30 2026. MA 11/12/13 have no reopening scheduled for 2026.
+  // Reopenings for other areas: see ea-halibut-reopen-* alerts below.
+  // Source: wdfw.wa.gov/fishing/regulations/halibut/puget-sound (verified Aug 5 2026).
   {
     id: 'ea-halibut-quota-closed-2026',
     type: 'CLOSED',
     species: 'Pacific Halibut',
-    waterBody: 'All WA Marine Areas (MA 1–10) & Columbia River',
-    description: '🚨 All WA Pacific Halibut primary seasons CLOSED. Puget Sound (MA 5–10): closed Jun 30. North Coast (MA 3–4): closed Jun 28. South Coast (MA 2): closed Jun 30. Columbia River: closed ~Jun 28. MA 11/12/13 closed for the year. ✅ Reopenings CONFIRMED (now officially scheduled on wdfw.wa.gov): MA 1 (Columbia River) & MA 2 (Westport/Ocean Shores) open Aug 8–Sep 30 daily; MA 3–4 (North Coast/Neah Bay/La Push) and MA 5–10 (Puget Sound/Strait) open Aug 16–Sep 30 daily. Daily limit 1 halibut, no minimum size, catch record card required. Seasons may close early if quota taken.',
+    waterBody: 'Marine Areas 11 (Tacoma), 12 (Hood Canal), 13 (S. Puget Sound)',
+    description: '🚨 Pacific Halibut CLOSED for the year in MA 11 (Tacoma/Commencement Bay), MA 12 (Hood Canal), and MA 13 (South Puget Sound). No reopening scheduled for 2026. Catch record card required. See separate alerts for reopenings in MA 1–10.',
     activeFrom: '2026-06-28',
+    activeTo: null,
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/halibut/puget-sound',
+  },
+  // ── PACIFIC HALIBUT REOPENING — MA 1 (COLUMBIA RIVER) & MA 2 (WESTPORT/OCEAN SHORES) ──
+  // Source: wdfw.wa.gov/fishing/regulations/halibut/columbia-river + /south-coast (verified Aug 5 2026).
+  // Aug 8–Sep 30, seven days per week, 1-fish daily limit, no minimum size.
+  // Seasons may close before Sep 30 if quota taken (~39% of quota remains for both areas).
+  {
+    id: 'ea-halibut-reopen-south-coast-columbia-2026',
+    type: 'OPEN',
+    species: 'Pacific Halibut',
+    waterBody: 'Marine Area 1 (Columbia River) & MA 2 (Westport / Ocean Shores)',
+    description: '✅ Pacific Halibut REOPENS Aug 8 – Sept 30 in MA 1 (Columbia River) and MA 2 (Westport/Ocean Shores). Open 7 days per week. Daily limit 1 halibut, no minimum size. Annual bag limit 6. Catch record card required. ⚠️ Seasons may close before Sept 30 if quota is taken — verify WDFW before fishing.',
+    activeFrom: '2026-08-08',
     activeTo: '2026-09-30',
-    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/halibut',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/halibut/columbia-river',
+  },
+  // ── PACIFIC HALIBUT REOPENING — MA 3–4 (NORTH COAST) & MA 5–10 (PUGET SOUND/STRAIT) ──
+  // Source: wdfw.wa.gov/fishing/regulations/halibut/north-coast + /puget-sound (verified Aug 5 2026).
+  // Aug 16–Sep 30, seven days per week, 1-fish daily limit, no minimum size.
+  // Seasons may close before Sep 30 if quota taken (~44% of N. Coast quota and ~42% of PS quota remain).
+  {
+    id: 'ea-halibut-reopen-north-coast-ps-2026',
+    type: 'OPEN',
+    species: 'Pacific Halibut',
+    waterBody: 'MA 3 (La Push), MA 4 (Neah Bay), MA 5–10 (Puget Sound / Strait of Juan de Fuca)',
+    description: '✅ Pacific Halibut REOPENS Aug 16 – Sept 30 in MA 3 (La Push), MA 4 (Neah Bay), and MA 5–10 (Puget Sound/Strait of Juan de Fuca). Open 7 days per week. Daily limit 1 halibut, no minimum size. Annual bag limit 6. Catch record card required. Barbless hooks required in MA 5–13. ⚠️ Seasons may close before Sept 30 if quota is taken — verify WDFW before fishing.',
+    activeFrom: '2026-08-16',
+    activeTo: '2026-09-30',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/halibut/puget-sound',
   },
 ]
 
