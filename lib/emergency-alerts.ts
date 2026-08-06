@@ -155,6 +155,21 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeTo: '2026-09-30',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/commencement-bay-salmon-fishery-update-2026-07',
   },
+  // ── MARINE AREA 6 (EAST JUAN DE FUCA) CHINOOK LIMIT REDUCED ────────────────
+  // Source: WDFW ER 26-141-136875 (pub. Aug 5 2026). Chinook reduced to avoid early quota closure.
+  // Applies to MA 6 Chinook Selective Fishery area: waters west of true N/S line through
+  // #2 Buoy immediately east of Ediz Hook, except Freshwater Bay.
+  // Effective Aug 7–15, 2026.
+  {
+    id: 'ea-ma6-chinook-limit-reduced-2026',
+    type: 'MODIFIED',
+    species: 'Chinook Salmon',
+    waterBody: 'Marine Area 6 (East Juan de Fuca Strait, Chinook Selective Fishery Area)',
+    description: '⚠️ MA 6 Chinook daily limit REDUCED — max 1 hatchery Chinook, Aug 7–15, 2026. Applies west of the true N/S line through the #2 Buoy east of Ediz Hook. ⚠️ Freshwater Bay remains CLOSED to salmon. Daily limit 2 total, no more than 1 Chinook. Chinook min 22". All other salmon species no minimum size. Release chum, sockeye, wild coho, and wild Chinook.',
+    activeFrom: '2026-08-07',
+    activeTo: '2026-08-15',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-6-east-juan-de-fuca-strait-chinook-daily-limit-reduced-2026-08',
+  },
   // ── MARINE AREA 7 (SAN JUAN ISLANDS) SALMON — ADDITIONAL DAY AUG 6 ───────
   // Source: WDFW ER 26-138-136860 (pub. Jul 31 2026). Catch estimates indicate
   // sufficient summer Chinook quota remains for one more retention day.
@@ -252,32 +267,33 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/halibut/puget-sound',
   },
   // ── PACIFIC HALIBUT REOPENING — MA 1 (COLUMBIA RIVER) & MA 2 (WESTPORT/OCEAN SHORES) ──
-  // Source: wdfw.wa.gov/fishing/regulations/halibut/columbia-river + /south-coast (verified Aug 5 2026).
-  // Aug 8–Sep 30, seven days per week, 1-fish daily limit, no minimum size.
-  // Seasons may close before Sep 30 if quota taken (~39% of quota remains for both areas).
+  // Source: WDFW ER 26-127-136876 (pub. Aug 5 2026). Annual limit 6; daily limit 1, no min size.
+  // MA 1 quota: 19,299 lbs. MA 2 quota: 65,857 lbs. May close before Sep 30 if quota taken.
+  // Anglers may clean/portion in field but must retain carcass until ashore.
   {
     id: 'ea-halibut-reopen-south-coast-columbia-2026',
     type: 'OPEN',
     species: 'Pacific Halibut',
     waterBody: 'Marine Area 1 (Columbia River) & MA 2 (Westport / Ocean Shores)',
-    description: '✅ Pacific Halibut REOPENS Aug 8 – Sept 30 in MA 1 (Columbia River) and MA 2 (Westport/Ocean Shores). Open 7 days per week. Daily limit 1 halibut, no minimum size. Annual bag limit 6. Catch record card required. ⚠️ Seasons may close before Sept 30 if quota is taken — verify WDFW before fishing.',
+    description: '✅ Pacific Halibut REOPENS Aug 8 – Sept 30 in MA 1 (Columbia River) and MA 2 (Westport/Ocean Shores). Open 7 days per week, all-depth. Daily limit 1 halibut, no minimum size. Annual bag limit 6. Catch record card required. Carcass must be retained until ashore. ⚠️ Seasons may close before Sept 30 if quota is taken — verify WDFW before fishing.',
     activeFrom: '2026-08-08',
     activeTo: '2026-09-30',
-    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/halibut/columbia-river',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/summer-halibut-fishery-2026-2026-08',
   },
   // ── PACIFIC HALIBUT REOPENING — MA 3–4 (NORTH COAST) & MA 5–10 (PUGET SOUND/STRAIT) ──
-  // Source: wdfw.wa.gov/fishing/regulations/halibut/north-coast + /puget-sound (verified Aug 5 2026).
-  // Aug 16–Sep 30, seven days per week, 1-fish daily limit, no minimum size.
-  // Seasons may close before Sep 30 if quota taken (~44% of N. Coast quota and ~42% of PS quota remain).
+  // Source: WDFW ER 26-127-136876 (pub. Aug 5 2026). Annual limit 6; daily limit 1, no min size.
+  // MA 3 & 4 combined quota: 131,149 lbs. MA 5–10 combined quota: 80,512 lbs.
+  // MA 4 east of Bonilla-Tatoosh line: sablefish may be retained seaward of 120-ft bottomfish closure on halibut days.
+  // MA 5: sablefish may be retained seaward of 120-ft bottomfish closure on halibut days.
   {
     id: 'ea-halibut-reopen-north-coast-ps-2026',
     type: 'OPEN',
     species: 'Pacific Halibut',
     waterBody: 'MA 3 (La Push), MA 4 (Neah Bay), MA 5–10 (Puget Sound / Strait of Juan de Fuca)',
-    description: '✅ Pacific Halibut REOPENS Aug 16 – Sept 30 in MA 3 (La Push), MA 4 (Neah Bay), and MA 5–10 (Puget Sound/Strait of Juan de Fuca). Open 7 days per week. Daily limit 1 halibut, no minimum size. Annual bag limit 6. Catch record card required. Barbless hooks required in MA 5–13. ⚠️ Seasons may close before Sept 30 if quota is taken — verify WDFW before fishing.',
+    description: '✅ Pacific Halibut REOPENS Aug 16 – Sept 30 in MA 3 (La Push), MA 4 (Neah Bay), and MA 5–10 (Puget Sound/Strait of Juan de Fuca). Open 7 days per week. Daily limit 1 halibut, no minimum size. Annual bag limit 6. Catch record card required. Carcass must be retained until ashore. 🐟 Sablefish bonus: may be retained seaward of 120-ft bottomfish closure in MA 4 (east of Bonilla-Tatoosh line) and MA 5 on open halibut days. ⚠️ Seasons may close before Sept 30 if quota is taken — verify WDFW before fishing.',
     activeFrom: '2026-08-16',
     activeTo: '2026-09-30',
-    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/halibut/puget-sound',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/summer-halibut-fishery-2026-2026-08',
   },
 ]
 
