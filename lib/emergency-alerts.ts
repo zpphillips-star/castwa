@@ -272,6 +272,30 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeTo: '2026-09-30',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-4-neah-bay-recreational-salmon-seasons-2026-06',
   },
+  // ── SNAKE RIVER FALL CHINOOK — 2026 SEASON OPENER ──────────────────────
+  // Source: WDFW ER 26-139-136878 (pub. Aug 6 2026). 2026 Columbia River upriver bright
+  // Chinook forecast includes enough Snake River-origin fish for harvest.
+  // CRSSE (Columbia River Salmon & Steelhead Endorsement) required for anglers 15+.
+  // Two-pole fishing NOT allowed. Barbless hooks required throughout.
+  // Three distinct areas with different open dates:
+  //   Lyons Ferry Bubble (Marker 28 to Hwy 261 bridge, ~1.4 mi): Sep 3–Oct 25, Thu–Sun only.
+  //     Limit 2 adult Chinook (≤1 wild adult); no daily limit on jack Chinook; min 12"; release all non-Chinook.
+  //   Clarkston downstream (power lines ~3 mi below Clarkston to WA/ID line, area 648):
+  //     Aug 18–Oct 15, open daily. Limit 3 adult Chinook (≤1 wild adult); no limit on jacks; min 12".
+  //   WA/ID state line to OR state line (area 650):
+  //     Aug 18–Oct 31, open daily. Limit 3 adult Chinook (≤1 wild adult); no limit on jacks; min 12".
+  // Adult Chinook = ≥24". Jack Chinook = <24". All retained fish must be immediately recorded on CRC.
+  // WDFW may close at any time due to harvest levels, ESA impacts, or in-season adjustments.
+  {
+    id: 'ea-snake-river-fall-chinook-2026',
+    type: 'OPEN',
+    species: 'Chinook Salmon (fall)',
+    waterBody: 'Snake River (multiple sections, SE Washington)',
+    description: '✅ Snake River fall Chinook season opening 2026. Area 648 (power lines ~3 mi below Clarkston to WA/ID state line) & Area 650 (WA/ID to OR state line): Aug 18 – Oct 15/31 open daily. Limit 3 adult Chinook (≤1 wild adult); no daily limit on jack Chinook; min 12". Lyons Ferry Bubble (Marker 28 to Hwy 261 bridge): Sept 3 – Oct 25, Thu–Sun only; limit 2 adult Chinook (≤1 wild adult); no daily limit on jacks; min 12". Barbless hooks required. CRSSE endorsement required. Release all salmon other than Chinook. ⚠️ May close without notice — verify WDFW before fishing.',
+    activeFrom: '2026-08-18',
+    activeTo: '2026-10-31',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/fall-chinook-harvest-open-snake-river-2026-08',
+  },
   // ── PACIFIC HALIBUT — MA 11/12/13 CLOSED FOR THE YEAR ──────────────────
   // All primary seasons closed Jun 28–30 2026. MA 11/12/13 have no reopening scheduled for 2026.
   // Reopenings for other areas: see ea-halibut-reopen-* alerts below.
