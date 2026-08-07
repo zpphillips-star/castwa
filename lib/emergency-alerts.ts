@@ -174,6 +174,7 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
   // Source: WDFW ER 26-138-136860 (pub. Jul 31 2026). Catch estimates indicate
   // sufficient summer Chinook quota remains for one more retention day.
   // Bellingham Bay unaffected (open under regular pamphlet rules).
+  // ARCHIVED 2026-08-07: activeTo 2026-08-06 has passed; filter excludes from active list.
   {
     id: 'ea-ma7-salmon-aug6-2026',
     type: 'OPEN',
@@ -183,6 +184,25 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeFrom: '2026-08-06',
     activeTo: '2026-08-06',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-7-san-juan-islands-opens-additional-day-chinook-retention-2026-07',
+  },
+  // ── SNAKE RIVER FALL CHINOOK OPEN (2026) ─────────────────────────────────
+  // Source: WDFW ER 26-139-136878 (pub. Aug 6 2026). Columbia River upriver bright
+  // Chinook forecast includes sufficient Snake River-origin fish for harvest.
+  // Three zones with different dates/rules:
+  //   Lyons Ferry Bubble (Marker 28 to Hwy 261 bridge): Sept 3–Oct 25, Thu–Sun, limit 2 adults (≤1 wild).
+  //   Power lines downstream of Clarkston to WA/ID state line (CRC area 648): Aug 18–Oct 15, daily, limit 3 adults (≤1 wild).
+  //   WA/ID state line to OR state line (CRC area 650): Aug 18–Oct 31, daily, limit 3 adults (≤1 wild).
+  // All zones: jack Chinook no daily limit. Min size 12". Barbless hooks. CRSSE required for anglers 15+.
+  // May close on short notice if quota met or ESA impacts. Two-pole fishing NOT allowed.
+  {
+    id: 'ea-snake-river-fall-chinook-2026',
+    type: 'OPEN',
+    species: 'Chinook Salmon',
+    waterBody: 'Snake River (Lyons Ferry Bubble; Clarkston area to WA/ID state line; WA/ID to OR state line)',
+    description: '✅ Snake River Fall Chinook opens Aug 18, 2026. Three zones: (1) Power lines ~3 mi below Clarkston to WA/ID state line (CRC 648): Aug 18–Oct 15, open daily, limit 3 adult Chinook (≤1 wild). (2) WA/ID state line to OR state line (CRC 650): Aug 18–Oct 31, open daily, limit 3 adult Chinook (≤1 wild). (3) Lyons Ferry Bubble (Marker 28 to Hwy 261 bridge): Sept 3–Oct 25, Thu–Sun only, limit 2 adult Chinook (≤1 wild). All zones: no daily limit on jack Chinook (under 24"). Min size 12". Barbless hooks required. Columbia River salmon & steelhead endorsement (CRSSE) required for anglers 15+. Two-pole fishing NOT allowed. ⚠️ May close on short notice — verify WDFW before fishing.',
+    activeFrom: '2026-08-18',
+    activeTo: '2026-10-31',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/fall-chinook-harvest-open-snake-river-2026-08',
   },
   // ── BIOTOXIN (PSP) — HOOD CANAL & ADMIRALTY INLET BIVALVES CLOSED ────────
   // Source: DOH news release Jun 12 2026 + WDFW closure announcement.
