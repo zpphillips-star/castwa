@@ -20,6 +20,7 @@ import type { MapSegment, SegmentStatus } from './RiverDetailMapInner'
 import { FISH_TIPS } from './RiverDetailSheet'
 import FishWaterSheet from './FishWaterSheet'
 import { useSwipeBack } from '@/hooks/useSwipeBack'
+import { getAccessSpotsForWater, type FishingAccessSpot } from '@/lib/fishing-access'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const REGS_VERIFIED_DATE = 'July 2026'
@@ -214,6 +215,98 @@ function FlowStatusBadge({ status, cfs, trend }: { status: FlowData['status']; c
       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
         style={{ background: c.bg, color: c.color }}>{c.label}</span>
       {trendIcon && <span className="text-xs font-bold" style={{ color: trendColor }}>{trendIcon}</span>}
+    </div>
+  )
+}
+
+function accessTypeLabel(type: FishingAccessSpot['accessType']) {
+  const labels: Record<FishingAccessSpot['accessType'], string> = {
+    bank: 'Bank',
+    boat_launch: 'Launch',
+    park: 'Park',
+    wdfw_access: 'WDFW',
+    hatchery: 'Hatchery',
+    public_land: 'Public land',
+  }
+  return labels[type] ?? type
+}
+
+function AccessSpotsSection({ spots, planningOnly }: { spots: FishingAccessSpot[]; planningOnly: boolean }) {
+  if (spots.length === 0) return null
+
+  return (
+    <div className="px-4 pt-2 pb-4">
+      <div className="flex items-start justify-between gap-3 mb-2">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>
+            Top Legal Fishing Access
+          </p>
+          <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-faint)' }}>
+            Conservative public-access picks; verify current WDFW rules.
+          </p>
+        </div>
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0"
+          style={{
+            background: planningOnly ? 'rgba(239,68,68,0.12)' : 'rgba(106,176,76,0.12)',
+            color: planningOnly ? 'var(--live)' : 'var(--open)',
+            border: `1px solid ${planningOnly ? 'rgba(239,68,68,0.28)' : 'rgba(106,176,76,0.24)'}`,
+          }}>
+          {planningOnly ? 'Planning only' : 'Access list'}
+        </span>
+      </div>
+
+      {planningOnly && (
+        <div className="rounded-xl px-4 py-3 mb-3"
+          style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.28)' }}>
+          <p className="text-sm font-bold" style={{ color: 'var(--live)' }}>
+            Access points shown for planning only — fishing is not legal here during the current closure.
+          </p>
+        </div>
+      )}
+
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
+        {spots.map((spot, i) => (
+          <div key={spot.id} className="px-4 py-3.5"
+            style={{ borderBottom: i < spots.length - 1 ? '1px solid var(--border)' : 'none' }}>
+            <div className="flex items-start gap-3">
+              <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-black"
+                style={{
+                  background: planningOnly ? 'rgba(239,68,68,0.12)' : 'rgba(242,101,34,0.12)',
+                  color: planningOnly ? 'var(--live)' : 'var(--accent)',
+                }}>
+                {i + 1}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap mb-1">
+                  <p className="text-sm font-black text-[var(--text)] leading-tight">{spot.name}</p>
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded"
+                    style={{ background: 'var(--surface-overlay)', color: 'var(--text-faint)', border: '1px solid var(--border)' }}>
+                    {accessTypeLabel(spot.accessType)}
+                  </span>
+                </div>
+                <p className="text-xs leading-snug" style={{ color: 'var(--text-muted)' }}>{spot.directionsNote}</p>
+                <p className="text-[11px] mt-1" style={{ color: 'var(--text-faint)' }}>{spot.riverFeature}</p>
+                <p className="text-[11px] mt-1.5 leading-snug" style={{ color: planningOnly ? 'var(--live)' : 'var(--warning)' }}>
+                  {spot.legalityNote}
+                </p>
+                <div className="flex items-center justify-between gap-2 mt-2">
+                  <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>{spot.sourceName}</span>
+                  {spot.lat != null && spot.lng != null && (
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${spot.lat},${spot.lng}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] font-bold underline"
+                      style={{ color: 'var(--accent)' }}>
+                      Map ↗
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
@@ -564,6 +657,17 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
       })
   }, [water]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  const accessSpots = useMemo(() => {
+    if (!water) return []
+    return getAccessSpotsForWater(water.id, 5)
+  }, [water])
+
+  const accessPlanningOnly = useMemo(() => {
+    if (!water || speciesRegs.length === 0) return false
+    return speciesRegs.some(({ reg }) => getActiveEmergencyClosure(reg, today)) ||
+      speciesRegs.every(({ effectiveStatus }) => effectiveStatus !== 'open')
+  }, [water, speciesRegs])
+
   // ── Find river entry (gauged?) ──────────────────────────────────────────────
   const riverEntry = useMemo(() => {
     const lower = waterName.toLowerCase()
@@ -745,6 +849,8 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                 </p>
               </div>
             )}
+
+            <AccessSpotsSection spots={accessSpots} planningOnly={accessPlanningOnly} />
 
             {/* ── What's Open Today ── */}
             {speciesRegs.length > 0 && (() => {
