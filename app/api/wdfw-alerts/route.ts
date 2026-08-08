@@ -8,6 +8,8 @@ export interface WDFWAlert {
   description: string
   pubDate: string
   isFishingRelated: boolean
+  activeFrom?: string
+  activeTo?: string | null
 }
 
 const FISHING_KEYWORDS = [
@@ -16,6 +18,35 @@ const FISHING_KEYWORDS = [
   'chinook', 'coho', 'sockeye', 'chum', 'cutthroat', 'bluegill', 'crappie',
   'muskie', 'closure', 'emergency rule', 'daily limit', 'hatchery'
 ]
+
+// WDFW RSS may omit older-but-still-active emergency rules. Keep verified current
+// closures pinned until their official end date so daily monitors do not regress
+// conservative app status to open/fishable.
+const PINNED_CURRENT_ALERTS: WDFWAlert[] = [
+  {
+    title: 'Skykomish River fishing will not open until Nov. 1',
+    link: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/skykomish-river-fishing-will-not-open-until-nov-1-2026-06',
+    description: 'WDFW emergency rule published Jun. 2, 2026: Skykomish River closed to all fishing immediately through Oct. 31, 2026 from the mouth to the confluence of North and South forks. Species affected: all species. Reason: protect returning wild Chinook salmon after a very low pre-season forecast. Overrides pamphlet salmon, steelhead, and game fish seasons including Wallace River Hatchery Chinook and Reiter Ponds steelhead.',
+    pubDate: 'Tue, 02 Jun 2026 00:00:00 -0700',
+    isFishingRelated: true,
+    activeFrom: '2026-06-02',
+    activeTo: '2026-10-31',
+  },
+]
+
+function isPinnedAlertActive(alert: WDFWAlert, now = new Date()): boolean {
+  if (!alert.activeFrom && !alert.activeTo) return true
+  const dateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const from = alert.activeFrom ? new Date(`${alert.activeFrom}T00:00:00`) : null
+  const to = alert.activeTo ? new Date(`${alert.activeTo}T23:59:59`) : null
+  return (!from || dateOnly >= from) && (!to || dateOnly <= to)
+}
+
+function mergePinnedAlerts(alerts: WDFWAlert[]): WDFWAlert[] {
+  const seen = new Set(alerts.map(a => a.link))
+  const pinned = PINNED_CURRENT_ALERTS.filter(a => isPinnedAlertActive(a) && !seen.has(a.link))
+  return [...pinned, ...alerts]
+}
 
 function isFishingRelated(text: string): boolean {
   const lower = text.toLowerCase()
@@ -68,7 +99,7 @@ export async function GET() {
 
     const xml = await res.text()
     const allAlerts = parseXml(xml)
-    const fishingAlerts = allAlerts.filter(a => a.isFishingRelated)
+    const fishingAlerts = mergePinnedAlerts(allAlerts.filter(a => a.isFishingRelated))
 
     cache = { alerts: fishingAlerts, fetchedAt: now }
 

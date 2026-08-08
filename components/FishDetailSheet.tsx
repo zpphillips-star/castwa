@@ -2,7 +2,7 @@
 import { useState, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import { useStarredFish } from '@/hooks/useStarred'
-import { Species, Regulation, WaterBody, REGULATIONS, WATER_BODIES, SKAGIT_SECTIONS, GEAR_ICON_INFO, GearIconCode, isOpenOn, SKAGIT_SPECIES_SECTIONS, getFishSeasonStatus } from '@/lib/fishing-data'
+import { Species, Regulation, WaterBody, REGULATIONS, WATER_BODIES, SKAGIT_SECTIONS, GEAR_ICON_INFO, GearIconCode, getActiveEmergencyClosure, isOpenOn, SKAGIT_SPECIES_SECTIONS, getFishSeasonStatus } from '@/lib/fishing-data'
 import { GEAR, GearItem } from '@/lib/gear-data'
 import { FISH_TIPS } from './RiverDetailSheet'
 import { CATCH_GUIDES } from '@/lib/catch-guides'
@@ -219,30 +219,36 @@ function getTodaySkagitStatus(speciesId: string): { sectionId: string; sectionNa
 
 function RegCard({ reg, water }: { reg: Regulation; water: WaterBody }) {
   const isOpen = isOpenOn(reg, new Date())
+  const isEmergencyClosed = getActiveEmergencyClosure(reg, new Date())
   return (
     <div className="rounded-md p-3 mb-2"
-      style={{ background: 'var(--bg)', borderLeft: `3px solid ${isOpen ? 'var(--accent-green)' : 'var(--border-inactive)'}` }}>
+      style={{ background: 'var(--bg)', borderLeft: `3px solid ${isEmergencyClosed ? 'var(--live)' : isOpen ? 'var(--accent-green)' : 'var(--border-inactive)'}` }}>
       <div className="flex items-start justify-between mb-1">
         <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>{water.name}</span>
         <span className="text-[10px] font-bold px-2 py-0.5 rounded ml-2"
-          style={{ background: isOpen ? 'rgba(106,176,76,0.15)' : 'rgba(239,68,68,0.15)',
-                   color: isOpen ? 'var(--open)' : 'var(--live)' }}>
-          {isOpen ? 'OPEN' : 'CLOSED'}
+          style={{ background: isEmergencyClosed ? 'rgba(239,68,68,0.15)' : isOpen ? 'rgba(106,176,76,0.15)' : 'rgba(239,68,68,0.15)',
+                   color: isEmergencyClosed ? 'var(--live)' : isOpen ? 'var(--open)' : 'var(--live)' }}>
+          {isEmergencyClosed ? 'EMERGENCY CLOSED' : isOpen ? 'OPEN' : 'CLOSED'}
         </span>
       </div>
       <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Season: {reg.seasonStart} – {reg.seasonEnd}</p>
-      {reg.dailyLimit && (
+      {isEmergencyClosed && (
+        <p className="text-xs mt-1 font-bold" style={{ color: 'var(--live)' }}>
+          Not fishable: {reg.emergencyReason ?? reg.notes}
+        </p>
+      )}
+      {!isEmergencyClosed && reg.dailyLimit && (
         <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
           Daily limit: <span style={{ color: 'var(--text)' }}>{reg.dailyLimit}</span>
         </p>
       )}
-      {reg.minSize && (
+      {!isEmergencyClosed && reg.minSize && (
         <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
           Min size: <span style={{ color: 'var(--text)' }}>{reg.minSize}&quot;</span>
         </p>
       )}
-      {reg.hatcheryOnly && <p className="text-xs mt-0.5 text-amber-400">Hatchery fish only</p>}
-      {reg.gearRestriction && (
+      {!isEmergencyClosed && reg.hatcheryOnly && <p className="text-xs mt-0.5 text-amber-400">Hatchery fish only</p>}
+      {!isEmergencyClosed && reg.gearRestriction && (
         <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
           Gear: <span style={{ color: 'var(--text)' }}>{reg.gearRestriction}</span>
         </p>

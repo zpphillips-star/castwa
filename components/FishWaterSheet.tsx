@@ -24,6 +24,7 @@ import {
   REGULATIONS,
   SKAGIT_SECTIONS,
   SKAGIT_SPECIES_ALIASES,
+  getActiveEmergencyClosure,
   isOpenOn,
   getFishSeasonStatus,
 } from '@/lib/fishing-data'
@@ -242,6 +243,7 @@ export default function FishWaterSheet({
   // Use the canonical getFishSeasonStatus as the single source of truth for the status pill.
   // The emergencyRules/noteEmergency checks below are kept for the emergency detail banners.
   const overallStatus = getFishSeasonStatus(fish.id, water.id, today)
+  const activeEmergencyClosure = regs.find(r => getActiveEmergencyClosure(r, today)) ?? null
 
   // Emergency rules (Skagit only, plus notes-based emergency) — for displaying detail banners
   const emergencyRules = useMemo(() => {
@@ -284,11 +286,11 @@ export default function FishWaterSheet({
     if (water.type === 'river' || water.type === 'stream') {
       const coords = getRiverCoords(water.id)
       if (coords.length > 0) {
-        return [{ idx: 0, coords, status: anyOpen ? 'open' : 'closed', label: water.name }]
+        return [{ idx: 0, coords, status: activeEmergencyClosure ? 'closed' : anyOpen ? 'open' : 'closed', label: water.name }]
       }
     }
     return []
-  }, [isSkagit, fish.id, water.id, water.type, anyOpen])
+  }, [isSkagit, fish.id, water.id, water.type, anyOpen, activeEmergencyClosure])
 
   const isLakeType = !isSkagit && segments.length === 0
 
@@ -325,8 +327,8 @@ export default function FishWaterSheet({
   const guide = CATCH_GUIDES.find(g => g.speciesId === fish.id) ?? null
 
   // Overall status computed above via getFishSeasonStatus
-  const statusColor = overallStatus === 'emergency' ? 'var(--accent)' : overallStatus === 'open' ? 'var(--open)' : 'var(--text-faint)'
-  const statusLabel = overallStatus === 'emergency' ? 'EMERGENCY' : overallStatus === 'open' ? 'OPEN' : 'CLOSED'
+  const statusColor = activeEmergencyClosure ? 'var(--live)' : overallStatus === 'emergency' ? 'var(--accent)' : overallStatus === 'open' ? 'var(--open)' : 'var(--text-faint)'
+  const statusLabel = activeEmergencyClosure ? 'CLOSED — EMERGENCY' : overallStatus === 'emergency' ? 'EMERGENCY' : overallStatus === 'open' ? 'OPEN' : 'CLOSED'
   const firstReg = displayRegs[0] ?? regs[0]
 
   // ── Swipe: header sibling navigation ────────────────────────────────────
@@ -470,7 +472,9 @@ export default function FishWaterSheet({
               <span style={{
                 fontSize: 11, fontWeight: 800, letterSpacing: '0.1em',
                 color: '#fff',
-                background: overallStatus === 'emergency'
+                background: activeEmergencyClosure
+                  ? 'rgba(239,68,68,0.94)'
+                  : overallStatus === 'emergency'
                   ? 'rgba(242,101,34,0.92)'
                   : overallStatus === 'open'
                   ? 'rgba(106,176,76,0.92)'
@@ -756,6 +760,43 @@ export default function FishWaterSheet({
               </div>
             )}
 
+            {activeEmergencyClosure && (
+              <div style={{
+                background: 'rgba(239,68,68,0.10)',
+                border: '1px solid rgba(239,68,68,0.35)',
+                borderLeft: '4px solid var(--live)',
+                borderRadius: 16,
+                padding: '14px 14px',
+                marginBottom: 12,
+              }}>
+                <p style={{
+                  fontSize: 11,
+                  textTransform: 'uppercase',
+                  fontWeight: 900,
+                  letterSpacing: '0.08em',
+                  color: 'var(--live)',
+                  marginBottom: 6,
+                }}>
+                  Not fishable — emergency closure
+                </p>
+                <p style={{ fontSize: 14, fontWeight: 800, color: 'var(--text)', marginBottom: 6 }}>
+                  Skykomish River closed to all fishing through Oct. 31, 2026
+                </p>
+                <p style={{ fontSize: 12, lineHeight: 1.5, color: 'var(--text-muted)' }}>
+                  {activeEmergencyClosure.emergencyLocation ?? 'Affected water: Skykomish River.'}
+                  {' '}Reason: {activeEmergencyClosure.emergencyReason ?? activeEmergencyClosure.notes}
+                </p>
+                <a
+                  href={activeEmergencyClosure.emergencyRuleUrl ?? 'https://wdfw.wa.gov/fishing/regulations/emergency-rules'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ fontSize: 12, color: 'var(--live)', textDecoration: 'underline', display: 'inline-block', marginTop: 8, fontWeight: 700 }}
+                >
+                  View official WDFW emergency rule →
+                </a>
+              </div>
+            )}
+
             {/* ── Non-Skagit: regulation season tiles ────────────────────────── */}
             {!isSkagit && displayRegs.length > 0 && (
               <div
@@ -768,17 +809,18 @@ export default function FishWaterSheet({
               >
                 {displayRegs.map((reg) => {
                   const isOpen = isOpenOn(reg, today)
+                  const isEmergencyClosed = getActiveEmergencyClosure(reg, today)
                   const hasNoteEmerg = !!(reg.notes && /emergency/i.test(reg.notes))
-                  const regStatus = hasNoteEmerg ? 'emergency' : isOpen ? 'open' : 'closed'
-                  const regSColor = regStatus === 'emergency' ? 'var(--accent)' : regStatus === 'open' ? 'var(--open)' : 'var(--text-faint)'
+                  const regStatus = isEmergencyClosed ? 'closed' : hasNoteEmerg ? 'emergency' : isOpen ? 'open' : 'closed'
+                  const regSColor = isEmergencyClosed ? 'var(--live)' : regStatus === 'emergency' ? 'var(--accent)' : regStatus === 'open' ? 'var(--open)' : 'var(--text-faint)'
 
                   return (
                     <div
                       key={reg.id}
                       style={{
-                        background: regStatus === 'emergency' ? 'rgba(242,101,34,0.06)' : 'var(--surface-overlay)',
-                        border: regStatus === 'emergency' ? '1px solid rgba(242,101,34,0.18)' : '1px solid var(--border)',
-                        borderLeft: regStatus === 'emergency' ? '3px solid #f26522' : '1px solid var(--border)',
+                        background: isEmergencyClosed ? 'rgba(239,68,68,0.08)' : regStatus === 'emergency' ? 'rgba(242,101,34,0.06)' : 'var(--surface-overlay)',
+                        border: isEmergencyClosed ? '1px solid rgba(239,68,68,0.25)' : regStatus === 'emergency' ? '1px solid rgba(242,101,34,0.18)' : '1px solid var(--border)',
+                        borderLeft: isEmergencyClosed ? '3px solid var(--live)' : regStatus === 'emergency' ? '3px solid #f26522' : '1px solid var(--border)',
                         borderRadius: 16, padding: '14px 14px',
                         flex: displayRegs.length === 2 ? '1 1 0' : undefined,
                         minWidth: 0,
@@ -789,12 +831,12 @@ export default function FishWaterSheet({
                         <p style={{
                           fontSize: 10, textTransform: 'uppercase', fontWeight: 800,
                           letterSpacing: '0.08em',
-                          color: regStatus === 'emergency' ? 'var(--accent)' : 'var(--text-faint)',
+                          color: isEmergencyClosed ? 'var(--live)' : regStatus === 'emergency' ? 'var(--accent)' : 'var(--text-faint)',
                         }}>
-                          {regStatus === 'emergency' ? 'Emergency Rule in Effect' : getSeasonLabel(reg.seasonStart, fish.name)}
+                          {isEmergencyClosed ? 'Emergency Closure — Not Fishable' : regStatus === 'emergency' ? 'Emergency Rule in Effect' : getSeasonLabel(reg.seasonStart, fish.name)}
                         </p>
                         <span style={{ fontSize: 11, fontWeight: 700, color: regSColor }}>
-                          {regStatus === 'open' ? '● OPEN' : regStatus === 'emergency' ? '⚑ ACTIVE' : '○ CLOSED'}
+                          {isEmergencyClosed ? '🚫 CLOSED' : regStatus === 'open' ? '● OPEN' : regStatus === 'emergency' ? '⚑ ACTIVE' : '○ CLOSED'}
                         </span>
                       </div>
 
@@ -806,7 +848,7 @@ export default function FishWaterSheet({
                       <div style={{ height: 1, background: 'var(--border)', marginBottom: 10 }} />
 
                       {/* 2-col grid: daily limit + min size */}
-                      {(reg.dailyLimit != null || reg.minSize != null) && (
+                      {!isEmergencyClosed && (reg.dailyLimit != null || reg.minSize != null) && (
                         <div style={{
                           display: 'grid',
                           gridTemplateColumns: reg.dailyLimit != null && reg.minSize != null ? '1fr 1fr' : '1fr',
@@ -843,7 +885,7 @@ export default function FishWaterSheet({
                       )}
 
                       {/* Hatchery Only badge */}
-                      {reg.hatcheryOnly && (
+                      {!isEmergencyClosed && reg.hatcheryOnly && (
                         <div style={{
                           display: 'flex', alignItems: 'center', gap: 8,
                           padding: '8px 0',
@@ -864,7 +906,7 @@ export default function FishWaterSheet({
                       )}
 
                       {/* Gear restriction */}
-                      {reg.gearRestriction && (
+                      {!isEmergencyClosed && reg.gearRestriction && (
                         <div style={{
                           padding: '8px 0',
                           borderTop: '1px solid var(--border)',
@@ -885,6 +927,11 @@ export default function FishWaterSheet({
                       {reg.notes && (() => {
                         const eKey = reg.id
                         const isEOpen = expandedEmergency.has(eKey)
+                        if (isEmergencyClosed) return (
+                          <p style={{ fontSize: 12, lineHeight: 1.5, marginTop: 8, color: 'var(--live)', fontWeight: 700 }}>
+                            {reg.notes}
+                          </p>
+                        )
                         if (hasNoteEmerg) return (
                           <div style={{ marginTop: 8 }}>
                             <button

@@ -34,6 +34,9 @@ export type Regulation = {
   // regardless of seasonStart/seasonEnd. Format: 'YYYY-MM-DD'
   emergencyClosedFrom?: string | null
   emergencyClosedTo?: string | null
+  emergencyRuleUrl?: string | null
+  emergencyReason?: string | null
+  emergencyLocation?: string | null
 }
 
 export const SPECIES: Species[] = [
@@ -324,9 +327,57 @@ export const REGULATIONS: Regulation[] = [
 
   // ── SKYKOMISH RIVER ───────────────────────────────────────────────────────────
   // Note: Pink Salmon NOT listed — 2026 is an even year; no WA pink salmon fishery exists
-  { id: 'r97', speciesId: 'chinook', waterBodyId: 'skykomish', seasonStart: '07-01', seasonEnd: '10-31', dailyLimit: 2, minSize: 24, hatcheryOnly: true, gearRestriction: 'Barbless hooks only', emergencyClosedFrom: '2026-06-02', emergencyClosedTo: '2026-10-31', notes: '🚨 EMERGENCY CLOSURE: Skykomish River closed to ALL species through Oct 31, 2026 — protecting critically low wild Chinook (WDFW ER pub. Jun 2 2026). Overrides all pamphlet seasons. Verify WDFW before fishing.' },
-  { id: 'r98', speciesId: 'coho', waterBodyId: 'skykomish', seasonStart: '09-01', seasonEnd: '11-30', dailyLimit: 2, minSize: 16, hatcheryOnly: true, gearRestriction: null, emergencyClosedFrom: '2026-06-02', emergencyClosedTo: '2026-10-31', notes: '🚨 EMERGENCY CLOSURE: Skykomish River closed to ALL species through Oct 31, 2026 — protecting critically low wild Chinook (WDFW ER pub. Jun 2 2026). Verify WDFW before fishing.' },
-  { id: 'r99', speciesId: 'steelhead', waterBodyId: 'skykomish', seasonStart: '01-01', seasonEnd: '03-31', dailyLimit: 2, minSize: 20, hatcheryOnly: true, gearRestriction: null, notes: 'See WDFW regulations for current season dates and restrictions. ⚠️ Note: Skykomish had emergency closure Jun–Oct 2026 for wild Chinook protection — verify current status with WDFW before fishing.' },
+  {
+    id: 'r97',
+    speciesId: 'chinook',
+    waterBodyId: 'skykomish',
+    seasonStart: '07-01',
+    seasonEnd: '10-31',
+    dailyLimit: 0,
+    minSize: null,
+    hatcheryOnly: false,
+    gearRestriction: null,
+    emergencyClosedFrom: '2026-06-02',
+    emergencyClosedTo: '2026-10-31',
+    emergencyRuleUrl: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/skykomish-river-fishing-will-not-open-until-nov-1-2026-06',
+    emergencyLocation: 'Skykomish River, mouth to the confluence of North and South forks',
+    emergencyReason: 'Closed to all fishing until Nov. 1 to protect returning wild Chinook salmon after a very low pre-season forecast.',
+    notes: '🚨 WDFW EMERGENCY CLOSURE: Skykomish River is CLOSED to ALL FISHING through Oct. 31, 2026 from the mouth to the North/South Fork confluence. Reason: very low wild Chinook forecast; closure protects returning wild Chinook during migration/spawning and overrides pamphlet seasons including Wallace River Hatchery Chinook and Reiter Ponds steelhead.',
+  },
+  {
+    id: 'r98',
+    speciesId: 'coho',
+    waterBodyId: 'skykomish',
+    seasonStart: '09-01',
+    seasonEnd: '11-30',
+    dailyLimit: 0,
+    minSize: null,
+    hatcheryOnly: false,
+    gearRestriction: null,
+    emergencyClosedFrom: '2026-06-02',
+    emergencyClosedTo: '2026-10-31',
+    emergencyRuleUrl: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/skykomish-river-fishing-will-not-open-until-nov-1-2026-06',
+    emergencyLocation: 'Skykomish River, mouth to the confluence of North and South forks',
+    emergencyReason: 'Closed to all fishing until Nov. 1 to protect returning wild Chinook salmon after a very low pre-season forecast.',
+    notes: '🚨 WDFW EMERGENCY CLOSURE: Skykomish River is CLOSED to ALL FISHING through Oct. 31, 2026 from the mouth to the North/South Fork confluence. Reason: very low wild Chinook forecast; closure protects returning wild Chinook during migration/spawning and overrides pamphlet seasons.',
+  },
+  {
+    id: 'r99',
+    speciesId: 'steelhead',
+    waterBodyId: 'skykomish',
+    seasonStart: '01-01',
+    seasonEnd: '03-31',
+    dailyLimit: 0,
+    minSize: null,
+    hatcheryOnly: false,
+    gearRestriction: null,
+    emergencyClosedFrom: '2026-06-02',
+    emergencyClosedTo: '2026-10-31',
+    emergencyRuleUrl: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/skykomish-river-fishing-will-not-open-until-nov-1-2026-06',
+    emergencyLocation: 'Skykomish River, mouth to the confluence of North and South forks',
+    emergencyReason: 'Closed to all fishing until Nov. 1 to protect returning wild Chinook salmon after a very low pre-season forecast.',
+    notes: '🚨 WDFW EMERGENCY CLOSURE: Skykomish River is CLOSED to ALL FISHING through Oct. 31, 2026 from the mouth to the North/South Fork confluence. Reason: very low wild Chinook forecast; closure protects returning wild Chinook during migration/spawning and overrides pamphlet seasons including Reiter Ponds steelhead.',
+  },
 
   // ── WHITE RIVER ───────────────────────────────────────────────────────────────
   { id: 'r100', speciesId: 'chinook', waterBodyId: 'white', seasonStart: '07-01', seasonEnd: '10-31', dailyLimit: 2, minSize: 24, hatcheryOnly: true, gearRestriction: 'Barbless hooks only', notes: 'See WDFW regulations for current season dates and restrictions' },
@@ -1099,6 +1150,16 @@ export function getFishSeasonStatus(
 
   const anyOpen = regs.some(r => isOpenOn(r, date))
   return anyOpen ? 'open' : 'closed'
+}
+
+export function getActiveEmergencyClosure(reg: Regulation, date: Date): boolean {
+  if (!reg.emergencyClosedFrom) return false
+  const from = new Date(reg.emergencyClosedFrom)
+  const to   = reg.emergencyClosedTo ? new Date(reg.emergencyClosedTo) : null
+  const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  const fromOnly = new Date(from.getFullYear(), from.getMonth(), from.getDate())
+  const toOnly = to ? new Date(to.getFullYear(), to.getMonth(), to.getDate()) : null
+  return dateOnly >= fromOnly && (toOnly === null || dateOnly <= toOnly)
 }
 
 // ─── REGULATION HELPERS ───────────────────────────────────────────────────────

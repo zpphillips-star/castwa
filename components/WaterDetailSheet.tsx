@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic'
 import {
   WATER_BODIES, REGULATIONS, SPECIES, SKAGIT_SECTIONS,
   SKAGIT_SPECIES_ALIASES,
+  getActiveEmergencyClosure,
   isOpenOn,
   getFishSeasonStatus,
 } from '@/lib/fishing-data'
@@ -412,42 +413,48 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
             <div className="space-y-2">
               {fishRegs.map(reg => {
                 const isOpen = isOpenOn(reg, today)
+                const isEmergencyClosed = getActiveEmergencyClosure(reg, today)
                 return (
                   <div key={reg.id}
                     className="rounded-xl px-4 py-3"
                     style={{
-                      background: isOpen ? 'rgba(106,176,76,0.08)' : 'var(--surface-overlay)',
-                      border: `1px solid ${isOpen ? 'rgba(106,176,76,0.25)' : 'var(--border)'}`,
-                      borderLeft: `3px solid ${isOpen ? 'var(--open)' : 'var(--border-inactive)'}`,
+                      background: isEmergencyClosed ? 'rgba(239,68,68,0.08)' : isOpen ? 'rgba(106,176,76,0.08)' : 'var(--surface-overlay)',
+                      border: `1px solid ${isEmergencyClosed ? 'rgba(239,68,68,0.28)' : isOpen ? 'rgba(106,176,76,0.25)' : 'var(--border)'}`,
+                      borderLeft: `3px solid ${isEmergencyClosed ? 'var(--live)' : isOpen ? 'var(--open)' : 'var(--border-inactive)'}`,
                     }}>
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-black px-2 py-0.5 rounded"
                         style={{
-                          background: isOpen ? 'rgba(106,176,76,0.18)' : 'rgba(107,114,128,0.18)',
-                          color: isOpen ? 'var(--open)' : 'var(--text-faint)',
+                          background: isEmergencyClosed ? 'rgba(239,68,68,0.18)' : isOpen ? 'rgba(106,176,76,0.18)' : 'rgba(107,114,128,0.18)',
+                          color: isEmergencyClosed ? 'var(--live)' : isOpen ? 'var(--open)' : 'var(--text-faint)',
                         }}>
-                        {isOpen ? '● OPEN' : '○ CLOSED'}
+                        {isEmergencyClosed ? '🚫 EMERGENCY CLOSED' : isOpen ? '● OPEN' : '○ CLOSED'}
                       </span>
                       <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>
                         {fmtDate(reg.seasonStart)} – {fmtDate(reg.seasonEnd)}
                       </span>
                     </div>
-                    {reg.dailyLimit != null && (
+                    {isEmergencyClosed && (
+                      <p className="text-sm font-semibold" style={{ color: 'var(--live)' }}>
+                        Not fishable: emergency rule closure is active.
+                      </p>
+                    )}
+                    {!isEmergencyClosed && reg.dailyLimit != null && (
                       <p className="text-sm font-semibold text-[var(--text)]">
                         Daily limit: <span style={{ color: 'var(--open)' }}>{reg.dailyLimit}</span>
                       </p>
                     )}
-                    {reg.minSize != null && (
+                    {!isEmergencyClosed && reg.minSize != null && (
                       <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
                         Min size: <span className="text-[var(--text)]">{reg.minSize}&quot;</span>
                       </p>
                     )}
-                    {reg.hatcheryOnly && (
+                    {!isEmergencyClosed && reg.hatcheryOnly && (
                       <p className="text-xs mt-1 font-semibold" style={{ color: 'var(--amber)' }}>
                         Hatchery fish only (clipped adipose fin)
                       </p>
                     )}
-                    {reg.gearRestriction && (
+                    {!isEmergencyClosed && reg.gearRestriction && (
                       <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
                         Gear: <span className="text-[var(--text)]">{reg.gearRestriction}</span>
                       </p>
