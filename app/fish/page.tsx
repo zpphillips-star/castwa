@@ -554,7 +554,7 @@ export default function FishPage() {
           </div>
 
           {/* Fish grid */}
-          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 lg:gap-4">
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 lg:gap-4 items-stretch auto-rows-fr">
             {sortedFiltered.map(fish => {
               const status = getSeasonStatus(fish.id)
               const inSeason = status !== 'closed'
@@ -563,7 +563,7 @@ export default function FishPage() {
                 <button
                   key={fish.id}
                   onClick={() => setSelectedFish(fish)}
-                  className="overflow-hidden text-left transition-all active:scale-[0.99] rounded-2xl relative cursor-pointer group"
+                  className="overflow-hidden text-left transition-all active:scale-[0.99] rounded-2xl relative cursor-pointer group h-full flex flex-col"
                   style={{
                     background: 'var(--surface)',
                     border: `1px solid ${selectedFish?.id === fish.id ? 'var(--open)' : 'var(--border)'}`,
@@ -586,7 +586,7 @@ export default function FishPage() {
                     )}
                   </button>
                   {/* Photo area */}
-                  <div className="flex items-center justify-center" style={{ minHeight: '120px', background: 'var(--photo-bg)' }}>
+                  <div className="flex items-center justify-center aspect-square flex-shrink-0" style={{ background: 'var(--photo-bg)' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={fish.photo}
@@ -600,7 +600,7 @@ export default function FishPage() {
                     />
                   </div>
                   {/* Name bar */}
-                  <div className="px-3 py-2.5 text-center">
+                  <div className="px-3 py-2.5 text-center flex-1 flex flex-col justify-start">
                     <p className="text-sm font-semibold leading-tight text-[var(--text)]">{fish.name}</p>
                     <p className="text-[10px] font-semibold mt-1" style={{
                       color: status === 'open' ? 'var(--open)' : status === 'restricted' ? 'var(--warning)' : 'var(--text-faint)'

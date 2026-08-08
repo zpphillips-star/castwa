@@ -668,6 +668,14 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
       speciesRegs.every(({ effectiveStatus }) => effectiveStatus !== 'open')
   }, [water, speciesRegs])
 
+  const waterStatusSummary = useMemo(() => {
+    const emergency = speciesRegs.filter(({ effectiveStatus }) => effectiveStatus === 'emergency').length
+    const open = speciesRegs.filter(({ effectiveStatus }) => effectiveStatus === 'open').length
+    const closed = speciesRegs.filter(({ effectiveStatus }) => effectiveStatus === 'closed').length
+    const tone = emergency > 0 ? 'emergency' : open > 0 ? 'open' : 'closed'
+    return { emergency, open, closed, tone }
+  }, [speciesRegs])
+
   // ── Find river entry (gauged?) ──────────────────────────────────────────────
   const riverEntry = useMemo(() => {
     const lower = waterName.toLowerCase()
@@ -780,6 +788,41 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
 
           {/* ── Scrollable body ── */}
           <div className="flex-1 overflow-y-auto no-scrollbar">
+
+            {/* ── Canonical Water Status ── */}
+            {water && (
+              <div className="px-4 pt-4">
+                <div className="rounded-2xl px-4 py-3"
+                  style={{
+                    background: waterStatusSummary.tone === 'emergency' ? 'rgba(249,115,22,0.10)' : waterStatusSummary.tone === 'open' ? 'rgba(106,176,76,0.08)' : 'var(--surface-overlay)',
+                    border: `1px solid ${waterStatusSummary.tone === 'emergency' ? 'rgba(249,115,22,0.28)' : waterStatusSummary.tone === 'open' ? 'rgba(106,176,76,0.22)' : 'var(--border)'}`,
+                  }}>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>Water Status</p>
+                      <p className="text-sm font-black mt-0.5" style={{ color: 'var(--text)' }}>
+                        {waterStatusSummary.emergency > 0
+                          ? `${waterStatusSummary.emergency} emergency rule${waterStatusSummary.emergency === 1 ? '' : 's'} active`
+                          : waterStatusSummary.open > 0
+                            ? `${waterStatusSummary.open} species open today`
+                            : 'No open species shown today'}
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-black px-2 py-1 rounded-full flex-shrink-0"
+                      style={{
+                        background: waterStatusSummary.tone === 'emergency' ? 'rgba(249,115,22,0.18)' : waterStatusSummary.tone === 'open' ? 'rgba(106,176,76,0.16)' : 'rgba(239,68,68,0.12)',
+                        color: waterStatusSummary.tone === 'emergency' ? 'var(--warning)' : waterStatusSummary.tone === 'open' ? 'var(--open)' : 'var(--live)',
+                      }}>
+                      {waterStatusSummary.tone === 'emergency' ? 'CHECK RULE' : waterStatusSummary.tone === 'open' ? 'OPEN' : 'CLOSED'}
+                    </span>
+                  </div>
+                  <p className="text-xs mt-2 leading-snug" style={{ color: 'var(--text-muted)' }}>
+                    Same canonical water/regulation set used by Today, Waters, map, and fish-water detail. Verify on WDFW before fishing.
+                    {waterStatusSummary.closed > 0 ? ` ${waterStatusSummary.closed} closed species also listed below.` : ''}
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* ── River Conditions (gauged rivers only) ── */}
             {riverEntry && (
