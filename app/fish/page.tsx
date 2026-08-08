@@ -117,9 +117,9 @@ function HeroCard({
       style={{
         width: 168, height: 224, flexShrink: 0,
         borderRadius: 20, overflow: 'hidden', position: 'relative',
-        border: `1.5px solid ${accentColor}55`,
-        boxShadow: `0 4px 24px ${accentColor}22`,
-        background: 'var(--photo-bg)',
+        border: '1px solid transparent',
+        boxShadow: 'none',
+        background: 'transparent',
       }}
     >
       {/* Accent top bar */}
@@ -131,7 +131,7 @@ function HeroCard({
         <img
           src={fish.photo}
           alt={fish.name}
-          style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '20px 12px 56px' }}
+          style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '10px 4px 56px' }}
         />
       </div>
 
@@ -192,19 +192,19 @@ function LaneCard({
       style={{
         width: 108, height: 148, flexShrink: 0,
         borderRadius: 14, overflow: 'hidden', position: 'relative',
-        border: '1px solid var(--border)',
-        background: 'var(--surface)',
+        border: '1px solid transparent',
+        background: 'transparent',
         display: 'flex', flexDirection: 'column',
       }}
     >
       {/* Photo area — top 2/3 */}
-      <div style={{ height: 96, background: 'var(--photo-bg)', flexShrink: 0, position: 'relative' }}>
+      <div style={{ height: 96, background: 'transparent', flexShrink: 0, position: 'relative' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={fish.photo}
           alt={fish.name}
           style={{
-            width: '100%', height: '100%', objectFit: 'contain', padding: 6,
+            width: '100%', height: '100%', objectFit: 'contain', padding: 2,
             filter: isClosed ? 'grayscale(1)' : 'none',
             opacity: isClosed ? 0.5 : 1,
           }}
