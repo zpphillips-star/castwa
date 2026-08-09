@@ -432,12 +432,14 @@ interface DailyUpdatesBannerProps {
   updates: DailyUpdate[]
   date: Date
   newCount?: number
+  variant?: 'row' | 'card'
 }
 
 export default function DailyUpdatesBanner({
   updates,
   date,
   newCount = 0,
+  variant = 'row',
 }: DailyUpdatesBannerProps) {
   const [open,     setOpen]     = useState(false)
   const [selected, setSelected] = useState<DailyUpdate | null>(null)
@@ -451,25 +453,45 @@ export default function DailyUpdatesBanner({
     day:     'numeric',
   })
 
+  const isCard = variant === 'card'
+
   if (updates.length === 0) {
     return (
       <button
         onClick={() => {}}
         disabled
-        className="w-full text-left rounded-xl flex items-center gap-4"
+        className={isCard
+          ? "w-full text-left rounded-2xl flex flex-col justify-between"
+          : "w-full text-left rounded-xl flex items-center gap-4"}
         style={{
           background: 'var(--surface-overlay)',
           border: '1px solid var(--border)',
-          minHeight: 56,
-          paddingLeft: 24,
-          paddingRight: 24,
+          minHeight: isCard ? 118 : 56,
+          padding: isCard ? '14px' : undefined,
+          paddingLeft: isCard ? undefined : 24,
+          paddingRight: isCard ? undefined : 24,
           cursor: 'default',
         }}
       >
-        <div className="flex-1 min-w-0">
-          <p className="text-base font-bold text-[var(--text)]">Daily Updates</p>
-        </div>
-        <span className="text-sm font-semibold" style={{ color: 'var(--text-muted)' }}>All quiet today</span>
+        {isCard ? (
+          <>
+            <div className="flex items-start justify-between w-full gap-2">
+              <span className="text-2xl leading-none">🗞️</span>
+              <span className="text-base font-light" style={{ color: 'var(--text-faint)' }}>›</span>
+            </div>
+            <div className="w-full min-w-0">
+              <p className="text-sm font-black text-[var(--text)] leading-tight">Daily Updates</p>
+              <p className="text-xs font-semibold mt-1" style={{ color: 'var(--text-muted)' }}>All quiet today</p>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex-1 min-w-0">
+              <p className="text-base font-bold text-[var(--text)]">Daily Updates</p>
+            </div>
+            <span className="text-sm font-semibold" style={{ color: 'var(--text-muted)' }}>All quiet today</span>
+          </>
+        )}
       </button>
     )
   }
@@ -479,25 +501,45 @@ export default function DailyUpdatesBanner({
       {/* ── Entry button — same collapsed style as Emergency Rules / Best Bite Times ── */}
       <button
         onClick={() => setOpen(true)}
-        className="w-full text-left rounded-xl transition-all active:scale-[0.99] flex items-center gap-4"
+        className={isCard
+          ? "w-full text-left rounded-2xl transition-all active:scale-[0.99] flex flex-col justify-between"
+          : "w-full text-left rounded-xl transition-all active:scale-[0.99] flex items-center gap-4"}
         style={{
           background: hasAlerts ? 'rgba(239,68,68,0.08)' : 'var(--surface-overlay)',
           border: `1px solid ${hasAlerts ? 'rgba(239,68,68,0.25)' : 'var(--border)'}`,
           cursor: 'pointer',
-          minHeight: 56,
-          paddingLeft: 24,
-          paddingRight: 24,
+          minHeight: isCard ? 118 : 56,
+          padding: isCard ? '14px' : undefined,
+          paddingLeft: isCard ? undefined : 24,
+          paddingRight: isCard ? undefined : 24,
         }}
       >
-        <div className="flex-1 min-w-0">
-          <p className="text-base font-bold text-[var(--text)]">Daily Updates</p>
-        </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <span className="text-sm font-semibold" style={{ color: hasAlerts ? 'var(--live-soft)' : 'var(--text-muted)' }}>
-            {updates.length === 1 ? '1 update' : `${updates.length} updates`}{hasAlerts ? ` · ${alertCount} alert${alertCount > 1 ? 's' : ''}` : ''}{newCount > 0 ? ' · new' : ''}
-          </span>
-          <span className="text-lg font-light" style={{ color: hasAlerts ? 'var(--live)' : 'var(--text-faint)', opacity: 0.8 }}>›</span>
-        </div>
+        {isCard ? (
+          <>
+            <div className="flex items-start justify-between w-full gap-2">
+              <span className="text-2xl leading-none">🗞️</span>
+              <span className="text-base font-light" style={{ color: hasAlerts ? 'var(--live)' : 'var(--text-faint)', opacity: 0.8 }}>›</span>
+            </div>
+            <div className="w-full min-w-0">
+              <p className="text-sm font-black text-[var(--text)] leading-tight">Daily Updates</p>
+              <p className="text-xs font-semibold mt-1 leading-snug" style={{ color: hasAlerts ? 'var(--live-soft)' : 'var(--text-muted)' }}>
+                {updates.length === 1 ? '1 update' : `${updates.length} updates`}{hasAlerts ? ` · ${alertCount} alert${alertCount > 1 ? 's' : ''}` : ''}{newCount > 0 ? ' · new' : ''}
+              </p>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex-1 min-w-0">
+              <p className="text-base font-bold text-[var(--text)]">Daily Updates</p>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <span className="text-sm font-semibold" style={{ color: hasAlerts ? 'var(--live-soft)' : 'var(--text-muted)' }}>
+                {updates.length === 1 ? '1 update' : `${updates.length} updates`}{hasAlerts ? ` · ${alertCount} alert${alertCount > 1 ? 's' : ''}` : ''}{newCount > 0 ? ' · new' : ''}
+              </span>
+              <span className="text-lg font-light" style={{ color: hasAlerts ? 'var(--live)' : 'var(--text-faint)', opacity: 0.8 }}>›</span>
+            </div>
+          </>
+        )}
       </button>
 
       {/* ── List sheet ── */}
