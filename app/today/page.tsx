@@ -948,7 +948,7 @@ export default function TodayPage() {
                         </span>
                       </div>
                       {isOpen && bestReg ? (
-                        <div className="grid grid-cols-2 gap-x-5 gap-y-1 mt-0.5">
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-0.5">
                           {bestReg.dailyLimit !== null && (
                             <div className="flex items-baseline gap-1.5">
                               <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 34 }}>Limit</span>
@@ -968,7 +968,7 @@ export default function TodayPage() {
                             </div>
                           )}
                           {bestReg.gearRestriction && (
-                            <div className="flex items-baseline gap-1.5 col-span-2">
+                            <div className="flex items-baseline gap-1.5 w-full">
                               <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 34 }}>Rules</span>
                               <span className="text-xs font-semibold text-[var(--text)]">{bestReg.gearRestriction}</span>
                             </div>

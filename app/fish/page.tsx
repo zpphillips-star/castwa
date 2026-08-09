@@ -553,8 +553,8 @@ export default function FishPage() {
             <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
           </div>
 
-          {/* Fish grid */}
-          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 lg:gap-4 items-stretch auto-rows-fr">
+          {/* Fish grid — 2 cols mobile, 3 sm, 4 md, 5 lg, 6 xl */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 lg:gap-4 items-stretch">
             {sortedFiltered.map(fish => {
               const status = getSeasonStatus(fish.id)
               const inSeason = status !== 'closed'
