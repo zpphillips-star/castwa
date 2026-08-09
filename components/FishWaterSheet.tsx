@@ -782,18 +782,28 @@ export default function FishWaterSheet({
                 <p style={{ fontSize: 14, fontWeight: 800, color: 'var(--text)', marginBottom: 6 }}>
                   Skykomish River closed to all fishing through Oct. 31, 2026
                 </p>
-                <p style={{ fontSize: 12, lineHeight: 1.5, color: 'var(--text-muted)' }}>
-                  {activeEmergencyClosure.emergencyLocation ?? 'Affected water: Skykomish River.'}
-                  {' '}Reason: {activeEmergencyClosure.emergencyReason ?? activeEmergencyClosure.notes}
-                </p>
-                <a
-                  href={activeEmergencyClosure.emergencyRuleUrl ?? 'https://wdfw.wa.gov/fishing/regulations/emergency-rules'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ fontSize: 12, color: 'var(--live)', textDecoration: 'underline', display: 'inline-block', marginTop: 8, fontWeight: 700 }}
+                <button
+                  onClick={() => toggleEmergency(`closure-${activeEmergencyClosure.id}`)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 12, color: 'var(--live)', fontWeight: 800 }}
                 >
-                  View official WDFW emergency rule →
-                </a>
+                  {expandedEmergency.has(`closure-${activeEmergencyClosure.id}`) ? 'Hide legal/source details ↑' : 'Show legal/source details ↓'}
+                </button>
+                {expandedEmergency.has(`closure-${activeEmergencyClosure.id}`) && (
+                  <div style={{ marginTop: 8 }}>
+                    <p style={{ fontSize: 12, lineHeight: 1.5, color: 'var(--text-muted)' }}>
+                      {activeEmergencyClosure.emergencyLocation ?? 'Affected water: Skykomish River.'}
+                      {' '}Reason: {activeEmergencyClosure.emergencyReason ?? activeEmergencyClosure.notes}
+                    </p>
+                    <a
+                      href={activeEmergencyClosure.emergencyRuleUrl ?? 'https://wdfw.wa.gov/fishing/regulations/emergency-rules'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ fontSize: 12, color: 'var(--live)', textDecoration: 'underline', display: 'inline-block', marginTop: 8, fontWeight: 700 }}
+                    >
+                      View official WDFW emergency rule →
+                    </a>
+                  </div>
+                )}
               </div>
             )}
 
@@ -933,9 +943,19 @@ export default function FishWaterSheet({
                         const eKey = reg.id
                         const isEOpen = expandedEmergency.has(eKey)
                         if (isEmergencyClosed) return (
-                          <p style={{ fontSize: 12, lineHeight: 1.5, marginTop: 8, color: 'var(--live)', fontWeight: 700 }}>
-                            {reg.notes}
-                          </p>
+                          <div style={{ marginTop: 8 }}>
+                            <button
+                              onClick={() => toggleEmergency(eKey)}
+                              style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 12, fontWeight: 700, color: 'var(--live)' }}
+                            >
+                              {isEOpen ? 'Hide legal/source details ↑' : 'Show legal/source details ↓'}
+                            </button>
+                            {isEOpen && (
+                              <p style={{ fontSize: 12, lineHeight: 1.5, marginTop: 8, color: 'var(--live)', fontWeight: 700 }}>
+                                {reg.notes}
+                              </p>
+                            )}
+                          </div>
                         )
                         if (hasNoteEmerg) return (
                           <div style={{ marginTop: 8 }}>

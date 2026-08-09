@@ -60,7 +60,12 @@ export default function WDFWAlertBanner() {
                 className="block text-xs pt-1.5"
                 style={{ color: 'var(--live-soft)', textDecoration: 'none' }}
               >
-                → {alert.title}
+                <span style={{ display: 'block', fontWeight: 800, color: 'var(--text)' }}>
+                  → {plainEnglishFromTitle(alert.title)}
+                </span>
+                <span style={{ display: 'block', marginTop: 2, color: 'var(--text-faint)' }}>
+                  Tap for official WDFW source details: {alert.title}
+                </span>
               </a>
             ))}
             {data.alerts.length > 5 && (
@@ -74,4 +79,18 @@ export default function WDFWAlertBanner() {
       </div>
     </div>
   )
+}
+
+function plainEnglishFromTitle(title: string): string {
+  const t = title.replace(/\s+/g, ' ').trim()
+  if (/skykomish/i.test(t) && /not open|closed|closure/i.test(t)) {
+    return 'Skykomish River is CLOSED to fishing until WDFW says it reopens.'
+  }
+  if (/marine area 6|ma 6/i.test(t) && /chinook/i.test(t) && /limit/i.test(t)) {
+    return 'Marine Area 6 Chinook retention has a reduced limit.'
+  }
+  if (/shellfish|biotoxin|psp|hood canal/i.test(t) && /close/i.test(t)) {
+    return 'Shellfish harvest is CLOSED in the affected area because of toxin risk.'
+  }
+  return t.replace(/WDFW (closes|announces|updates?|opens?)[:\s-]*/i, '').replace(/emergency rule/i, '').trim()
 }

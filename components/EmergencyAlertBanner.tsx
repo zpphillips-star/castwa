@@ -10,10 +10,12 @@ const TYPE_STYLE: Record<AlertType, { bg: string; border: string; badge: string;
 }
 
 function AlertCard({ alert }: { alert: EmergencyAlert }) {
+  const [showLegal, setShowLegal] = useState(false)
   const s = TYPE_STYLE[alert.type]
   const dateRange = alert.activeTo
     ? `${fmtDate(alert.activeFrom)} – ${fmtDate(alert.activeTo)}`
     : `From ${fmtDate(alert.activeFrom)}`
+  const plainSentence = getPlainEnglishAlert(alert)
   return (
     <div className="px-3 py-2" style={{ borderTop: '1px solid rgba(245,158,11,0.15)' }}>
       <div className="flex items-start gap-2">
@@ -29,9 +31,30 @@ function AlertCard({ alert }: { alert: EmergencyAlert }) {
           <p className="text-[11px] mt-0.5 leading-snug" style={{ color: 'var(--amber)' }}>
             {alert.waterBody}
           </p>
-          <p className="text-[11px] mt-0.5 leading-snug" style={{ color: 'var(--text-muted)' }}>
-            {alert.description}
+          <p className="text-[12px] mt-1 leading-snug font-bold" style={{ color: 'var(--text)' }}>
+            {plainSentence}
           </p>
+          <button
+            type="button"
+            onClick={() => setShowLegal(v => !v)}
+            className="text-[10px] font-semibold mt-1"
+            style={{ color: 'var(--amber)' }}
+          >
+            {showLegal ? 'Hide legal/source details ↑' : 'Show legal/source details ↓'}
+          </button>
+          {showLegal && (
+            <div className="mt-1.5 rounded-lg px-2 py-1.5" style={{
+              background: 'rgba(245,158,11,0.07)',
+              border: '1px solid rgba(245,158,11,0.18)',
+            }}>
+              <p className="text-[10px] uppercase font-black tracking-wide mb-1" style={{ color: 'var(--text-faint)' }}>
+                Source details
+              </p>
+              <p className="text-[11px] leading-snug" style={{ color: 'var(--text-muted)' }}>
+                {alert.description}
+              </p>
+            </div>
+          )}
           <div className="flex items-center justify-between mt-1">
             <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>{dateRange}</span>
             <a
@@ -48,6 +71,18 @@ function AlertCard({ alert }: { alert: EmergencyAlert }) {
       </div>
     </div>
   )
+}
+
+function getPlainEnglishAlert(alert: EmergencyAlert): string {
+  const curated: Record<string, string> = {
+    'ea-skykomish-closed-2026': 'Skykomish River is CLOSED to all fishing through Oct. 31, 2026.',
+    'ea-ma6-chinook-limit-reduced-2026': 'Marine Area 6: You can keep only 1 hatchery Chinook Aug. 7–15, 2026.',
+    'ea-biotoxin-psp-ma9-ma12-2026': 'Hood Canal and south Admiralty Inlet bivalve shellfish are CLOSED because of PSP toxin risk.',
+    'ea-tulalip-terminal-salmon-closed-2026': 'Tulalip Terminal Area salmon fishing is CLOSED through Sept. 7, 2026.',
+    'ea-columbia-sockeye-closed-2026': 'Columbia River sockeye and some upper-river salmon fishing are CLOSED or severely restricted.',
+  }
+  if (curated[alert.id]) return curated[alert.id]
+  return alert.description.replace(/^[🚨⚠️✅🟢🔴🟡\s]+/, '').split(/(?<=\.)\s/)[0]
 }
 
 function fmtDate(iso: string): string {

@@ -218,6 +218,7 @@ function getTodaySkagitStatus(speciesId: string): { sectionId: string; sectionNa
 }
 
 function RegCard({ reg, water }: { reg: Regulation; water: WaterBody }) {
+  const [showLegal, setShowLegal] = useState(false)
   const isOpen = isOpenOn(reg, new Date())
   const isEmergencyClosed = getActiveEmergencyClosure(reg, new Date())
   return (
@@ -233,9 +234,23 @@ function RegCard({ reg, water }: { reg: Regulation; water: WaterBody }) {
       </div>
       <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Season: {reg.seasonStart} – {reg.seasonEnd}</p>
       {isEmergencyClosed && (
-        <p className="text-xs mt-1 font-bold" style={{ color: 'var(--live)' }}>
-          Not fishable: {reg.emergencyReason ?? reg.notes}
-        </p>
+        <div className="mt-1">
+          <p className="text-xs font-bold" style={{ color: 'var(--live)' }}>
+            {water.name} is CLOSED to fishing during this emergency rule.
+          </p>
+          <button
+            onClick={() => setShowLegal(v => !v)}
+            className="text-xs font-bold mt-1"
+            style={{ color: 'var(--live)' }}
+          >
+            {showLegal ? 'Hide legal/source details ↑' : 'Show legal/source details ↓'}
+          </button>
+          {showLegal && (
+            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)', lineHeight: 1.5 }}>
+              {reg.emergencyReason ?? reg.notes}
+            </p>
+          )}
+        </div>
       )}
       {!isEmergencyClosed && reg.dailyLimit && (
         <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>

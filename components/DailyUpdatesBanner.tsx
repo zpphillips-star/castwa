@@ -155,6 +155,7 @@ function UpdateDetailSheet({
   update: DailyUpdate
   onClose: () => void
 }) {
+  const [showSourceDetails, setShowSourceDetails] = useState(false)
   const statusColor = getStatusColor(update)
   const visual = CATEGORY_VISUAL[update.category]
 
@@ -272,16 +273,45 @@ function UpdateDetailSheet({
             color: 'var(--text-faint)',
             marginBottom: 12,
           }}>
-            Details
+            Plain-English decision
           </p>
           <p style={{
-            fontSize: 14,
-            lineHeight: 1.75,
-            color: 'var(--text-muted)',
-            whiteSpace: 'pre-line',
+            fontSize: 15,
+            lineHeight: 1.55,
+            color: 'var(--text)',
+            fontWeight: 800,
+            marginBottom: 14,
           }}>
-            {update.detail}
+            {update.headline}.
           </p>
+          <button
+            onClick={() => setShowSourceDetails(v => !v)}
+            style={{
+              background: 'rgba(249,115,22,0.08)',
+              border: '1px solid rgba(249,115,22,0.22)',
+              borderRadius: 12,
+              color: 'var(--accent)',
+              cursor: 'pointer',
+              fontSize: 13,
+              fontWeight: 800,
+              padding: '10px 12px',
+              width: '100%',
+              textAlign: 'left',
+            }}
+          >
+            {showSourceDetails ? 'Hide legal/source details ↑' : 'Show legal/source details ↓'}
+          </button>
+          {showSourceDetails && (
+            <p style={{
+              fontSize: 14,
+              lineHeight: 1.75,
+              color: 'var(--text-muted)',
+              whiteSpace: 'pre-line',
+              marginTop: 12,
+            }}>
+              {update.detail}
+            </p>
+          )}
 
           {/* Source card */}
           <div style={{

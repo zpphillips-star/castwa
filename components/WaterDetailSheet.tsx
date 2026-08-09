@@ -553,7 +553,12 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
                       </p>
                     )}
                     {reg.notes && (
-                      <p className="text-xs mt-1.5 leading-snug" style={{ color: 'var(--warning)' }}>{reg.notes}</p>
+                      <details className="mt-1.5">
+                        <summary className="text-xs font-bold cursor-pointer" style={{ color: isEmergencyClosed ? 'var(--live)' : 'var(--warning)' }}>
+                          Show legal/source details
+                        </summary>
+                        <p className="text-xs mt-1.5 leading-snug" style={{ color: 'var(--text-muted)' }}>{reg.notes}</p>
+                      </details>
                     )}
                   </div>
                 )
