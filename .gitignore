@@ -41,3 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 .vercel
+
+# Source/working fish photo files (processed; not part of repo)
+fish photos with no background/

@@ -1,5 +1,4 @@
 'use client'
-import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 
 function dispatchReset() {
@@ -86,13 +85,14 @@ export default function SidebarNav() {
             outlineOffset: '3px',
           }}
         >
-          <Image
-            src="/castwa-icon-white.png"
-            width={64}
-            height={64}
-            alt="Today"
-            style={{ width: '80%', height: '80%', objectFit: 'contain' }}
-          />
+          {/* Orange WA secondary mark — white on orange button */}
+          <svg
+            viewBox="270.04 109.56 123.26 85.16"
+            aria-label="Washington state mark"
+            style={{ width: '72%', height: '72%', display: 'block' }}
+          >
+            <path fill="white" fillRule="evenodd" d="M 270.04 124.96 L 272.61 124.54 L 276.89 127.96 L 281.17 128.39 L 287.16 131.38 L 294.86 131.81 L 297.43 134.38 L 300.00 134.38 L 301.71 137.80 L 301.71 140.80 L 300.43 142.08 L 298.29 142.08 L 297.86 144.65 L 300.86 143.37 L 303.00 143.79 L 303.85 152.35 L 301.28 153.21 L 297.43 149.79 L 297.43 148.07 L 295.72 148.07 L 294.86 151.93 L 297.86 152.78 L 297.00 156.63 L 298.72 156.63 L 299.14 157.92 L 303.00 157.92 L 303.85 154.92 L 306.42 154.49 L 307.28 151.93 L 306.42 142.08 L 308.56 139.09 L 308.56 136.95 L 306.42 134.38 L 306.42 129.24 L 301.28 124.54 L 301.28 122.40 L 303.85 120.68 L 304.28 117.69 L 301.71 117.69 L 298.29 112.55 L 299.57 109.56 L 330.39 112.98 L 387.30 114.27 L 388.16 115.12 L 388.16 141.23 L 390.73 173.32 L 393.30 176.75 L 392.44 181.46 L 393.30 185.73 L 360.34 185.73 L 356.49 187.87 L 351.36 187.87 L 335.95 193.01 L 330.39 192.15 L 326.11 193.87 L 322.68 193.87 L 320.97 192.15 L 311.13 192.15 L 307.28 194.72 L 299.57 193.44 L 297.43 191.73 L 297.86 186.59 L 295.29 181.03 L 292.72 179.32 L 288.02 179.74 L 284.59 175.89 L 278.60 176.32 L 277.75 175.46 L 277.75 173.32 L 280.74 169.90 L 280.74 166.48 L 278.60 166.48 L 277.75 165.19 L 277.32 152.78 L 274.75 148.93 L 274.75 142.51 L 270.47 136.09 Z" />
+          </svg>
         </div>
         <span className="text-[9px] font-bold" style={{ color: todayActive ? 'var(--accent)' : 'var(--text-faint)' }}>
           Today

@@ -812,7 +812,7 @@ export default function FishWaterSheet({
                   const isEmergencyClosed = getActiveEmergencyClosure(reg, today)
                   const hasNoteEmerg = !!(reg.notes && /emergency/i.test(reg.notes))
                   const regStatus = isEmergencyClosed ? 'closed' : hasNoteEmerg ? 'emergency' : isOpen ? 'open' : 'closed'
-                  const regSColor = isEmergencyClosed ? 'var(--live)' : regStatus === 'emergency' ? 'var(--accent)' : regStatus === 'open' ? 'var(--open)' : 'var(--text-faint)'
+
 
                   return (
                     <div
@@ -826,22 +826,27 @@ export default function FishWaterSheet({
                         minWidth: 0,
                       }}
                     >
-                      {/* Section title: Emergency Rule in Effect OR season label */}
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <p style={{
-                          fontSize: 10, textTransform: 'uppercase', fontWeight: 800,
-                          letterSpacing: '0.08em',
-                          color: isEmergencyClosed ? 'var(--live)' : regStatus === 'emergency' ? 'var(--accent)' : 'var(--text-faint)',
+                      {/* STATUS FIRST — prominent pill at top */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                        <span style={{
+                          fontSize: 13, fontWeight: 900, letterSpacing: '0.04em',
+                          color: '#fff',
+                          background: isEmergencyClosed ? 'rgba(239,68,68,0.9)' : regStatus === 'emergency' ? 'rgba(242,101,34,0.88)' : regStatus === 'open' ? 'rgba(106,176,76,0.88)' : 'rgba(90,90,95,0.85)',
+                          padding: '4px 12px',
+                          borderRadius: 20,
+                          display: 'inline-block',
                         }}>
-                          {isEmergencyClosed ? 'Emergency Closure — Not Fishable' : regStatus === 'emergency' ? 'Emergency Rule in Effect' : getSeasonLabel(reg.seasonStart, fish.name)}
-                        </p>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: regSColor }}>
-                          {isEmergencyClosed ? '🚫 CLOSED' : regStatus === 'open' ? '● OPEN' : regStatus === 'emergency' ? '⚑ ACTIVE' : '○ CLOSED'}
+                          {isEmergencyClosed ? '🚫 CLOSED — Emergency' : regStatus === 'open' ? '● OPEN' : regStatus === 'emergency' ? '⚑ EMERGENCY' : '○ CLOSED'}
                         </span>
+                        {!isEmergencyClosed && (
+                          <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-faint)' }}>
+                            {getSeasonLabel(reg.seasonStart, fish.name)}
+                          </span>
+                        )}
                       </div>
 
                       {/* Date range */}
-                      <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 10 }}>
+                      <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 10 }}>
                         {fmtDate(reg.seasonStart)} – {fmtDate(reg.seasonEnd)}
                       </p>
 

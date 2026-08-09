@@ -528,8 +528,8 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
                       </span>
                     </div>
                     {isEmergencyClosed && (
-                      <p className="text-sm font-semibold" style={{ color: 'var(--live)' }}>
-                        Not fishable: emergency rule closure is active.
+                      <p className="text-sm font-black" style={{ color: 'var(--live)' }}>
+                        CLOSED — Emergency rule active
                       </p>
                     )}
                     {!isEmergencyClosed && reg.dailyLimit != null && (
@@ -800,12 +800,17 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>Water Status</p>
-                      <p className="text-sm font-black mt-0.5" style={{ color: 'var(--text)' }}>
+                      <p className="text-base font-black mt-0.5"
+                        style={{
+                          color: waterStatusSummary.emergency > 0 ? 'var(--live)' :
+                                 waterStatusSummary.tone === 'closed' ? 'var(--live)' :
+                                 'var(--text)',
+                        }}>
                         {waterStatusSummary.emergency > 0
-                          ? `${waterStatusSummary.emergency} emergency rule${waterStatusSummary.emergency === 1 ? '' : 's'} active`
+                          ? 'CLOSED — Emergency rule'
                           : waterStatusSummary.open > 0
                             ? `${waterStatusSummary.open} species open today`
-                            : 'No open species shown today'}
+                            : 'CLOSED'}
                       </p>
                     </div>
                     <span className="text-[10px] font-black px-2 py-1 rounded-full flex-shrink-0"
@@ -813,12 +818,15 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                         background: waterStatusSummary.tone === 'emergency' ? 'rgba(249,115,22,0.18)' : waterStatusSummary.tone === 'open' ? 'rgba(106,176,76,0.16)' : 'rgba(239,68,68,0.12)',
                         color: waterStatusSummary.tone === 'emergency' ? 'var(--warning)' : waterStatusSummary.tone === 'open' ? 'var(--open)' : 'var(--live)',
                       }}>
-                      {waterStatusSummary.tone === 'emergency' ? 'CHECK RULE' : waterStatusSummary.tone === 'open' ? 'OPEN' : 'CLOSED'}
+                      {waterStatusSummary.tone === 'emergency' ? 'EMERGENCY' : waterStatusSummary.tone === 'open' ? 'OPEN' : 'CLOSED'}
                     </span>
                   </div>
                   <p className="text-xs mt-2 leading-snug" style={{ color: 'var(--text-muted)' }}>
-                    Same canonical water/regulation set used by Today, Waters, map, and fish-water detail. Verify on WDFW before fishing.
-                    {waterStatusSummary.closed > 0 ? ` ${waterStatusSummary.closed} closed species also listed below.` : ''}
+                    {waterStatusSummary.emergency > 0
+                      ? 'Emergency closure is active — fishing is not permitted. Verify at wdfw.wa.gov.'
+                      : waterStatusSummary.open > 0
+                      ? `${waterStatusSummary.open} species open today.${waterStatusSummary.closed > 0 ? ` ${waterStatusSummary.closed} closed.` : ''} Tap a species below for details.`
+                      : `All ${speciesRegs.length > 0 ? speciesRegs.length + ' species are' : 'species are'} closed here. Tap one below to see upcoming season dates.`}
                   </p>
                 </div>
               </div>
@@ -927,6 +935,15 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                     style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
                     {openItems.map(({ reg, species: sp, effectiveStatus }, i) => {
                       const isEmerg = effectiveStatus === 'emergency'
+                      // Build compact decision-first status label
+                      const statusLine = isEmerg ? 'CLOSED — Emergency rule' : '● OPEN'
+                      const statusColor = isEmerg ? 'var(--warning)' : 'var(--open)'
+                      // Build short restriction chips for quick scan
+                      const chips: string[] = []
+                      if (reg.dailyLimit !== null) chips.push(`Limit ${reg.dailyLimit}`)
+                      if (reg.minSize !== null) chips.push(`Min ${reg.minSize}"`)
+                      if (reg.hatcheryOnly) chips.push('Hatchery only')
+                      if (reg.gearRestriction) chips.push(reg.gearRestriction)
                       return (
                         <button
                           key={reg.id}
@@ -939,7 +956,7 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                           className="w-full flex items-center gap-4 px-4 py-3.5 text-left transition-all active:bg-white/5"
                           style={{
                             borderBottom: i < openItems.length - 1 ? '1px solid var(--border)' : 'none',
-                            borderLeft: isEmerg ? '3px solid #f97316' : undefined,
+                            borderLeft: isEmerg ? '3px solid var(--warning)' : '3px solid var(--open)',
                           }}>
                           <div className="flex-shrink-0 rounded-lg overflow-hidden"
                             style={{ width: 48, height: 48, background: 'var(--photo-bg)' }}>
@@ -948,41 +965,17 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                               style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 6 }} />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-0.5">
-                              <p className="text-sm font-bold text-[var(--text)] leading-tight">{sp.name}</p>
-                              {isEmerg && (
-                                <span className="text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wide flex-shrink-0"
-                                  style={{ background: 'rgba(249,115,22,0.18)', color: 'var(--warning)' }}>
-                                  EMERGENCY RULE
-                                </span>
-                              )}
-                            </div>
-                            <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 mt-1">
-                              {reg.dailyLimit !== null && (
-                                <div className="flex items-baseline gap-1.5">
-                                  <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Limit</span>
-                                  <span className="text-xs font-semibold text-[var(--text)]">{reg.dailyLimit}/day</span>
-                                </div>
-                              )}
-                              {reg.minSize !== null && (
-                                <div className="flex items-baseline gap-1.5">
-                                  <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Min</span>
-                                  <span className="text-xs font-semibold text-[var(--text)]">{reg.minSize}&quot;</span>
-                                </div>
-                              )}
-                              {reg.hatcheryOnly && (
-                                <div className="flex items-baseline gap-1.5">
-                                  <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Type</span>
-                                  <span className="text-xs font-semibold" style={{ color: 'var(--amber)' }}>Hatchery only</span>
-                                </div>
-                              )}
-                              {reg.gearRestriction && (
-                                <div className="flex items-baseline gap-1.5 col-span-2">
-                                  <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--text-faint)', minWidth: 30 }}>Rules</span>
-                                  <span className="text-xs font-semibold text-[var(--text)]">{reg.gearRestriction}</span>
-                                </div>
-                              )}
-                            </div>
+                            {/* STATUS FIRST — big, colored, decision-first */}
+                            <p className="text-sm font-black leading-tight mb-0.5" style={{ color: statusColor }}>
+                              {statusLine}
+                            </p>
+                            <p className="text-xs font-semibold text-[var(--text)] leading-tight mb-1">{sp.name}</p>
+                            {/* Compact restriction chips — inline, no grid misalignment */}
+                            {chips.length > 0 && !isEmerg && (
+                              <p className="text-[11px] leading-tight" style={{ color: 'var(--text-muted)' }}>
+                                {chips.join(' · ')}
+                              </p>
+                            )}
                           </div>
                           <svg className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-20)' }}
                             fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -1042,11 +1035,9 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                               style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 6, opacity: 0.5 }} />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-0.5">
-                              <p className="text-sm font-bold leading-tight" style={{ color: 'var(--text-60)' }}>{sp.name}</p>
-                              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded"
-                                style={{ background: 'rgba(239,68,68,0.15)', color: 'var(--live)' }}>CLOSED</span>
-                            </div>
+                            {/* STATUS FIRST */}
+                            <p className="text-xs font-black leading-tight mb-0.5" style={{ color: 'var(--live)' }}>○ CLOSED</p>
+                            <p className="text-xs font-semibold leading-tight mb-1" style={{ color: 'var(--text-60)' }}>{sp.name}</p>
                             <div className="flex gap-3 flex-wrap">
                               {reg.seasonStart && (
                                 <span className="text-[11px]" style={{ color: 'var(--text-faint)' }}>
@@ -1055,7 +1046,7 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
                               )}
                               {reg.dailyLimit != null && (
                                 <span className="text-[11px]" style={{ color: 'var(--text-faint)' }}>
-                                  Limit {reg.dailyLimit}/day
+                                  Limit {reg.dailyLimit}
                                 </span>
                               )}
                             </div>
