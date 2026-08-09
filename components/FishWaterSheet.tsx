@@ -176,6 +176,91 @@ function isInsideMapOrNoSwipe(target: EventTarget | null): boolean {
   return false
 }
 
+function summarizeText(text: string, max = 78): string {
+  const trimmed = text.trim()
+  if (trimmed.length <= max) return trimmed
+  const cut = trimmed.slice(0, max)
+  const lastBreak = Math.max(cut.lastIndexOf(' — '), cut.lastIndexOf('. '), cut.lastIndexOf(', '), cut.lastIndexOf(' '))
+  return `${cut.slice(0, lastBreak > 36 ? lastBreak : max).trim()}…`
+}
+
+function keywordFromText(text: string): string {
+  const firstClause = text.split(/ — |:|\.|,/)[0]?.trim()
+  return firstClause || summarizeText(text, 46)
+}
+
+function ExpandableTextList({
+  items,
+  expanded,
+  onToggle,
+  summaryCount = 1,
+  numbered = false,
+  accent = 'var(--accent)',
+}: {
+  items: string[]
+  expanded: boolean
+  onToggle: () => void
+  summaryCount?: number
+  numbered?: boolean
+  accent?: string
+}) {
+  if (!items.length) return null
+  const visible = expanded ? items : items.slice(0, summaryCount)
+  const hidden = Math.max(0, items.length - visible.length)
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {visible.map((text, i) => (
+        <div
+          key={`${text}-${i}`}
+          style={{
+            display: 'flex', alignItems: 'flex-start', gap: 12,
+            background: 'var(--surface-overlay)',
+            border: '1px solid var(--border)',
+            borderRadius: 14, padding: '12px 14px',
+          }}
+        >
+          <span style={{
+            flexShrink: 0, width: numbered ? 22 : 8, height: numbered ? 22 : 8, borderRadius: '50%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 10, fontWeight: 800,
+            background: numbered ? 'rgba(242,101,34,0.18)' : accent,
+            color: numbered ? accent : 'transparent', marginTop: numbered ? 1 : 5,
+          }}>
+            {numbered ? i + 1 : ''}
+          </span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontSize: 13, fontWeight: 800, color: 'var(--text)', lineHeight: 1.25, marginBottom: expanded ? 4 : 0 }}>
+              {keywordFromText(text)}
+            </p>
+            {expanded && (
+              <p style={{ fontSize: 12, color: 'var(--text-60)', lineHeight: 1.5 }}>
+                {text}
+              </p>
+            )}
+          </div>
+        </div>
+      ))}
+      {(hidden > 0 || expanded) && (
+        <button
+          onClick={onToggle}
+          style={{
+            alignSelf: 'flex-start',
+            background: 'none',
+            border: 'none',
+            color: accent,
+            fontSize: 12,
+            fontWeight: 800,
+            padding: '2px 0',
+            cursor: 'pointer',
+          }}
+        >
+          {expanded ? 'Show summary' : `More details (${hidden} more)`}
+        </button>
+      )}
+    </div>
+  )
+}
+
 // ── Props ─────────────────────────────────────────────────────────────────────
 
 export interface FishWaterSheetProps {
@@ -210,8 +295,16 @@ export default function FishWaterSheet({
   const [expandedSection, setExpandedSection] = useState<number | null>(null)
   // Emergency rule detail toggle: Set of keys (reg.id or 'skagit-N') where details are visible
   const [expandedEmergency, setExpandedEmergency] = useState<Set<string>>(new Set())
+  const [expandedGuide, setExpandedGuide] = useState<Set<string>>(new Set())
   function toggleEmergency(key: string) {
     setExpandedEmergency(prev => {
+      const next = new Set(prev)
+      next.has(key) ? next.delete(key) : next.add(key)
+      return next
+    })
+  }
+  function toggleGuide(key: string) {
+    setExpandedGuide(prev => {
       const next = new Set(prev)
       next.has(key) ? next.delete(key) : next.add(key)
       return next
@@ -1060,26 +1153,13 @@ export default function FishWaterSheet({
                     }}>
                       Best Spots on {water.name}
                     </p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
-                      {guide.whereToFind.map((spot, i) => (
-                        <div
-                          key={i}
-                          style={{
-                            display: 'flex', alignItems: 'flex-start', gap: 12,
-                            background: 'var(--surface-overlay)',
-                            border: '1px solid var(--border)',
-                            borderRadius: 14, padding: '12px 14px',
-                          }}
-                        >
-                          <div style={{
-                            width: 8, height: 8, borderRadius: '50%',
-                            background: 'var(--accent)', flexShrink: 0, marginTop: 4,
-                          }} />
-                          <p style={{ fontSize: 13, color: 'var(--text-80)', lineHeight: 1.55 }}>
-                            {spot}
-                          </p>
-                        </div>
-                      ))}
+                    <div style={{ marginBottom: 24 }}>
+                      <ExpandableTextList
+                        items={guide.whereToFind}
+                        expanded={expandedGuide.has('where')}
+                        onToggle={() => toggleGuide('where')}
+                        summaryCount={1}
+                      />
                     </div>
                   </>
                 )}
@@ -1165,9 +1245,20 @@ export default function FishWaterSheet({
                       borderLeft: '3px solid #f26522',
                       borderRadius: 14, padding: '13px 15px', marginBottom: 24,
                     }}>
-                      <p style={{ fontSize: 14, color: 'var(--text-80)', lineHeight: 1.6 }}>
-                        {guide.bestTime}
+                      <p style={{ fontSize: 14, fontWeight: 800, color: 'var(--text)', lineHeight: 1.35 }}>
+                        {keywordFromText(guide.bestTime)}
                       </p>
+                      <button
+                        onClick={() => toggleGuide('best-time')}
+                        style={{ background: 'none', border: 'none', color: 'var(--accent)', fontSize: 12, fontWeight: 800, padding: '6px 0 0', cursor: 'pointer' }}
+                      >
+                        {expandedGuide.has('best-time') ? 'Hide guide details' : 'Show guide details'}
+                      </button>
+                      {expandedGuide.has('best-time') && (
+                        <p style={{ fontSize: 13, color: 'var(--text-60)', lineHeight: 1.55, marginTop: 6 }}>
+                          {guide.bestTime}
+                        </p>
+                      )}
                     </div>
 
                     {/* Best Bait — distinct pill cards */}
@@ -1180,7 +1271,7 @@ export default function FishWaterSheet({
                           Best Bait Right Now
                         </p>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
-                          {guide.bestBait.map((bait, i) => (
+                          {(expandedGuide.has('bait') ? guide.bestBait : guide.bestBait.slice(0, 2)).map((bait, i) => (
                             <div
                               key={i}
                               style={{
@@ -1192,11 +1283,19 @@ export default function FishWaterSheet({
                               <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 4 }}>
                                 {bait.name}
                               </p>
-                              <p style={{ fontSize: 12, color: 'var(--text-60)', lineHeight: 1.5 }}>
-                                {bait.when}
-                              </p>
+                              {expandedGuide.has('bait') && (
+                                <p style={{ fontSize: 12, color: 'var(--text-60)', lineHeight: 1.5 }}>
+                                  {bait.when}
+                                </p>
+                              )}
                             </div>
                           ))}
+                          {guide.bestBait.length > 2 && (
+                            <button onClick={() => toggleGuide('bait')}
+                              style={{ alignSelf: 'flex-start', background: 'none', border: 'none', color: 'var(--accent)', fontSize: 12, fontWeight: 800, padding: '2px 0', cursor: 'pointer' }}>
+                              {expandedGuide.has('bait') ? 'Show summary' : `More bait details (${guide.bestBait.length - 2} more)`}
+                            </button>
+                          )}
                         </div>
                       </>
                     )}
@@ -1210,30 +1309,14 @@ export default function FishWaterSheet({
                         }}>
                           Techniques
                         </p>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
-                          {guide.technique.map((t, i) => (
-                            <div
-                              key={i}
-                              style={{
-                                display: 'flex', alignItems: 'flex-start', gap: 12,
-                                background: 'var(--surface-overlay)',
-                                border: '1px solid var(--border)',
-                                borderRadius: 14, padding: '12px 14px',
-                              }}
-                            >
-                              <span style={{
-                                flexShrink: 0, width: 22, height: 22, borderRadius: '50%',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                fontSize: 10, fontWeight: 800,
-                                background: 'rgba(242,101,34,0.18)', color: 'var(--accent)', marginTop: 1,
-                              }}>
-                                {i + 1}
-                              </span>
-                              <p style={{ fontSize: 13, color: 'var(--text-80)', lineHeight: 1.55 }}>
-                                {t}
-                              </p>
-                            </div>
-                          ))}
+                        <div style={{ marginBottom: 24 }}>
+                          <ExpandableTextList
+                            items={guide.technique}
+                            expanded={expandedGuide.has('technique')}
+                            onToggle={() => toggleGuide('technique')}
+                            summaryCount={1}
+                            numbered
+                          />
                         </div>
                       </>
                     )}
@@ -1248,7 +1331,7 @@ export default function FishWaterSheet({
                           Pro Tips
                         </p>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          {guide.proTips.map((tip, i) => (
+                          {(expandedGuide.has('pro-tips') ? guide.proTips : guide.proTips.slice(0, 1)).map((tip, i) => (
                             <div
                               key={i}
                               style={{
@@ -1259,10 +1342,16 @@ export default function FishWaterSheet({
                               }}
                             >
                               <p style={{ fontSize: 13, color: 'var(--text-80)', lineHeight: 1.58 }}>
-                                {tip}
+                                {expandedGuide.has('pro-tips') ? tip : summarizeText(tip, 92)}
                               </p>
                             </div>
                           ))}
+                          {guide.proTips.length > 1 && (
+                            <button onClick={() => toggleGuide('pro-tips')}
+                              style={{ alignSelf: 'flex-start', background: 'none', border: 'none', color: 'var(--accent)', fontSize: 12, fontWeight: 800, padding: '2px 0', cursor: 'pointer' }}>
+                              {expandedGuide.has('pro-tips') ? 'Show summary' : `More tips (${guide.proTips.length - 1} more)`}
+                            </button>
+                          )}
                         </div>
                       </>
                     )}
@@ -1275,28 +1364,14 @@ export default function FishWaterSheet({
                     }}>
                       How to Catch
                     </p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                      {tips.howToCatch.map((tip, i) => (
-                        <div
-                          key={i}
-                          style={{
-                            display: 'flex', gap: 12,
-                            background: 'var(--surface-overlay)',
-                            border: '1px solid var(--border)',
-                            borderRadius: 14, padding: '12px 14px',
-                          }}
-                        >
-                          <span style={{
-                            flexShrink: 0, width: 22, height: 22, borderRadius: '50%',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: 10, fontWeight: 800,
-                            background: 'rgba(242,101,34,0.18)', color: 'var(--accent)', marginTop: 1,
-                          }}>
-                            {i + 1}
-                          </span>
-                          <p style={{ fontSize: 13, color: 'var(--text-80)', lineHeight: 1.55 }}>{tip}</p>
-                        </div>
-                      ))}
+                    <div>
+                      <ExpandableTextList
+                        items={tips.howToCatch}
+                        expanded={expandedGuide.has('fallback-how')}
+                        onToggle={() => toggleGuide('fallback-how')}
+                        summaryCount={1}
+                        numbered
+                      />
                     </div>
                   </>
                 ) : (
@@ -1418,28 +1493,15 @@ export default function FishWaterSheet({
                           border: '1px solid var(--border)',
                           borderRadius: 16, padding: '2px 0', marginBottom: 20,
                         }}>
-                          {gear.technique.map((t, i) => (
-                            <div
-                              key={i}
-                              style={{
-                                display: 'flex', gap: 12, padding: '11px 16px',
-                                borderBottom: i < gear.technique.length - 1
-                                  ? '1px solid var(--border)' : 'none',
-                              }}
-                            >
-                              <span style={{
-                                flexShrink: 0, width: 20, height: 20, borderRadius: '50%',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                fontSize: 10, fontWeight: 800,
-                                background: 'rgba(242,101,34,0.18)', color: 'var(--accent)', marginTop: 2,
-                              }}>
-                                {i + 1}
-                              </span>
-                              <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.55 }}>
-                                {t}
-                              </p>
-                            </div>
-                          ))}
+                          <div style={{ padding: 14 }}>
+                            <ExpandableTextList
+                              items={gear.technique}
+                              expanded={expandedGuide.has('gear-technique')}
+                              onToggle={() => toggleGuide('gear-technique')}
+                              summaryCount={1}
+                              numbered
+                            />
+                          </div>
                         </div>
                       </>
                     )}

@@ -268,7 +268,20 @@ function RegCard({ reg, water }: { reg: Regulation; water: WaterBody }) {
           Gear: <span style={{ color: 'var(--text)' }}>{reg.gearRestriction}</span>
         </p>
       )}
-      {reg.notes && <p className="text-xs mt-0.5 text-amber-400">{reg.notes}</p>}
+      {reg.notes && (
+        <div className="mt-1">
+          <button
+            onClick={() => setShowLegal(v => !v)}
+            className="text-xs font-bold"
+            style={{ color: 'var(--warning)' }}
+          >
+            {showLegal ? 'Hide full rules ↑' : 'Show full rules ↓'}
+          </button>
+          {showLegal && (
+            <p className="text-xs mt-1 text-amber-400">{reg.notes}</p>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -284,6 +297,7 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
   } | null>(null)
   const [selectedWaterForConditions, setSelectedWaterForConditions] = useState<GaugeConfig | null>(null)
   const [fishWaterCombo, setFishWaterCombo] = useState<{ water: WaterBody; index: number; siblings: WaterBody[] } | null>(null)
+  const [expandedSummary, setExpandedSummary] = useState<Set<string>>(new Set())
   const fishSegments = useSelectedFishSegments(species.id)
   const regs    = REGULATIONS.filter(r => r.speciesId === species.id)
   const waters  = regs.map(r => WATER_BODIES.find(w => w.id === r.waterBodyId)!).filter(Boolean)
@@ -386,6 +400,16 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
     { key: 'gear', label: 'Gear'   },
     { key: 'tips', label: 'Tips'   },
   ]
+  function toggleSummary(key: string) {
+    setExpandedSummary(prev => {
+      const next = new Set(prev)
+      next.has(key) ? next.delete(key) : next.add(key)
+      return next
+    })
+  }
+  function firstClause(text: string) {
+    return text.split(/ — |:|\.|,/)[0]?.trim() || text
+  }
 
   return (
     <>
@@ -725,14 +749,27 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                       <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>TECHNIQUE</p>
                     </div>
                     <div style={{ background: 'var(--bg)' }}>
-                      {gear.technique.map((t, i) => (
+                      {(expandedSummary.has('gear-technique') ? gear.technique : gear.technique.slice(0, 1)).map((t, i) => (
                         <div key={i} className="flex gap-3 px-3 py-3"
-                          style={{ borderBottom: i < gear.technique.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                          style={{ borderBottom: i < (expandedSummary.has('gear-technique') ? gear.technique.length : Math.min(gear.technique.length, 1)) - 1 ? '1px solid var(--border)' : 'none' }}>
                           <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-black"
                             style={{ background: 'rgba(242,101,34,0.2)', color: 'var(--accent)' }}>{i + 1}</span>
-                          <p className="text-sm leading-snug" style={{ color: 'var(--text-muted)' }}>{t}</p>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold leading-snug" style={{ color: 'var(--text)' }}>{firstClause(t)}</p>
+                            {expandedSummary.has('gear-technique') && (
+                              <p className="text-xs leading-snug mt-1" style={{ color: 'var(--text-muted)' }}>{t}</p>
+                            )}
+                          </div>
                         </div>
                       ))}
+                      {gear.technique.length > 1 && (
+                        <button
+                          onClick={() => toggleSummary('gear-technique')}
+                          className="w-full text-left px-3 py-2 text-xs font-bold"
+                          style={{ color: 'var(--accent)', background: 'var(--bg)', border: 'none', borderTop: '1px solid var(--border)', cursor: 'pointer' }}>
+                          {expandedSummary.has('gear-technique') ? 'Show summary' : `Show technique details (${gear.technique.length - 1} more)`}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </>
@@ -749,42 +786,65 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-faint)' }}>Where to Find Them</p>
                     <ul className="space-y-1.5">
-                      {guide.whereToFind.map((tip, i) => (
+                      {(expandedSummary.has('tips-where') ? guide.whereToFind : guide.whereToFind.slice(0, 1)).map((tip, i) => (
                         <li key={i} className="flex items-start gap-2">
                           <span className="flex-shrink-0 mt-0.5 text-xs" style={{ color: 'var(--open)' }}>●</span>
-                          <span className="text-sm text-[var(--text)] leading-snug">{tip}</span>
+                          <span className="text-sm text-[var(--text)] leading-snug">{expandedSummary.has('tips-where') ? tip : firstClause(tip)}</span>
                         </li>
                       ))}
                     </ul>
+                    {guide.whereToFind.length > 1 && (
+                      <button onClick={() => toggleSummary('tips-where')}
+                        className="text-xs font-bold mt-2"
+                        style={{ color: 'var(--accent)', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+                        {expandedSummary.has('tips-where') ? 'Show summary' : `Show where-to-fish details (${guide.whereToFind.length - 1} more)`}
+                      </button>
+                    )}
                   </div>
 
                   {/* Best Bait */}
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-faint)' }}>Best Bait &amp; Lures</p>
                     <div className="space-y-2">
-                      {guide.bestBait.map((bait, i) => (
+                      {(expandedSummary.has('tips-bait') ? guide.bestBait : guide.bestBait.slice(0, 2)).map((bait, i) => (
                         <div key={i} className="flex items-start gap-3 px-3 py-2.5 rounded"
                           style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-semibold text-[var(--text)] leading-tight">{bait.name}</p>
-                            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{bait.when}</p>
+                            {expandedSummary.has('tips-bait') && (
+                              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{bait.when}</p>
+                            )}
                           </div>
                         </div>
                       ))}
                     </div>
+                    {guide.bestBait.length > 2 && (
+                      <button onClick={() => toggleSummary('tips-bait')}
+                        className="text-xs font-bold mt-2"
+                        style={{ color: 'var(--accent)', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+                        {expandedSummary.has('tips-bait') ? 'Show summary' : `Show bait details (${guide.bestBait.length - 2} more)`}
+                      </button>
+                    )}
                   </div>
 
                   {/* Technique */}
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-faint)' }}>Technique</p>
                     <ul className="space-y-1.5">
-                      {guide.technique.map((tip, i) => (
+                      {(expandedSummary.has('tips-technique') ? guide.technique : guide.technique.slice(0, 1)).map((tip, i) => (
                         <li key={i} className="flex items-start gap-2">
                           <span className="flex-shrink-0 mt-0.5 text-xs" style={{ color: 'var(--blue)' }}>●</span>
-                          <span className="text-sm text-[var(--text)] leading-snug">{tip}</span>
+                          <span className="text-sm text-[var(--text)] leading-snug">{expandedSummary.has('tips-technique') ? tip : firstClause(tip)}</span>
                         </li>
                       ))}
                     </ul>
+                    {guide.technique.length > 1 && (
+                      <button onClick={() => toggleSummary('tips-technique')}
+                        className="text-xs font-bold mt-2"
+                        style={{ color: 'var(--accent)', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+                        {expandedSummary.has('tips-technique') ? 'Show summary' : `Show technique details (${guide.technique.length - 1} more)`}
+                      </button>
+                    )}
                   </div>
 
                   {/* Best Time */}
@@ -797,13 +857,20 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-faint)' }}>WA Pro Tips</p>
                     <ul className="space-y-1.5">
-                      {guide.proTips.map((tip, i) => (
+                      {(expandedSummary.has('tips-pro') ? guide.proTips : guide.proTips.slice(0, 1)).map((tip, i) => (
                         <li key={i} className="flex items-start gap-2">
                           <span className="flex-shrink-0 mt-0.5 text-xs" style={{ color: 'var(--amber)' }}>★</span>
-                          <span className="text-sm text-[var(--text)] leading-snug">{tip}</span>
+                          <span className="text-sm text-[var(--text)] leading-snug">{expandedSummary.has('tips-pro') ? tip : firstClause(tip)}</span>
                         </li>
                       ))}
                     </ul>
+                    {guide.proTips.length > 1 && (
+                      <button onClick={() => toggleSummary('tips-pro')}
+                        className="text-xs font-bold mt-2"
+                        style={{ color: 'var(--accent)', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+                        {expandedSummary.has('tips-pro') ? 'Show summary' : `Show pro tip details (${guide.proTips.length - 1} more)`}
+                      </button>
+                    )}
                   </div>
 
                   {/* About (preserved below guide) */}
@@ -812,7 +879,14 @@ export default function FishDetailSheet({ species, onClose, showTips = true, zIn
                       <p className="text-[11px] font-black tracking-widest" style={{ color: 'var(--text-faint)' }}>ABOUT</p>
                     </div>
                     <div className="px-3 py-3" style={{ background: 'var(--bg)' }}>
-                      <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>{species.description}</p>
+                        <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                          {expandedSummary.has('about') ? species.description : firstClause(species.description)}
+                        </p>
+                        <button onClick={() => toggleSummary('about')}
+                          className="text-xs font-bold mt-2"
+                          style={{ color: 'var(--accent)', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+                          {expandedSummary.has('about') ? 'Show summary' : 'Show full description'}
+                        </button>
                     </div>
                   </div>
                 </>

@@ -232,6 +232,7 @@ function accessTypeLabel(type: FishingAccessSpot['accessType']) {
 }
 
 function AccessSpotsSection({ spots, planningOnly }: { spots: FishingAccessSpot[]; planningOnly: boolean }) {
+  const [expandedSpotId, setExpandedSpotId] = useState<string | null>(null)
   if (spots.length === 0) return null
 
   return (
@@ -277,31 +278,48 @@ function AccessSpotsSection({ spots, planningOnly }: { spots: FishingAccessSpot[
                 {i + 1}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap mb-1">
-                  <p className="text-sm font-black text-[var(--text)] leading-tight">{spot.name}</p>
-                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded"
-                    style={{ background: 'var(--surface-overlay)', color: 'var(--text-faint)', border: '1px solid var(--border)' }}>
-                    {accessTypeLabel(spot.accessType)}
-                  </span>
-                </div>
-                <p className="text-xs leading-snug" style={{ color: 'var(--text-muted)' }}>{spot.directionsNote}</p>
-                <p className="text-[11px] mt-1" style={{ color: 'var(--text-faint)' }}>{spot.riverFeature}</p>
-                <p className="text-[11px] mt-1.5 leading-snug" style={{ color: planningOnly ? 'var(--live)' : 'var(--warning)' }}>
-                  {spot.legalityNote}
-                </p>
-                <div className="flex items-center justify-between gap-2 mt-2">
-                  <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>{spot.sourceName}</span>
-                  {spot.lat != null && spot.lng != null && (
-                    <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${spot.lat},${spot.lng}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[10px] font-bold underline"
-                      style={{ color: 'var(--accent)' }}>
-                      Map ↗
-                    </a>
-                  )}
-                </div>
+                <button
+                  onClick={() => setExpandedSpotId(expandedSpotId === spot.id ? null : spot.id)}
+                  className="w-full text-left"
+                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                >
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <p className="text-sm font-black text-[var(--text)] leading-tight">{spot.name}</p>
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded"
+                      style={{ background: 'var(--surface-overlay)', color: 'var(--text-faint)', border: '1px solid var(--border)' }}>
+                      {accessTypeLabel(spot.accessType)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs font-semibold" style={{ color: planningOnly ? 'var(--live)' : 'var(--warning)' }}>
+                      {planningOnly ? 'Planning only' : 'Public access'} · {spot.riverFeature}
+                    </p>
+                    <span className="text-[11px] font-bold" style={{ color: 'var(--accent)' }}>
+                      {expandedSpotId === spot.id ? 'Hide details' : 'Details'}
+                    </span>
+                  </div>
+                </button>
+                {expandedSpotId === spot.id && (
+                  <div className="mt-2">
+                    <p className="text-xs leading-snug" style={{ color: 'var(--text-muted)' }}>{spot.directionsNote}</p>
+                    <p className="text-[11px] mt-1.5 leading-snug" style={{ color: planningOnly ? 'var(--live)' : 'var(--warning)' }}>
+                      {spot.legalityNote}
+                    </p>
+                    <div className="flex items-center justify-between gap-2 mt-2">
+                      <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>{spot.sourceName}</span>
+                      {spot.lat != null && spot.lng != null && (
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${spot.lat},${spot.lng}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[10px] font-bold underline"
+                          style={{ color: 'var(--accent)' }}>
+                          Map ↗
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -324,6 +342,7 @@ interface FishInRiverViewProps {
 function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack }: FishInRiverViewProps) {
   const [selectedSegIdx, setSelectedSegIdx] = useState(0)
   const [segHighlighted, setSegHighlighted] = useState(false)
+  const [showGuideDetails, setShowGuideDetails] = useState(false)
   const today = new Date()
 
   // Regulations for this species at this water body
@@ -575,14 +594,28 @@ function FishInRiverView({ species, water, waterName, isSkagit, riverId, onBack 
               How to fish for {species.name}
             </p>
             <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
-              {tips.howToCatch.map((tip, i) => (
+              {(showGuideDetails ? tips.howToCatch : tips.howToCatch.slice(0, 1)).map((tip, i) => (
                 <div key={i} className="flex gap-3 px-4 py-3"
-                  style={{ background: 'var(--bg)', borderBottom: i < tips.howToCatch.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                  style={{ background: 'var(--bg)', borderBottom: i < (showGuideDetails ? tips.howToCatch.length : Math.min(tips.howToCatch.length, 1)) - 1 ? '1px solid var(--border)' : 'none' }}>
                   <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black mt-0.5"
                     style={{ background: 'rgba(242,101,34,0.2)', color: 'var(--accent)' }}>{i + 1}</span>
-                  <p className="text-sm leading-snug" style={{ color: 'var(--text-muted)' }}>{tip}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold leading-snug" style={{ color: 'var(--text)' }}>{tip.split(/ — |:|\.|,/)[0]}</p>
+                    {showGuideDetails && (
+                      <p className="text-xs leading-snug mt-1" style={{ color: 'var(--text-muted)' }}>{tip}</p>
+                    )}
+                  </div>
                 </div>
               ))}
+              {tips.howToCatch.length > 1 && (
+                <button
+                  onClick={() => setShowGuideDetails(v => !v)}
+                  className="px-4 py-2 text-left text-xs font-bold"
+                  style={{ color: 'var(--accent)', background: 'var(--bg)', border: 'none', borderTop: '1px solid var(--border)', width: '100%', cursor: 'pointer' }}
+                >
+                  {showGuideDetails ? 'Show summary' : `Show guide details (${tips.howToCatch.length - 1} more)`}
+                </button>
+              )}
             </div>
           </div>
         )}
