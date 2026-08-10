@@ -8,7 +8,8 @@ import WaterDetailSheet from '@/components/WaterDetailSheet'
 import DailyUpdatesBanner from '@/components/DailyUpdatesBanner'
 import { REGULATIONS, WATER_BODIES, isOpenOn, getOpenSpeciesForDate, daysUntilOpen, SPECIES, Species } from '@/lib/fishing-data'
 import { getActiveAlerts, EmergencyAlert } from '@/lib/emergency-alerts'
-import { getDailyUpdatesForDate, getNewUpdatesCount } from '@/lib/daily-updates'
+import { getDailyUpdatesForDate, getNewUpdatesCount, type DailyUpdate } from '@/lib/daily-updates'
+import { fetchLiveAlerts, formatLastUpdated } from '@/lib/live-alerts'
 import { useStarred } from '@/hooks/useStarred'
 import { WATER_COORDS } from '@/lib/water-coords'
 
@@ -615,6 +616,14 @@ export default function TodayPage() {
   const [liveAlerts, setLiveAlerts] = useState<WDFWLiveAlert[]>([])
   const [alertsLoading, setAlertsLoading] = useState(true)
 
+  // ── Supabase live alert data (replaces static when available) ──────────────
+  const [liveAlertData, setLiveAlertData] = useState<{
+    dailyUpdates: DailyUpdate[]
+    emergencyAlerts: EmergencyAlert[]
+    lastUpdated: string | null
+    fromSupabase: boolean
+  } | null>(null)
+
   const { starredFishIds, starredWaterIds, hydrated } = useStarred()
 
   // Reset all sheets when tapping active bottom nav tab
@@ -658,12 +667,32 @@ export default function TodayPage() {
     .sort((a, b) => (a.days ?? 99) - (b.days ?? 99))
     .slice(0, 6)
 
-  // Static alerts (from lib/emergency-alerts.ts)
-  const staticAlerts = getActiveAlerts(today)
+  // ── Supabase live data fetch (on mount) ─────────────────────────────────────
+  // Falls back to static bundled data if Supabase is unreachable.
+  useEffect(() => {
+    fetchLiveAlerts().then(result => {
+      setLiveAlertData(result)
+    })
+  }, [])
 
-  // Daily Updates — general statewide bulletin
-  const dailyUpdates = getDailyUpdatesForDate(today)
-  const newUpdatesCount = getNewUpdatesCount(today)
+  // Static fallbacks — used until Supabase responds
+  const staticAlerts = getActiveAlerts(today)
+  const staticDailyUpdates = getDailyUpdatesForDate(today)
+  const staticNewUpdatesCount = getNewUpdatesCount(today)
+
+  // Use Supabase data when available, otherwise fall back to static
+  const activeEmergencyAlerts: EmergencyAlert[] = liveAlertData?.emergencyAlerts ?? staticAlerts
+  const dailyUpdates: DailyUpdate[] = liveAlertData
+    ? liveAlertData.dailyUpdates.filter(u => {
+        const d = today.toISOString().slice(0, 10)
+        if (!u.featured) return false
+        if (u.activeFrom > d) return false
+        if (u.activeTo && u.activeTo < d) return false
+        return true
+      }).slice(0, 5)
+    : staticDailyUpdates
+  const newUpdatesCount = liveAlertData ? 0 : staticNewUpdatesCount
+  const alertsLastUpdated = formatLastUpdated(liveAlertData?.lastUpdated ?? null)
 
   // Live WDFW RSS alerts
   useEffect(() => {
@@ -673,7 +702,7 @@ export default function TodayPage() {
       .catch(() => setAlertsLoading(false))
   }, [])
 
-  const totalAlertCount = staticAlerts.length + liveAlerts.length
+  const totalAlertCount = activeEmergencyAlerts.length + liveAlerts.length
 
   const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 
@@ -1186,7 +1215,7 @@ export default function TodayPage() {
               style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 20px)' }}>
 
               {/* No alerts state */}
-              {!alertsLoading && staticAlerts.length === 0 && liveAlerts.length === 0 && (
+              {!alertsLoading && activeEmergencyAlerts.length === 0 && liveAlerts.length === 0 && (
                 <div className="flex flex-col items-center py-10 gap-3">
                   <div className="w-12 h-12 rounded-full flex items-center justify-center"
                     style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)' }}>
@@ -1205,17 +1234,21 @@ export default function TodayPage() {
                 </div>
               )}
 
-              {/* ── Static emergency alerts (detailed, with species/water/description) ── */}
-              {staticAlerts.length > 0 && (
+              {/* ── Emergency alerts (Supabase live, falls back to static) ── */}
+              {activeEmergencyAlerts.length > 0 && (
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-faint)' }}>
                       Active Rules — All Species
                     </p>
-                    <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>Verified by daily monitor</span>
+                    <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>
+                      {liveAlertData?.fromSupabase
+                        ? (alertsLastUpdated ?? 'Live data')
+                        : 'Verified by daily monitor'}
+                    </span>
                   </div>
                   <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(239,68,68,0.25)' }}>
-                    {staticAlerts.map((alert: EmergencyAlert, i: number) => {
+                    {activeEmergencyAlerts.map((alert: EmergencyAlert, i: number) => {
                       const typeColor = alert.type === 'CLOSED' ? 'var(--live)' : alert.type === 'OPEN' ? 'var(--status-open-bright)' : 'var(--amber)'
                       const typeBg = alert.type === 'CLOSED' ? 'rgba(239,68,68,0.12)' : alert.type === 'OPEN' ? 'rgba(34,197,94,0.12)' : 'rgba(245,158,11,0.12)'
                       return (
@@ -1223,7 +1256,7 @@ export default function TodayPage() {
                           className="px-4 py-3"
                           style={{
                             background: 'var(--surface)',
-                            borderBottom: i < staticAlerts.length - 1 ? '1px solid var(--border)' : 'none',
+                            borderBottom: i < activeEmergencyAlerts.length - 1 ? '1px solid var(--border)' : 'none',
                           }}>
                           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                             <span className="text-xs font-black px-2 py-0.5 rounded-full"
@@ -1291,7 +1324,7 @@ export default function TodayPage() {
                   </div>
                 </div>
               ) : (
-                !alertsLoading && staticAlerts.length > 0 && (
+                !alertsLoading && activeEmergencyAlerts.length > 0 && (
                   <p className="text-xs text-center py-2" style={{ color: 'var(--text-faint)' }}>
                     Live WDFW feed unavailable — check wdfw.wa.gov for the latest
                   </p>

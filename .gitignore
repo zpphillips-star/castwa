@@ -44,3 +44,5 @@ next-env.d.ts
 
 # Source/working fish photo files (processed; not part of repo)
 fish photos with no background/
+
+supabase/.temp/
