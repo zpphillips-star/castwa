@@ -77,7 +77,7 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     type: 'CLOSED',
     species: 'Sockeye Salmon',
     waterBody: 'Columbia River (most sections)',
-    description: 'Columbia River sockeye severely restricted — below-forecast returns (run downgraded to 38,600). Lower/mid-Columbia (Astoria to Priest Rapids): closed to sockeye July 6–31; reverts to pamphlet August 1+ (verify WDFW). 🚨 Priest Rapids Dam to Chief Joseph Dam: closed to ALL salmon July 1–August 31. Possible limited reopening of lower sections if returns improve — verify WDFW before fishing any Columbia River section.',
+    description: 'Columbia River sockeye — pre-season forecast 275,000 but returns tracked well below expectations. 🚨 Priest Rapids Dam to Chief Joseph Dam: CLOSED to ALL salmon July 1–August 31 (expires Aug 31). Lower/mid-Columbia (Astoria to Priest Rapids): sockeye closure (Jul 6–31) has expired — pamphlet rules now apply as of Aug 1. Verify WDFW before fishing any Columbia River section.',
     activeFrom: '2026-06-18',
     activeTo: '2026-08-31',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/columbia-river-salmon-and-steelhead-fishery-update-2026-06',
@@ -314,6 +314,20 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeFrom: '2026-08-16',
     activeTo: '2026-09-30',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/summer-halibut-fishery-2026-2026-08',
+  },
+  // ── QUILLAYUTE & SOL DUC RIVERS — RELEASE WILD JACK CHINOOK & WILD JACK COHO ─
+  // Source: WDFW ER 26-62-136494 (pub. Apr 23 2026). North of Falcon harvest management
+  // agreement with co-managers. Conservation concern for wild summer Chinook and coho.
+  // Effective May 1, 2026, until further notice.
+  {
+    id: 'ea-quillayute-sol-duc-wild-jack-2026',
+    type: 'MODIFIED',
+    species: 'Chinook Salmon, Coho Salmon',
+    waterBody: 'Quillayute River (ONP boundary to Sol Duc/Bogachiel confluence) & Sol Duc River (mouth to Sol Duc Hatchery pump station)',
+    description: '⚠️ Quillayute & Sol Duc Rivers MODIFIED — wild jack Chinook and wild jack coho must be released (effective May 1, 2026, until further notice). Daily limit 2. Minimum size 12". Release sockeye, wild Chinook, and wild jack coho. Only hatchery (adipose fin-clipped) jack Chinook and jack coho may be retained. Single-point barbless hook required for all species. Locations: Quillayute River from ONP park boundary upstream to Sol Duc/Bogachiel confluence; Sol Duc River from mouth to concrete pump station at Sol Duc Hatchery.',
+    activeFrom: '2026-05-01',
+    activeTo: null,
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/quillayute-and-sol-duc-river-anglers-must-release-wild-jack-chinook-and-wild-jack-coho-beginning-may-2026-04',
   },
 ]
 
