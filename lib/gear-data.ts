@@ -299,7 +299,7 @@ export const GEAR: Record<string, GearInfo> = {
     bait: [g('Octopus whole or pieces halibut'), g('Salmon belly strips halibut'), g('Large herring whole'), g('Squid herring combo halibut')],
     rodSetup: '7–8 ft heavy trolling/bottom rod · 80–100 lb braid · 60–100 lb fluorocarbon leader · 8–24 oz sinker (enough to hold bottom)',
     technique: [
-      'Halibut season is currently CLOSED in WA (closed June 28-30, 2026) — check IPHC/WDFW for next opening',
+      '⚠️ Halibut 2026: MA 1 (Columbia R.) & MA 2 (Westport) OPEN Aug 8 – Sep 30 (open now). MA 3–10 opens Aug 16 – Sep 30. MA 11/12/13 CLOSED for the year. Daily limit 1, no min size, catch record card required. Seasons close early if quota taken — verify WDFW before fishing.',
       'Fish flat sandy or muddy bottom in 100–300 ft of water near offshore banks',
       'Anchor or drift over structure; bait rests on bottom on a slider or spreader bar',
       'Halibut are ambush predators — large bait = large fish',

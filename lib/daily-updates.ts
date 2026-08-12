@@ -68,12 +68,12 @@ export const DAILY_UPDATES: DailyUpdate[] = [
     featured: true,
     featuredLabel: 'Season Reopening',
     icon: '🐟',
-    headline: 'Halibut: Reopens Aug 8 (south) and Aug 16 (north & Puget Sound)',
+    headline: 'Halibut: MA 1–2 OPEN now thru Sep 30; MA 3–10 opens Aug 16; MA 11/12/13 closed',
     subtext: 'All WA Marine Areas — daily limit 1, catch record card required',
     detail:
-      'All WA primary halibut seasons are currently CLOSED. Confirmed reopenings:\n\n' +
-      '✅ MA 1 (Columbia River) & MA 2 (Westport / Ocean Shores): Aug 8 – Sep 30, daily, limit 1.\n' +
-      '✅ MA 3–4 (North Coast / Neah Bay / La Push) & MA 5–10 (Puget Sound / Strait): Aug 16 – Sep 30, daily, limit 1.\n' +
+      'Halibut is NOW OPEN in some WA marine areas through Sept 30, 2026:\n\n' +
+      '✅ MA 1 (Columbia River) & MA 2 (Westport / Ocean Shores): OPEN NOW Aug 8 – Sep 30, daily, limit 1.\n' +
+      '✅ MA 3–4 (North Coast / Neah Bay / La Push) & MA 5–10 (Puget Sound / Strait): Opens Aug 16 – Sep 30, daily, limit 1.\n' +
       '🚫 MA 11 (Tacoma), MA 12 (Hood Canal), MA 13 (South Puget Sound): CLOSED for the year.\n\n' +
       'No minimum size. Catch record card required. Seasons may close early if quota is reached.',
     activeFrom: '2026-06-28',
