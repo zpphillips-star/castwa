@@ -138,7 +138,7 @@ function HeroCard({
       {/* Bottom gradient overlay */}
       <div style={{
         position: 'absolute', bottom: 0, left: 0, right: 0, height: 100,
-        background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.5) 55%, transparent 100%)',
+        background: 'linear-gradient(to top, rgba(6,28,40,0.92) 0%, rgba(6,28,40,0.5) 55%, transparent 100%)',
         pointerEvents: 'none',
       }} />
 
