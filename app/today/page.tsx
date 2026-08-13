@@ -359,7 +359,7 @@ function fmtHour(h: number): string {
   return `${disp}:${min.toString().padStart(2, '0')} ${ampm}`
 }
 
-function SolunarTimeline({ date, variant = 'row' }: { date: Date; variant?: 'row' | 'card' }) {
+function SolunarTimeline({ date }: { date: Date }) {
   const { major, minor } = getSolunarPeriods(date)
   const nowHour = date.getHours() + date.getMinutes() / 60
   const [open, setOpen] = useState(false)
@@ -412,47 +412,28 @@ function SolunarTimeline({ date, variant = 'row' }: { date: Date; variant?: 'row
   }
 
   const dayLabel = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
-  const isCard = variant === 'card'
 
   return (
     <>
       {/* ── Banner row ── */}
       <button
         onClick={() => setOpen(true)}
-        className={isCard
-          ? "w-full text-left rounded-2xl transition-all active:scale-[0.99] flex flex-col justify-between"
-          : "w-full text-left rounded-xl mb-5 transition-all active:scale-[0.99] flex items-center gap-4"}
+        className="w-full text-left rounded-xl mb-5 transition-all active:scale-[0.99] flex items-center gap-4"
         style={{
           background: activeWindow ? activeWindow.color : 'var(--surface-overlay)',
           border: `1px solid ${activeWindow ? 'transparent' : 'var(--border)'}`,
           cursor: 'pointer',
-          minHeight: isCard ? 118 : 56,
-          padding: isCard ? '14px' : undefined,
-          paddingLeft: isCard ? undefined : 24,
-          paddingRight: isCard ? undefined : 24,
+          minHeight: 56,
+          paddingLeft: 24,
+          paddingRight: 24,
         }}>
-        {isCard ? (
-          <>
-            <div className="flex items-start justify-between w-full gap-2">
-              <span className="text-2xl leading-none">🌙</span>
-              <span className="text-base font-light" style={{ color: activeWindow ? '#ffffff' : 'var(--text-faint)', opacity: 0.8 }}>›</span>
-            </div>
-            <div className="w-full min-w-0">
-              <p className="text-sm font-black text-[var(--text)] leading-tight">Best Bite Times</p>
-              <p className="text-xs font-semibold mt-1 leading-snug" style={{ color: activeWindow ? '#fff' : statusColor }}>{statusText}</p>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="flex-1 min-w-0">
-              <p className="text-base font-bold text-[var(--text)]">Best Bite Times</p>
-            </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <span className="text-sm font-semibold" style={{ color: activeWindow ? '#fff' : statusColor }}>{statusText}</span>
-              <span className="text-lg font-light" style={{ color: activeWindow ? '#ffffff' : 'var(--text-faint)', opacity: 0.8 }}>›</span>
-            </div>
-          </>
-        )}
+        <div className="flex-1 min-w-0">
+          <p className="text-base font-bold text-[var(--text)]">Best Bite Times</p>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className="text-sm font-semibold" style={{ color: activeWindow ? '#fff' : statusColor }}>{statusText}</span>
+          <span className="text-lg font-light" style={{ color: activeWindow ? '#ffffff' : 'var(--text-faint)', opacity: 0.8 }}>›</span>
+        </div>
       </button>
 
       {/* ── Bottom sheet modal ── */}
@@ -742,63 +723,48 @@ export default function TodayPage() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 lg:px-8 pt-4">
-        {/* Mobile: featured action grid — the top four daily links */}
-        <div className="lg:hidden grid grid-cols-2 gap-3 mb-4">
-          <button
-            onClick={() => setShowAlertsSheet(true)}
-            className="w-full text-left rounded-2xl transition-all active:scale-[0.99] flex flex-col justify-between cursor-pointer"
-            style={{
-              background: totalAlertCount > 0 ? 'rgba(239,68,68,0.10)' : 'var(--surface-overlay)',
-              border: `1px solid ${totalAlertCount > 0 ? 'rgba(239,68,68,0.3)' : 'var(--border)'}`,
-              minHeight: 118,
-              padding: 14,
-            }}
-          >
-            <div className="flex items-start justify-between w-full gap-2">
-              <span className="text-2xl leading-none">{totalAlertCount > 0 ? '⚠️' : '✓'}</span>
-              <span className="text-base font-light" style={{ color: totalAlertCount > 0 ? 'var(--live)' : 'var(--text-faint)', opacity: 0.8 }}>›</span>
-            </div>
-            <div className="w-full min-w-0">
-              <p className="text-sm font-black text-[var(--text)] leading-tight">Emergency Rules</p>
-              <p className="text-xs font-semibold mt-1" style={{ color: totalAlertCount > 0 ? 'var(--live-soft)' : 'var(--text-muted)' }}>
-                {alertsLoading ? 'Checking…' : totalAlertCount > 0 ? `${totalAlertCount} active` : 'All clear'}
-              </p>
-            </div>
-          </button>
+        {/* Mobile: Emergency Rules banner (hidden on desktop — shown in header) */}
+        <button
+          onClick={() => setShowAlertsSheet(true)}
+          className="lg:hidden w-full text-left rounded-xl mb-2 transition-all active:scale-[0.99] flex items-center gap-4 cursor-pointer"
+          style={{
+            background: totalAlertCount > 0 ? 'rgba(239,68,68,0.10)' : 'var(--surface-overlay)',
+            border: `1px solid ${totalAlertCount > 0 ? 'rgba(239,68,68,0.3)' : 'var(--border)'}`,
+            minHeight: 56,
+            paddingLeft: 24,
+            paddingRight: 24,
+          }}
+        >
+          <div className="flex-1 min-w-0">
+            <p className="text-base font-bold text-[var(--text)]">Emergency Rules</p>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-sm font-semibold" style={{ color: totalAlertCount > 0 ? 'var(--live-soft)' : 'var(--text-muted)' }}>
+              {alertsLoading ? 'Checking…' : totalAlertCount > 0 ? `${totalAlertCount} active` : 'All clear'}
+            </span>
+            <span className="text-lg font-light" style={{ color: totalAlertCount > 0 ? 'var(--live)' : 'var(--text-faint)', opacity: 0.8 }}>›</span>
+          </div>
+        </button>
 
-          <SolunarTimeline date={today} variant="card" />
-
-          <DailyUpdatesBanner updates={dailyUpdates} date={today} newCount={newUpdatesCount} variant="card" />
-
-          <button
-            onClick={() => setShowShellfishMap(true)}
-            className="w-full text-left rounded-2xl transition-all active:scale-[0.99] flex flex-col justify-between cursor-pointer"
-            style={{
-              background: 'rgba(245,158,11,0.08)',
-              border: '1.5px solid rgba(245,158,11,0.3)',
-              minHeight: 118,
-              padding: 14,
-            }}
-          >
-            <div className="flex items-start justify-between w-full gap-2">
-              <span className="text-2xl leading-none">🦪</span>
-              <span className="text-base font-light" style={{ color: 'rgba(245,158,11,0.7)' }}>›</span>
-            </div>
-            <div className="w-full min-w-0">
-              <p className="text-sm font-black text-[var(--text)] leading-tight">Shellfish Beaches</p>
-              <p className="text-xs font-semibold mt-1 leading-snug" style={{ color: 'var(--text-muted)' }}>Open, closed &amp; advisories</p>
-            </div>
-          </button>
+        {/* Mobile: Best Bite Times — right under Emergency Rules (desktop version is in right column) */}
+        <div className="lg:hidden mt-2 mb-2">
+          <SolunarTimeline date={today} />
         </div>
 
-        {/* ── Shellfish Beaches card ── desktop keeps the wider feature treatment ── */}
+        {/* Mobile: Daily Updates — right under Best Bite Times */}
+        <div className="lg:hidden mb-4">
+          <DailyUpdatesBanner updates={dailyUpdates} date={today} newCount={newUpdatesCount} />
+        </div>
+
+        {/* ── Shellfish Beaches card ── always visible, both mobile + desktop ── */}
         <button
           onClick={() => setShowShellfishMap(true)}
-          className="hidden lg:flex w-full text-left rounded-2xl mb-4 transition-all active:scale-[0.99] cursor-pointer"
+          className="w-full text-left rounded-2xl mb-4 transition-all active:scale-[0.99] cursor-pointer"
           style={{
             background: 'rgba(245,158,11,0.08)',
             border: '1.5px solid rgba(245,158,11,0.3)',
             padding: '14px 18px',
+            display: 'flex',
             alignItems: 'center',
             gap: '14px',
           }}
