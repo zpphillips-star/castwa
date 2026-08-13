@@ -81,21 +81,21 @@ export const DAILY_UPDATES: DailyUpdate[] = [
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/halibut',
   },
 
-  // ── MA 6 SHRIMP — OPENS TODAY AUG 2 ─────────────────────────────────────────
+  // ── MA 6 SHRIMP — NON-SPOT ONLY THROUGH OCT 15 ──────────────────────────────
   {
     id: 'du-ma6-shrimp-aug2-2026',
     category: 'shrimp',
-    priority: 'alert',
+    priority: 'info',
     featured: true,
-    featuredLabel: 'Opens Today',
+    featuredLabel: 'Season Active',
     icon: '🦐',
-    headline: 'MA 6 shrimp opens TODAY — all species, daylight only',
-    subtext: 'Marine Area 6 (excl. Discovery Bay) · Aug 2 only for spot shrimp',
+    headline: 'MA 6 shrimp: non-spot only through Oct 15 (spot shrimp season closed)',
+    subtext: 'Marine Area 6 (excl. Discovery Bay) · depth limit 175 ft · through Oct 15',
     detail:
-      'Marine Area 6 (excluding Discovery Bay Shrimp District) opens TODAY (Aug 2) for ALL shrimp species, daylight hours only.\n\n' +
-      '⚠️ SPOT SHRIMP: today (Aug 2) is the ONLY day you can keep spot shrimp in MA 6 this year.\n' +
-      '✅ Starting Aug 3 through Oct 15: non-spot shrimp only (depth limit 175 ft). All spot shrimp must be immediately released.\n\n' +
-      'Daily limit: 80 spot shrimp (today only) or 10 lb combined non-spot.\n' +
+      'Marine Area 6 (excluding Discovery Bay Shrimp District) is open for NON-SPOT shrimp only through October 15, 2026.\n\n' +
+      '⚠️ SPOT SHRIMP: The all-species day was Aug 2 only (now past). Spot shrimp must be immediately released in MA 6.\n' +
+      '✅ Non-spot shrimp open Aug 3 – Oct 15 (depth limit 175 ft). All spot shrimp caught must be immediately released.\n\n' +
+      'Daily limit: 10 lb combined (non-spot only).\n' +
       'Pots must be set and pulled during daylight (1 hr before sunrise to 1 hr after sunset). All traps must be removed when closed.\n' +
       'Heads must be retained until ashore.',
     activeFrom: '2026-08-02',
