@@ -51,7 +51,7 @@
   --amber:        #f59e0b;          /* starred items, hatchery badge */
   --amber-dim:    rgba(245,158,11,0.12);
   --blue:         #60a5fa;          /* water / river accent */
-  --status-open-bright: #4ade80;   /* bright green used in map legend */
+  --status-open-bright: #7fb069;   /* muted open green used in map legend */
   --border-inactive: rgba(107,114,128,0.38); /* closed/inactive border */
   --text-on-color: #ffffff;         /* text ON a colored badge/button bg */
   --live-soft:    #fca5a5;          /* soft red text in error banners */

@@ -432,12 +432,14 @@ interface DailyUpdatesBannerProps {
   updates: DailyUpdate[]
   date: Date
   newCount?: number
+  compact?: boolean
 }
 
 export default function DailyUpdatesBanner({
   updates,
   date,
   newCount = 0,
+  compact = false,
 }: DailyUpdatesBannerProps) {
   const [open,     setOpen]     = useState(false)
   const [selected, setSelected] = useState<DailyUpdate | null>(null)
@@ -456,13 +458,13 @@ export default function DailyUpdatesBanner({
       <button
         onClick={() => {}}
         disabled
-        className="w-full text-left rounded-xl flex items-center gap-4"
+        className={`w-full text-left flex items-center gap-4 ${compact ? 'rounded-none' : 'rounded-xl'}`}
         style={{
-          background: 'var(--surface-overlay)',
-          border: '1px solid var(--border)',
-          minHeight: 56,
-          paddingLeft: 24,
-          paddingRight: 24,
+          background: compact ? 'transparent' : 'var(--surface-overlay)',
+          border: compact ? 'none' : '1px solid var(--border)',
+          minHeight: compact ? 52 : 56,
+          paddingLeft: compact ? 4 : 24,
+          paddingRight: compact ? 4 : 24,
           cursor: 'default',
         }}
       >
@@ -479,14 +481,16 @@ export default function DailyUpdatesBanner({
       {/* ── Entry button — same collapsed style as Emergency Rules / Best Bite Times ── */}
       <button
         onClick={() => setOpen(true)}
-        className="w-full text-left rounded-xl transition-all active:scale-[0.99] flex items-center gap-4"
+        className={`w-full text-left transition-all active:scale-[0.99] flex items-center gap-4 ${compact ? 'rounded-none' : 'rounded-xl'}`}
         style={{
-          background: hasAlerts ? 'rgba(239,68,68,0.08)' : 'var(--surface-overlay)',
-          border: `1px solid ${hasAlerts ? 'rgba(239,68,68,0.25)' : 'var(--border)'}`,
+          background: compact
+            ? (hasAlerts ? 'rgba(239,68,68,0.08)' : 'transparent')
+            : (hasAlerts ? 'rgba(239,68,68,0.08)' : 'var(--surface-overlay)'),
+          border: compact ? 'none' : `1px solid ${hasAlerts ? 'rgba(239,68,68,0.25)' : 'var(--border)'}`,
           cursor: 'pointer',
-          minHeight: 56,
-          paddingLeft: 24,
-          paddingRight: 24,
+          minHeight: compact ? 52 : 56,
+          paddingLeft: compact ? 4 : 24,
+          paddingRight: compact ? 4 : 24,
         }}
       >
         <div className="flex-1 min-w-0">
