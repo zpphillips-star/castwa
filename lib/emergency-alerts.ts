@@ -144,31 +144,67 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
   // ── COMMENCEMENT BAY (MA 11) SALMON — CHINOOK LIMIT MODIFICATION ─────────
   // Source: WDFW ER 26-136-136857 (pub. Jul 29 2026). Rule change aligns
   // Commencement Bay with the rest of Marine Area 11 per 2026 North of Falcon
-  // season setting process. Effective Aug 1 – Sept 30, 2026.
+  // season setting process. Effective Aug 1–14, 2026.
+  // ⚠️ SUPERSEDED as of Aug 15: full MA 11 Chinook retention closure effective Aug 15–Sept 30
+  //    (see ea-ma11-chinook-closed-2026). Year-round piers (Des Moines, Les Davis, Point Defiance,
+  //    Redondo) exempt from that broader closure.
   {
     id: 'ea-commencement-bay-salmon-2026',
     type: 'MODIFIED',
     species: 'Salmon (hatchery Chinook)',
     waterBody: 'Marine Area 11, Commencement Bay',
-    description: 'Commencement Bay (MA 11) salmon MODIFIED starting Aug 1, 2026. No more than one hatchery Chinook may be retained as part of the daily limit. Daily limit 2, ≤1 hatchery Chinook. Chinook min 22". Other salmon species no minimum size. Release chum and wild Chinook. Location: east of a line bearing 215° true from the Cliff House Restaurant (47°17.85\'N, 122°25.90\'W) through Sperry Ocean Dock (47°16.43\'N, 122°27.37\'W).',
+    description: 'Commencement Bay (MA 11) salmon MODIFIED Aug 1–14, 2026. No more than one hatchery Chinook may be retained as part of the daily limit. Daily limit 2, ≤1 hatchery Chinook. Chinook min 22". Other salmon species no minimum size. Release chum and wild Chinook. Location: east of a line bearing 215° true from the Cliff House Restaurant (47°17.85\'N, 122°25.90\'W) through Sperry Ocean Dock (47°16.43\'N, 122°27.37\'W). ⚠️ Superseded by MA 11 Chinook closure starting Aug 15 — see separate alert.',
     activeFrom: '2026-08-01',
-    activeTo: '2026-09-30',
+    activeTo: '2026-08-14',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/commencement-bay-salmon-fishery-update-2026-07',
+  },
+  // ── MARINE AREA 11 (TACOMA / VASHON ISLAND) — CHINOOK RETENTION CLOSED ────
+  // Source: WDFW ER 26-151-136909 (pub. Aug 12 2026). Sublegal Chinook encounter guideline
+  // projected to be reached by Aug 14; closure adheres to 2026 North of Falcon agreements.
+  // Exception: year-round piers (Des Moines Pier, Les Davis Pier, Point Defiance Boathouse
+  // Dock, Redondo Pier) follow pamphlet rules.
+  // Effective Aug 15 – Sept 30, 2026.
+  {
+    id: 'ea-ma11-chinook-closed-2026',
+    type: 'CLOSED',
+    species: 'Chinook Salmon',
+    waterBody: 'Marine Area 11 (Tacoma / Vashon Island)',
+    description: '🚨 MA 11 Chinook retention CLOSED Aug 15–Sept 30, 2026 — sublegal encounter guideline reached. Salmon rules: daily limit 2, release chum and all Chinook. Exception: year-round piers (Des Moines Pier, Les Davis Pier, Point Defiance Boathouse Dock, Redondo Pier) follow standard pamphlet rules for those locations.',
+    activeFrom: '2026-08-15',
+    activeTo: '2026-09-30',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-11-tacoma-and-vashon-island-salmon-fishery-update-2026-08',
   },
   // ── MARINE AREA 6 (EAST JUAN DE FUCA) CHINOOK LIMIT REDUCED ────────────────
   // Source: WDFW ER 26-141-136875 (pub. Aug 5 2026). Chinook reduced to avoid early quota closure.
   // Applies to MA 6 Chinook Selective Fishery area: waters west of true N/S line through
   // #2 Buoy immediately east of Ediz Hook, except Freshwater Bay.
   // Effective Aug 7–15, 2026.
+  // ⚠️ SUPERSEDED as of Aug 13: full Chinook retention closure effective Aug 13–15 (see ea-ma6-chinook-closed-2026).
   {
     id: 'ea-ma6-chinook-limit-reduced-2026',
     type: 'MODIFIED',
     species: 'Chinook Salmon',
     waterBody: 'Marine Area 6 (East Juan de Fuca Strait, Chinook Selective Fishery Area)',
-    description: '⚠️ MA 6 Chinook daily limit REDUCED — max 1 hatchery Chinook, Aug 7–15, 2026. Applies west of the true N/S line through the #2 Buoy east of Ediz Hook. ⚠️ Freshwater Bay remains CLOSED to salmon. Daily limit 2 total, no more than 1 Chinook. Chinook min 22". All other salmon species no minimum size. Release chum, sockeye, wild coho, and wild Chinook.',
+    description: '⚠️ MA 6 Chinook daily limit REDUCED — max 1 hatchery Chinook, Aug 7–12, 2026 (superseded by full Chinook retention closure starting Aug 13 — see separate alert). Applies west of the true N/S line through the #2 Buoy east of Ediz Hook. ⚠️ Freshwater Bay remains CLOSED to salmon. Daily limit 2 total, no more than 1 Chinook. Chinook min 22". All other salmon species no minimum size. Release chum, sockeye, wild coho, and wild Chinook.',
     activeFrom: '2026-08-07',
-    activeTo: '2026-08-15',
+    activeTo: '2026-08-12',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-6-east-juan-de-fuca-strait-chinook-daily-limit-reduced-2026-08',
+  },
+  // ── MARINE AREA 6 (EAST JUAN DE FUCA) CHINOOK RETENTION CLOSED ───────────
+  // Source: WDFW ER 26-149-136913 (pub. Aug 12 2026). Allowable Chinook legal-size encounter
+  // limit for summer season has been reached. Closes Chinook retention in the MA 6 Chinook
+  // Selective Fishery area. Supersedes ea-ma6-chinook-limit-reduced-2026 as of Aug 13.
+  // MA 6 remains open for hatchery coho (daily through Sept 24; non-selective coho Sept 25–Oct 15).
+  // Effective Aug 13–15, 2026.
+  {
+    id: 'ea-ma6-chinook-closed-2026',
+    type: 'CLOSED',
+    species: 'Chinook Salmon',
+    waterBody: 'Marine Area 6 (East Juan de Fuca Strait, Chinook Selective Fishery Area)',
+    description: '🚨 MA 6 Chinook retention CLOSED Aug 13–15, 2026 — encounter limit reached. Location: waters west of true N/S line through the #2 Buoy east of Ediz Hook (except Freshwater Bay). Salmon rules: daily limit 2, release Chinook, chum, sockeye, and wild coho. ⚠️ Freshwater Bay remains CLOSED to all salmon. MA 6 remains open for hatchery coho (daily through Sept 24; non-selective coho Sept 25–Oct 15).',
+    activeFrom: '2026-08-13',
+    activeTo: '2026-08-15',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-6-east-juan-de-fuca-strait-chinook-retention-closes-aug-13-2026-08',
   },
   // ── MARINE AREA 7 (SAN JUAN ISLANDS) SALMON — ADDITIONAL DAY AUG 6 ───────
   // Source: WDFW ER 26-138-136860 (pub. Jul 31 2026). Catch estimates indicate
@@ -223,15 +259,19 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
   // ── MARINE AREA 1 (ILWACO) SALMON SEASON ────────────────────────────────
   // Source: WDFW ER 26-101-136685 (pub. Jun 10 2026). Season open Jun 20–Sept 30 2026.
   // Daily limit 2, ≤1 Chinook. Chinook min 22". Coho min 16". Release wild coho.
+  // UPDATE: WDFW ER 26-150-136907 (pub. Aug 12 2026) adds a near-shore partial closure
+  // effective Aug 13–Sept 30: waters north of 46°15'N and east of 124°08.667'W are CLOSED
+  // to salmon fishing. Outside that zone: limit 2 (≤1 Chinook), Chinook min 22", coho min 16", release wild coho.
+  // North Jetty remains open under the more liberal of MA 1 or Buoy 10 rules.
   {
     id: 'ea-ma1-salmon-2026',
-    type: 'OPEN',
+    type: 'MODIFIED',
     species: 'Salmon (Chinook & Coho)',
     waterBody: 'Marine Area 1 (Ilwaco)',
-    description: 'Marine Area 1 (Ilwaco) salmon open June 20 – Sept 30, 2026. Daily limit 2 including no more than 1 Chinook. Chinook min 22". Coho min 16". Release wild coho. Columbia River Control Zone closed except from north jetty when adjacent waters are open.',
+    description: 'Marine Area 1 (Ilwaco) salmon open June 20–Sept 30, 2026. ⚠️ PARTIAL CLOSURE effective Aug 13: waters north of 46°15\'N and east of 124°08.667\'W (near-shore area from ~mid-mouth Columbia River north, within ~3 miles of shore) are CLOSED to salmon. Outside that area: limit 2, ≤1 Chinook (min 22"), coho min 16", release wild coho. Columbia River Control Zone closed except from north jetty when adjacent waters are open. North Jetty follows the more liberal rules of MA 1 or Buoy 10 fishery.',
     activeFrom: '2026-06-20',
     activeTo: '2026-09-30',
-    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-1-ilwaco-recreational-salmon-season-2026-06',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-1-ilwaco-recreational-salmon-season-update-2026-08',
   },
   // ── MARINE AREA 2 (WESTPORT / OCEAN SHORES) SALMON SEASON ────────────────
   // Source: WDFW ER 26-101-136686 (pub. Jun 10 2026). Season open Jun 20–Sept 30 2026.
