@@ -86,13 +86,13 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
   // Source: WDFW ER (pub. Jun 2026) + ER 26-147-136925 (pub. Aug 13 2026, MA 7N opening).
   // MA 7N confirmed open Aug 15–Sep 28 (Thu–Mon). MA 11 closes Aug 17.
   // MA 12 south of Ayock Pt and MA 13 remain CLOSED until further notice.
+  // UPDATE: WDFW ER (pub. Aug 13 2026) confirms MA 7 North opens Aug 15–Sept 28 (Thu–Mon).
   {
     id: 'ea-ps-crab-summer-2026',
     type: 'OPEN',
     species: 'Dungeness Crab',
     waterBody: 'Puget Sound (most areas)',
-    description: 'Summer Dungeness crab open Thu–Mon in most Puget Sound areas. MA 4E/5/6 & 8-1/8-2/9 & 12N: Jul 2–Sep 7. MA 10: Sun–Mon Jul 5–Sep 7. ⚠️ MA 11: Sun–Mon Jul 5–Aug 17 (closes Aug 17). MA 7S: Jul 16–Sep 28. ✅ MA 7N: Thu–Mon Aug 15–Sep 28 (now open — hardshell criteria met). MA 12S and MA 13 CLOSED. Daily limit 5 Dungeness, 6 Red Rock, 6 Tanner. Summer CRC required.',
-    activeFrom: '2026-07-02',
+    description: 'Summer Dungeness crab open Thu–Mon in most Puget Sound areas. MA 4E/5/6 & 8-1/8-2/9 & 12N: Jul 2–Sep 7. MA 10: Sun–Mon Jul 5–Sep 7. ⚠️ MA 11: Sun–Mon Jul 5–Aug 17 (closes Aug 17). MA 7S: Jul 16–Sep 28. ✅ MA 7N: Thu–Mon Aug 15–Sep 28 (now open — hardshell criteria met). MA 12S and MA 13 CLOSED. Daily limit 5 Dungeness, 6 Red Rock, 6 Tanner. Summer CRC required.',    activeFrom: '2026-07-02',
     activeTo: '2026-09-28',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/puget-sound-recreational-crabbing-update-marine-area-7-north-opens-aug-15-2026-08',
   },
@@ -159,22 +159,7 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeTo: '2026-08-14',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/commencement-bay-salmon-fishery-update-2026-07',
   },
-  // ── MARINE AREA 11 (TACOMA / VASHON ISLAND) — CHINOOK RETENTION CLOSED ────
-  // Source: WDFW ER 26-151-136909 (pub. Aug 12 2026). Sublegal Chinook encounter guideline
-  // projected to be reached by Aug 14; closure adheres to 2026 North of Falcon agreements.
-  // Exception: year-round piers (Des Moines Pier, Les Davis Pier, Point Defiance Boathouse
-  // Dock, Redondo Pier) follow pamphlet rules.
-  // Effective Aug 15 – Sept 30, 2026.
-  {
-    id: 'ea-ma11-chinook-closed-2026',
-    type: 'CLOSED',
-    species: 'Chinook Salmon',
-    waterBody: 'Marine Area 11 (Tacoma / Vashon Island)',
-    description: '🚨 MA 11 Chinook retention CLOSED Aug 15–Sept 30, 2026 — sublegal encounter guideline reached. Salmon rules: daily limit 2, release chum and all Chinook. Exception: year-round piers (Des Moines Pier, Les Davis Pier, Point Defiance Boathouse Dock, Redondo Pier) follow standard pamphlet rules for those locations.',
-    activeFrom: '2026-08-15',
-    activeTo: '2026-09-30',
-    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-11-tacoma-and-vashon-island-salmon-fishery-update-2026-08',
-  },
+
   // ── MARINE AREA 6 (EAST JUAN DE FUCA) CHINOOK LIMIT REDUCED ────────────────
   // Source: WDFW ER 26-141-136875 (pub. Aug 5 2026). Chinook reduced to avoid early quota closure.
   // Applies to MA 6 Chinook Selective Fishery area: waters west of true N/S line through
@@ -191,22 +176,7 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeTo: '2026-08-12',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-6-east-juan-de-fuca-strait-chinook-daily-limit-reduced-2026-08',
   },
-  // ── MARINE AREA 6 (EAST JUAN DE FUCA) CHINOOK RETENTION CLOSED ───────────
-  // Source: WDFW ER 26-149-136913 (pub. Aug 12 2026). Allowable Chinook legal-size encounter
-  // limit for summer season has been reached. Closes Chinook retention in the MA 6 Chinook
-  // Selective Fishery area. Supersedes ea-ma6-chinook-limit-reduced-2026 as of Aug 13.
-  // MA 6 remains open for hatchery coho (daily through Sept 24; non-selective coho Sept 25–Oct 15).
-  // Effective Aug 13–15, 2026.
-  {
-    id: 'ea-ma6-chinook-closed-2026',
-    type: 'CLOSED',
-    species: 'Chinook Salmon',
-    waterBody: 'Marine Area 6 (East Juan de Fuca Strait, Chinook Selective Fishery Area)',
-    description: '🚨 MA 6 Chinook retention CLOSED Aug 13–15, 2026 — encounter limit reached. Location: waters west of true N/S line through the #2 Buoy east of Ediz Hook (except Freshwater Bay). Salmon rules: daily limit 2, release Chinook, chum, sockeye, and wild coho. ⚠️ Freshwater Bay remains CLOSED to all salmon. MA 6 remains open for hatchery coho (daily through Sept 24; non-selective coho Sept 25–Oct 15).',
-    activeFrom: '2026-08-13',
-    activeTo: '2026-08-15',
-    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-6-east-juan-de-fuca-strait-chinook-retention-closes-aug-13-2026-08',
-  },
+
   // ── MARINE AREA 7 (SAN JUAN ISLANDS) SALMON — ADDITIONAL DAY AUG 6 ───────
   // Source: WDFW ER 26-138-136860 (pub. Jul 31 2026). Catch estimates indicate
   // sufficient summer Chinook quota remains for one more retention day.
