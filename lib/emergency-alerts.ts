@@ -83,17 +83,18 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/columbia-river-salmon-and-steelhead-fishery-update-2026-06',
   },
   // ── PUGET SOUND SUMMER CRAB ──────────────────────────────────────────────
-  // Source: WDFW ER (pub. Jun 2026). Summer Dungeness season open Thu–Mon most areas.
+  // Source: WDFW ER (pub. Jun 2026) + ER 26-147-136925 (pub. Aug 13 2026, MA 7N opening).
+  // MA 7N confirmed open Aug 15–Sep 28 (Thu–Mon). MA 11 closes Aug 17.
   // MA 12 south of Ayock Pt and MA 13 remain CLOSED until further notice.
   {
     id: 'ea-ps-crab-summer-2026',
     type: 'OPEN',
     species: 'Dungeness Crab',
     waterBody: 'Puget Sound (most areas)',
-    description: 'Summer Dungeness crab open Thu–Mon in most Puget Sound areas. MA 4E/5/6 & 8-1/8-2/9 & 12N: Jul 2–Sep 7. MA 10: Sun–Mon Jul 5–Sep 7. MA 11: Sun–Mon Jul 5–Aug 17. MA 7S: Jul 16–Sep 28. MA 7N TBD (~mid-Aug). MA 12S and MA 13 CLOSED. Daily limit 5 Dungeness. Summer CRC required.',
+    description: 'Summer Dungeness crab open Thu–Mon in most Puget Sound areas. MA 4E/5/6 & 8-1/8-2/9 & 12N: Jul 2–Sep 7. MA 10: Sun–Mon Jul 5–Sep 7. ⚠️ MA 11: Sun–Mon Jul 5–Aug 17 (closes Aug 17). MA 7S: Jul 16–Sep 28. ✅ MA 7N: Thu–Mon Aug 15–Sep 28 (now open — hardshell criteria met). MA 12S and MA 13 CLOSED. Daily limit 5 Dungeness, 6 Red Rock, 6 Tanner. Summer CRC required.',
     activeFrom: '2026-07-02',
     activeTo: '2026-09-28',
-    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/puget-sound-summer-crab-schedule-2026-06',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/puget-sound-recreational-crabbing-update-marine-area-7-north-opens-aug-15-2026-08',
   },
   // ── SKYKOMISH RIVER — ALL SPECIES CLOSED THROUGH OCT 31 ─────────────────
   // Source: WDFW ER (pub. Jun 2 2026). Closed to protect wild Chinook (very low forecast).
@@ -396,6 +397,24 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeFrom: '2026-08-13',
     activeTo: '2026-09-30',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-1-ilwaco-recreational-salmon-season-update-2026-08',
+  },
+  // ── BIOTOXIN — WILLAPA BAY BIVALVES ADVISORY/CLOSED ─────────────────────
+  // Source: DOH ArcGIS vBeachStatus (Table 18), verified Aug 14 2026.
+  // Multiple Willapa Bay zones showing "Advisory,Closed" for All Species:
+  //   Bay Center Area (20.07), Tokeland Area (20.01), Nemah Area (20.08),
+  //   Nahcotta Area (20.13), Diamond Point (20.14), Smokey Hollow (20.12),
+  //   Tokeland Marina.
+  // Affects all bivalves including razor clams, oysters, clams, mussels.
+  // Until further notice — check DOH Shellfish Safety Map before harvesting.
+  {
+    id: 'ea-biotoxin-willapa-bay-2026',
+    type: 'CLOSED',
+    species: 'Clams, Oysters, Mussels (all bivalves)',
+    waterBody: 'Willapa Bay (multiple zones)',
+    description: '🚨 Willapa Bay shellfish harvest CLOSED — biotoxin advisory active for All Species across multiple zones (Bay Center, Tokeland, Nemah, Nahcotta, Diamond Point, Smokey Hollow, Tokeland Marina). Status as of Aug 14, 2026: Advisory,Closed (DOH). Affects all bivalves including razor clams, oysters, clams, and mussels. Shrimp and crab typically not affected by biotoxin closures. PSP cannot be detected by sight, smell, or taste — do NOT rely on appearance. Always check DOH Shellfish Safety Map before any harvest: fortress.wa.gov/doh/biotoxin',
+    activeFrom: '2026-08-14',
+    activeTo: null,
+    wdfw_url: 'https://doh.wa.gov/community-and-environment/food/shellfish/shellfish-safety-recreation',
   },
   // ── QUILLAYUTE & SOL DUC RIVERS — RELEASE WILD JACK CHINOOK & WILD JACK COHO ─
   // Source: WDFW ER 26-62-136494 (pub. Apr 23 2026). North of Falcon harvest management
