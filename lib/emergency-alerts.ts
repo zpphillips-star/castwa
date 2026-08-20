@@ -229,31 +229,31 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
   },
   // ── MARINE AREA 1 (ILWACO) SALMON SEASON ────────────────────────────────
   // Source: WDFW ER 26-101-136685 (pub. Jun 10 2026). Season open Jun 20–Sept 30 2026.
-  // Daily limit 2, ≤1 Chinook. Chinook min 22". Coho min 16". Release wild coho.
-  // UPDATE: WDFW ER 26-150-136907 (pub. Aug 12 2026) adds a near-shore partial closure
-  // effective Aug 13–Sept 30: waters north of 46°15'N and east of 124°08.667'W are CLOSED
-  // to salmon fishing. Outside that zone: limit 2 (≤1 Chinook), Chinook min 22", coho min 16", release wild coho.
+  // UPDATE Aug 12: WDFW ER 26-150-136907 adds near-shore closure (N of 46°15'N, E of 124°08.667'W).
+  // UPDATE Aug 17: WDFW ER 26-156-136941 closes Chinook retention + possession in outer area Aug 18–Sept 30.
+  // Outer area rules: daily limit 2, coho min 16", release Chinook and wild coho.
   // North Jetty remains open under the more liberal of MA 1 or Buoy 10 rules.
   {
     id: 'ea-ma1-salmon-2026',
     type: 'MODIFIED',
     species: 'Salmon (Chinook & Coho)',
     waterBody: 'Marine Area 1 (Ilwaco)',
-    description: 'Marine Area 1 (Ilwaco) salmon open June 20–Sept 30, 2026. ⚠️ PARTIAL CLOSURE effective Aug 13: waters north of 46°15\'N and east of 124°08.667\'W (near-shore area from ~mid-mouth Columbia River north, within ~3 miles of shore) are CLOSED to salmon. Outside that area: limit 2, ≤1 Chinook (min 22"), coho min 16", release wild coho. Columbia River Control Zone closed except from north jetty when adjacent waters are open. North Jetty follows the more liberal rules of MA 1 or Buoy 10 fishery.',
+    description: 'Marine Area 1 (Ilwaco) salmon season June 20–Sept 30, 2026. ⚠️ UPDATED Aug 17: (1) Near-shore area (N of 46°15\'N, E of 124°08.667\'W, ~Columbia River mouth to Leadbetter Pt, within ~3 miles of shore) CLOSED to all salmon since Aug 13. (2) Outer MA 1: Chinook retention and possession onboard vessel CLOSED Aug 18–Sept 30. Outer area rules: daily limit 2, coho min 16", release Chinook and wild coho. Columbia River Control Zone closed except from north jetty. See companion closure alert for full details.',
     activeFrom: '2026-06-20',
     activeTo: '2026-09-30',
-    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-1-ilwaco-recreational-salmon-season-update-2026-08',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-1-ilwaco-recreational-salmon-season-update-2026-08-0',
   },
   // ── MARINE AREA 2 (WESTPORT / OCEAN SHORES) SALMON SEASON ────────────────
   // Source: WDFW ER 26-101-136686 (pub. Jun 10 2026). Season open Jun 20–Sept 30 2026.
   // Jun 29–Sept 30: limit 2 (≤1 Chinook), Chinook min 22", coho min 16", release wild coho.
   // Willapa Bay (2-1) same rules Jun 20–Jul 31. Grays Harbor Control Zone open Jun 20–Sept 30.
+  // UPDATE Aug 17: WDFW ER 26-156-136942 closes Chinook retention + vessel possession Aug 22–Sept 30.
   {
     id: 'ea-ma2-salmon-2026',
-    type: 'OPEN',
+    type: 'MODIFIED',
     species: 'Salmon (Chinook & Coho)',
     waterBody: 'Marine Area 2 (Westport / Ocean Shores)',
-    description: 'Marine Area 2 salmon open June 20 – Sept 30, 2026. June 20–28: limit 1, Chinook min 22", release coho. June 29–Sept 30: limit 2 (≤1 Chinook), Chinook min 22", coho min 16", release wild coho. Willapa Bay (2-1) same rules through July 31. Grays Harbor Control Zone open June 20–Sept 30.',
+    description: 'Marine Area 2 salmon season June 20–Sept 30, 2026. ⚠️ UPDATED Aug 17: Chinook retention and possession onboard vessel CLOSED Aug 22–Sept 30 (Chinook quota nearly reached). Rules Aug 22–Sept 30: daily limit two, coho min 16 inches, release Chinook and wild coho. Grays Harbor Control Zone and Area 2-2 (west of Buoy 13 line) open through Sept 30 under same rules. Willapa Bay (2-1): open June 20–July 31 under same rules. See companion Chinook closure alert.',
     activeFrom: '2026-06-20',
     activeTo: '2026-09-30',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-2-westport-ocean-shores-recreational-salmon-seasons-2026-06',
