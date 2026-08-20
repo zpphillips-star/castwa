@@ -363,10 +363,10 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     type: 'CLOSED',
     species: 'Salmon',
     waterBody: 'Marine Area 1 (Ilwaco) — near-shore area north of 46°15\'N, east of 124°08.667\'W',
-    description: '🚨 MA 1 PARTIAL CLOSURE — near-shore area CLOSED to all salmon Aug 13–Sept 30, 2026. Closed area: north of 46°15\'N and east of 124°08.667\'W (~Columbia River mouth to Leadbetter Pt, within ~3 miles of shore). Waters OUTSIDE this area remain open: daily limit 2, max 1 Chinook (22" min), coho 16" min, release wild coho. North jetty remains fishable when adjacent waters are open. ⚠️ Separate MA 1 salmon closure area also applies in Control Zone — see earlier MA 1 alert.',
+    description: '🚨 MA 1 PARTIAL CLOSURE — near-shore area CLOSED to all salmon Aug 13–Sept 30, 2026. ⚠️ Aug 18 UPDATE: Chinook retention and onboard vessel possession also CLOSED in the open portion through Sept 30. Near-shore closed area: north of 46°15\'N and east of 124°08.667\'W (~Columbia River mouth to Leadbetter Pt, within ~3 miles of shore). Waters OUTSIDE near-shore closure (open area): daily limit 2; coho min 16"; other salmon no min size; release Chinook and wild coho; Chinook onboard possession prohibited. North jetty follows the more liberal rules of MA 1 or Buoy 10 fishery.',
     activeFrom: '2026-08-13',
     activeTo: '2026-09-30',
-    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-1-ilwaco-recreational-salmon-season-update-2026-08',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-1-ilwaco-recreational-salmon-season-update-2026-08-0',
   },
   // ── BIOTOXIN — WILLAPA BAY BIVALVES ADVISORY/CLOSED ─────────────────────
   // Source: DOH ArcGIS vBeachStatus (Table 18), verified Aug 14 2026.
@@ -385,6 +385,51 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeFrom: '2026-08-14',
     activeTo: null,
     wdfw_url: 'https://doh.wa.gov/community-and-environment/food/shellfish/shellfish-safety-recreation',
+  },
+  // ── GREEN RIVER (DUWAMISH) — CHINOOK RETENTION CLOSED ───────────────────────
+  // Source: WDFW ER (pub. Aug 17 2026). In-season data shows Chinook return to
+  // Green River much smaller than forecasted; broodstock and natural spawning goals at risk.
+  // Effective Aug. 20, 2026 (TODAY), until further notice.
+  // Location: Tukwila International Blvd/Old Highway 99 to the S 212th Street Bridge.
+  // Salmon rules: min 12". Daily limit 6 incl. ≤3 total chum + adult coho. Release Chinook.
+  {
+    id: 'ea-green-river-chinook-closed-2026',
+    type: 'CLOSED',
+    species: 'Chinook Salmon',
+    waterBody: 'Green (Duwamish) River (Tukwila International Blvd/Old Hwy 99 to S 212th St Bridge)',
+    description: '🚨 EFFECTIVE AUG 20, 2026: Green River Chinook retention CLOSED until further notice — in-season data shows Chinook return is much smaller than forecasted; broodstock and natural spawning goals at risk. Location: Tukwila International Blvd/Old Hwy 99 to S 212th Street Bridge. Other salmon rules: daily limit 6 including no more than 3 total of any combination of chum and adult coho; minimum size 12"; release all Chinook. ⚠️ Upper river section closed to ALL fishing Sept 16–Oct 31 — see separate alert. Verify WDFW before fishing. Contact: North Puget Sound Region, 425-775-1311.',
+    activeFrom: '2026-08-20',
+    activeTo: null,
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/green-duwamish-river-chinook-retention-closed-2026-08',
+  },
+  // ── UPPER GREEN (DUWAMISH) RIVER — ALL FISHING CLOSED SEPT 16–OCT 31 ────
+  // Source: WDFW ER (pub. Aug 17 2026). Critical Chinook spawning grounds actively in use.
+  // Effective Sept. 16–Oct. 31, 2026.
+  // Location: Auburn Black Diamond Road Bridge downstream to Tacoma Municipal Boundary Marker.
+  // All species closed. Contact: North Puget Sound Region, 425-775-1311.
+  {
+    id: 'ea-upper-green-river-closed-2026',
+    type: 'CLOSED',
+    species: 'All species',
+    waterBody: 'Green (Duwamish) River (Auburn Black Diamond Road Bridge to Tacoma Municipal Boundary Marker)',
+    description: '🚨 Upper Green River CLOSED to ALL fishing Sept 16–Oct 31, 2026 — critical Chinook spawning grounds in active use. Location: Auburn Black Diamond Road Bridge downstream to the Tacoma Municipal Boundary Marker. All species, all gear. ⚠️ Note: lower river section already has Chinook retention closed starting Aug 20 (see separate alert). Contact: North Puget Sound Region, 425-775-1311.',
+    activeFrom: '2026-09-16',
+    activeTo: '2026-10-31',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/upper-green-duwamish-river-closed-fishing-sept-16-oct-31-2026-08',
+  },
+  // ── MARINE AREA 2 (WESTPORT) — CHINOOK RETENTION & ONBOARD POSSESSION CLOSED ─
+  // Source: WDFW ER (pub. Aug 17 2026, updated Aug 18 2026 to add possession prohibition).
+  // Chinook guideline for MA 2 expected to be reached by end of day Aug 21.
+  // Effective Aug. 22–Sept. 30, 2026. Also applies to Grays Harbor (Area 2-2) west of Buoy 13 line.
+  {
+    id: 'ea-ma2-chinook-closed-2026',
+    type: 'CLOSED',
+    species: 'Chinook Salmon',
+    waterBody: 'Marine Area 2 (Westport / Ocean Shores) & Grays Harbor Area 2-2',
+    description: '🚨 MA 2 Chinook retention and onboard vessel possession CLOSED Aug 22–Sept 30, 2026 — Chinook guideline expected reached by end of day Aug 21. Salmon rules Aug 22–Sept 30: daily limit 2; coho min size 16"; other salmon no minimum size; release Chinook and wild coho; possession of Chinook onboard a vessel prohibited. Applies to MA 2 and Grays Harbor Control Zone (Area 2-2) west of the Buoy 13 line (both open through Sept 30 under same rules). Contact: Fish Program, 360-902-2700.',
+    activeFrom: '2026-08-22',
+    activeTo: '2026-09-30',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-2-westport-ocean-shores-recreational-salmon-season-update-2026-08',
   },
   // ── QUILLAYUTE & SOL DUC RIVERS — RELEASE WILD JACK CHINOOK & WILD JACK COHO ─
   // Source: WDFW ER 26-62-136494 (pub. Apr 23 2026). North of Falcon harvest management
