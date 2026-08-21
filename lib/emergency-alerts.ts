@@ -278,7 +278,7 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     type: 'OPEN',
     species: 'Salmon (Chinook & Coho)',
     waterBody: 'Marine Area 4 (Neah Bay)',
-    description: 'Marine Area 4 (Neah Bay) salmon open June 20 – Sept 30, 2026. July 1–31: limit 2, Chinook min 24", coho min 16", release wild coho (both sides of Bonilla-Tatoosh line). Aug 1–Sept 30: limit 2, coho min 16", release Chinook (east side), release chum and wild coho; Kydaka Point Area closed to salmon through Aug 15.',
+    description: 'Marine Area 4 (Neah Bay) salmon open June 20 – Sept 30, 2026. July 1–31: limit 2, Chinook min 24", coho min 16", release wild coho (both sides of Bonilla-Tatoosh line). Aug 1–Sept 30: limit 2, coho min 16", release Chinook (east side), release chum and wild coho. ℹ️ Kydaka Point Area special salmon closure (through Aug 15) has expired — pamphlet rules now apply.',
     activeFrom: '2026-06-20',
     activeTo: '2026-09-30',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-4-neah-bay-recreational-salmon-seasons-2026-06',
