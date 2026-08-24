@@ -244,6 +244,20 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeTo: '2026-08-24',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-1-ilwaco-recreational-salmon-season-update-2026-08-0',
   },
+  // ── MARINE AREA 1 (ILWACO) SALMON FULL CLOSURE — AUG 25–SEPT 30 ─────────
+  // Source: WDFW ER (pub. Aug 21 2026). Coho quota expected reached by end of Aug 24.
+  // ALL salmon closed and possession aboard vessel prohibited Aug 25–Sept 30.
+  // Columbia River Control Zone closed except north jetty (follows most liberal of MA 1/Buoy 10).
+  {
+    id: 'ea-ma1-salmon-closed-aug25-2026',
+    type: 'CLOSED',
+    species: 'Salmon',
+    waterBody: 'Marine Area 1 (Ilwaco)',
+    description: '🚨 URGENT: Marine Area 1 (Ilwaco) FULLY CLOSED to all salmon fishing Aug 25–Sept 30, 2026 — coho quota reached by end of Aug 24. Salmon fishing closed and possession of salmon onboard a vessel is prohibited. Columbia River Control Zone closed to salmon except fishing is allowed from the north jetty when MA 1 or Buoy 10 are open. North Jetty min sizes and limits follow the more liberal of MA 1 or Buoy 10 rules. Contact: Fish Program, 360-902-2700.',
+    activeFrom: '2026-08-25',
+    activeTo: '2026-09-30',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-1-ilwaco-recreational-salmon-season-closes-aug-25-2026-08',
+  },
   // ── MARINE AREA 2 (WESTPORT / OCEAN SHORES) SALMON SEASON ────────────────
   // Source: WDFW ER 26-101-136686 (pub. Jun 10 2026). Season open Jun 20–Sept 30 2026.
   // Jun 29–Sept 30: limit 2 (≤1 Chinook), Chinook min 22", coho min 16", release wild coho.
