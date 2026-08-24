@@ -231,16 +231,17 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
   // Source: WDFW ER 26-101-136685 (pub. Jun 10 2026). Season open Jun 20–Sept 30 2026.
   // UPDATE Aug 12: WDFW ER 26-150-136907 adds near-shore closure (N of 46°15'N, E of 124°08.667'W).
   // UPDATE Aug 17: WDFW ER 26-156-136941 closes Chinook retention + possession in outer area Aug 18–Sept 30.
-  // Outer area rules: daily limit 2, coho min 16", release Chinook and wild coho.
+  // UPDATE Aug 21: WDFW ER (pub. Aug 21 2026) closes ALL salmon (including coho) in full MA 1 Aug 25–Sept 30.
+  // Outer area rules Aug 18–24: daily limit 2, coho min 16", release Chinook and wild coho.
   // North Jetty remains open under the more liberal of MA 1 or Buoy 10 rules.
   {
     id: 'ea-ma1-salmon-2026',
     type: 'MODIFIED',
     species: 'Salmon (Chinook & Coho)',
     waterBody: 'Marine Area 1 (Ilwaco)',
-    description: 'Marine Area 1 (Ilwaco) salmon season June 20–Sept 30, 2026. ⚠️ UPDATED Aug 17: (1) Near-shore area (N of 46°15\'N, E of 124°08.667\'W, ~Columbia River mouth to Leadbetter Pt, within ~3 miles of shore) CLOSED to all salmon since Aug 13. (2) Outer MA 1: Chinook retention and possession onboard vessel CLOSED Aug 18–Sept 30. Outer area rules: daily limit 2, coho min 16", release Chinook and wild coho. Columbia River Control Zone closed except from north jetty. See companion closure alert for full details.',
+    description: 'Marine Area 1 (Ilwaco) salmon season June 20–Aug 24, 2026 (outer area). ⚠️ FULL CLOSURE starts Aug 25 — all salmon closed through Sept 30 (see separate alert). Aug 18–24: (1) Near-shore area (N of 46°15\'N, E of 124°08.667\'W) CLOSED to all salmon. (2) Outer MA 1: daily limit 2, coho min 16", release Chinook and wild coho; Chinook onboard possession prohibited. Columbia River Control Zone closed except from north jetty.',
     activeFrom: '2026-06-20',
-    activeTo: '2026-09-30',
+    activeTo: '2026-08-24',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-1-ilwaco-recreational-salmon-season-update-2026-08-0',
   },
   // ── MARINE AREA 2 (WESTPORT / OCEAN SHORES) SALMON SEASON ────────────────
@@ -273,14 +274,15 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
   // ── MARINE AREA 4 (NEAH BAY) SALMON SEASON ──────────────────────────────
   // Source: WDFW ER 26-101-136688 (pub. Jun 10 2026). Season open Jun 20–Sept 30 2026.
   // Kydaka Point Area closed to salmon through Aug 15 (Aug 1–Sept 30 east of Bonilla-Tatoosh).
+  // UPDATE Aug 21: WDFW ER (pub. Aug 21 2026) closes ALL salmon (including coho) effective Aug 24–Sept 30.
   {
     id: 'ea-ma4-salmon-2026',
     type: 'OPEN',
     species: 'Salmon (Chinook & Coho)',
     waterBody: 'Marine Area 4 (Neah Bay)',
-    description: 'Marine Area 4 (Neah Bay) salmon open June 20 – Sept 30, 2026. July 1–31: limit 2, Chinook min 24", coho min 16", release wild coho (both sides of Bonilla-Tatoosh line). Aug 1–Sept 30: limit 2, coho min 16", release Chinook (east side), release chum and wild coho. ℹ️ Kydaka Point Area special salmon closure (through Aug 15) has expired — pamphlet rules now apply.',
+    description: 'Marine Area 4 (Neah Bay) salmon open June 20 – Aug 23, 2026. July 1–31: limit 2, Chinook min 24", coho min 16", release wild coho (both sides of Bonilla-Tatoosh line). Aug 1–23: limit 2, coho min 16", release Chinook (east side), release chum and wild coho. ⚠️ FULL CLOSURE starts Aug 24 — see separate MA 4 closure alert. ℹ️ Kydaka Point Area special salmon closure (through Aug 15) has expired.',
     activeFrom: '2026-06-20',
-    activeTo: '2026-09-30',
+    activeTo: '2026-08-23',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-4-neah-bay-recreational-salmon-seasons-2026-06',
   },
   // ── PACIFIC HALIBUT — MA 11/12/13 CLOSED FOR THE YEAR ──────────────────
@@ -358,14 +360,15 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
   // Source: WDFW ER 26-150-136907 (pub. Aug 12 2026). Chinook catches near shore higher than expected.
   // Closes near-shore MA 1 waters north of 46°15'N and east of 124°08.667'W to all salmon.
   // Effective Aug 13–Sept 30, 2026. Area outside closure: limit 2, ≤1 Chinook (22"), coho 16", release wild coho.
+  // UPDATE Aug 21: Full MA 1 salmon closure effective Aug 25 — near-shore closure superseded by full closure from that date.
   {
     id: 'ea-ma1-nearshore-salmon-closed-2026',
     type: 'CLOSED',
     species: 'Salmon',
     waterBody: 'Marine Area 1 (Ilwaco) — near-shore area north of 46°15\'N, east of 124°08.667\'W',
-    description: '🚨 MA 1 PARTIAL CLOSURE — near-shore area CLOSED to all salmon Aug 13–Sept 30, 2026. ⚠️ Aug 18 UPDATE: Chinook retention and onboard vessel possession also CLOSED in the open portion through Sept 30. Near-shore closed area: north of 46°15\'N and east of 124°08.667\'W (~Columbia River mouth to Leadbetter Pt, within ~3 miles of shore). Waters OUTSIDE near-shore closure (open area): daily limit 2; coho min 16"; other salmon no min size; release Chinook and wild coho; Chinook onboard possession prohibited. North jetty follows the more liberal rules of MA 1 or Buoy 10 fishery.',
+    description: '🚨 MA 1 PARTIAL CLOSURE Aug 13–24 — near-shore area CLOSED to all salmon. ⚠️ FULL MA 1 CLOSURE from Aug 25–Sept 30 supersedes this alert (see separate alert ea-ma1-salmon-full-closed-2026). Near-shore closed area: north of 46°15\'N and east of 124°08.667\'W (~Columbia River mouth to Leadbetter Pt, within ~3 miles of shore). Waters outside near-shore closure (Aug 13–24): daily limit 2; coho min 16"; other salmon no min size; release Chinook and wild coho; Chinook onboard possession prohibited (since Aug 18). North jetty follows the more liberal rules of MA 1 or Buoy 10 fishery.',
     activeFrom: '2026-08-13',
-    activeTo: '2026-09-30',
+    activeTo: '2026-08-24',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-1-ilwaco-recreational-salmon-season-update-2026-08-0',
   },
   // ── BIOTOXIN — WILLAPA BAY BIVALVES ADVISORY/CLOSED ─────────────────────
@@ -444,6 +447,67 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeFrom: '2026-05-01',
     activeTo: null,
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/quillayute-and-sol-duc-river-anglers-must-release-wild-jack-chinook-and-wild-jack-coho-beginning-may-2026-04',
+  },
+  // ── MARINE AREA 4 (NEAH BAY) — FULL SALMON SEASON CLOSURE AUG 24–SEPT 30 ──
+  // Source: WDFW ER (pub. Aug 21 2026). MA 4 coho quota expected reached by end of day Aug 23.
+  // Closes ALL salmon fishing and prohibits possession of salmon onboard a vessel.
+  // Effective Aug 24–Sept 30, 2026.
+  {
+    id: 'ea-ma4-salmon-closed-2026',
+    type: 'CLOSED',
+    species: 'Salmon',
+    waterBody: 'Marine Area 4 (Neah Bay)',
+    description: '🚨 Marine Area 4 (Neah Bay) CLOSED to ALL salmon fishing Aug 24–Sept 30, 2026 — coho quota expected reached by end of day Aug 23. Possession of salmon onboard a vessel is prohibited. Contact: Fish Program, 360-902-2700.',
+    activeFrom: '2026-08-24',
+    activeTo: '2026-09-30',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-4-neah-bay-recreational-salmon-season-closes-aug-24-2026-08',
+  },
+  // ── MARINE AREA 1 (ILWACO) — FULL SALMON SEASON CLOSURE AUG 25–SEPT 30 ───
+  // Source: WDFW ER (pub. Aug 21 2026). MA 1 coho quota expected reached by end of day Aug 24.
+  // Closes ALL salmon fishing and prohibits possession of salmon onboard a vessel.
+  // Effective Aug 25–Sept 30, 2026.
+  // Columbia River Control Zone closed except from north jetty when MA 1 or Buoy 10 is open.
+  {
+    id: 'ea-ma1-salmon-full-closed-2026',
+    type: 'CLOSED',
+    species: 'Salmon',
+    waterBody: 'Marine Area 1 (Ilwaco)',
+    description: '🚨 Marine Area 1 (Ilwaco) CLOSED to ALL salmon fishing Aug 25–Sept 30, 2026 — coho quota expected reached by end of day Aug 24. Possession of salmon onboard a vessel is prohibited. ℹ️ Columbia River Control Zone is closed to salmon except from the north jetty when MA 1 or Columbia River Buoy 10 is open — both now closed through Sept 30. Contact: Fish Program, 360-902-2700.',
+    activeFrom: '2026-08-25',
+    activeTo: '2026-09-30',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-1-ilwaco-recreational-salmon-season-closes-aug-25-2026-08',
+  },
+  // ── LOWER COLUMBIA RIVER — MARK-SELECTIVE CHINOOK MODIFICATION AUG 25–SEPT 2 ─
+  // Source: WDFW ER (pub. Aug 21 2026). Chinook catches at Buoy 10 tracking above preseason
+  // expectations; planned non-mark-selective Chinook period stays mark-selective to maintain ESA compliance.
+  // Effective Aug 25–Sept 2, 2026. Location: Buoy 10 (Megler-Astoria Bridge) to west end of Puget Island.
+  {
+    id: 'ea-lower-columbia-chinook-modified-aug25-2026',
+    type: 'MODIFIED',
+    species: 'Chinook Salmon',
+    waterBody: 'Lower Columbia River (Buoy 10 to west end of Puget Island)',
+    description: '⚠️ Lower Columbia River Chinook rules MODIFIED Aug 25–Sept 2, 2026 — planned non-mark-selective Chinook retention period stays mark-selective (hatchery Chinook only) to remain within ESA impact rates. Zone 1 (Buoy 10 to Rocky Point/Tongue Point line): daily limit 2 salmon (≤1 Chinook min 24"); coho min 16"; release all salmon except hatchery Chinook and hatchery coho. Zone 2 (Rocky Point/Tongue Point to west end of Puget Island): daily limit 6; up to 2 adults (≤1 Chinook) may be retained; salmon min 12"; release all except hatchery Chinook and hatchery coho. Two-pole fishing NOT allowed; CRSSE required for anglers 15+. Contact: Southwest Region, 360-696-6211.',
+    activeFrom: '2026-08-25',
+    activeTo: '2026-09-02',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/lower-columbia-river-salmon-and-steelhead-fishery-update-2026-08',
+  },
+  // ── QUILLAYUTE RIVER — FALL RECREATIONAL FISHING CLOSURES SEPT 1–OCT 12 ──
+  // Source: WDFW ER (pub. Aug 21 2026). Reduces gear conflict between treaty and non-treaty
+  // fisheries; aligns with North of Falcon co-management agreements.
+  // Closed Mondays AND Tuesdays Sept 1–8, then Mondays only through Oct 12.
+  // Specific closed dates: Sept 1, Sept 7–8, Sept 14, Sept 21, Sept 28, Oct 5, Oct 12, 2026.
+  // Location: ONP park boundary upstream to Sol Duc/Bogachiel confluence (Clallam County).
+  // Fall salmon opens Sept 2 in the Quillayute (outside Mon/Tue closures); Sol Duc, Bogachiel,
+  // Calawah, Dickey rivers open Sept 1.
+  {
+    id: 'ea-quillayute-river-fall-closures-2026',
+    type: 'CLOSED',
+    species: 'All species',
+    waterBody: 'Quillayute River (ONP boundary to Sol Duc/Bogachiel confluence)',
+    description: '🚨 Quillayute River CLOSED to all fishing on specific fall days — gear conflict reduction with treaty fishery. Closed Mondays + Tuesdays through Sept 8, then Mondays only through Oct 12. Specific closed dates: Sept 1, Sept 7–8, Sept 14, Sept 21, Sept 28, Oct 5, Oct 12, 2026. Location: ONP boundary upstream to Sol Duc/Bogachiel confluence (Clallam County). ℹ️ Fall salmon opens Sept 2 in the Quillayute (open days only). Sol Duc, Bogachiel, Calawah, and Dickey rivers open Sept 1 (unaffected). ⚠️ Wild jack release rule also in effect — see separate alert. Contact: Coastal Region, 360-249-4628.',
+    activeFrom: '2026-09-01',
+    activeTo: '2026-10-12',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/quillayute-river-recreational-fishing-closures-2026-08',
   },
 ]
 
