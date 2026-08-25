@@ -84,15 +84,15 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
   },
   // ── PUGET SOUND SUMMER CRAB ──────────────────────────────────────────────
   // Source: WDFW ER (pub. Jun 2026) + ER 26-147-136925 (pub. Aug 13 2026, MA 7N opening).
-  // MA 7N confirmed open Aug 15–Sep 28 (Thu–Mon). MA 11 closes Aug 17.
+  // MA 7N open Aug 15–Sep 28 (Thu–Mon). MA 11 CLOSED since Aug 17.
   // MA 12 south of Ayock Pt and MA 13 remain CLOSED until further notice.
-  // UPDATE: WDFW ER (pub. Aug 13 2026) confirms MA 7 North opens Aug 15–Sept 28 (Thu–Mon).
+  // UPDATE 2026-08-25: Description updated to reflect MA 11 now closed.
   {
     id: 'ea-ps-crab-summer-2026',
     type: 'OPEN',
     species: 'Dungeness Crab',
     waterBody: 'Puget Sound (most areas)',
-    description: 'Summer Dungeness crab open Thu–Mon in most Puget Sound areas. MA 4E/5/6 & 8-1/8-2/9 & 12N: Jul 2–Sep 7. MA 10: Sun–Mon Jul 5–Sep 7. ⚠️ MA 11: Sun–Mon Jul 5–Aug 17 (closes Aug 17). MA 7S: Jul 16–Sep 28. ✅ MA 7N: Thu–Mon Aug 15–Sep 28 (now open — hardshell criteria met). MA 12S and MA 13 CLOSED. Daily limit 5 Dungeness, 6 Red Rock, 6 Tanner. Summer CRC required.',    activeFrom: '2026-07-02',
+    description: 'Summer Dungeness crab open Thu–Mon in most Puget Sound areas. ✅ Open: MA 4E/5/6/8-1/8-2/9 & 12N (Thu–Mon through Sep 7), MA 7S (Thu–Mon through Sep 28), MA 7N (Thu–Mon Aug 15–Sep 28), MA 10 (Sun–Mon through Sep 7). ❌ CLOSED: MA 11 (closed since Aug 17), MA 12S, MA 13. Daily limit 5 Dungeness, 6 Red Rock, 6 Tanner. Summer CRC through Labor Day; Winter CRC after Labor Day.',    activeFrom: '2026-07-02',
     activeTo: '2026-09-28',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/puget-sound-recreational-crabbing-update-marine-area-7-north-opens-aug-15-2026-08',
   },
