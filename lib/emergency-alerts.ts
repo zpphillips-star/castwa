@@ -143,6 +143,7 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/puget-sound-shrimp-fishery-update-2026-07',
   },
   // ── COMMENCEMENT BAY (MA 11) SALMON — CHINOOK LIMIT MODIFICATION ─────────
+  // ARCHIVED 2026-08-15: activeTo 2026-08-14 has passed; filter excludes from active list.
   // Source: WDFW ER 26-136-136857 (pub. Jul 29 2026). Rule change aligns
   // Commencement Bay with the rest of Marine Area 11 per 2026 North of Falcon
   // season setting process. Effective Aug 1–14, 2026.
@@ -161,6 +162,7 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
   },
 
   // ── MARINE AREA 6 (EAST JUAN DE FUCA) CHINOOK LIMIT REDUCED ────────────────
+  // ARCHIVED 2026-08-13: activeTo 2026-08-12 has passed; filter excludes from active list.
   // Source: WDFW ER 26-141-136875 (pub. Aug 5 2026). Chinook reduced to avoid early quota closure.
   // Applies to MA 6 Chinook Selective Fishery area: waters west of true N/S line through
   // #2 Buoy immediately east of Ediz Hook, except Freshwater Bay.
@@ -228,6 +230,7 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     wdfw_url: 'https://wdfw.wa.gov/newsroom/news-release/wdfw-closes-hood-canal-admiralty-inlet-shellfish-harvesting-effective-immediately-following-reports',
   },
   // ── MARINE AREA 1 (ILWACO) SALMON SEASON ────────────────────────────────
+  // ARCHIVED 2026-08-25: activeTo 2026-08-24 has passed; filter excludes from active list.
   // Source: WDFW ER 26-101-136685 (pub. Jun 10 2026). Season open Jun 20–Sept 30 2026.
   // UPDATE Aug 12: WDFW ER 26-150-136907 adds near-shore closure (N of 46°15'N, E of 124°08.667'W).
   // UPDATE Aug 17: WDFW ER 26-156-136941 closes Chinook retention + possession in outer area Aug 18–Sept 30.
@@ -290,12 +293,14 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
   // Kydaka Point Area closed to salmon through Aug 15 (Aug 1–Sept 30 east of Bonilla-Tatoosh).
   // ⚠️ SUPERSEDED Aug 21 2026: WDFW ER 26-161-136957 fully closes MA 4 to salmon Aug 24–Sept 30.
   // Coho quota expected reached by end of day Aug 23. Possession of salmon onboard vessel prohibited.
+  // UPDATE Aug 25 2026: WDFW ER 26-165-136967 — transport exception: salmon legally caught in
+  // Canada or MA 5-13 may be transported through MA 4 and landed in Neah Bay (Aug 26–Sept 30).
   {
     id: 'ea-ma4-salmon-2026',
     type: 'CLOSED',
     species: 'Salmon',
     waterBody: 'Marine Area 4 (Neah Bay)',
-    description: '🚨 URGENT: Marine Area 4 (Neah Bay) FULLY CLOSED to salmon Aug 24–Sept 30, 2026 — coho quota expected reached by end of Aug 23. Salmon fishing closed; possession of salmon onboard a vessel prohibited. ⚠️ Halibut season (MA 3–4 open Aug 16–Sept 30) is separate and unaffected — see halibut alert. Contact: Fish Program, 360-902-2700.',
+    description: '🚨 URGENT: Marine Area 4 (Neah Bay) FULLY CLOSED to salmon Aug 24–Sept 30, 2026 — coho quota expected reached by end of Aug 23. Salmon fishing closed; possession of salmon caught IN MA 4 onboard a vessel prohibited. ✅ EXCEPTION (Aug 26–Sept 30): Salmon legally caught in Canada or in Marine Areas east of Sekiu River (MA 5–13) MAY be transported through MA 4 waters and landed in Neah Bay — fishing closure in MA 4 remains fully in effect. ⚠️ Halibut season (MA 3–4 open Aug 16–Sept 30) is separate and unaffected — see halibut alert. Contact: Fish Program, 360-902-2700.',
     activeFrom: '2026-08-24',
     activeTo: '2026-09-30',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-4-neah-bay-recreational-salmon-season-closes-aug-24-2026-08',
@@ -347,6 +352,7 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
   // Source: WDFW ER 26-149-136913 (pub. Aug 12 2026). Quota reached; supersedes limit-reduction rule.
   // Effective Aug 13–15, 2026. MA 6 Chinook Selective Fishery area (west of N/S line through #2 Buoy
   // east of Ediz Hook, except Freshwater Bay).
+  // ARCHIVED 2026-08-16: activeTo 2026-08-15 has passed; filter excludes from active list.
   {
     id: 'ea-ma6-chinook-closed-2026',
     type: 'CLOSED',
