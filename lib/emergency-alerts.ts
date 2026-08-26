@@ -493,6 +493,39 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
     activeTo: '2026-09-02',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/lower-columbia-river-salmon-and-steelhead-fishery-update-2026-08',
   },
+  // ── MARINE AREA 4 (NEAH BAY) — SALMON TRANSPORT/POSSESSION RULE UPDATE ───
+  // Source: WDFW ER (pub. Aug 25 2026, guid 26-165-136967). MA 4 salmon fishing remains
+  // CLOSED (coho quota reached Aug 23). This new rule allows anglers who legally caught
+  // salmon in Canada OR in Marine Areas 5–13 to transport those fish through MA 4 and land
+  // them at Neah Bay. Does NOT reopen fishing in MA 4. Effective Aug 26–Sept 30, 2026.
+  {
+    id: 'ea-ma4-salmon-transport-2026',
+    type: 'MODIFIED',
+    species: 'Salmon',
+    waterBody: 'Marine Area 4 (Neah Bay) — transport/landing only',
+    description: '⚠️ NEW (effective Aug 26): Salmon caught legally in Canada or in Marine Areas 5–13 (east of Sekiu River) MAY be transported through Marine Area 4 (Neah Bay) and landed at Neah Bay. Salmon fishing in MA 4 itself remains FULLY CLOSED Aug 24–Sept 30, 2026 — this rule does NOT reopen MA 4. Purpose: allows landing of fish caught in adjacent open waters without conflicting with MA 4 coho quota management. Contact: Fish Program, 360-902-2700.',
+    activeFrom: '2026-08-26',
+    activeTo: '2026-09-30',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/marine-area-4-neah-bay-salmon-possession-rules-update-2026-08',
+  },
+  // ── LOWER NASELLE RIVER — FLOAT-SUSPENSION GEAR REQUIREMENT RESCINDED ────
+  // Source: WDFW ER (pub. Aug 25 2026, guid 26-157-136966). The end date for this
+  // float-suspension restriction was inadvertently changed during recent steelhead/trout
+  // rulemaking. The rule (bait/lure suspended below a float except when trolling) was
+  // intended to deter snagging of early-returning hatchery Chinook in low water. By
+  // Oct 15, hatchery Chinook run is dwindling and water is higher, so rule is rescinded
+  // to allow normal coho fishing methods. Effective Oct 15–31, 2026.
+  // Location: Naselle River, from South Fork confluence upstream to Highway 4 bridge.
+  {
+    id: 'ea-naselle-river-gear-2026',
+    type: 'MODIFIED',
+    species: 'All species',
+    waterBody: 'Naselle River (South Fork confluence to Highway 4 bridge)',
+    description: '⚠️ Lower Naselle River gear restriction UPDATE effective Oct 15–31, 2026: the requirement to fish bait or lure suspended below a float (except when trolling from a floating device) is RESCINDED starting Oct 15. Normal fishing methods allowed for remainder of season including coho. The float-suspension rule was intended to deter snagging of early hatchery Chinook in low-water conditions; by Oct 15, Chinook run is dwindling and water is higher, making the rule unnecessary. Contact: Fish Program, 360-902-2700.',
+    activeFrom: '2026-10-15',
+    activeTo: '2026-10-31',
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/lower-naselle-river-gear-restriction-update-2026-08',
+  },
 ]
 
 /**
