@@ -55,15 +55,35 @@ export const EMERGENCY_ALERTS: EmergencyAlert[] = [
   // Source: WDFW ER 26-125-136777 (pub. Jul 7 2026). Columbia River summer Chinook run
   // downgraded to 38,600; mainstem unfeasible, Entiat opened as alternative.
   // Effective July 9, 2026 until further notice. May close on short notice.
+  // ARCHIVED 2026-08-31: WDFW ER 26-169-137100 (pub. Aug 27 2026) closes Entiat River
+  // to salmon effective Aug 31 — angler success collapsed due to sediment/debris from
+  // Little Giant Fire. activeTo set to 2026-08-30 (open through Aug 30).
   {
     id: 'ea-entiat-chinook-open-2026',
     type: 'OPEN',
     species: 'Chinook Salmon',
     waterBody: 'Entiat River (mouth to Mad River Road Bridge)',
-    description: 'Entiat River open for summer Chinook starting July 9 until further notice. Daily limit 6 Chinook, min 12". Release all salmon other than Chinook. Night closure in effect. ⚠️ May close on short notice — verify before fishing. Location: Railroad Bridge at mouth to Mad River Road Bridge near Ardenvoir (Chelan County).',
+    description: 'Entiat River open for summer Chinook July 9–Aug 30, 2026. Daily limit 6 Chinook, min 12". Release all salmon other than Chinook. Night closure in effect. ⚠️ CLOSED as of Aug 31 — see separate closure alert. Location: Railroad Bridge at mouth to Mad River Road Bridge near Ardenvoir (Chelan County).',
     activeFrom: '2026-07-09',
-    activeTo: null,
+    activeTo: '2026-08-30',
     wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/entiat-river-open-summer-chinook-fishing-2026-07',
+  },
+  // ── ENTIAT RIVER SUMMER CHINOOK CLOSED (AUG 31+) ─────────────────────────
+  // Source: WDFW ER 26-169-137100 (pub. Aug 27 2026). Angler success and participation
+  // collapsed — Chinook absent due to massive sediment/debris flows from Little Giant Fire
+  // rainfall event. Closure frees WDFW monitoring resources for other fisheries.
+  // Effective Aug. 31, 2026, until further notice.
+  // Location: Entiat River (Chelan County) from mouth (railroad bridge) to Mad River Road Bridge.
+  // All other pamphlet rules for Entiat River remain in effect.
+  {
+    id: 'ea-entiat-chinook-closed-2026',
+    type: 'CLOSED',
+    species: 'Chinook Salmon',
+    waterBody: 'Entiat River (mouth/railroad bridge to Mad River Road Bridge, near Ardenvoir)',
+    description: '🚨 Entiat River CLOSED to salmon fishing effective Aug 31, 2026, until further notice — Chinook largely absent after catastrophic sediment and debris flows from the Little Giant Fire. Angler success collapsed; WDFW closing to reallocate monitoring resources. Location: Railroad Bridge at mouth to Mad River Road Bridge near Ardenvoir (Chelan County). All other Entiat River pamphlet rules remain in effect. Contact: North Central Region, 509-754-4624; Wenatchee District, 509-662-0452.',
+    activeFrom: '2026-08-31',
+    activeTo: null,
+    wdfw_url: 'https://wdfw.wa.gov/fishing/regulations/emergency-rules/entiat-river-close-summer-chinook-fishing-2026-08',
   },
   // ── COLUMBIA RIVER SOCKEYE CLOSURE ──────────────────────────────────────
   // Source: WDFW ER 26-113-136726 (pub. Jun 18 2026). Low returns trigger closures.
