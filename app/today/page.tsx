@@ -8,7 +8,7 @@ import WaterDetailSheet from '@/components/WaterDetailSheet'
 import DailyUpdatesBanner from '@/components/DailyUpdatesBanner'
 import { REGULATIONS, WATER_BODIES, isOpenOn, getOpenSpeciesForDate, daysUntilOpen, SPECIES, Species } from '@/lib/fishing-data'
 import { getActiveAlerts, EmergencyAlert } from '@/lib/emergency-alerts'
-import { getDailyUpdatesForDate, getNewUpdatesCount, type DailyUpdate } from '@/lib/daily-updates'
+import { filterAndSortDailyUpdates, getDailyUpdatesForDate, getNewUpdatesCount, type DailyUpdate } from '@/lib/daily-updates'
 import { fetchLiveAlerts, formatLastUpdated } from '@/lib/live-alerts'
 import { useStarred } from '@/hooks/useStarred'
 import { WATER_COORDS } from '@/lib/water-coords'
@@ -671,13 +671,7 @@ export default function TodayPage() {
   // Use Supabase data when available, otherwise fall back to static
   const activeEmergencyAlerts: EmergencyAlert[] = liveAlertData?.emergencyAlerts ?? staticAlerts
   const dailyUpdates: DailyUpdate[] = liveAlertData
-    ? liveAlertData.dailyUpdates.filter(u => {
-        const d = today.toISOString().slice(0, 10)
-        if (!u.featured) return false
-        if (u.activeFrom > d) return false
-        if (u.activeTo && u.activeTo < d) return false
-        return true
-      }).slice(0, 5)
+    ? filterAndSortDailyUpdates(liveAlertData.dailyUpdates, today)
     : staticDailyUpdates
   const newUpdatesCount = liveAlertData ? 0 : staticNewUpdatesCount
   const alertsLastUpdated = formatLastUpdated(liveAlertData?.lastUpdated ?? null)

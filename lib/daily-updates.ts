@@ -309,11 +309,15 @@ export const DAILY_UPDATES: DailyUpdate[] = [
  *
  * Priority order: alert → highlight → info
  */
-export function getDailyUpdatesForDate(date: Date): DailyUpdate[] {
+export function filterAndSortDailyUpdates(
+  updates: DailyUpdate[],
+  date: Date,
+  limit = 5,
+): DailyUpdate[] {
   const d = date.toISOString().slice(0, 10)
   const PRIORITY_ORDER: Record<UpdatePriority, number> = { alert: 0, highlight: 1, info: 2 }
 
-  return DAILY_UPDATES
+  return updates
     .filter(u => {
       if (!u.featured) return false
       if (u.activeFrom > d) return false
@@ -327,7 +331,11 @@ export function getDailyUpdatesForDate(date: Date): DailyUpdate[] {
       return b.activeFrom.localeCompare(a.activeFrom)
     })
     // Hard cap: never show more than 5 cards in the featured popup
-    .slice(0, 5)
+    .slice(0, limit)
+}
+
+export function getDailyUpdatesForDate(date: Date): DailyUpdate[] {
+  return filterAndSortDailyUpdates(DAILY_UPDATES, date)
 }
 
 /** Returns the count of featured items that became active today (for "new" badge). */
