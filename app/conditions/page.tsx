@@ -440,6 +440,7 @@ export default function WatersPage() {
   const [loading, setLoading] = useState(true)
   // All waters → WaterDetailSheet (consistent with Today page)
   const [selectedWaterName, setSelectedWaterName] = useState<string | null>(null)
+  const [selectedWaterFlow, setSelectedWaterFlow] = useState<FlowData | null>(null)
   const [activeFilter, setActiveFilter] = useState<'all' | 'river' | 'lake' | 'marine'>('all')
   const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null)
   const [regionSheetCell, setRegionSheetCell] = useState<[number, number] | null>(null)
@@ -451,6 +452,7 @@ export default function WatersPage() {
   useEffect(() => {
     const handler = () => {
       setSelectedWaterName(null)
+      setSelectedWaterFlow(null)
       setSelectedCell(null)
       setRegionSheetCell(null)
     }
@@ -484,7 +486,8 @@ export default function WatersPage() {
   // ── Single entry-point for all water-body taps ────────────────────────────
   const openWater = useCallback((water: WaterBody) => {
     setSelectedWaterName(water.name)
-  }, [])
+    setSelectedWaterFlow(flowData[water.id] ?? null)
+  }, [flowData])
 
   // ── Map click handler — unified for rivers + water bodies ─────────────────
   // ── Species pills helper ──────────────────────────────────────────────────
@@ -839,7 +842,8 @@ export default function WatersPage() {
       {selectedWaterName && (
         <WaterDetailSheet
           waterName={selectedWaterName}
-          onClose={() => setSelectedWaterName(null)}
+          initialFlow={selectedWaterFlow}
+          onClose={() => { setSelectedWaterName(null); setSelectedWaterFlow(null) }}
         />
       )}
       <BottomNav />

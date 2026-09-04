@@ -12,6 +12,7 @@ import { getDailyUpdatesForDate, getNewUpdatesCount, type DailyUpdate } from '@/
 import { fetchLiveAlerts, formatLastUpdated } from '@/lib/live-alerts'
 import { useStarred } from '@/hooks/useStarred'
 import { WATER_COORDS } from '@/lib/water-coords'
+import { findRiverEntry } from '@/lib/river-lookup'
 
 // ── Shellfish map — dynamic (Leaflet requires client-only) ─────────────────────
 const MapWithFishSelectorDynamic = dynamic(
@@ -32,6 +33,7 @@ type GaugeStatus = 'low' | 'good' | 'high' | 'flood' | 'loading'
 type GaugeTrend  = 'rising' | 'falling' | 'stable' | null
 
 type GaugeReading = {
+  id: string
   name: string
   shortName: string
   cfs: number | null
@@ -542,7 +544,7 @@ function SolunarTimeline({ date, compact = false }: { date: Date; compact?: bool
 
 function useRiverGauges(): GaugeReading[] {
   const [data, setData] = useState<GaugeReading[]>(
-    GAUGES.map(g => ({ name: g.name, shortName: g.shortName, cfs: null, status: 'loading', trend: null }))
+    GAUGES.map(g => ({ id: g.id, name: g.name, shortName: g.shortName, cfs: null, status: 'loading', trend: null }))
   )
 
   useEffect(() => {
@@ -576,11 +578,11 @@ function useRiverGauges(): GaugeReading[] {
             else trend = 'falling'
           }
 
-          return { name: gauge.name, shortName: gauge.shortName, cfs, status, trend }
+          return { id: gauge.id, name: gauge.name, shortName: gauge.shortName, cfs, status, trend }
         }))
       })
       .catch(() => {
-        setData(GAUGES.map(g => ({ name: g.name, shortName: g.shortName, cfs: null, status: 'loading' as const, trend: null })))
+        setData(GAUGES.map(g => ({ id: g.id, name: g.name, shortName: g.shortName, cfs: null, status: 'loading' as const, trend: null })))
       })
   }, [])
 
@@ -594,6 +596,7 @@ export default function TodayPage() {
   const [selectedRiver, setSelectedRiver] = useState<RiverData | null>(null)
   const [selectedRiverFlow, setSelectedRiverFlow] = useState<FlowData | null>(null)
   const [selectedWater, setSelectedWater] = useState<string | null>(null)
+  const [selectedWaterFlow, setSelectedWaterFlow] = useState<FlowData | null>(null)
   const [showOpenSheet, setShowOpenSheet] = useState(false)
   const [showAlertsSheet, setShowAlertsSheet] = useState(false)
   const [showShellfishMap, setShowShellfishMap] = useState(false)
@@ -617,6 +620,7 @@ export default function TodayPage() {
       setSelectedRiver(null)
       setSelectedRiverFlow(null)
       setSelectedWater(null)
+      setSelectedWaterFlow(null)
       setShowOpenSheet(false)
       setShowAlertsSheet(false)
       setShowShellfishMap(false)
@@ -818,10 +822,16 @@ export default function TodayPage() {
           ) : (
             <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
               {starredWaters.map((water, wi) => {
-                const firstWord = water.name.toLowerCase().split(' ')[0]
-                const gauge = gauges.find(g => g.name.toLowerCase().includes(firstWord))
+                const riverEntry = findRiverEntry(water)
+                const gauge = riverEntry?.usgsId ? gauges.find(g => g.id === riverEntry.usgsId) : null
                 const hasGauge = !!gauge && gauge.cfs !== null
                 const cfg = hasGauge ? STATUS_CONFIG[gauge!.status] : null
+                const detailFlow: FlowData | null = gauge && riverEntry ? {
+                  cfs: gauge.cfs,
+                  status: gauge.cfs === null ? 'loading' : getFlowStatus(gauge.cfs, riverEntry),
+                  trend: gauge.trend,
+                  fetchedAt: '',
+                } : null
                 const openHere = REGULATIONS
                   .filter(r => r.waterBodyId === water.id && isOpenOn(r, today))
                   .map(r => SPECIES.find(s => s.id === r.speciesId)?.name)
@@ -831,7 +841,7 @@ export default function TodayPage() {
                 return (
                   <button
                     key={water.id}
-                    onClick={() => setSelectedWater(water.name)}
+                    onClick={() => { setSelectedWater(water.name); setSelectedWaterFlow(detailFlow) }}
                     className="w-full text-left transition-all active:opacity-70 cursor-pointer"
                     style={{
                       padding: '16px 20px',
@@ -1403,7 +1413,12 @@ export default function TodayPage() {
         />
       )}
       {selectedWater && (
-        <WaterDetailSheet waterName={selectedWater} onClose={() => setSelectedWater(null)} zIndex={70} />
+        <WaterDetailSheet
+          waterName={selectedWater}
+          initialFlow={selectedWaterFlow}
+          onClose={() => { setSelectedWater(null); setSelectedWaterFlow(null) }}
+          zIndex={70}
+        />
       )}
 
       {/* ── Shellfish Map full-screen overlay ── */}

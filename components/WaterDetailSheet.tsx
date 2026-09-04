@@ -79,7 +79,7 @@ type FlowData = {
   cfs: number | null
   status: 'ideal' | 'low' | 'high' | 'loading' | 'error'
   trend: 'rising' | 'falling' | 'stable' | null
-  fetchedAt: string
+  fetchedAt?: string
 }
 
 // ─── Map helpers (mirrors RiverDetailSheet) ───────────────────────────────────
@@ -641,10 +641,11 @@ interface Props {
   onClose: () => void
   zIndex?: number
   initialSpeciesId?: string
+  initialFlow?: FlowData | null
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, initialSpeciesId }: Props) {
+export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, initialSpeciesId, initialFlow = null }: Props) {
   const { isStarred: isWaterStarred, toggle: toggleWaterStar } = useStarredWaters()
   const [selectedSpecies, setSelectedSpecies] = useState<Species | null>(
     initialSpeciesId ? (SPECIES.find(s => s.id === initialSpeciesId) ?? null) : null
@@ -653,7 +654,7 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
   const [fishWaterCombo, setFishWaterCombo] = useState<{ fish: Species; water: WaterBody; index: number; siblingFish: Species[] } | null>(null)
   const [selectedSectionIdx, setSelectedSectionIdx] = useState(0)
   const [sectionHighlighted, setSectionHighlighted] = useState(false)
-  const [flow, setFlow]                         = useState<FlowData>({ cfs: null, status: 'loading', trend: null, fetchedAt: '' })
+  const [flow, setFlow]                         = useState<FlowData>(initialFlow ?? { cfs: null, status: 'loading', trend: null, fetchedAt: '' })
   const [allFishExpanded, setAllFishExpanded]   = useState(false)
 
   // Swipe right = pop innermost state: if species selected → clear it, else → close sheet
@@ -720,6 +721,10 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
     return ALL_RIVERS.find(r => lower.includes(r.id) || r.name.toLowerCase() === lower) ?? null
   }, [waterName])
 
+  useEffect(() => {
+    setFlow(initialFlow ?? { cfs: null, status: 'loading', trend: null, fetchedAt: '' })
+  }, [waterName, initialFlow])
+
   const isSkagit = riverEntry?.id === 'skagit'
 
   // ── Build map segments (plain blue waterway — no restrictions until fish selected) ──
@@ -731,6 +736,7 @@ export default function WaterDetailSheet({ waterName, onClose, zIndex = 50, init
   // ── Self-fetch USGS flow ────────────────────────────────────────────────────
   useEffect(() => {
     if (!riverEntry) return
+    if (initialFlow?.cfs !== null && initialFlow?.cfs !== undefined) return
     async function fetchFlow() {
       try {
         const url = `https://waterservices.usgs.gov/nwis/iv/?sites=${riverEntry!.usgsId}&parameterCd=00060&format=json&period=PT2H`
