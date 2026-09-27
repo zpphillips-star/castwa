@@ -11,7 +11,7 @@ import { getActiveAlerts, EmergencyAlert } from '@/lib/emergency-alerts'
 import { filterAndSortDailyUpdates, getDailyUpdatesForDate, getNewUpdatesCount, type DailyUpdate } from '@/lib/daily-updates'
 import { fetchLiveAlerts, formatLastUpdated } from '@/lib/live-alerts'
 import { useStarred } from '@/hooks/useStarred'
-import { WATER_COORDS } from '@/lib/water-coords'
+import { getWaterCoords } from '@/lib/water-coords'
 import { findRiverEntry } from '@/lib/river-lookup'
 
 // ── Shellfish map — dynamic (Leaflet requires client-only) ─────────────────────
@@ -274,6 +274,13 @@ function getFlowStatus(cfs: number, river: RiverData): FlowData['status'] {
   return 'high'
 }
 
+function flowStatusToGaugeStatus(status: FlowData['status']): GaugeStatus {
+  if (status === 'ideal') return 'good'
+  if (status === 'high') return 'high'
+  if (status === 'low') return 'low'
+  return 'loading'
+}
+
 const STATUS_CONFIG: Record<GaugeStatus, { color: string; bg: string; label: string }> = {
   low:     { color: 'var(--amber)', bg: 'rgba(245,158,11,0.12)',  label: 'Low'   },
   good:    { color: 'var(--status-open-bright)', bg: 'rgba(127,176,105,0.12)', label: 'Good'  },
@@ -308,18 +315,18 @@ function useWeather(waterIds: string[]): Record<string, WeatherData | null> {
 
   useEffect(() => {
     if (!key) return
-    const entries = key.split(',').filter(id => WATER_COORDS[id])
+    const entries = key.split(',').map(id => WATER_BODIES.find(w => w.id === id)).filter((w): w is (typeof WATER_BODIES)[number] => !!w)
     if (entries.length === 0) return
-    Promise.all(entries.map(async id => {
-      const coords = WATER_COORDS[id]
+    Promise.all(entries.map(async water => {
+      const coords = getWaterCoords(water)
       try {
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lng}&current=temperature_2m,wind_speed_10m,precipitation_probability&wind_speed_unit=mph&temperature_unit=fahrenheit&forecast_days=1`
         const res = await fetch(url)
         const json = await res.json()
         const c = json.current
-        return { id, data: { temp: c.temperature_2m as number, wind: c.wind_speed_10m as number, precip: c.precipitation_probability as number } }
+        return { id: water.id, data: { temp: c.temperature_2m as number, wind: c.wind_speed_10m as number, precip: c.precipitation_probability as number } }
       } catch {
-        return { id, data: null }
+        return { id: water.id, data: null }
       }
     })).then(results => {
       const m: Record<string, WeatherData | null> = {}
@@ -673,7 +680,10 @@ export default function TodayPage() {
   const dailyUpdates: DailyUpdate[] = liveAlertData
     ? filterAndSortDailyUpdates(liveAlertData.dailyUpdates, today)
     : staticDailyUpdates
-  const newUpdatesCount = liveAlertData ? 0 : staticNewUpdatesCount
+  const todayISO = today.toISOString().slice(0, 10)
+  const newUpdatesCount = liveAlertData
+    ? dailyUpdates.filter(u => u.activeFrom === todayISO && (!u.activeTo || u.activeTo >= todayISO)).length
+    : staticNewUpdatesCount
   const alertsLastUpdated = formatLastUpdated(liveAlertData?.lastUpdated ?? null)
 
   // Live WDFW RSS alerts
@@ -819,13 +829,14 @@ export default function TodayPage() {
                 const riverEntry = findRiverEntry(water)
                 const gauge = riverEntry?.usgsId ? gauges.find(g => g.id === riverEntry.usgsId) : null
                 const hasGauge = !!gauge && gauge.cfs !== null
-                const cfg = hasGauge ? STATUS_CONFIG[gauge!.status] : null
                 const detailFlow: FlowData | null = gauge && riverEntry ? {
                   cfs: gauge.cfs,
                   status: gauge.cfs === null ? 'loading' : getFlowStatus(gauge.cfs, riverEntry),
                   trend: gauge.trend,
                   fetchedAt: '',
                 } : null
+                const cardStatus = detailFlow ? flowStatusToGaugeStatus(detailFlow.status) : null
+                const cfg = hasGauge && cardStatus ? STATUS_CONFIG[cardStatus] : null
                 const openHere = REGULATIONS
                   .filter(r => r.waterBodyId === water.id && isOpenOn(r, today))
                   .map(r => SPECIES.find(s => s.id === r.speciesId)?.name)
@@ -889,12 +900,12 @@ export default function TodayPage() {
                         </div>
                       )}
                     </div>
-                    {hasGauge && cfg && gauge && gauge.status !== 'loading' && (
-                      <div className="mt-3 pt-3 flex items-baseline gap-2" style={{ borderTop: '1px solid var(--border)' }}>
-                        <span className="text-[10px] font-bold uppercase tracking-wide flex-shrink-0" style={{ color: 'var(--text-faint)' }}>Note</span>
-                        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{getCfsDescription(gauge.status)}</span>
-                      </div>
-                    )}
+                    {hasGauge && cfg && gauge && cardStatus && cardStatus !== 'loading' && (
+                       <div className="mt-3 pt-3 flex items-baseline gap-2" style={{ borderTop: '1px solid var(--border)' }}>
+                         <span className="text-[10px] font-bold uppercase tracking-wide flex-shrink-0" style={{ color: 'var(--text-faint)' }}>Note</span>
+                         <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{getCfsDescription(cardStatus)}</span>
+                       </div>
+                     )}
                   </button>
                 )
               })}

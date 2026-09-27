@@ -829,7 +829,7 @@ export default function RiverDetailSheet({ river, flow: initialFlow, onClose, zI
         const trend: FlowData['trend'] = latest > prev * 1.05 ? 'rising' : latest < prev * 0.95 ? 'falling' : 'stable'
         const cfs = latest
         const min = river.idealCfs.min, max = river.idealCfs.max
-        const status: FlowData['status'] = cfs < min * 0.5 ? 'low' : cfs > max * 1.5 ? 'high' : cfs >= min && cfs <= max ? 'ideal' : 'low'
+        const status: FlowData['status'] = cfs >= min && cfs <= max ? 'ideal' : cfs < min ? 'low' : 'high'
         setFlow({ cfs, status, trend, fetchedAt: new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) })
       } catch {
         setFlow(f => ({ ...f, status: 'error' }))

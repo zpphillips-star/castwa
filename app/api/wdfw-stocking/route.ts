@@ -16,10 +16,6 @@ export interface StockingRecord {
   watershed: string
 }
 
-// Cache for 6 hours — stocking data doesn't change by the minute
-let cache: { records: StockingRecord[]; fetchedAt: number } | null = null
-const CACHE_TTL = 6 * 60 * 60 * 1000
-
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const county = searchParams.get('county')

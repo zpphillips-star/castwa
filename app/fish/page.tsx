@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import BottomNav from '@/components/BottomNav'
 import FishDetailSheet from '@/components/FishDetailSheet'
-import { SPECIES, Species, Habitat, REGULATIONS, WATER_BODIES, isOpenOn } from '@/lib/fishing-data'
+import { SPECIES, Species, Habitat, REGULATIONS, WATER_BODIES, isOpenOn, getFishSeasonStatus } from '@/lib/fishing-data'
 import { useStarred } from '@/hooks/useStarred'
 
 type FilterKey = 'all' | 'river' | 'lake' | 'salt' | 'shellfish' | 'starred'
@@ -32,8 +32,13 @@ for (const reg of REGULATIONS) {
   }
 }
 
-function getSeasonStatus(speciesId: string): 'open' | 'restricted' | 'closed' {
+type SeasonStatus = 'emergency' | 'open' | 'restricted' | 'closed'
+
+function getSeasonStatus(speciesId: string): SeasonStatus {
   const today = new Date()
+  const waterIds = Array.from(new Set(REGULATIONS.filter(r => r.speciesId === speciesId).map(r => r.waterBodyId)))
+  const waterStatuses = waterIds.map(waterId => getFishSeasonStatus(speciesId, waterId, today))
+  if (waterStatuses.includes('emergency')) return 'emergency'
   const openRegs = REGULATIONS.filter(r => r.speciesId === speciesId && isOpenOn(r, today))
   if (openRegs.length === 0) return 'closed'
   const hasRestriction = openRegs.some(r => r.hatcheryOnly || r.gearRestriction)
@@ -44,8 +49,8 @@ function isInSeasonToday(speciesId: string): boolean {
   return getSeasonStatus(speciesId) !== 'closed'
 }
 
-function statusOrder(status: 'open' | 'restricted' | 'closed'): number {
-  return status === 'open' ? 0 : status === 'restricted' ? 1 : 2
+function statusOrder(status: SeasonStatus): number {
+  return status === 'emergency' ? 0 : status === 'open' ? 1 : status === 'restricted' ? 2 : 3
 }
 
 // ── Shared SVG star button ──────────────────────────────────────────────────
@@ -104,12 +109,12 @@ function HeroCard({
   onToggleStar,
 }: {
   fish: Species
-  status: 'open' | 'restricted'
+  status: Exclude<SeasonStatus, 'closed'>
   isFav: boolean
   onSelect: () => void
   onToggleStar: (e: React.MouseEvent) => void
 }) {
-  const accentColor = status === 'open' ? 'var(--open)' : 'var(--accent)'
+  const accentColor = status === 'open' ? 'var(--open)' : status === 'emergency' ? 'var(--live)' : 'var(--accent)'
   return (
     <button
       onClick={onSelect}
@@ -180,7 +185,7 @@ function LaneCard({
   onToggleStar,
 }: {
   fish: Species
-  status: 'open' | 'restricted' | 'closed'
+  status: SeasonStatus
   isFav: boolean
   onSelect: () => void
   onToggleStar: (e: React.MouseEvent) => void
@@ -219,9 +224,9 @@ function LaneCard({
         <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text)', lineHeight: 1.2, margin: 0 }}>{fish.name}</p>
         <p style={{
           fontSize: 9, fontWeight: 700, marginTop: 3,
-          color: status === 'open' ? 'var(--open)' : status === 'restricted' ? 'var(--accent)' : 'var(--text-faint)',
+          color: status === 'open' ? 'var(--open)' : status === 'emergency' ? 'var(--live)' : status === 'restricted' ? 'var(--accent)' : 'var(--text-faint)',
         }}>
-          {status === 'open' ? 'Open' : status === 'restricted' ? 'Restricted' : 'Closed'}
+          {status === 'open' ? 'Open' : status === 'emergency' ? 'Emergency' : status === 'restricted' ? 'Restricted' : 'Closed'}
         </p>
       </div>
     </button>
@@ -342,7 +347,7 @@ export default function FishPage() {
                 style={{ overflowX: 'auto', display: 'flex', gap: 12, padding: '0 16px 16px', WebkitOverflowScrolling: 'touch' }}
               >
                 {heroFish.map(fish => {
-                  const status = getSeasonStatus(fish.id) as 'open' | 'restricted'
+                  const status = getSeasonStatus(fish.id) as Exclude<SeasonStatus, 'closed'>
                   return (
                     <HeroCard
                       key={fish.id}
@@ -359,7 +364,7 @@ export default function FishPage() {
               <div className="hidden lg:grid max-w-7xl mx-auto px-8 pb-4"
                 style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 14 }}>
                 {heroFish.map(fish => {
-                  const status = getSeasonStatus(fish.id) as 'open' | 'restricted'
+                  const status = getSeasonStatus(fish.id) as Exclude<SeasonStatus, 'closed'>
                   return (
                     <HeroCard
                       key={fish.id}
@@ -603,9 +608,9 @@ export default function FishPage() {
                   <div className="px-3 py-2.5 text-center flex-1 flex flex-col justify-start">
                     <p className="text-sm font-semibold leading-tight text-[var(--text)]">{fish.name}</p>
                     <p className="text-[10px] font-semibold mt-1" style={{
-                      color: status === 'open' ? 'var(--open)' : status === 'restricted' ? 'var(--warning)' : 'var(--text-faint)'
+                      color: status === 'open' ? 'var(--open)' : status === 'emergency' ? 'var(--live)' : status === 'restricted' ? 'var(--warning)' : 'var(--text-faint)'
                     }}>
-                      {status === 'open' ? 'In Season' : status === 'restricted' ? 'w/ Restrictions' : 'Closed'}
+                      {status === 'open' ? 'In Season' : status === 'emergency' ? 'Emergency Rule' : status === 'restricted' ? 'w/ Restrictions' : 'Closed'}
                     </p>
                   </div>
                 </button>

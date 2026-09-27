@@ -41,3 +41,7 @@ export const WATER_COORDS: Record<string, { lat: number; lng: number }> = {
   'hood':          { lat: 47.5001, lng: -122.6001 },
   'snake':         { lat: 46.5201, lng: -118.5001 },
 }
+
+export function getWaterCoords(water: { id: string; lat: number; lng: number }): { lat: number; lng: number } {
+  return WATER_COORDS[water.id] ?? { lat: water.lat, lng: water.lng }
+}

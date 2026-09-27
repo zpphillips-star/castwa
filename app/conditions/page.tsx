@@ -7,7 +7,7 @@ import type { WaterBody } from '@/lib/fishing-data'
 
 // ─── Canonical river list — single source of truth ───────────────────────────
 import { RiverEntry, GAUGED_RIVERS } from '@/lib/river-lookup'
-import { WATER_COORDS } from '@/lib/water-coords'
+import { getWaterCoords } from '@/lib/water-coords'
 
 // GAUGED_IDS: used to show flow-rate indicators only for gauged rivers
 const GAUGED_IDS = new Set(GAUGED_RIVERS.map(r => r.id))
@@ -463,9 +463,8 @@ export default function WatersPage() {
   // ── Nearby waters (Near Me feature) ──────────────────────────────────────
   const nearbyWaters = userLocation
     ? WATER_BODIES
-        .filter(w => WATER_COORDS[w.id])
         .map(w => {
-          const coords = WATER_COORDS[w.id]
+          const coords = getWaterCoords(w)
           const distMiles = distanceMiles(userLocation.lat, userLocation.lng, coords.lat, coords.lng)
           const openCount = new Set(REGULATIONS.filter(r => r.waterBodyId === w.id && isOpenOn(r, today)).map(r => r.speciesId)).size
           return { water: w, distMiles, openCount }
@@ -487,7 +486,7 @@ export default function WatersPage() {
   const openWater = useCallback((water: WaterBody) => {
     setSelectedWaterName(water.name)
     setSelectedWaterFlow(flowData[water.id] ?? null)
-  }, [flowData])
+  }, [flowData, setSelectedWaterFlow, setSelectedWaterName])
 
   // ── Map click handler — unified for rivers + water bodies ─────────────────
   // ── Species pills helper ──────────────────────────────────────────────────

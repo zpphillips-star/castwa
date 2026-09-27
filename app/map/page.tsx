@@ -153,7 +153,7 @@ function NearMeCard({
 export default function NearMePage() {
   const today = new Date()
   const [userLoc, setUserLoc] = useState<{ lat: number; lng: number } | null>(null)
-  const [locState, setLocState] = useState<'idle' | 'loading' | 'granted' | 'denied'>('idle')
+  const [locState, setLocState] = useState<'idle' | 'loading' | 'granted' | 'denied'>('loading')
   const [flowMap, setFlowMap] = useState<Record<string, FlowData>>({})
   const [selectedRiver, setSelectedRiver] = useState<RiverEntry | null>(null)
   const [selectedWaterName, setSelectedWaterName] = useState<string | null>(null)
@@ -167,11 +167,10 @@ export default function NearMePage() {
     }
     window.addEventListener('castwa-nav-reset', handler)
     return () => window.removeEventListener('castwa-nav-reset', handler)
-  }, [])
+  }, [setFlowMap])
 
   // Auto-request location on mount
   useEffect(() => {
-    setLocState('loading')
     navigator.geolocation.getCurrentPosition(
       pos => {
         setUserLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude })
@@ -180,7 +179,7 @@ export default function NearMePage() {
       () => setLocState('denied'),
       { timeout: 8000 }
     )
-  }, [])
+  }, [setLocState, setUserLoc])
 
   // Fetch USGS flow data
   useEffect(() => {
@@ -210,7 +209,7 @@ export default function NearMePage() {
       } catch { /* silent */ }
     }
     fetchFlows()
-  }, [])
+  }, [setSelectedRiver, setSelectedWaterName])
 
   // Build nearby waters list
   const nearbyWaters = userLoc
@@ -241,7 +240,7 @@ export default function NearMePage() {
     const river = findRiverEntry(water)
     if (river) setSelectedRiver(river)
     else setSelectedWaterName(water.name)
-  }, [])
+  }, [setSelectedRiver, setSelectedWaterName])
 
   const chips: { key: typeof filterType; label: string }[] = [
     { key: 'open', label: 'Open Now' },
